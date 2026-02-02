@@ -995,6 +995,15 @@ wheels = [
 ]
 
 [[package]]
+name = "markdown"
+version = "3.10.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b7/b1/af95bcae8549f1f3fd70faacb29075826a0d689a27f232e8cee315efa053/markdown-3.10.1.tar.gz", hash = "sha256:1c19c10bd5c14ac948c53d0d762a04e2fa35a6d58a6b7b1e6bfcbe6fefc0001a", size = 365402, upload-time = "2026-01-21T18:09:28.206Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/59/1b/6ef961f543593969d25b2afe57a3564200280528caa9bd1082eecdd7b3bc/markdown-3.10.1-py3-none-any.whl", hash = "sha256:867d788939fe33e4b736426f5b9f651ad0c0ae0ecf89df0ca5d1176c70812fe3", size = 107684, upload-time = "2026-01-21T18:09:27.203Z" },
+]
+
+[[package]]
 name = "markupsafe"
 version = "3.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1600,6 +1609,7 @@ source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
     { name = "litellm" },
+    { name = "markdown" },
     { name = "mcp" },
     { name = "pydantic" },
     { name = "pytest" },
@@ -1625,6 +1635,7 @@ requires-dist = [
     { name = "azure-identity", marker = "extra == 'azure'", specifier = ">=1.25" },
     { name = "jinja2", specifier = ">=3.1" },
     { name = "litellm", specifier = ">=1.81" },
+    { name = "markdown", specifier = ">=3.5" },
     { name = "mcp", specifier = ">=1.0.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.5" },
     { name = "pydantic", specifier = ">=2.0" },
@@ -1633,7 +1644,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.0" },
-    { name = "pytest-llm-assert", specifier = ">=0.1.0" },
+    { name = "pytest-llm-assert", specifier = ">=0.2.0" },
     { name = "python-dotenv", marker = "extra == 'dev'", specifier = ">=1.2" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14" },
 ]
@@ -1668,16 +1679,16 @@ wheels = [
 
 [[package]]
 name = "pytest-llm-assert"
-version = "0.1.0"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-identity" },
     { name = "litellm" },
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/33/29/015333c9429ed479db596a57794d8e497d2c1036e49015d1f168e3f43289/pytest_llm_assert-0.1.0.tar.gz", hash = "sha256:1ffe12bc69009db9f8387f2e41692eca39f18967efe02051abe4d76c9b1d4043", size = 154908, upload-time = "2026-01-31T22:17:47.06Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/14/28/9af1444c979a8c54cb75110c23a462eef750a711559404da91780ccc849a/pytest_llm_assert-0.2.1.tar.gz", hash = "sha256:a1efc45eb62e59dfbb67cedb859240c7eca8956688030e2f3760af77c4b42562", size = 183540, upload-time = "2026-02-01T18:54:22.708Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cf/c1/d12472abc7e7b209a1e5c0cb7a1c0d1f88f57e7a6ba08c59e66bf9e982c9/pytest_llm_assert-0.1.0-py3-none-any.whl", hash = "sha256:f4370c0a256f1ac4637f8c7f9e7d5554b82b26dc80865046a6620f2087c08060", size = 8436, upload-time = "2026-01-31T22:17:45.326Z" },
+    { url = "https://files.pythonhosted.org/packages/25/18/dcf85b3e452c1d16b1f5514be6d7425a75e33fbb1244166a1761532bbc6c/pytest_llm_assert-0.2.1-py3-none-any.whl", hash = "sha256:7ce9c21fd447814214b9c58bb5689476af209f8346ac0b1544ffd64c9707c980", size = 8201, upload-time = "2026-02-01T18:54:21.641Z" },
 ]
 
 [[package]]

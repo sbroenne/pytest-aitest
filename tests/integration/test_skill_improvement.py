@@ -133,6 +133,7 @@ class TestWeatherSkillImprovement:
         used_references = result.tool_was_called("list_skill_references") or result.tool_was_called(
             "read_skill_reference"
         )
+        assert used_references, "Should use skill reference tools for UV advice"
 
         # Response should mention UV-specific advice from the guide
         response = result.final_response.lower()
