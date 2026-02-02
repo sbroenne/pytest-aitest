@@ -582,3 +582,151 @@ class TestGenerateSessionMermaid:
         # Should show "Response" without tool call count
         assert "Agent-->>T0: Response" in mermaid
         assert "tool calls" not in mermaid
+
+
+class TestModelRankingSortOrder:
+    """Tests for model leaderboard sorting logic.
+    
+    Sorting priority:
+    1. Pass rate (descending) - higher pass rate wins
+    2. Cost (ascending) - lower cost wins when pass rates are equal
+    3. Name (ascending) - alphabetical tiebreaker
+    """
+
+    @pytest.fixture
+    def generator(self) -> ReportGenerator:
+        return ReportGenerator()
+
+    def _make_report_with_models(self, model_stats: list[dict]) -> SuiteReport:
+        """Create a report with specific model statistics.
+        
+        Args:
+            model_stats: List of dicts with keys: model, passed, failed, cost
+        """
+        tests = []
+        for stat in model_stats:
+            model = stat["model"]
+            passed = stat.get("passed", 0)
+            failed = stat.get("failed", 0)
+            cost_per_test = stat.get("cost", 0.01) / max(passed + failed, 1)
+            
+            for i in range(passed):
+                result = AgentResult(
+                    turns=[Turn(role="assistant", content="ok")],
+                    success=True,
+                    cost_usd=cost_per_test,
+                )
+                tests.append(TestReport(
+                    name=f"test_{model}_{i}",
+                    outcome="passed",
+                    duration_ms=100.0,
+                    agent_result=result,
+                    metadata={"model": model},
+                ))
+            for i in range(failed):
+                result = AgentResult(
+                    turns=[Turn(role="assistant", content="err")],
+                    success=False,
+                    cost_usd=cost_per_test,
+                )
+                tests.append(TestReport(
+                    name=f"test_{model}_fail_{i}",
+                    outcome="failed",
+                    duration_ms=100.0,
+                    agent_result=result,
+                    metadata={"model": model},
+                ))
+        
+        return SuiteReport(
+            name="test-suite",
+            timestamp="2026-01-31T12:00:00Z",
+            duration_ms=1000.0,
+            tests=tests,
+            passed=sum(s.get("passed", 0) for s in model_stats),
+            failed=sum(s.get("failed", 0) for s in model_stats),
+        )
+
+    def test_higher_pass_rate_wins(self, generator: ReportGenerator, tmp_path: Path):
+        """Model with higher pass rate should rank first."""
+        report = self._make_report_with_models([
+            {"model": "model-a", "passed": 8, "failed": 2, "cost": 0.10},  # 80%
+            {"model": "model-b", "passed": 10, "failed": 0, "cost": 0.20},  # 100%
+        ])
+        
+        output = tmp_path / "report.html"
+        generator.generate_html(report, output)
+        html = output.read_text(encoding="utf-8")
+        
+        # Find the leaderboard section
+        leaderboard_start = html.find("Model Leaderboard")
+        assert leaderboard_start > 0, "Leaderboard section not found"
+        leaderboard_html = html[leaderboard_start:leaderboard_start + 2000]
+        
+        # In the leaderboard, model-b (100%) should come before model-a (80%)
+        assert leaderboard_html.index("model-b") < leaderboard_html.index("model-a")
+
+    def test_lower_cost_wins_when_pass_rate_equal(self, generator: ReportGenerator, tmp_path: Path):
+        """When pass rates are equal, lower cost should win."""
+        report = self._make_report_with_models([
+            {"model": "gpt-4.1", "passed": 5, "failed": 0, "cost": 0.10},  # 100%, $0.10
+            {"model": "gpt-5-mini", "passed": 5, "failed": 0, "cost": 0.05},  # 100%, $0.05
+        ])
+        
+        output = tmp_path / "report.html"
+        generator.generate_html(report, output)
+        html = output.read_text(encoding="utf-8")
+        
+        # Find the leaderboard section
+        leaderboard_start = html.find("Model Leaderboard")
+        assert leaderboard_start > 0, "Leaderboard section not found"
+        leaderboard_html = html[leaderboard_start:leaderboard_start + 2000]
+        
+        # gpt-5-mini (cheaper) should come before gpt-4.1 when both are 100%
+        assert leaderboard_html.index("gpt-5-mini") < leaderboard_html.index("gpt-4.1")
+
+    def test_alphabetical_when_pass_rate_and_cost_equal(self, generator: ReportGenerator, tmp_path: Path):
+        """When pass rate and cost are equal, alphabetical order wins."""
+        report = self._make_report_with_models([
+            {"model": "model-z", "passed": 5, "failed": 0, "cost": 0.10},
+            {"model": "model-a", "passed": 5, "failed": 0, "cost": 0.10},
+        ])
+        
+        output = tmp_path / "report.html"
+        generator.generate_html(report, output)
+        html = output.read_text(encoding="utf-8")
+        
+        # Find the leaderboard section
+        leaderboard_start = html.find("Model Leaderboard")
+        assert leaderboard_start > 0, "Leaderboard section not found"
+        leaderboard_html = html[leaderboard_start:leaderboard_start + 2000]
+        
+        # model-a should come before model-z alphabetically
+        assert leaderboard_html.index("model-a") < leaderboard_html.index("model-z")
+
+    def test_real_world_scenario_ai_summary_match(self, generator: ReportGenerator, tmp_path: Path):
+        """Test the real-world scenario from the bug report.
+        
+        Both models at 100%, but gpt-5-mini is cheaper and should win.
+        This matches what the AI summary would recommend.
+        """
+        report = self._make_report_with_models([
+            {"model": "gpt-4.1", "passed": 9, "failed": 0, "cost": 0.0210},
+            {"model": "gpt-5-mini", "passed": 9, "failed": 0, "cost": 0.0145},
+        ])
+        
+        output = tmp_path / "report.html"
+        generator.generate_html(report, output)
+        html = output.read_text(encoding="utf-8")
+        
+        # Find the leaderboard section
+        leaderboard_start = html.find("Model Leaderboard")
+        assert leaderboard_start > 0, "Leaderboard section not found"
+        leaderboard_html = html[leaderboard_start:leaderboard_start + 2000]
+        
+        # gpt-5-mini should rank first (cheaper with same pass rate)
+        gpt5_pos = leaderboard_html.find("gpt-5-mini")
+        gpt4_pos = leaderboard_html.find("gpt-4.1")
+        
+        assert gpt5_pos > 0, "gpt-5-mini not found in leaderboard"
+        assert gpt4_pos > 0, "gpt-4.1 not found in leaderboard"
+        assert gpt5_pos < gpt4_pos, "gpt-5-mini should rank before gpt-4.1 (lower cost)"

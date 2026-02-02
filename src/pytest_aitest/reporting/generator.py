@@ -276,8 +276,9 @@ class ReportGenerator:
                 "avg_duration_ms": s["duration"] / s["total"] if s["total"] > 0 else 0,
             })
         
-        # Sort by pass rate desc, then by name
-        rankings.sort(key=lambda x: (-x["pass_rate"], x["dimension_value"]))
+        # Sort by: pass rate (desc), cost (asc), name (asc)
+        # When pass rates are equal, lower cost wins
+        rankings.sort(key=lambda x: (-x["pass_rate"], x["total_cost"], x["dimension_value"]))
         
         # Add rank and medal
         medals = {1: "🥇", 2: "🥈", 3: "🥉"}
@@ -337,7 +338,9 @@ class ReportGenerator:
                 "avg_duration_ms": s["duration"] / s["total"] if s["total"] > 0 else 0,
             })
         
-        rankings.sort(key=lambda x: (-x["pass_rate"], x["dimension_value"]))
+        # Sort by: pass rate (desc), tokens (asc), name (asc)
+        # When pass rates are equal, lower token usage wins (more efficient)
+        rankings.sort(key=lambda x: (-x["pass_rate"], x["total_tokens"], x["dimension_value"]))
         
         # Add rank and medal
         medals = {1: "🥇", 2: "🥈", 3: "🥉"}
