@@ -163,3 +163,29 @@ tests/
 │   └── prompts/                   # YAML prompt files
 └── unit/                  # Pure logic only (no mocking LLMs)
 ```
+
+## Report Development Workflow
+
+When working on report formats (HTML, Markdown, styling), use the regeneration workflow to iterate quickly:
+
+```bash
+# 1. Run tests ONCE to generate JSON with real data
+pytest tests/integration/test_basic_usage.py -v
+
+# 2. Iterate on report format WITHOUT re-running tests
+pytest-aitest-report aitest-reports/results.json --html test_report.html --md test_report.md
+
+# 3. View results, make changes to generator.py, repeat step 2
+```
+
+This avoids expensive LLM calls while developing report features. The JSON at `aitest-reports/results.json` contains all the data needed to regenerate reports.
+
+**For richer test data**, run more comprehensive tests once:
+```bash
+# Matrix mode gives model + prompt comparison tables
+pytest tests/integration/test_matrix.py -v
+
+# Sessions give multi-step workflows
+pytest tests/integration/test_sessions.py -v
+```
+
