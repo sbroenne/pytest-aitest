@@ -197,8 +197,9 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
 
     # Get test function docstring if available
     docstring = None
-    if hasattr(item, "function") and item.function.__doc__:
-        docstring = item.function.__doc__
+    func = getattr(item, "function", None)
+    if func is not None and func.__doc__:
+        docstring = func.__doc__
 
     # Extract model and prompt from parametrized test node ID
     metadata = _extract_metadata_from_nodeid(item.nodeid)

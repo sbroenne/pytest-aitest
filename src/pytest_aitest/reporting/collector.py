@@ -45,7 +45,7 @@ class TestReport:
     @property
     def short_name(self) -> str:
         """Extract just the test function name from the full node ID.
-        
+
         'tests/test_foo.py::TestClass::test_bar[param]' -> 'test_bar[param]'
         """
         return self.name.split("::")[-1]

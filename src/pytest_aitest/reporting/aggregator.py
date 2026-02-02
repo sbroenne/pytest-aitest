@@ -225,9 +225,7 @@ class SessionGroup:
     @property
     def total_tool_calls(self) -> int:
         """Total tool calls across all tests in session."""
-        return sum(
-            len(t.agent_result.all_tool_calls) for t in self.tests if t.agent_result
-        )
+        return sum(len(t.agent_result.all_tool_calls) for t in self.tests if t.agent_result)
 
 
 class DimensionAggregator:

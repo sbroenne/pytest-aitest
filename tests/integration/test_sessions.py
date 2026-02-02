@@ -411,8 +411,7 @@ class TestModelSessionComparison:
         # Step 1: Introduce Paris trip context
         result1 = await aitest_run(
             agent,
-            "Hi! I'm planning a trip to Paris next summer. "
-            "Can you check my savings balance?",
+            "Hi! I'm planning a trip to Paris next summer. Can you check my savings balance?",
         )
         assert result1.success, f"{model} failed step 1: {result1.error}"
         assert result1.tool_was_called("get_balance"), f"{model} didn't check balance"
