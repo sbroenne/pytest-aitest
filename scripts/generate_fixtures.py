@@ -60,7 +60,7 @@ def generate_fixture(fixture_id: str) -> bool:
     print(f"{'='*60}")
 
     cmd = [
-        sys.executable, "-m", "pytest",
+        "uv", "run", "pytest",
         str(INTEGRATION_DIR / test_path),
         "-v",
         f"--aitest-json={output_path}",

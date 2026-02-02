@@ -1,0 +1,201 @@
+{
+  "schema_version": "2.0",
+  "name": "pytest-aitest",
+  "timestamp": "2026-02-02T18:13:48.450306Z",
+  "duration_ms": 31255.350499995984,
+  "mode": "simple",
+  "dimensions": {
+    "models": [],
+    "prompts": [],
+    "base_tests": [
+      "tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_compare_passes",
+      "tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_forecast_passes",
+      "tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_weather_passes"
+    ],
+    "files": [
+      "tests/integration/test_fixture_scenarios.py"
+    ]
+  },
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate": 100.0,
+    "total_tokens": 4060,
+    "total_cost_usd": 0.0030169999999999997,
+    "total_tool_calls": 3,
+    "token_stats": {
+      "min": 965,
+      "max": 1670,
+      "avg": 1353
+    },
+    "cost_stats": {
+      "min": 0.00038825,
+      "max": 0.0014832499999999998,
+      "avg": 0.0010056666666666666
+    },
+    "duration_stats": {
+      "min": 9335.181500006001,
+      "max": 12370.440400001826,
+      "avg": 10418.450166665329
+    }
+  },
+  "tests": [
+    {
+      "name": "tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_weather_passes",
+      "outcome": "passed",
+      "duration_ms": 9335.181500006001,
+      "docstring": "Normal passing test.",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_fixture_scenarios.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 5049.945200007642,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in London?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "London"
+                },
+                "result": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}",
+                "duration_ms": 3.4118999901693314
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Current weather in London, UK:\n- Condition: Rainy\n- Temperature: 14°C (57°F)\n- Humidity: 80%\n- Wind: 18 km/h, W\n\nWould you like a forecast for the next few days or tips for staying dry?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 881,
+          "completion": 84,
+          "total": 965
+        },
+        "cost_usd": 0.00038825,
+        "final_response": "Current weather in London, UK:\n- Condition: Rainy\n- Temperature: 14°C (57°F)\n- Humidity: 80%\n- Wind: 18 km/h, W\n\nWould you like a forecast for the next few days or tips for staying dry?",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_forecast_passes",
+      "outcome": "passed",
+      "duration_ms": 12370.440400001826,
+      "docstring": "Another passing test.",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_fixture_scenarios.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 8742.4262999848,
+        "turns": [
+          {
+            "role": "user",
+            "content": "5-day forecast for New York",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_forecast",
+                "arguments": {
+                  "city": "New York",
+                  "days": 5
+                },
+                "result": "[{\"day\": 1, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"New York\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}, {\"day\": 4, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Rainy\", \"precipitation_chance\": 50}, {\"day\": 5, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Clear\", \"precipitation_chance\": 60}]",
+                "duration_ms": 2.5209999876096845
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Here’s the 5-day forecast for New York:\n\n- Day 1: Sunny — High 24°C (75°F), Low 16°C (61°F). Precip chance 20%.  \n- Day 2: Partly cloudy — High 25°C (77°F), Low 17°C (63°F). Precip chance 30%.  \n- Day 3: Cloudy — High 26°C (79°F), Low 18°C (64°F). Precip chance 40%.  \n- Day 4: Rainy — High 24°C (75°F), Low 16°C (61°F). Precip chance 50%.  \n- Day 5: Clear — High 25°C (77°F), Low 17°C (63°F). Precip chance 60%.\n\nWant this tied to calendar dates, an hourly outlook for any day, or alerts if rain is expected?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 1061,
+          "completion": 609,
+          "total": 1670
+        },
+        "cost_usd": 0.0014832499999999998,
+        "final_response": "Here’s the 5-day forecast for New York:\n\n- Day 1: Sunny — High 24°C (75°F), Low 16°C (61°F). Precip chance 20%.  \n- Day 2: Partly cloudy — High 25°C (77°F), Low 17°C (63°F). Precip chance 30%.  \n- Day 3: Cloudy — High 26°C (79°F), Low 18°C (64°F). Precip chance 40%.  \n- Day 4: Rainy — High 24°C (75°F), Low 16°C (61°F). Precip chance 50%.  \n- Day 5: Clear — High 25°C (77°F), Low 17°C (63°F). Precip chance 60%.\n\nWant this tied to calendar dates, an hourly outlook for any day, or alerts if rain is expected?",
+        "tools_called": [
+          "get_forecast"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_compare_passes",
+      "outcome": "passed",
+      "duration_ms": 9549.728599988157,
+      "docstring": "Comparison test that passes.",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_fixture_scenarios.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 6547.849299997324,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Compare Tokyo and Paris weather",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Tokyo",
+                  "city2": "Paris"
+                },
+                "result": "{\"city1\": {\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}, \"city2\": {\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}, \"temperature_difference_celsius\": 6, \"warmer_city\": \"Tokyo\", \"humidity_difference\": 5}",
+                "duration_ms": 2.015300007769838
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Here’s a quick comparison based on current conditions:\n\n- Temperature: Tokyo 24°C (75°F) vs Paris 18°C (64°F). Tokyo is 6°C warmer.\n- Conditions: Tokyo — sunny; Paris — partly cloudy.\n- Humidity: Tokyo 70% vs Paris 65% (Tokyo +5%).\n- Wind: Tokyo 8 km/h from the E; Paris 12 km/h from the SW.\n\nWhat that means: Tokyo is warmer and sunnier — light, breathable clothes and sun protection are a good idea. Paris is cooler with a bit more wind — a light jacket or layer should be comfortable. No strong indication of rain right now in either city.\n\nWant an hourly forecast for either city or a 5-day outlook?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 974,
+          "completion": 451,
+          "total": 1425
+        },
+        "cost_usd": 0.0011454999999999998,
+        "final_response": "Here’s a quick comparison based on current conditions:\n\n- Temperature: Tokyo 24°C (75°F) vs Paris 18°C (64°F). Tokyo is 6°C warmer.\n- Conditions: Tokyo — sunny; Paris — partly cloudy.\n- Humidity: Tokyo 70% vs Paris 65% (Tokyo +5%).\n- Wind: Tokyo 8 km/h from the E; Paris 12 km/h from the SW.\n\nWhat that means: Tokyo is warmer and sunnier — light, breathable clothes and sun protection are a good idea. Paris is cooler with a bit more wind — a light jacket or layer should be comfortable. No strong indication of rain right now in either city.\n\nWant an hourly forecast for either city or a 5-day outlook?",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    }
+  ]
+}
