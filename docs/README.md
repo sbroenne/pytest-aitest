@@ -12,7 +12,13 @@
 ## Testing
 
 - **[Assertions](assertions.md)** — AgentResult API and AI judge
+- **[Sessions](sessions.md)** — Multi-turn conversations with context retention
+- **[Skills](skills.md)** — Inject domain knowledge via skill files
 - **[Reporting](reporting.md)** — HTML/JSON reports with auto-comparison
+
+## Development
+
+- **[Test Harnesses](test-harnesses.md)** — Built-in MCP servers for testing
 
 ## Reference
 

@@ -12,6 +12,7 @@ from pytest_aitest.reporting.collector import ReportCollector, SuiteReport, Test
 from pytest_aitest.reporting.generator import (
     ReportGenerator,
     generate_mermaid_sequence,
+    generate_session_mermaid,
     get_provider,
 )
 
@@ -19,6 +20,7 @@ __all__ = [
     "AdaptiveFlags",
     "DimensionAggregator",
     "generate_mermaid_sequence",
+    "generate_session_mermaid",
     "get_provider",
     "GroupedResult",
     "MatrixCell",

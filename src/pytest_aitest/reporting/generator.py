@@ -9,7 +9,11 @@ from typing import TYPE_CHECKING, Any
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
 
-from pytest_aitest.reporting.aggregator import DimensionAggregator, ReportMode
+from pytest_aitest.reporting.aggregator import (
+    DimensionAggregator,
+    ReportMode,
+    SessionGroup,
+)
 
 if TYPE_CHECKING:
     from pytest_aitest.core.result import AgentResult
@@ -109,10 +113,12 @@ class ReportGenerator:
             "mode": dimensions.mode.name.lower(),
             "format_cost": self._format_cost,
             "generate_mermaid": generate_mermaid_sequence,
+            "generate_session_mermaid": generate_session_mermaid,
             "get_provider": get_provider,
             "to_file_url": _to_file_url,
             "float": float,  # For infinity comparison in template
             "ai_summary": ai_summary,
+            "session_groups": self._aggregator.group_by_session(report),
         }
 
         # Add grouped data based on mode
@@ -129,12 +135,12 @@ class ReportGenerator:
 
         template = self._env.get_template("report.html")
         html = template.render(**context)
-        Path(output_path).write_text(html)
+        Path(output_path).write_text(html, encoding="utf-8")
 
     def generate_json(self, report: SuiteReport, output_path: str | Path) -> None:
         """Generate JSON report."""
         data = self._serialize_report(report)
-        Path(output_path).write_text(json.dumps(data, indent=2))
+        Path(output_path).write_text(json.dumps(data, indent=2), encoding="utf-8")
 
     @staticmethod
     def _format_cost(cost: float) -> str:
@@ -303,5 +309,66 @@ def generate_mermaid_sequence(result: AgentResult) -> str:
             else:
                 content = _sanitize_mermaid_text(turn.content, 80)
                 lines.append(f'    Agent->>User: "{content}"')
+
+    return "\n".join(lines)
+
+
+def generate_session_mermaid(session: SessionGroup) -> str:
+    """Generate Mermaid sequence diagram showing session workflow.
+
+    Shows how tests in a session build on each other's conversation context.
+
+    Example output:
+        sequenceDiagram
+            participant Test1 as test_step1
+            participant Test2 as test_step2
+            participant Agent
+
+            Test1->>Agent: Initial prompt
+            Agent-->>Test1: Response (3 tool calls)
+            Note over Test1,Test2: Context: 4 messages
+            Test2->>Agent: Follow-up prompt
+            Agent-->>Test2: Response (2 tool calls)
+    """
+    if not session.tests:
+        return ""
+
+    lines = ["sequenceDiagram"]
+
+    # Add participants for each test
+    for i, test in enumerate(session.tests):
+        test_name = test.name.split("::")[-1]
+        lines.append(f"    participant T{i} as {test_name}")
+    lines.append("    participant Agent")
+    lines.append("")
+
+    # Show flow between tests
+    for i, test in enumerate(session.tests):
+        result = test.agent_result
+        if not result:
+            continue
+
+        # Get prompt (first user message in this test's turns)
+        prompt = "..."
+        for turn in result.turns:
+            if turn.role == "user":
+                prompt = _sanitize_mermaid_text(turn.content, 50)
+                break
+
+        # Test sends prompt to agent
+        lines.append(f'    T{i}->>Agent: "{prompt}"')
+
+        # Agent responds
+        tool_count = len(result.all_tool_calls)
+        if tool_count > 0:
+            lines.append(f"    Agent-->>T{i}: Response ({tool_count} tool calls)")
+        else:
+            lines.append(f"    Agent-->>T{i}: Response")
+
+        # Show context carried to next test
+        if i < len(session.tests) - 1:
+            ctx_count = result.session_context_count if result else 0
+            msg_count = len(result.messages) if result else 0
+            lines.append(f"    Note over T{i},T{i + 1}: +{msg_count - ctx_count} msgs → {msg_count} total")
 
     return "\n".join(lines)

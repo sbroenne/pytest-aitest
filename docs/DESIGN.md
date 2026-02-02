@@ -1200,11 +1200,15 @@ pytest-aitest/
 │       │       ├── comparison.py    # ComparisonRenderer (model/prompt)
 │       │       └── matrix.py        # MatrixRenderer (2D grid)
 │       │
-│       ├── testing/                 # Built-in test harness
+│       ├── testing/                 # Built-in test harnesses
 │       │   ├── __init__.py
-│       │   ├── mcp_server.py        # Test MCP server
-│       │   ├── cli_server.py        # Test CLI server
-│       │   └── store.py             # KeyValueStore backend
+│       │   ├── types.py             # ToolResult dataclass
+│       │   ├── weather.py           # WeatherStore for demos
+│       │   ├── weather_mcp.py       # Weather MCP server
+│       │   ├── todo.py              # TodoStore for CRUD tests
+│       │   ├── todo_mcp.py          # Todo MCP server
+│       │   ├── banking.py           # BankingService for sessions
+│       │   └── banking_mcp.py       # Banking MCP server
 │       │
 │       ├── templates/
 │       │   └── report.html          # HTML report template

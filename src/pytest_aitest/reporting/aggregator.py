@@ -166,6 +166,70 @@ class MatrixCell:
         return self.test is not None and self.test.outcome == "passed"
 
 
+@dataclass
+class SessionGroup:
+    """A group of tests that share conversation history (session).
+
+    Detected from test class names - tests in the same class with
+    is_session_continuation form a session workflow.
+    """
+
+    name: str  # Class name or "Standalone" for non-session tests
+    tests: list[TestReport]
+    is_session: bool = False  # True if tests share conversation context
+
+    @property
+    def total_messages(self) -> int:
+        """Total messages in the session (from last test)."""
+        if not self.tests:
+            return 0
+        last = self.tests[-1]
+        if last.agent_result:
+            return len(last.agent_result.messages)
+        return 0
+
+    @property
+    def passed(self) -> int:
+        return sum(1 for t in self.tests if t.outcome == "passed")
+
+    @property
+    def failed(self) -> int:
+        return sum(1 for t in self.tests if t.outcome == "failed")
+
+    @property
+    def all_passed(self) -> bool:
+        return self.failed == 0 and self.passed > 0
+
+    @property
+    def total_duration_ms(self) -> float:
+        """Total duration of all tests in session."""
+        return sum(t.duration_ms for t in self.tests)
+
+    @property
+    def total_tokens(self) -> int:
+        """Total tokens used across all tests in session."""
+        return sum(
+            (
+                t.agent_result.token_usage.get("prompt", 0)
+                + t.agent_result.token_usage.get("completion", 0)
+            )
+            for t in self.tests
+            if t.agent_result
+        )
+
+    @property
+    def total_cost(self) -> float:
+        """Total cost across all tests in session."""
+        return sum(t.agent_result.cost_usd for t in self.tests if t.agent_result)
+
+    @property
+    def total_tool_calls(self) -> int:
+        """Total tool calls across all tests in session."""
+        return sum(
+            len(t.agent_result.all_tool_calls) for t in self.tests if t.agent_result
+        )
+
+
 class DimensionAggregator:
     """Analyzes test results and groups by detected dimensions.
 
@@ -384,6 +448,77 @@ class DimensionAggregator:
             matrix.append(row)
 
         return matrix
+
+    def group_by_session(self, report: SuiteReport) -> list[SessionGroup]:
+        """Group tests by session (tests sharing conversation history).
+
+        Detects sessions by:
+        1. Extracting class name from test node ID (e.g., TestBankingWorkflow)
+        2. Checking if tests have is_session_continuation set
+        3. Grouping tests with same class that form a session workflow
+
+        Returns ordered list of SessionGroups preserving test order.
+        """
+        # Group by class name
+        class_groups: dict[str, list[TestReport]] = {}
+        standalone: list[TestReport] = []
+
+        for test in report.tests:
+            # Extract class name from node ID
+            # Format: path/file.py::ClassName::test_name or path/file.py::test_name
+            class_name = self._extract_class_name(test.name)
+
+            if class_name:
+                if class_name not in class_groups:
+                    class_groups[class_name] = []
+                class_groups[class_name].append(test)
+            else:
+                standalone.append(test)
+
+        # Build session groups
+        groups: list[SessionGroup] = []
+
+        for class_name, tests in class_groups.items():
+            # Check if this is a session (any test has session continuation)
+            has_session = any(
+                t.agent_result and t.agent_result.is_session_continuation for t in tests
+            )
+
+            groups.append(
+                SessionGroup(
+                    name=class_name,
+                    tests=tests,
+                    is_session=has_session,
+                )
+            )
+
+        # Add standalone tests (no class)
+        if standalone:
+            groups.append(
+                SessionGroup(
+                    name="Standalone Tests",
+                    tests=standalone,
+                    is_session=False,
+                )
+            )
+
+        return groups
+
+    def _extract_class_name(self, node_id: str) -> str | None:
+        """Extract test class name from pytest node ID.
+
+        Examples:
+            "tests/test_foo.py::TestClass::test_method" -> "TestClass"
+            "tests/test_foo.py::test_function" -> None
+        """
+        # Split by :: and look for class pattern
+        parts = node_id.split("::")
+        if len(parts) >= 2:
+            # Check if second-to-last part is a class (starts with uppercase)
+            for part in parts[1:-1]:  # Skip file path and test name
+                if part and part[0].isupper():
+                    return part
+        return None
 
     def get_model_rankings(self, report: SuiteReport) -> list[tuple[str, float, int, float]]:
         """Get models ranked by pass rate.

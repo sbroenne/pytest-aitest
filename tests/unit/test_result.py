@@ -143,3 +143,40 @@ class TestAgentResult:
         repr_str = repr(result)
         assert "FAILED" in repr_str
         assert "Network error" in repr_str
+
+    def test_session_not_continuation(self) -> None:
+        """Test fresh conversation has no session context."""
+        result = AgentResult(
+            turns=[Turn(role="user", content="Hello")],
+            success=True,
+            session_context_count=0,
+        )
+        assert not result.is_session_continuation
+        assert result.session_context_count == 0
+
+    def test_session_continuation(self) -> None:
+        """Test conversation with prior messages is a session continuation."""
+        result = AgentResult(
+            turns=[Turn(role="user", content="Follow up")],
+            success=True,
+            session_context_count=5,  # 5 prior messages
+        )
+        assert result.is_session_continuation
+        assert result.session_context_count == 5
+
+    def test_messages_property_returns_copy(self) -> None:
+        """Test messages property returns a copy to prevent mutation."""
+        original_messages = [{"role": "user", "content": "Hello"}]
+        result = AgentResult(
+            turns=[Turn(role="user", content="Hello")],
+            success=True,
+            _messages=original_messages,
+        )
+
+        # Get messages and modify
+        messages_copy = result.messages
+        messages_copy.append({"role": "assistant", "content": "Hi"})
+
+        # Original should be unchanged
+        assert len(result._messages) == 1
+        assert len(result.messages) == 1

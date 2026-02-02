@@ -64,11 +64,15 @@ pytest-aitest/
 │   │   ├── comparison.html    # 1D comparison table
 │   │   └── matrix.html        # 2D comparison grid
 │   │
-│   └── testing/               # Test harnesses (unchanged)
+│   └── testing/               # Test harnesses
 │       ├── __init__.py
-│       ├── store.py           # KeyValueStore for testing
-│       ├── mcp_server.py      # Test MCP server
-│       └── cli_server.py      # Test CLI server
+│       ├── types.py           # ToolResult dataclass
+│       ├── weather.py         # WeatherStore for demos
+│       ├── weather_mcp.py     # Weather MCP server
+│       ├── todo.py            # TodoStore for CRUD tests
+│       ├── todo_mcp.py        # Todo MCP server
+│       ├── banking.py         # BankingService for sessions
+│       └── banking_mcp.py     # Banking MCP server
 ```
 
 ---

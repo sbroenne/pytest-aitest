@@ -22,6 +22,7 @@ class TestReport:
         error: Error message if test failed
         assertions: List of assertion results
         metadata: Additional test metadata (model, prompt, etc.)
+        docstring: Test function's docstring (first line) for human-readable description
     """
 
     name: str
@@ -31,6 +32,7 @@ class TestReport:
     error: str | None = None
     assertions: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    docstring: str | None = None
 
     @property
     def is_passed(self) -> bool:
@@ -39,6 +41,22 @@ class TestReport:
     @property
     def is_failed(self) -> bool:
         return self.outcome == "failed"
+
+    @property
+    def short_name(self) -> str:
+        """Extract just the test function name from the full node ID.
+        
+        'tests/test_foo.py::TestClass::test_bar[param]' -> 'test_bar[param]'
+        """
+        return self.name.split("::")[-1]
+
+    @property
+    def display_name(self) -> str:
+        """Human-readable test name: docstring if available, else short test name."""
+        if self.docstring:
+            # Return first line of docstring, stripped
+            return self.docstring.split("\n")[0].strip()
+        return self.short_name
 
     @property
     def model(self) -> str | None:
