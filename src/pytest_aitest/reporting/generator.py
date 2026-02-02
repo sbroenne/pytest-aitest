@@ -137,9 +137,23 @@ class ReportGenerator:
         html = template.render(**context)
         Path(output_path).write_text(html, encoding="utf-8")
 
-    def generate_json(self, report: SuiteReport, output_path: str | Path) -> None:
-        """Generate JSON report."""
+    def generate_json(
+        self,
+        report: SuiteReport,
+        output_path: str | Path,
+        *,
+        ai_summary: str | None = None,
+    ) -> None:
+        """Generate JSON report.
+
+        Args:
+            report: Test suite report data
+            output_path: Path to write JSON file
+            ai_summary: Optional AI-generated summary to include
+        """
         data = self._serialize_report(report)
+        if ai_summary:
+            data["ai_summary"] = ai_summary
         Path(output_path).write_text(json.dumps(data, indent=2), encoding="utf-8")
 
     def generate_markdown(
@@ -366,6 +380,9 @@ class ReportGenerator:
             "duration_ms": test.duration_ms,
             "metadata": test.metadata,
         }
+
+        if test.docstring:
+            data["docstring"] = test.docstring
 
         if test.error:
             data["error"] = test.error

@@ -41,9 +41,46 @@ addopts = """
 | `--aitest-model=MODEL` | Default LiteLLM model for agents |
 | `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model. |
 | `--aitest-html=PATH` | Generate HTML report |
-| `--aitest-json=PATH` | Generate JSON report |
+| `--aitest-json=PATH` | Custom path for JSON report (default: `aitest-reports/results.json`) |
 | `--aitest-md=PATH` | Generate Markdown report |
 | `--aitest-summary` | Include AI-powered analysis |
+
+> **Note:** JSON is always generated to `aitest-reports/results.json` by default. Use `--aitest-json` only to specify a custom path.
+
+## Report Regeneration CLI
+
+Regenerate reports from existing JSON without re-running tests:
+
+```bash
+# Basic regeneration
+pytest-aitest-report results.json --html report.html
+
+# Generate multiple formats
+pytest-aitest-report results.json --html report.html --md report.md
+
+# Regenerate with fresh AI summary
+pytest-aitest-report results.json --html report.html --summary --summary-model azure/gpt-4.1
+```
+
+| Option | Description |
+|--------|-------------|
+| `--html PATH` | Generate HTML report |
+| `--md PATH` | Generate Markdown report |
+| `--summary` | Generate AI-powered summary (requires `--summary-model`) |
+| `--summary-model MODEL` | LiteLLM model for AI summary |
+
+### CLI Configuration
+
+The CLI reads configuration with this precedence (highest to lowest):
+
+1. **CLI arguments**: `--summary-model azure/gpt-4.1`
+2. **Environment variables**: `AITEST_SUMMARY_MODEL=azure/gpt-4.1`
+3. **pyproject.toml**:
+
+```toml
+[tool.pytest-aitest-report]
+summary-model = "azure/gpt-4.1"
+```
 
 ## Provider
 
