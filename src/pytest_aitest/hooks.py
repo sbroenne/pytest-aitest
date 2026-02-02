@@ -28,7 +28,7 @@ class AitestHookSpec:
         Returns:
             Modified Agent or None
         """
-        ...
+        pass
 
     @pytest.hookspec
     def pytest_aitest_after_run(self, agent: Agent, prompt: str, result: AgentResult) -> None:
@@ -41,7 +41,7 @@ class AitestHookSpec:
             prompt: The user prompt
             result: The agent execution result
         """
-        ...
+        pass
 
     @pytest.hookspec
     def pytest_aitest_tool_called(
@@ -55,7 +55,7 @@ class AitestHookSpec:
             result: Tool result (if successful)
             error: Error message (if failed)
         """
-        ...
+        pass
 
     @pytest.hookspec(firstresult=True)
     def pytest_aitest_judge_prompt(self, content: str, criterion: str) -> str | None:
@@ -68,4 +68,4 @@ class AitestHookSpec:
         Returns:
             Custom prompt or None to use default
         """
-        ...
+        pass

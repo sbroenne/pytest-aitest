@@ -53,7 +53,7 @@ class TestWeatherSkillImprovement:
         print(f"Tools used: {[t.name for t in result.all_tool_calls]}")
 
     async def test_skilled_packing_advice_always_checks_weather(
-        self, aitest_run, weather_agent_factory, weather_skill, agent_factory
+        self, aitest_run, weather_skill
     ):
         """WITH skill: Agent ALWAYS checks weather before giving packing advice.
 
@@ -64,7 +64,7 @@ class TestWeatherSkillImprovement:
         """
         import sys
 
-        from pytest_aitest import MCPServer, Wait
+        from pytest_aitest import Agent, MCPServer, Provider, Wait
 
         weather_server = MCPServer(
             command=[sys.executable, "-u", "-m", "pytest_aitest.testing.weather_mcp"],
@@ -72,11 +72,12 @@ class TestWeatherSkillImprovement:
         )
 
         # Agent with skill - should follow skill guidelines
-        agent = agent_factory(
+        agent = Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
             skill=weather_skill,
             system_prompt="Help users pack for trips.",
+            mcp_servers=[weather_server],
         )
-        agent.mcp_servers = [weather_server]
 
         result = await aitest_run(
             agent,
