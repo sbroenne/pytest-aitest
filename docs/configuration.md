@@ -42,6 +42,7 @@ addopts = """
 | `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model. |
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Generate JSON report |
+| `--aitest-md=PATH` | Generate Markdown report |
 | `--aitest-summary` | Include AI-powered analysis |
 
 ## Provider

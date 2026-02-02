@@ -229,6 +229,7 @@ See **[Assertions](assertions.md)** for details.
 | `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`) |
 | `--aitest-html=PATH` | HTML report path |
 | `--aitest-json=PATH` | JSON report path |
+| `--aitest-md=PATH` | Markdown report path |
 | `--aitest-summary` | Include AI summary |
 
 See **[Reporting](reporting.md)** for details.
