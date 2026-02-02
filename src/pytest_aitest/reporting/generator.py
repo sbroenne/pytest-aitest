@@ -161,6 +161,8 @@ class ReportGenerator:
             "generate_mermaid": generate_mermaid_sequence_pydantic,
             "get_provider": get_provider,
             "to_file_url": _to_file_url,
+            # Pass ai_summary directly for template partial
+            "ai_summary": pydantic_report.ai_summary,
         }
 
         # Add grouped data based on mode

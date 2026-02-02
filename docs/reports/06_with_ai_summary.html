@@ -1026,6 +1026,29 @@ body {
         
         
 
+<section class="section" style="border-left: 4px solid var(--c-secondary);">
+    <div class="section-header" style="background: linear-gradient(90deg, #f3e8ff, #f8fafc);">
+        <h2>🤖 AI Analysis</h2>
+    </div>
+    <div class="section-body ai-summary"><h3>Verdict</h3>
+<p><strong>Fit for Purpose</strong> — the model handled all tested weather-reporting scenarios accurately and efficiently.<br />
+<em>Confidence: High</em></p>
+<h3>What Worked</h3>
+<ul>
+<li>✅ Basic weather query. — handled straightforward queries correctly  </li>
+<li>✅ Multi-day forecast. — produced multi-day forecasts as requested  </li>
+<li>✅ Compare two cities. — correctly compared weather between cities  </li>
+<li>✅ Test that intentionally fails for report variety. — produced varied report formats as expected  </li>
+<li>Runtime: 34.5s total; Tokens: 4,493; Tool calls: 5.</li>
+</ul>
+<h3>What Failed</h3>
+<ul>
+<li>All tests passed - no failures to report.</li>
+</ul>
+<h3>Recommendation</h3>
+<p>Suitable for production weather-query and brief forecasting tasks. If you expect high-volume use, monitor token consumption (4,493 tokens across 4 tests) to manage cost.</p></div>
+</section>
+
 
         
         

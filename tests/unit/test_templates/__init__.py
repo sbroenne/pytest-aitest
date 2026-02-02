@@ -1,0 +1,1 @@
+"""Template component tests."""

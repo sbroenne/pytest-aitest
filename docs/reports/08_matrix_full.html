@@ -1103,6 +1103,29 @@ body {
         
         
 
+<section class="section" style="border-left: 4px solid var(--c-secondary);">
+    <div class="section-header" style="background: linear-gradient(90deg, #f3e8ff, #f8fafc);">
+        <h2>🤖 AI Analysis</h2>
+    </div>
+    <div class="section-body ai-summary"><h3>Verdict</h3>
+<p><strong>Recommended: gpt-5-mini</strong> — both models achieved 100% accuracy on the suite, but gpt-5-mini delivered the same correctness at a lower total cost for these runs.
+<em>Confidence: Medium-High</em></p>
+<h3>Model Performance</h3>
+<ul>
+<li><strong>gpt-4.1</strong>: 100% (9/9), 7,300 tokens, $0.0210 — notable for much lower token usage.</li>
+<li><strong>gpt-5-mini</strong>: 100% (9/9), 15,413 tokens, $0.0145 — notable for lowest total run cost despite higher token use.</li>
+</ul>
+<h3>Key Differences</h3>
+<ul>
+<li>Test outcomes: no functional differences — every test passed for both models (tests: "Basic weather", "Forecast with interpretation", "Compare cities" across PROMPT_BRIEF / PROMPT_DETAILED / PROMPT_STRUCTURED).</li>
+<li>Token efficiency: gpt-4.1 used ~7.3k tokens vs gpt-5-mini ~15.4k tokens for identical test coverage.</li>
+<li>Cost: gpt-5-mini resulted in a lower total dollar cost for the run ($0.0145 vs $0.0210) despite higher token consumption.</li>
+<li>Quality: both produced the required results on reasoning and tool-chaining tests; no quality shortfalls observed in the suite.</li>
+</ul>
+<h3>Recommendation</h3>
+<p>Choose gpt-5-mini for cost-sensitive deployments since it matched gpt-4.1’s correctness at lower total cost. Choose gpt-4.1 if you need lower token consumption (e.g., strict token budgets) while preserving the same tested capabilities.</p></div>
+</section>
+
 
         
         
