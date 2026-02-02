@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from pytest_aitest.testing.store import ToolResult
+from pytest_aitest.testing.types import ToolResult
 
 # Mock weather data for major cities
 WEATHER_DATA = {

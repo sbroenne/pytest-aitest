@@ -13,7 +13,9 @@ from pytest_aitest.reporting import (
     SuiteReport,
     TestReport,
     generate_mermaid_sequence,
+    generate_session_mermaid,
 )
+from pytest_aitest.reporting.aggregator import SessionGroup
 from pytest_aitest.result import AgentResult, ToolCall, Turn
 
 
@@ -278,7 +280,7 @@ class TestReportGenerator:
         generator.generate_html(sample_suite, output)
 
         assert output.exists()
-        html = output.read_text()
+        html = output.read_text(encoding="utf-8")
 
         assert "test-suite" in html
         assert "test_example" in html
@@ -291,7 +293,7 @@ class TestReportGenerator:
         output = tmp_path / "report.html"
         generator.generate_html(sample_suite, output)
 
-        html = output.read_text()
+        html = output.read_text(encoding="utf-8")
         # Should contain Mermaid sequence diagram
         assert "sequenceDiagram" in html or "mermaid" in html.lower()
 
@@ -387,3 +389,101 @@ class TestGenerateMermaidSequence:
         # Double quotes should be replaced with single quotes
         assert '"hello"' not in mermaid
         assert "'hello'" in mermaid
+
+
+class TestGenerateSessionMermaid:
+    """Tests for generate_session_mermaid function."""
+
+    def test_empty_session_returns_empty_string(self) -> None:
+        session = SessionGroup(name="Empty", tests=[], is_session=True)
+        mermaid = generate_session_mermaid(session)
+        assert mermaid == ""
+
+    def test_basic_session_flow(self) -> None:
+        result1 = AgentResult(
+            turns=[
+                Turn(role="user", content="Hello there"),
+                Turn(role="assistant", content="Hi!"),
+            ],
+            success=True,
+        )
+        result2 = AgentResult(
+            turns=[
+                Turn(role="user", content="Follow up question"),
+                Turn(role="assistant", content="Response"),
+            ],
+            success=True,
+            session_context_count=2,
+        )
+        test1 = TestReport(
+            name="file.py::TestClass::test_step1",
+            outcome="passed",
+            duration_ms=100.0,
+            agent_result=result1,
+        )
+        test2 = TestReport(
+            name="file.py::TestClass::test_step2",
+            outcome="passed",
+            duration_ms=150.0,
+            agent_result=result2,
+        )
+        session = SessionGroup(name="TestClass", tests=[test1, test2], is_session=True)
+
+        mermaid = generate_session_mermaid(session)
+
+        assert "sequenceDiagram" in mermaid
+        assert "participant T0 as test_step1" in mermaid
+        assert "participant T1 as test_step2" in mermaid
+        assert "participant Agent" in mermaid
+        assert "T0->>Agent" in mermaid
+        assert "T1->>Agent" in mermaid
+        assert "Note over T0,T1" in mermaid
+
+    def test_session_with_tool_calls(self) -> None:
+        result = AgentResult(
+            turns=[
+                Turn(role="user", content="Do something"),
+                Turn(
+                    role="assistant",
+                    content="Done",
+                    tool_calls=[
+                        ToolCall(name="tool1", arguments={"x": 1}, result="ok"),
+                        ToolCall(name="tool2", arguments={"y": 2}, result="ok"),
+                    ],
+                ),
+            ],
+            success=True,
+        )
+        test = TestReport(
+            name="file.py::TestClass::test_with_tools",
+            outcome="passed",
+            duration_ms=100.0,
+            agent_result=result,
+        )
+        session = SessionGroup(name="TestClass", tests=[test], is_session=True)
+
+        mermaid = generate_session_mermaid(session)
+
+        assert "Response (2 tool calls)" in mermaid
+
+    def test_session_without_tool_calls(self) -> None:
+        result = AgentResult(
+            turns=[
+                Turn(role="user", content="Hi"),
+                Turn(role="assistant", content="Hello"),
+            ],
+            success=True,
+        )
+        test = TestReport(
+            name="file.py::TestClass::test_no_tools",
+            outcome="passed",
+            duration_ms=100.0,
+            agent_result=result,
+        )
+        session = SessionGroup(name="TestClass", tests=[test], is_session=True)
+
+        mermaid = generate_session_mermaid(session)
+
+        # Should show "Response" without tool call count
+        assert "Agent-->>T0: Response" in mermaid
+        assert "tool calls" not in mermaid

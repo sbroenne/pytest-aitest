@@ -1,6 +1,11 @@
-"""MCP test server for integration testing.
+"""Banking MCP server for integration testing.
 
-Run as: python -m pytest_aitest.testing.mcp_server
+Run as: python -m pytest_aitest.testing.banking_mcp
+
+This server maintains state across calls, enabling tests for:
+- Multi-turn conversations where account balances change
+- Session-based workflows (check → transfer → verify)
+- Complex prompts requiring multiple tool calls
 """
 
 from __future__ import annotations
@@ -10,14 +15,18 @@ import json
 import sys
 from typing import Any
 
-from pytest_aitest.testing.store import KeyValueStore
+from pytest_aitest.testing.banking import BankingService
 
 
-class MCPTestServer:
-    """MCP stdio server wrapping the test store."""
+class BankingMCPServer:
+    """MCP stdio server wrapping the banking service.
+
+    The banking service is stateful - balances persist and change
+    across tool calls within the same server process.
+    """
 
     def __init__(self) -> None:
-        self.store = KeyValueStore()
+        self.service = BankingService()
         self.running = True
 
     async def handle_request(self, request: dict[str, Any]) -> dict[str, Any] | None:
@@ -34,28 +43,27 @@ class MCPTestServer:
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}},
                     "serverInfo": {
-                        "name": "pytest-aitest-test-server",
+                        "name": "pytest-aitest-banking-server",
                         "version": "1.0.0",
                     },
                 },
             }
 
         if method == "notifications/initialized":
-            # This is a notification, no response needed
             return None
 
         if method == "tools/list":
             return {
                 "jsonrpc": "2.0",
                 "id": req_id,
-                "result": {"tools": self.store.get_tool_schemas()},
+                "result": {"tools": self.service.get_tool_schemas()},
             }
 
         if method == "tools/call":
             tool_name = params.get("name", "")
             arguments = params.get("arguments", {})
 
-            result = await self.store.call_tool_async(tool_name, arguments)
+            result = await self.service.call_tool_async(tool_name, arguments)
 
             if result.success:
                 content = [{"type": "text", "text": json.dumps(result.value)}]
@@ -72,7 +80,6 @@ class MCPTestServer:
                     "result": {"content": content, "isError": True},
                 }
 
-        # Unknown method
         return {
             "jsonrpc": "2.0",
             "id": req_id,
@@ -80,7 +87,7 @@ class MCPTestServer:
         }
 
     def run_sync(self) -> None:
-        """Run the stdio server using newline-delimited JSON (synchronous)."""
+        """Run the stdio server using newline-delimited JSON."""
         for line in sys.stdin:
             line = line.strip()
             if not line:
@@ -88,7 +95,6 @@ class MCPTestServer:
 
             try:
                 request = json.loads(line)
-                # Run async handler in event loop
                 response = asyncio.run(self.handle_request(request))
 
                 if response is not None:
@@ -102,8 +108,8 @@ class MCPTestServer:
 
 
 def main() -> None:
-    """Entry point."""
-    server = MCPTestServer()
+    """Entry point for the banking MCP server."""
+    server = BankingMCPServer()
     server.run_sync()
 
 

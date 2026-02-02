@@ -29,8 +29,8 @@ Set defaults once:
 [tool.pytest.ini_options]
 addopts = """
 --aitest-model=azure/gpt-5-mini
+--aitest-summary-model=azure/gpt-4.1
 --aitest-html=reports/report.html
---aitest-summary
 """
 ```
 
@@ -38,7 +38,8 @@ addopts = """
 
 | Option | Description |
 |--------|-------------|
-| `--aitest-model=MODEL` | LiteLLM model for AI summary |
+| `--aitest-model=MODEL` | Default LiteLLM model for agents |
+| `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model. |
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Generate JSON report |
 | `--aitest-summary` | Include AI-powered analysis |

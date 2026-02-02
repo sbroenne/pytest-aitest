@@ -367,6 +367,15 @@ body {
 
 .test-item.expanded .test-details { display: block; }
 
+/* Session tests always show details (not collapsible) */
+.session-step .test-item .test-details {
+    display: block;
+}
+
+.session-step .test-item .test-header {
+    cursor: default;
+}
+
 /* Status Badge */
 .badge {
     display: inline-flex;
@@ -382,6 +391,124 @@ body {
 .badge.passed { background: var(--c-pass); color: white; }
 .badge.failed { background: var(--c-fail); color: white; }
 .badge.skipped { background: var(--c-warn); color: white; }
+.badge.session { background: #6366f1; color: white; cursor: help; }
+
+/* Session Container Styles */
+.session-container {
+    background: white;
+    border-radius: var(--radius);
+    border: 2px solid #6366f1;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    user-select: none;
+}
+
+.session-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.session-icon {
+    font-size: 1.25rem;
+}
+
+.session-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #4338ca;
+}
+
+.session-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+.session-expand {
+    font-size: 0.75rem;
+    color: #6366f1;
+    transition: transform 0.2s ease;
+}
+
+.session-summary {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.session-summary span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.session-tests {
+    padding: 1rem;
+    background: #fafaff;
+}
+
+/* Session Mermaid Diagram */
+.session-diagram {
+    margin-bottom: 1rem;
+}
+
+.session-flow {
+    display: flex;
+    flex-direction: column;
+}
+
+.session-step {
+    display: flex;
+    align-items: flex-start;
+}
+
+.step-connector {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+    flex-shrink: 0;
+}
+
+.session-step.first .step-connector {
+    visibility: hidden;
+}
+
+.connector-line {
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(180deg, #6366f1, #a5b4fc);
+}
+
+.connector-label {
+    font-size: 0.625rem;
+    color: #6366f1;
+    background: #eef2ff;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    white-space: nowrap;
+}
+
+.session-step .test-item {
+    flex: 1;
+    margin: 0.25rem 0;
+}
 
 /* Metrics Row in Details */
 .metrics-grid {
@@ -542,27 +669,102 @@ body {
     .test-item .test-details { display: block; }
     .overlay { display: none !important; }
 }
+
+/* Header Status Indicators */
+.header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.header-status.all-passed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #dcfce7;
+}
+
+.header-status.has-failures {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+}
+
+.header-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+
+.header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.header-badge.clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.header-badge.clickable:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <header class="report-header">
-            <h1>🧪 {{ report.name }}</h1>
-            <div class="meta">
-                <span>📅 {{ report.timestamp }}</span>
-                <span>⏱️ {{ "%.2f"|format(report.duration_ms / 1000) }}s total</span>
-                <span>📄 {{ report.unique_tests }} unique test{{ 's' if report.unique_tests != 1 else '' }}</span>
-                {% if flags.model_count > 0 %}
-                <span>🤖 {{ flags.model_count }} model{{ 's' if flags.model_count > 1 else '' }}</span>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="display: flex; align-items: center; gap: 0.75rem;">
+                        🧪 {{ report.name }}
+                        {% if report.failed == 0 and report.passed > 0 %}
+                        <span class="header-status all-passed">✓ All Passed</span>
+                        {% elif report.failed > 0 %}
+                        <span class="header-status has-failures">✗ {{ report.failed }} Failed</span>
+                        {% endif %}
+                    </h1>
+                    {% if report.test_files %}
+                    <div class="header-subtitle">
+                        {% for f in report.test_files %}<a href="{{ to_file_url(f) }}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">{{ f.split('/')[-1].split('\\')[-1] }}</a>{{ ', ' if not loop.last else '' }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div style="text-align: right; font-size: 0.8125rem; opacity: 0.85;">
+                    <div>{{ report.timestamp[:10] }} at {{ report.timestamp[11:19] }}</div>
+                    <div style="font-size: 1.125rem; font-weight: 600; margin-top: 0.25rem;">{{ "%.1f"|format(report.duration_ms / 1000) }}s</div>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="header-badge">📊 {{ report.total }} test{{ 's' if report.total != 1 else '' }}</span>
+                {% if flags.model_count > 1 %}
+                <span class="header-badge">🤖 {{ flags.model_count }} models</span>
+                {% elif flags.single_model_name %}
+                <span class="header-badge">🤖 {{ flags.single_model_name }}</span>
                 {% endif %}
-                {% if flags.prompt_count > 0 %}
-                <span>📝 {{ flags.prompt_count }} prompt{{ 's' if flags.prompt_count > 1 else '' }}</span>
+                {% if flags.prompt_count > 1 %}
+                <span class="header-badge">📝 {{ flags.prompt_count }} prompts</span>
                 {% endif %}
-                {% if report.test_files %}
-                <span class="file-links">
-                    Files: {% for f in report.test_files %}<a href="{{ to_file_url(f) }}">{{ f }}</a>{{ ', ' if not loop.last else '' }}{% endfor %}
-                </span>
+                {% if session_groups | selectattr('is_session') | list | length > 0 %}
+                <span class="header-badge">🔗 {{ session_groups | selectattr('is_session') | list | length }} session{{ 's' if session_groups | selectattr('is_session') | list | length > 1 else '' }}</span>
+                {% endif %}
+                {% if report.total_cost_usd > 0 %}
+                <span class="header-badge">💰 {{ format_cost(report.total_cost_usd) }}</span>
                 {% endif %}
             </div>
         </header>
@@ -606,25 +808,9 @@ body {
                 <div class="label">Tool Calls</div>
             </div>
             {% endif %}
-            {% if report.total_cost_usd > 0 %}
-            <div class="summary-card cost">
-                <div class="value">{{ format_cost(report.total_cost_usd) }}</div>
-                <div class="label">Est. Cost</div>
-            </div>
-            {% endif %}
         </section>
 
-        <!-- AI Summary (conditional) -->
-        {% if ai_summary %}
-        <section class="section" style="border-left: 4px solid var(--c-secondary);">
-            <div class="section-header" style="background: linear-gradient(90deg, #f3e8ff, #f8fafc);">
-                <h2>🤖 AI Analysis</h2>
-            </div>
-            <div class="section-body ai-summary">{{ ai_summary | markdown }}</div>
-        </section>
-        {% endif %}
-
-        <!-- Model Leaderboard (conditional) -->
+        <!-- Model Leaderboard (conditional) - BEFORE AI Summary -->
         {% if flags.show_model_leaderboard and model_groups %}
         <section class="section">
             <div class="section-header">
@@ -676,7 +862,7 @@ body {
         </section>
         {% endif %}
 
-        <!-- Prompt Comparison (conditional) -->
+        <!-- Prompt Comparison (conditional) - BEFORE AI Summary -->
         {% if flags.show_prompt_comparison and prompt_groups and not flags.show_matrix %}
         <section class="section">
             <div class="section-header">
@@ -702,7 +888,7 @@ body {
                                 <span class="medal">{{ group.medal }}</span>
                                 {% if not group.medal %}{{ group.rank }}{% endif %}
                             </td>
-                            <td><span class="model-name">{{ group.dimension_value }}</span></td>
+                            <td>{{ group.dimension_value }}</td>
                             <td class="pass-rate-cell">
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                     <span style="width: 3rem;">{{ "%.0f"|format(group.pass_rate) }}%</span>
@@ -720,6 +906,16 @@ body {
                     </tbody>
                 </table>
             </div>
+        </section>
+        {% endif %}
+
+        <!-- AI Summary (conditional) - AFTER leaderboards -->
+        {% if ai_summary %}
+        <section class="section" style="border-left: 4px solid var(--c-secondary);">
+            <div class="section-header" style="background: linear-gradient(90deg, #f3e8ff, #f8fafc);">
+                <h2>🤖 AI Analysis</h2>
+            </div>
+            <div class="section-body ai-summary">{{ ai_summary | markdown }}</div>
         </section>
         {% endif %}
 
@@ -768,8 +964,8 @@ body {
         </section>
         {% endif %}
 
-        <!-- Test Overview Table (when multiple tests) -->
-        {% if report.total > 1 %}
+        <!-- Test Overview Table (only in comparison modes, not simple mode) -->
+        {% if mode != 'simple' and report.total > 1 %}
         <section class="section">
             <div class="section-header">
                 <h2>📋 Test Overview</h2>
@@ -781,6 +977,7 @@ body {
                             <tr>
                                 <th style="text-align: left;">Test Name</th>
                                 <th>Status</th>
+                                <th>Session</th>
                                 <th>Duration</th>
                                 <th>Tokens</th>
                                 <th>Tools</th>
@@ -789,9 +986,14 @@ body {
                         <tbody>
                             {% for test in report.tests %}
                             <tr class="{{ 'cell-passed' if test.is_passed else 'cell-failed' if test.is_failed else '' }}">
-                                <td class="test-name">{{ test.name }}</td>
+                                <td class="test-name" title="{{ test.short_name }}">{{ test.display_name }}</td>
                                 <td class="matrix-cell">
                                     <span class="badge {{ test.outcome }}">{{ test.outcome }}</span>
+                                </td>
+                                <td class="matrix-cell">
+                                    {% if test.agent_result and test.agent_result.is_session_continuation %}
+                                    <span title="{{ test.agent_result.session_context_count }} prior messages">🔗 {{ test.agent_result.session_context_count }}</span>
+                                    {% else %}—{% endif %}
                                 </td>
                                 <td class="matrix-cell">{{ "%.2f"|format(test.duration_ms / 1000) }}s</td>
                                 <td class="matrix-cell">
@@ -813,19 +1015,112 @@ body {
         </section>
         {% endif %}
 
-        <!-- Test List -->
+        <!-- Test List (grouped by session) -->
         <section class="section">
             <div class="section-header">
                 <h2>🔍 Detailed Results</h2>
             </div>
             <div class="section-body">
+                {% for session in session_groups %}
+                {% if session.is_session %}
+                <!-- Session Container -->
+                <div class="session-container">
+                    <div class="session-header">
+                        <span class="session-title">
+                            <span class="session-icon">🔗</span>
+                            <span class="session-name">{{ session.name }}</span>
+                            <span class="session-stats">
+                                {{ session.tests | length }} tests
+                                {% if session.all_passed %}
+                                <span class="badge passed">all passed</span>
+                                {% else %}
+                                <span class="badge {{ 'passed' if session.passed > 0 else 'failed' }}">{{ session.passed }}/{{ session.tests | length }}</span>
+                                {% endif %}
+                            </span>
+                        </span>
+                        <span class="session-summary">
+                            <span title="Total duration">⏱️ {{ "%.1f"|format(session.total_duration_ms / 1000) }}s</span>
+                            <span title="Total tokens">🔤 {{ session.total_tokens }}</span>
+                            <span title="Total cost">💰 {{ format_cost(session.total_cost) }}</span>
+                            <span title="Tool calls">🔧 {{ session.total_tool_calls }}</span>
+                        </span>
+                    </div>
+                    <div class="session-tests">
+                        <!-- Session Flow Mermaid Diagram -->
+                        <div class="session-diagram mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                            <div class="mermaid">{{ generate_session_mermaid(session) }}</div>
+                        </div>
+                        
+                        <div class="session-flow">
+                            {% for test in session.tests %}
+                            <div class="session-step {{ 'first' if loop.first else '' }}">
+                                <div class="step-connector">
+                                    {% if not loop.first %}
+                                    <div class="connector-line"></div>
+                                    <div class="connector-label">+{{ test.agent_result.session_context_count if test.agent_result else 0 }} msgs</div>
+                                    {% endif %}
+                                </div>
+                                <div class="test-item">
+                                    <div class="test-header">
+                                        <span class="test-name" title="{{ test.short_name }}">
+                                            <span class="badge {{ test.outcome }}">{{ test.outcome }}</span>
+                                            {{ test.display_name }}
+                                        </span>
+                                        <span class="test-metrics">
+                                            <span>{{ "%.2f"|format(test.duration_ms / 1000) }}s</span>
+                                            {% if test.agent_result %}
+                                            <span>{{ test.agent_result.token_usage.get('prompt', 0) + test.agent_result.token_usage.get('completion', 0) }} tokens</span>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="test-details">
+                                        {% if test.error %}
+                                        <div class="error-message">{{ test.error }}</div>
+                                        {% endif %}
+
+                                        {% if test.agent_result %}
+                                        <div class="metrics-grid">
+                                            <div class="metric">
+                                                <div class="metric-value">{{ "%.2f"|format(test.agent_result.duration_ms / 1000) }}s</div>
+                                                <div class="metric-label">Duration</div>
+                                            </div>
+                                            <div class="metric">
+                                                <div class="metric-value">{{ test.agent_result.token_usage.get('prompt', 0) }}</div>
+                                                <div class="metric-label">Prompt Tokens</div>
+                                            </div>
+                                            <div class="metric">
+                                                <div class="metric-value">{{ test.agent_result.token_usage.get('completion', 0) }}</div>
+                                                <div class="metric-label">Completion Tokens</div>
+                                            </div>
+                                            <div class="metric">
+                                                <div class="metric-value">{{ test.agent_result.all_tool_calls | length }}</div>
+                                                <div class="metric-label">Tool Calls</div>
+                                            </div>
+                                        </div>
+
+                                        {% if test.agent_result.final_response %}
+                                        <div style="margin: 1rem 0; padding: 1rem; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: var(--radius); border-left: 4px solid var(--c-pass);">
+                                            <h4 style="margin: 0 0 0.5rem; font-size: 0.875rem; color: #166534;">💬 Final Output</h4>
+                                            <div style="font-size: 0.9375rem; color: var(--c-text); white-space: pre-wrap;">{{ test.agent_result.final_response }}</div>
+                                        </div>
+                                        {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Non-session tests (regular list) -->
                 <div class="test-list">
-                    {% for test in report.tests %}
+                    {% for test in session.tests %}
                     <div class="test-item" onclick="this.classList.toggle('expanded')">
                         <div class="test-header">
-                            <span class="test-name">
+                            <span class="test-name" title="{{ test.short_name }}">
                                 <span class="badge {{ test.outcome }}">{{ test.outcome }}</span>
-                                {{ test.name }}
+                                {{ test.display_name }}
                             </span>
                             <span class="test-metrics">
                                 <span>{{ "%.2f"|format(test.duration_ms / 1000) }}s</span>
@@ -909,6 +1204,8 @@ body {
                     </div>
                     {% endfor %}
                 </div>
+                {% endif %}
+                {% endfor %}
             </div>
         </section>
     </div>

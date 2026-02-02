@@ -52,6 +52,7 @@ def aitest_run(
         *,
         max_turns: int | None = None,
         timeout_ms: int = 60000,
+        messages: list[dict[str, Any]] | None = None,
     ) -> AgentResult:
         """Run an agent with the given prompt.
 
@@ -60,6 +61,9 @@ def aitest_run(
             prompt: User prompt to send
             max_turns: Maximum conversation turns (default: agent.max_turns)
             timeout_ms: Timeout for the entire run (default: 60000)
+            messages: Optional prior conversation messages for session continuity.
+                     Pass result.messages from a previous test to continue the
+                     conversation instead of starting fresh.
 
         Returns:
             AgentResult with conversation history and tool calls
@@ -72,7 +76,9 @@ def aitest_run(
         engines.append(engine)
 
         await engine.initialize()
-        result = await engine.run(prompt, max_turns=max_turns, timeout_ms=timeout_ms)
+        result = await engine.run(
+            prompt, max_turns=max_turns, timeout_ms=timeout_ms, messages=messages
+        )
 
         # Store result for reporting
         results.append(result)

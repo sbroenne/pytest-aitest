@@ -25,7 +25,7 @@ pytest tests/ --aitest-html=report.html --aitest-summary
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Generate JSON report |
 | `--aitest-summary` | Include AI-powered analysis |
-| `--aitest-model=MODEL` | Model for AI summary |
+| `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model like `gpt-4.1`. |
 
 ## pyproject.toml Configuration
 
@@ -35,8 +35,8 @@ Set defaults once:
 [tool.pytest.ini_options]
 addopts = """
 --aitest-model=azure/gpt-5-mini
+--aitest-summary-model=azure/gpt-4.1
 --aitest-html=reports/report.html
---aitest-summary
 """
 ```
 
@@ -117,16 +117,33 @@ Report shows a 2D matrix: models vs prompts.
 Enable AI-powered analysis of test results:
 
 ```bash
-pytest tests/ --aitest-html=report.html --aitest-summary
+pytest tests/ --aitest-html=report.html --aitest-summary --aitest-summary-model=azure/gpt-4.1
 ```
 
-The summary includes:
-- Overall verdict
-- Key observations
+**`--aitest-summary-model` is required** when using `--aitest-summary`. Use a capable model for quality analysis:
+
+| Provider | Recommended Models |
+|----------|-------------------|
+| Azure OpenAI | `azure/gpt-4.1`, `azure/gpt-4o` |
+| OpenAI | `openai/gpt-4o`, `openai/gpt-4.1` |
+| Anthropic | `anthropic/claude-sonnet-4`, `anthropic/claude-3-5-sonnet` |
+
+**Note:** Smaller models (gpt-4o-mini, gpt-5-mini) produce generic, low-quality summaries. Use a capable model.
+
+### Multi-Model Comparison
+
+When tests are parametrized by model, the AI summary provides:
+- **Verdict**: Which model to recommend and why
+- **Per-model breakdown**: Pass rate, tokens, cost
+- **Key differences**: Capability gaps, cost tradeoffs
+- **Actionable recommendation**: Which model for production
+
+### Single-Model Evaluation
+
+For non-parametrized tests, the summary assesses:
+- Model fitness for the task
 - Failure patterns
 - Recommendations
-
-Requires `--aitest-model` to specify which model generates the summary.
 
 ## HTML Report Contents
 
@@ -136,6 +153,14 @@ The HTML report includes:
 - Total/passed/failed counts
 - Success rate
 - Total tokens and cost
+
+### Session Grouping
+Tests using [sessions](sessions.md) (multi-turn conversations) are visually grouped:
+
+- **🔗 Session container** with collapsible test list
+- **Summary stats**: Duration, tokens, cost, tool calls for entire session
+- **Flow visualization**: Shows message count passed between tests
+- **Grouped by test class**: Tests in the same class with session continuity
 
 ### Model/Prompt Comparison (if parametrized)
 - Side-by-side metrics

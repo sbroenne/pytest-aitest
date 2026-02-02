@@ -225,7 +225,8 @@ See **[Assertions](assertions.md)** for details.
 
 | Option | Description |
 |--------|-------------|
-| `--aitest-model=MODEL` | Model for AI summary |
+| `--aitest-model=MODEL` | Default model for agents |
+| `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`) |
 | `--aitest-html=PATH` | HTML report path |
 | `--aitest-json=PATH` | JSON report path |
 | `--aitest-summary` | Include AI summary |

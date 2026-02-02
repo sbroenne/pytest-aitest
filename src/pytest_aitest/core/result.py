@@ -47,6 +47,9 @@ class AgentResult:
         assert result.success
         assert "hello" in result.final_response.lower()
         assert result.tool_was_called("read_file")
+
+        # Session continuity: pass messages to next test
+        next_result = await aitest_run(agent, "Follow up", messages=result.messages)
     """
 
     turns: list[Turn]
@@ -55,6 +58,27 @@ class AgentResult:
     duration_ms: float = 0.0
     token_usage: dict[str, int] = field(default_factory=dict)
     cost_usd: float = 0.0
+    _messages: list[dict[str, Any]] = field(default_factory=list)
+    session_context_count: int = 0  # Number of prior messages passed in
+
+    @property
+    def messages(self) -> list[dict[str, Any]]:
+        """Get full conversation messages for session continuity.
+
+        Use this to pass conversation history to the next test in a session:
+
+            result = await aitest_run(agent, "First message")
+            next_result = await aitest_run(agent, "Continue", messages=result.messages)
+        """
+        return list(self._messages)  # Return copy to prevent mutation
+
+    @property
+    def is_session_continuation(self) -> bool:
+        """Check if this result is part of a multi-turn session.
+
+        Returns True if prior messages were passed via the messages parameter.
+        """
+        return self.session_context_count > 0
 
     @property
     def final_response(self) -> str:

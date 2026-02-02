@@ -36,11 +36,19 @@ def pytest_addoption(parser: Parser) -> None:
     """
     group = parser.getgroup("aitest", "AI agent testing")
 
-    # Model selection (used for both agent default and AI summary)
+    # Model selection for agents
     group.addoption(
         "--aitest-model",
         default="openai/gpt-4o-mini",
-        help="Default LiteLLM model for agents and AI summary (default: openai/gpt-4o-mini)",
+        help="Default LiteLLM model for agents (default: openai/gpt-4o-mini)",
+    )
+
+    # Model selection for AI summary (use a more capable model)
+    group.addoption(
+        "--aitest-summary-model",
+        default=None,
+        help="LiteLLM model for AI summary generation. Required when using --aitest-summary. "
+        "Use a capable model like gpt-4.1 or claude-sonnet-4 for quality analysis.",
     )
 
     # Report options
@@ -99,6 +107,56 @@ def pytest_configure(config: Config) -> None:
         config.stash[COLLECTOR_KEY] = ReportCollector()
 
 
+def _extract_metadata_from_nodeid(nodeid: str) -> dict[str, Any]:
+    """Extract model and prompt from parametrized test node ID.
+
+    Parses test names like 'test_foo[gpt-5-mini-PROMPT_V1]' to extract:
+    - model: gpt-5-mini
+    - prompt: PROMPT_V1
+    """
+    import re
+
+    metadata: dict[str, Any] = {}
+
+    # Extract parameters from node ID: test_foo[param1-param2] -> "param1-param2"
+    match = re.search(r"\[([^\]]+)\]", nodeid)
+    if not match:
+        return metadata
+
+    params_str = match.group(1)
+
+    # Model patterns - use negative lookahead to stop before PROMPT_
+    # Note: Order matters - more specific patterns first (gpt-4o before gpt-4)
+    model_patterns = [
+        r"gpt-\d+(?:\.\d+)?o(?:-(?!PROMPT)\w+)*",  # gpt-4o, gpt-4o-mini
+        r"gpt-\d+(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # gpt-4, gpt-4-turbo, gpt-5-mini
+        r"o\d+-(?!PROMPT)\w+",  # o1-mini, o1-preview, o3-mini
+        r"claude-\d+(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # claude-3-opus, claude-3.5-sonnet
+        r"gemini-\d+(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # gemini-1.5-pro
+        r"mistral-(?!PROMPT)\w+",  # mistral-large
+        r"llama-?\d*(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # llama-3.1-70b
+        r"deepseek-(?!PROMPT)\w+",  # deepseek-chat
+        r"qwen-?\d*(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # qwen-2.5-72b
+        r"command-r(?:-(?!PROMPT)\w+)?",  # command-r-plus
+    ]
+    model_pattern = re.compile("|".join(f"({p})" for p in model_patterns), re.IGNORECASE)
+    model_match = model_pattern.search(params_str)
+    if model_match:
+        metadata["model"] = model_match.group(0)
+
+    # Prompt patterns (from DimensionAggregator)
+    prompt_patterns = [
+        r"PROMPT_\w+",  # PROMPT_V1, PROMPT_CONCISE
+        r"prompt_\w+",  # prompt_v1, prompt_concise
+    ]
+    prompt_pattern = re.compile("|".join(f"({p})" for p in prompt_patterns))
+    prompt_match = prompt_pattern.search(params_str)
+    if prompt_match:
+        metadata["prompt"] = prompt_match.group(0)
+
+    return metadata
+
+
 def pytest_collection_modifyitems(
     session: pytest.Session,
     config: Config,
@@ -137,6 +195,15 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     # Get agent result if available
     agent_result = getattr(item, "_aitest_result", None)
 
+    # Get test function docstring if available
+    docstring = None
+    func = getattr(item, "function", None)
+    if func is not None and func.__doc__:
+        docstring = func.__doc__
+
+    # Extract model and prompt from parametrized test node ID
+    metadata = _extract_metadata_from_nodeid(item.nodeid)
+
     # Create test report
     test_report = TestReport(
         name=item.nodeid,
@@ -144,6 +211,8 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         duration_ms=report.duration * 1000,
         agent_result=agent_result,
         error=str(report.longrepr) if report.failed else None,
+        docstring=docstring,
+        metadata=metadata,
     )
 
     collector.add_test(test_report)
@@ -217,52 +286,71 @@ def _generate_ai_summary(config: Config, report: SuiteReport) -> str | None:
 
         from pytest_aitest.prompts import get_ai_summary_prompt
 
-        model = config.getoption("--aitest-model")
+        # Require dedicated summary model - no fallback
+        model = config.getoption("--aitest-summary-model")
+        if not model:
+            terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
+                "terminalreporter"
+            )
+            if terminalreporter:
+                terminalreporter.write_line(
+                    "\nAI Summary: Skipped - --aitest-summary-model not specified."
+                    "\nUse a capable model like azure/gpt-4.1 or openai/gpt-4o.",
+                    yellow=True,
+                )
+            return None
 
         # Load the system prompt
         system_prompt = get_ai_summary_prompt()
 
-        # Detect evaluation context
-        is_multi_model = len(report.models_used) > 1
+        # Detect evaluation context using populated metadata
+        detected_models = report.models_used
+        is_multi_model = len(detected_models) > 1
         context_hint = (
-            "**Context: Multi-Model Comparison** - Compare the models and recommend which to use."
+            "**Context: Multi-Model Comparison** - Compare the MODELS and recommend which to use."
             if is_multi_model
-            else "**Context: Single-Model Evaluation** - Assess if the agent is fit for purpose."
+            else "**Context: Single-Model Evaluation** - Assess the model's fitness for this task."
         )
 
-        # Build test results summary
-        test_summary = "\n".join(
-            [
-                f"- {t.name}: {t.outcome}" + (f" ({t.error[:100]})" if t.error else "")
-                for t in report.tests
-            ]
-        )
+        # Build test results summary using human-readable names (docstrings)
+        # Include model info from metadata
+        test_lines = []
+        for t in report.tests:
+            line = f"- {t.display_name}: {t.outcome}"
+            if t.model:
+                line = f"- [{t.model}] {t.display_name}: {t.outcome}"
+            if t.error:
+                line += f" ({t.error[:100]})"
+            test_lines.append(line)
+        test_summary = "\n".join(test_lines)
 
         # Build per-model breakdown for multi-model scenarios
         model_breakdown = ""
         if is_multi_model and report.tests:
             from collections import defaultdict
 
-            model_stats: dict[str, dict[str, int]] = defaultdict(
-                lambda: {"passed": 0, "failed": 0, "tokens": 0}
+            model_stats: dict[str, dict[str, int | float]] = defaultdict(
+                lambda: {"passed": 0, "failed": 0, "tokens": 0, "cost": 0.0}
             )
             for t in report.tests:
                 if t.model:
                     model_stats[t.model]["passed" if t.outcome == "passed" else "failed"] += 1
                     model_stats[t.model]["tokens"] += t.tokens_used or 0
+                    if t.agent_result:
+                        model_stats[t.model]["cost"] += t.agent_result.cost_usd
 
             lines = ["**Per-Model Breakdown:**"]
             for m, stats in sorted(model_stats.items()):
                 total = stats["passed"] + stats["failed"]
                 rate = (stats["passed"] / total * 100) if total > 0 else 0
+                cost_str = f"${stats['cost']:.4f}" if stats["cost"] > 0 else "N/A"
                 lines.append(
-                    f"- {m}: {rate:.0f}% ({stats['passed']}/{total}), {stats['tokens']:,} tokens"
+                    f"- **{m}**: {rate:.0f}% pass ({stats['passed']}/{total}), "
+                    f"{stats['tokens']:,} tokens, {cost_str}"
                 )
             model_breakdown = "\n".join(lines)
 
-        models_info = (
-            f"Models tested: {', '.join(report.models_used)}" if report.models_used else ""
-        )
+        models_info = f"Models tested: {', '.join(detected_models)}" if detected_models else ""
         prompts_info = (
             f"Prompts tested: {', '.join(report.prompts_used)}" if report.prompts_used else ""
         )

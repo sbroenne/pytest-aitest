@@ -146,8 +146,13 @@ src/pytest_aitest/
 │   ├── generator.py       # Generates HTML/JSON
 │   └── renderers/         # Composable report sections
 └── testing/               # Test harnesses
-    ├── store.py           # KeyValueStore (in-memory)
-    └── mcp_server.py      # MCP server wrapping KeyValueStore
+    ├── types.py           # ToolResult dataclass
+    ├── weather.py         # WeatherStore for demos
+    ├── weather_mcp.py     # Weather MCP server
+    ├── todo.py            # TodoStore for CRUD tests
+    ├── todo_mcp.py        # Todo MCP server
+    ├── banking.py         # BankingService for sessions
+    └── banking_mcp.py     # Banking MCP server
 
 tests/
 ├── integration/           # REAL LLM tests (the only tests that matter)

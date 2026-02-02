@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
 
-from pytest_aitest.testing.store import ToolResult
+from pytest_aitest.testing.types import ToolResult
 
 
 @dataclass

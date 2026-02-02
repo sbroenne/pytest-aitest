@@ -98,6 +98,7 @@ class AgentEngine:
         *,
         max_turns: int | None = None,
         timeout_ms: int = 60000,
+        messages: list[dict[str, Any]] | None = None,
     ) -> AgentResult:
         """Run the agent with the given prompt.
 
@@ -105,6 +106,9 @@ class AgentEngine:
             prompt: User prompt to send to the agent
             max_turns: Maximum conversation turns (overrides agent config)
             timeout_ms: Timeout in milliseconds for the entire run
+            messages: Optional prior conversation messages for session continuity.
+                     If provided, the conversation continues from these messages
+                     instead of starting fresh.
 
         Returns:
             AgentResult with conversation history and tool calls
@@ -118,18 +122,29 @@ class AgentEngine:
         # Build system prompt: skill content (if any) + agent's system prompt
         system_prompt = self._build_system_prompt()
 
+        # Track session context for reporting
+        session_context_count = len(messages) if messages else 0
+
         # Build initial messages
-        messages: list[dict[str, Any]] = []
-        if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        messages.append({"role": "user", "content": prompt})
+        if messages:
+            # Continue from prior conversation (session mode)
+            # Copy to avoid mutating the original
+            conversation: list[dict[str, Any]] = list(messages)
+            conversation.append({"role": "user", "content": prompt})
+        else:
+            # Fresh conversation
+            conversation = []
+            if system_prompt:
+                conversation.append({"role": "system", "content": system_prompt})
+            conversation.append({"role": "user", "content": prompt})
+
         turns.append(Turn(role="user", content=prompt))
 
         try:
             async with asyncio.timeout(timeout_ms / 1000):
                 for _turn_num in range(max_turns):
                     # Call LLM with retry
-                    response = await self._call_llm_with_retry(messages)
+                    response = await self._call_llm_with_retry(conversation)
 
                     # Track tokens
                     if hasattr(response, "usage") and response.usage:
@@ -152,10 +167,10 @@ class AgentEngine:
                         turns.append(Turn(role="assistant", content=content, tool_calls=tool_calls))
 
                         # Add assistant message and tool results to context
-                        messages.append(assistant_msg.model_dump())
+                        conversation.append(assistant_msg.model_dump())
                         for tc, call in zip(assistant_msg.tool_calls, tool_calls, strict=True):
                             result_content = call.error if call.error else call.result
-                            messages.append(
+                            conversation.append(
                                 {
                                     "role": "tool",
                                     "tool_call_id": tc.id,
@@ -166,6 +181,8 @@ class AgentEngine:
                         # Final response (no tool calls)
                         content = assistant_msg.content or ""
                         turns.append(Turn(role="assistant", content=content))
+                        # Add final response to conversation for session continuity
+                        conversation.append({"role": "assistant", "content": content})
                         break
 
                     # Check finish reason
@@ -182,6 +199,8 @@ class AgentEngine:
                 duration_ms=duration_ms,
                 token_usage=total_tokens,
                 cost_usd=total_cost,
+                _messages=conversation,
+                session_context_count=session_context_count,
             )
         except RateLimitError as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -192,6 +211,8 @@ class AgentEngine:
                 duration_ms=duration_ms,
                 token_usage=total_tokens,
                 cost_usd=total_cost,
+                _messages=conversation,
+                session_context_count=session_context_count,
             )
         except Exception as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -202,6 +223,8 @@ class AgentEngine:
                 duration_ms=duration_ms,
                 token_usage=total_tokens,
                 cost_usd=total_cost,
+                _messages=conversation,
+                session_context_count=session_context_count,
             )
 
         duration_ms = (time.perf_counter() - start_time) * 1000
@@ -211,6 +234,8 @@ class AgentEngine:
             duration_ms=duration_ms,
             token_usage=total_tokens,
             cost_usd=total_cost,
+            _messages=conversation,
+            session_context_count=session_context_count,
         )
 
     def _build_system_prompt(self) -> str | None:
