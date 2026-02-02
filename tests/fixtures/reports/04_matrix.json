@@ -1,0 +1,694 @@
+{
+  "schema_version": "2.0",
+  "name": "pytest-aitest",
+  "timestamp": "2026-02-02T17:00:17.641677Z",
+  "duration_ms": 133006.44160003867,
+  "mode": "matrix",
+  "dimensions": {
+    "models": [
+      "gpt-4.1",
+      "gpt-5-mini"
+    ],
+    "prompts": [
+      "PROMPT_BRIEF",
+      "PROMPT_DETAILED",
+      "PROMPT_STRUCTURED"
+    ],
+    "base_tests": [
+      "tests/integration/test_matrix.py::TestMatrixComparison::test_comparison_matrix",
+      "tests/integration/test_matrix.py::TestMatrixComparison::test_weather_matrix"
+    ],
+    "files": [
+      "tests/integration/test_matrix.py"
+    ]
+  },
+  "summary": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate": 100.0,
+    "total_tokens": 12052,
+    "total_cost_usd": 0.01989175,
+    "total_tool_calls": 12,
+    "token_stats": {
+      "min": 560,
+      "max": 1850,
+      "avg": 1004
+    },
+    "cost_stats": {
+      "min": 0.0002755,
+      "max": 0.003242,
+      "avg": 0.0016576458333333332
+    },
+    "duration_stats": {
+      "min": 4994.620399986161,
+      "max": 21474.43430000567,
+      "avg": 11083.870133336555
+    }
+  },
+  "tests": [
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_weather_matrix[PROMPT_BRIEF-gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 12944.05300001381,
+      "docstring": "Weather query across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "prompt": "PROMPT_BRIEF",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 6453.610199998366,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 6.6346000239718705
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Paris: 18°C (64°F), partly cloudy, humidity 65%, wind SW 12 km/h.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 694,
+          "completion": 51,
+          "total": 745
+        },
+        "cost_usd": 0.0002755,
+        "final_response": "Paris: 18°C (64°F), partly cloudy, humidity 65%, wind SW 12 km/h.",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_weather_matrix[PROMPT_BRIEF-gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 10863.788899994688,
+      "docstring": "Weather query across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "prompt": "PROMPT_BRIEF",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1256.7531999957282,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 2.2468999959528446
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Paris weather: 18°C, partly cloudy, 65% humidity, wind SW at 12 km/h.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 520,
+          "completion": 40,
+          "total": 560
+        },
+        "cost_usd": 0.0013599999999999999,
+        "final_response": "Paris weather: 18°C, partly cloudy, 65% humidity, wind SW at 12 km/h.",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_weather_matrix[PROMPT_DETAILED-gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 21474.43430000567,
+      "docstring": "Weather query across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "prompt": "PROMPT_DETAILED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 15080.966300010914,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 3.2438999915029854
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Current conditions in Paris:\n- Temperature: 18 °C (64 °F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: SW at 12 km/h (≈3.3 m/s or ≈7.5 mph)\n\nReasoning and conversions:\n- The temperature was reported as 18 °C. I converted that to Fahrenheit with F = C × 9/5 + 32 → 18 × 9/5 + 32 = 64 °F.\n- Wind speed 12 km/h converts to meters per second by dividing by 3.6 → 12 / 3.6 ≈ 3.3 m/s, and to miles per hour by multiplying km/h × 0.621371 → 12 × 0.621371 ≈ 7.5 mph.\n- Humidity at 65% is moderate — not enough to feel oppressively muggy, but enough to reduce rapid evaporative cooling, so you may feel slightly warmer than dry-air conditions at the same temperature.\n- Partly cloudy skies mean sun and clouds alternating; chance of widespread rain is low, though isolated showers remain possible depending on local development.\n\nPractical advice:\n- Clothing: Light layers or a light jacket are appropriate (18 °C is mild but a breeze from the SW can feel a bit cool). Layers let you adjust if sun comes out and warms you.\n- Rain gear: Not strictly necessary for short outings given “partly cloudy,” but if you’ll be out for many hours or want to be safe, pack a compact umbrella or lightweight rain jacket.\n- Outdoor activities: Good conditions for walking, sightseeing, or cycling — wind is gentle. If cycling into the wind from the SW, expect a small extra effort on north/east routes.\n- Hair/comfort: With 65% humidity, people prone to frizz may want anti-frizz products or a hat.\n- Sensitive groups: If you’re heat- or cold-sensitive, the mild temperature and moderate humidity are generally comfortable, but bring a light layer just in case.\n\nIf you want, I can:\n- Check the hourly forecast for the next few hours,\n- Get a multi-day forecast for Paris,\n- Or compare Paris weather with another city.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 730,
+          "completion": 1008,
+          "total": 1738
+        },
+        "cost_usd": 0.0021985,
+        "final_response": "Current conditions in Paris:\n- Temperature: 18 °C (64 °F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: SW at 12 km/h (≈3.3 m/s or ≈7.5 mph)\n\nReasoning and conversions:\n- The temperature was reported as 18 °C. I converted that to Fahrenheit with F = C × 9/5 + 32 → 18 × 9/5 + 32 = 64 °F.\n- Wind speed 12 km/h converts to meters per second by dividing by 3.6 → 12 / 3.6 ≈ 3.3 m/s, and to miles per hour by multiplying km/h × 0.621371 → 12 × 0.621371 ≈ 7.5 mph.\n- Humidity at 65% is moderate — not enough to feel oppressively muggy, but enough to reduce rapid evaporative cooling, so you may feel slightly warmer than dry-air conditions at the same temperature.\n- Partly cloudy skies mean sun and clouds alternating; chance of widespread rain is low, though isolated showers remain possible depending on local development.\n\nPractical advice:\n- Clothing: Light layers or a light jacket are appropriate (18 °C is mild but a breeze from the SW can feel a bit cool). Layers let you adjust if sun comes out and warms you.\n- Rain gear: Not strictly necessary for short outings given “partly cloudy,” but if you’ll be out for many hours or want to be safe, pack a compact umbrella or lightweight rain jacket.\n- Outdoor activities: Good conditions for walking, sightseeing, or cycling — wind is gentle. If cycling into the wind from the SW, expect a small extra effort on north/east routes.\n- Hair/comfort: With 65% humidity, people prone to frizz may want anti-frizz products or a hat.\n- Sensitive groups: If you’re heat- or cold-sensitive, the mild temperature and moderate humidity are generally comfortable, but bring a light layer just in case.\n\nIf you want, I can:\n- Check the hourly forecast for the next few hours,\n- Get a multi-day forecast for Paris,\n- Or compare Paris weather with another city.",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_weather_matrix[PROMPT_DETAILED-gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 7929.32060000021,
+      "docstring": "Weather query across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "prompt": "PROMPT_DETAILED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 3074.057299993001,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 2.516700013075024
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Currently in Paris:\n\n- Temperature: 18°C (64°F)\n- Humidity: 65%\n- Conditions: Partly cloudy\n- Wind: 12 km/h from the southwest\n\nPractical advice:\n- The temperature is comfortable for most activities, but with 65% humidity you might feel a bit muggy, especially if you're active.\n- The wind is gentle, so it shouldn't interfere with outdoor plans.\n- Bring a light jacket or sweater if you'll be out in the evening, as temperatures might drop and clouds could make it feel cooler.\n- It's a great day for walking or sightseeing, but consider sunglasses since it’s partly cloudy and the sun may peek through at times.\n\nI based this advice on the current mild weather, moderate humidity, and light wind, which together make for generally pleasant conditions.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 556,
+          "completion": 181,
+          "total": 737
+        },
+        "cost_usd": 0.0025599999999999998,
+        "final_response": "Currently in Paris:\n\n- Temperature: 18°C (64°F)\n- Humidity: 65%\n- Conditions: Partly cloudy\n- Wind: 12 km/h from the southwest\n\nPractical advice:\n- The temperature is comfortable for most activities, but with 65% humidity you might feel a bit muggy, especially if you're active.\n- The wind is gentle, so it shouldn't interfere with outdoor plans.\n- Bring a light jacket or sweater if you'll be out in the evening, as temperatures might drop and clouds could make it feel cooler.\n- It's a great day for walking or sightseeing, but consider sunglasses since it’s partly cloudy and the sun may peek through at times.\n\nI based this advice on the current mild weather, moderate humidity, and light wind, which together make for generally pleasant conditions.",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_weather_matrix[PROMPT_STRUCTURED-gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 9671.287000004668,
+      "docstring": "Weather query across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "prompt": "PROMPT_STRUCTURED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 5548.722400009865,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 2.175300003727898
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 792,
+          "completion": 271,
+          "total": 1063
+        },
+        "cost_usd": 0.00074,
+        "final_response": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_weather_matrix[PROMPT_STRUCTURED-gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 6019.006100017577,
+      "docstring": "Weather query across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "prompt": "PROMPT_STRUCTURED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1375.4979000077583,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 3.303499979665503
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 618,
+          "completion": 62,
+          "total": 680
+        },
+        "cost_usd": 0.0017319999999999998,
+        "final_response": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_comparison_matrix[PROMPT_BRIEF-gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 9174.0037999989,
+      "docstring": "City comparison across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "prompt": "PROMPT_BRIEF",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 3664.782900013961,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Is it warmer in Sydney or Berlin right now?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Sydney",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
+                "duration_ms": 2.662099985172972
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Sydney is warmer — 26°C (79°F) vs 16°C (61°F) in Berlin, a 10°C (18°F) difference.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 795,
+          "completion": 136,
+          "total": 931
+        },
+        "cost_usd": 0.00047075000000000003,
+        "final_response": "Sydney is warmer — 26°C (79°F) vs 16°C (61°F) in Berlin, a 10°C (18°F) difference.",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_comparison_matrix[PROMPT_BRIEF-gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 4994.620399986161,
+      "docstring": "City comparison across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "prompt": "PROMPT_BRIEF",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1089.8588999989443,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Is it warmer in Sydney or Berlin right now?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Sydney",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
+                "duration_ms": 2.3598999832756817
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Sydney is warmer than Berlin right now.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 621,
+          "completion": 31,
+          "total": 652
+        },
+        "cost_usd": 0.00149,
+        "final_response": "Sydney is warmer than Berlin right now.",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_comparison_matrix[PROMPT_DETAILED-gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 18487.503300013486,
+      "docstring": "City comparison across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "prompt": "PROMPT_DETAILED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 13123.664099985035,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Is it warmer in Sydney or Berlin right now?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Sydney",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
+                "duration_ms": 48.089100018842146
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Sydney is warmer right now.\n\nWhat the data shows (and how I reasoned)\n- Sydney: 26°C (79°F). Berlin: 16°C (61°F). The numeric temperature difference is 10°C (18°F), so Sydney is clearly warmer.\n- I used the current temperature readings directly to compare — that’s the simplest, most reliable measure of \"warmer right now.\"\n\nFull current conditions\n- Sydney, Australia\n  - Temperature: 26°C (79°F)\n  - Humidity: 60%\n  - Wind: 20 km/h from the SE (a noticeable breeze)\n  - Conditions: Sunny\n\n- Berlin, Germany\n  - Temperature: 16°C (61°F)\n  - Humidity: 72%\n  - Wind: 10 km/h from the N (light breeze)\n  - Conditions: Overcast\n\nPractical advice (based on those conditions)\n- If you’re in Sydney: dress for warm weather (shorts, light shirt). It’s sunny with a fresh SE breeze, so use sunscreen, sunglasses, and stay hydrated if you’ll be outdoors — the breeze helps but won’t remove the need for sun protection.\n- If you’re in Berlin: wear layers and have a light jacket or sweater handy. It’s cooler and overcast with higher humidity, so it may feel a bit damp; an umbrella or light rain jacket is reasonable to carry even if no rain is currently reported.\n\nWhy humidity and wind matter\n- Higher humidity (Berlin) can make cool air feel damper and less comfortable, while lower-to-moderate humidity (Sydney) with sun feels pleasant but increases sun exposure risk.\n- Wind can change perceived temperature: Sydney’s 20 km/h breeze may make it feel slightly cooler than 26°C in direct sun, but it’s still significantly warmer than Berlin.\n\nIf you want I can give a short “what to pack” list for either city or a feels-like temperature estimate. Which would you prefer?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 831,
+          "completion": 1019,
+          "total": 1850
+        },
+        "cost_usd": 0.00224575,
+        "final_response": "Sydney is warmer right now.\n\nWhat the data shows (and how I reasoned)\n- Sydney: 26°C (79°F). Berlin: 16°C (61°F). The numeric temperature difference is 10°C (18°F), so Sydney is clearly warmer.\n- I used the current temperature readings directly to compare — that’s the simplest, most reliable measure of \"warmer right now.\"\n\nFull current conditions\n- Sydney, Australia\n  - Temperature: 26°C (79°F)\n  - Humidity: 60%\n  - Wind: 20 km/h from the SE (a noticeable breeze)\n  - Conditions: Sunny\n\n- Berlin, Germany\n  - Temperature: 16°C (61°F)\n  - Humidity: 72%\n  - Wind: 10 km/h from the N (light breeze)\n  - Conditions: Overcast\n\nPractical advice (based on those conditions)\n- If you’re in Sydney: dress for warm weather (shorts, light shirt). It’s sunny with a fresh SE breeze, so use sunscreen, sunglasses, and stay hydrated if you’ll be outdoors — the breeze helps but won’t remove the need for sun protection.\n- If you’re in Berlin: wear layers and have a light jacket or sweater handy. It’s cooler and overcast with higher humidity, so it may feel a bit damp; an umbrella or light rain jacket is reasonable to carry even if no rain is currently reported.\n\nWhy humidity and wind matter\n- Higher humidity (Berlin) can make cool air feel damper and less comfortable, while lower-to-moderate humidity (Sydney) with sun feels pleasant but increases sun exposure risk.\n- Wind can change perceived temperature: Sydney’s 20 km/h breeze may make it feel slightly cooler than 26°C in direct sun, but it’s still significantly warmer than Berlin.\n\nIf you want I can give a short “what to pack” list for either city or a feels-like temperature estimate. Which would you prefer?",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_comparison_matrix[PROMPT_DETAILED-gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 9793.150599987712,
+      "docstring": "City comparison across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "prompt": "PROMPT_DETAILED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 3798.18320000777,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Is it warmer in Sydney or Berlin right now?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Sydney",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
+                "duration_ms": 2.25499999942258
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Sydney is currently warmer than Berlin.\n\nHere's a detailed comparison:\n\nSydney, Australia:\n- Temperature: 26°C (79°F)\n- Humidity: 60%\n- Conditions: Sunny\n- Wind: 20 km/h from the southeast\n\nBerlin, Germany:\n- Temperature: 16°C (61°F)\n- Humidity: 72%\n- Conditions: Overcast\n- Wind: 10 km/h from the north\n\nReasoning:\nSydney is 10°C (18°F) warmer than Berlin right now, and it also enjoys sunny weather compared to Berlin's overcast skies. The higher humidity in Berlin might make it feel a bit muggy, but the lower temperature keeps it cool.\n\nPractical advice:\n- In Sydney, dress lightly, wear sun protection, and stay hydrated due to the warmer, sunnier conditions.\n- In Berlin, consider wearing a light jacket or sweater due to the cooler, overcast weather, and be prepared for possible dampness because of the higher humidity. \n\nLet me know if you’d like more details or a forecast for either city!",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 657,
+          "completion": 241,
+          "total": 898
+        },
+        "cost_usd": 0.003242,
+        "final_response": "Sydney is currently warmer than Berlin.\n\nHere's a detailed comparison:\n\nSydney, Australia:\n- Temperature: 26°C (79°F)\n- Humidity: 60%\n- Conditions: Sunny\n- Wind: 20 km/h from the southeast\n\nBerlin, Germany:\n- Temperature: 16°C (61°F)\n- Humidity: 72%\n- Conditions: Overcast\n- Wind: 10 km/h from the north\n\nReasoning:\nSydney is 10°C (18°F) warmer than Berlin right now, and it also enjoys sunny weather compared to Berlin's overcast skies. The higher humidity in Berlin might make it feel a bit muggy, but the lower temperature keeps it cool.\n\nPractical advice:\n- In Sydney, dress lightly, wear sun protection, and stay hydrated due to the warmer, sunnier conditions.\n- In Berlin, consider wearing a light jacket or sweater due to the cooler, overcast weather, and be prepared for possible dampness because of the higher humidity. \n\nLet me know if you’d like more details or a forecast for either city!",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_comparison_matrix[PROMPT_STRUCTURED-gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 13412.7756000089,
+      "docstring": "City comparison across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "prompt": "PROMPT_STRUCTURED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 7533.549899992067,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Is it warmer in Sydney or Berlin right now?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Sydney",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
+                "duration_ms": 2.998599986312911
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "📍 Location: Sydney\n🌡️ Temperature: 26°C / 79°F\n💧 Humidity: 60%\n🌤️ Conditions: Sunny\n💨 Wind: 20 km/h SE\n\n📍 Location: Berlin\n🌡️ Temperature: 16°C / 61°F\n💧 Humidity: 72%\n🌤️ Conditions: Overcast\n💨 Wind: 10 km/h N\n\nAnswer: It's warmer in Sydney right now by 10°C.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 893,
+          "completion": 462,
+          "total": 1355
+        },
+        "cost_usd": 0.00114725,
+        "final_response": "📍 Location: Sydney\n🌡️ Temperature: 26°C / 79°F\n💧 Humidity: 60%\n🌤️ Conditions: Sunny\n💨 Wind: 20 km/h SE\n\n📍 Location: Berlin\n🌡️ Temperature: 16°C / 61°F\n💧 Humidity: 72%\n🌤️ Conditions: Overcast\n💨 Wind: 10 km/h N\n\nAnswer: It's warmer in Sydney right now by 10°C.",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_matrix.py::TestMatrixComparison::test_comparison_matrix[PROMPT_STRUCTURED-gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 8242.49800000689,
+      "docstring": "City comparison across all model/prompt combinations.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "prompt": "PROMPT_STRUCTURED",
+        "file": "tests/integration/test_matrix.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1965.2169999899343,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Is it warmer in Sydney or Berlin right now?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Sydney",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
+                "duration_ms": 3.1113000004552305
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "📍 Location: Sydney  \n🌡️ Temperature: 26°C / 79°F  \n💧 Humidity: 60%  \n🌤️ Conditions: Sunny  \n💨 Wind: 20 km/h SE\n\n📍 Location: Berlin  \n🌡️ Temperature: 16°C / 61°F  \n💧 Humidity: 72%  \n🌤️ Conditions: Overcast  \n💨 Wind: 10 km/h N\n\nIt is currently warmer in Sydney than in Berlin.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 719,
+          "completion": 124,
+          "total": 843
+        },
+        "cost_usd": 0.00243,
+        "final_response": "📍 Location: Sydney  \n🌡️ Temperature: 26°C / 79°F  \n💧 Humidity: 60%  \n🌤️ Conditions: Sunny  \n💨 Wind: 20 km/h SE\n\n📍 Location: Berlin  \n🌡️ Temperature: 16°C / 61°F  \n💧 Humidity: 72%  \n🌤️ Conditions: Overcast  \n💨 Wind: 10 km/h N\n\nIt is currently warmer in Sydney than in Berlin.",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    }
+  ]
+}

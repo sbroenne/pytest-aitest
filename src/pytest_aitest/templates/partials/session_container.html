@@ -1,0 +1,91 @@
+{# Session container partial - displays tests within a session with flow diagram #}
+{# Expects: session (SessionGroup) #}
+
+<div class="session-container">
+    <div class="session-header">
+        <span class="session-title">
+            <span class="session-icon">🔗</span>
+            <span class="session-name">{{ session.name }}</span>
+            <span class="session-stats">
+                {{ session.tests | length }} tests
+                {% if session.all_passed %}
+                <span class="badge passed">all passed</span>
+                {% else %}
+                <span class="badge {{ 'passed' if session.passed > 0 else 'failed' }}">{{ session.passed }}/{{ session.tests | length }}</span>
+                {% endif %}
+            </span>
+        </span>
+        <span class="session-summary">
+            <span title="Total duration">⏱️ {{ "%.1f"|format(session.total_duration_ms / 1000) }}s</span>
+            <span title="Total tokens">🔤 {{ session.total_tokens }}</span>
+            <span title="Total cost">💰 {{ format_cost(session.total_cost) }}</span>
+            <span title="Tool calls">🔧 {{ session.total_tool_calls }}</span>
+        </span>
+    </div>
+    <div class="session-tests">
+        {# Session Flow Mermaid Diagram #}
+        <div class="session-diagram mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+            <div class="mermaid">{{ generate_session_mermaid(session) }}</div>
+        </div>
+        
+        <div class="session-flow">
+            {% for test in session.tests %}
+            <div class="session-step {{ 'first' if loop.first else '' }}">
+                <div class="step-connector">
+                    {% if not loop.first %}
+                    <div class="connector-line"></div>
+                    <div class="connector-label">+{{ test.agent_result.session_context_count if test.agent_result else 0 }} msgs</div>
+                    {% endif %}
+                </div>
+                <div class="test-item">
+                    <div class="test-header">
+                        <span class="test-name" title="{{ test.short_name }}">
+                            <span class="badge {{ test.outcome }}">{{ test.outcome }}</span>
+                            {{ test.display_name }}
+                        </span>
+                        <span class="test-metrics">
+                            <span>{{ "%.2f"|format(test.duration_ms / 1000) }}s</span>
+                            {% if test.agent_result %}
+                            <span>{{ test.agent_result.token_usage.get('prompt', 0) + test.agent_result.token_usage.get('completion', 0) }} tokens</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="test-details">
+                        {% if test.error %}
+                        <div class="error-message">{{ test.error }}</div>
+                        {% endif %}
+
+                        {% if test.agent_result %}
+                        <div class="metrics-grid">
+                            <div class="metric">
+                                <div class="metric-value">{{ "%.2f"|format(test.agent_result.duration_ms / 1000) }}s</div>
+                                <div class="metric-label">Duration</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">{{ test.agent_result.token_usage.get('prompt', 0) }}</div>
+                                <div class="metric-label">Prompt Tokens</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">{{ test.agent_result.token_usage.get('completion', 0) }}</div>
+                                <div class="metric-label">Completion Tokens</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">{{ test.agent_result.all_tool_calls | length }}</div>
+                                <div class="metric-label">Tool Calls</div>
+                            </div>
+                        </div>
+
+                        {% if test.agent_result.final_response %}
+                        <div class="final-output">
+                            <h4>💬 Final Output</h4>
+                            <div class="content">{{ test.agent_result.final_response }}</div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

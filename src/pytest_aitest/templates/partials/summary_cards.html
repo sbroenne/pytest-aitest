@@ -1,0 +1,40 @@
+{# Summary cards partial - metrics overview grid #}
+<section class="summary-grid">
+    <div class="summary-card total">
+        <div class="value">{{ report.total }}</div>
+        <div class="label">Total Tests</div>
+    </div>
+    <div class="summary-card passed">
+        <div class="value">{{ report.passed }}</div>
+        <div class="label">Passed</div>
+    </div>
+    <div class="summary-card failed">
+        <div class="value">{{ report.failed }}</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="summary-card rate">
+        <div class="value">{{ "%.0f"|format(report.pass_rate) }}%</div>
+        <div class="label">Pass Rate</div>
+        <div class="pass-rate-bar">
+            <div class="fill" style="width: {{ report.pass_rate }}%"></div>
+        </div>
+    </div>
+    {% if report.token_stats.max > 0 %}
+    <div class="summary-card tokens">
+        <div class="value">{{ "{:,}".format(report.token_stats.min) }}–{{ "{:,}".format(report.token_stats.max) }}</div>
+        <div class="label">Token Range</div>
+    </div>
+    {% endif %}
+    {% if report.duration_stats.max > 0 %}
+    <div class="summary-card" style="border-color: #3b82f6;">
+        <div class="value" style="color: #3b82f6; font-size: 1.25rem;">{{ "%.1f"|format(report.duration_stats.min / 1000) }}–{{ "%.1f"|format(report.duration_stats.max / 1000) }}s</div>
+        <div class="label">Duration Range</div>
+    </div>
+    {% endif %}
+    {% if report.tool_call_count > 0 %}
+    <div class="summary-card" style="border-color: #8b5cf6;">
+        <div class="value" style="color: #8b5cf6;">{{ report.tool_call_count }}</div>
+        <div class="label">Tool Calls</div>
+    </div>
+    {% endif %}
+</section>

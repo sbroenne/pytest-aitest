@@ -1,0 +1,51 @@
+{# Model leaderboard partial - ranked table of models by performance #}
+{% if flags.show_model_leaderboard and model_groups %}
+<section class="section">
+    <div class="section-header">
+        <h2>🏆 Model Leaderboard</h2>
+    </div>
+    <div class="section-body">
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th class="rank">Rank</th>
+                    <th>Model</th>
+                    <th>Pass Rate</th>
+                    <th class="numeric">Passed</th>
+                    <th class="numeric">Failed</th>
+                    <th class="numeric">Tokens</th>
+                    <th class="numeric">Efficiency</th>
+                    <th class="numeric">Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in model_groups %}
+                <tr>
+                    <td class="rank">
+                        <span class="medal">{{ group.medal }}</span>
+                        {% if not group.medal %}{{ group.rank }}{% endif %}
+                    </td>
+                    <td>
+                        <span class="model-name">{{ group.dimension_value }}</span>
+                        <span class="provider-badge {{ get_provider(group.dimension_value) }}">{{ get_provider(group.dimension_value) }}</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">{{ "%.0f"|format(group.pass_rate) }}%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: {{ group.pass_rate }}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">{{ group.passed }}</td>
+                    <td class="numeric" style="color: var(--c-fail);">{{ group.failed }}</td>
+                    <td class="numeric">{{ "{:,}".format(group.total_tokens) }}</td>
+                    <td class="numeric">{% if group.efficiency != float('inf') %}{{ "{:,.0f}".format(group.efficiency) }} tok/✓{% else %}—{% endif %}</td>
+                    <td class="numeric">{{ format_cost(group.total_cost) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}

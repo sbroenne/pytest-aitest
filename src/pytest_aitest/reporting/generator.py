@@ -133,7 +133,13 @@ class ReportGenerator:
             context["model_groups"] = self._aggregator.group_by_model(report)
             context["prompt_groups"] = self._aggregator.group_by_prompt(report)
 
-        template = self._env.get_template("report.html")
+        # Add comparison views (available in any comparison mode)
+        if flags.show_tool_comparison:
+            context["tool_comparison"] = self._aggregator.build_tool_comparison(report)
+        if flags.show_side_by_side:
+            context["side_by_side_tests"] = self._aggregator.build_side_by_side(report)
+
+        template = self._env.get_template("report_v2.html")
         html = template.render(**context)
         Path(output_path).write_text(html, encoding="utf-8")
 
@@ -144,17 +150,18 @@ class ReportGenerator:
         *,
         ai_summary: str | None = None,
     ) -> None:
-        """Generate JSON report.
+        """Generate JSON report using Pydantic schema.
 
         Args:
             report: Test suite report data
             output_path: Path to write JSON file
             ai_summary: Optional AI-generated summary to include
         """
-        data = self._serialize_report(report)
-        if ai_summary:
-            data["ai_summary"] = ai_summary
-        Path(output_path).write_text(json.dumps(data, indent=2), encoding="utf-8")
+        from pytest_aitest.models.converter import convert_suite_report
+        
+        pydantic_report = convert_suite_report(report, ai_summary=ai_summary)
+        json_str = pydantic_report.model_dump_json(indent=2, exclude_none=True)
+        Path(output_path).write_text(json_str, encoding="utf-8")
 
     def generate_markdown(
         self,

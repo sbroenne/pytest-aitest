@@ -1,0 +1,7 @@
+{# Overlay partial - fullscreen diagram viewer #}
+<div class="overlay" id="overlay" onclick="hideOverlay()">
+    <button class="overlay-close" onclick="hideOverlay()">✕</button>
+    <div class="overlay-content" onclick="event.stopPropagation()">
+        <div class="mermaid" id="overlay-mermaid"></div>
+    </div>
+</div>

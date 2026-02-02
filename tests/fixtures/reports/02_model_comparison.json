@@ -1,0 +1,365 @@
+{
+  "schema_version": "2.0",
+  "name": "pytest-aitest",
+  "timestamp": "2026-02-02T16:56:08.372024Z",
+  "duration_ms": 63982.05599997891,
+  "mode": "model_comparison",
+  "dimensions": {
+    "models": [
+      "gpt-4.1",
+      "gpt-5-mini"
+    ],
+    "prompts": [],
+    "base_tests": [
+      "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_forecast_interpretation",
+      "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_multi_city_comparison",
+      "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_simple_weather_query"
+    ],
+    "files": [
+      "tests/integration/test_model_benchmark.py"
+    ]
+  },
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate": 100.0,
+    "total_tokens": 5973,
+    "total_cost_usd": 0.009056499999999999,
+    "total_tool_calls": 6,
+    "token_stats": {
+      "min": 552,
+      "max": 1942,
+      "avg": 995
+    },
+    "cost_stats": {
+      "min": 0.0003285,
+      "max": 0.0022442499999999997,
+      "avg": 0.0015094166666666665
+    },
+    "duration_stats": {
+      "min": 6612.74979999871,
+      "max": 18232.7488999872,
+      "avg": 10663.675999996485
+    }
+  },
+  "tests": [
+    {
+      "name": "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_simple_weather_query[gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 11513.794899976347,
+      "docstring": "Basic weather lookup - all models should pass this.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "file": "tests/integration/test_model_benchmark.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 5823.514599993359,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 4.474099987419322
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast or any weather alerts for Paris?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 658,
+          "completion": 82,
+          "total": 740
+        },
+        "cost_usd": 0.0003285,
+        "final_response": "Current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast or any weather alerts for Paris?",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_simple_weather_query[gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 6612.74979999871,
+      "docstring": "Basic weather lookup - all models should pass this.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "file": "tests/integration/test_model_benchmark.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1358.852500008652,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's the weather in Paris?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Paris"
+                },
+                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "duration_ms": 3.405900002690032
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "The current weather in Paris is partly cloudy with a temperature of 18°C (64°F). Humidity is at 65%, and there is a southwest wind blowing at 12 km/h. Let me know if you need more details or a forecast!",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 484,
+          "completion": 68,
+          "total": 552
+        },
+        "cost_usd": 0.0015119999999999999,
+        "final_response": "The current weather in Paris is partly cloudy with a temperature of 18°C (64°F). Humidity is at 65%, and there is a southwest wind blowing at 12 km/h. Let me know if you need more details or a forecast!",
+        "tools_called": [
+          "get_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_multi_city_comparison[gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 13038.31309999805,
+      "docstring": "Compare weather in two cities - tests reasoning.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "file": "tests/integration/test_model_benchmark.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 7933.003899990581,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Which is warmer right now, Tokyo or Berlin?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Tokyo",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 8, \"warmer_city\": \"Tokyo\", \"humidity_difference\": 2}",
+                "duration_ms": 2.912399999331683
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Tokyo is warmer right now.\n\n- Tokyo: 24°C (75°F), sunny, humidity 70%, wind E at 8 km/h  \n- Berlin: 16°C (61°F), overcast, humidity 72%, wind N at 10 km/h\n\nTemperature difference: 8°C (≈14°F) in favor of Tokyo.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 759,
+          "completion": 495,
+          "total": 1254
+        },
+        "cost_usd": 0.0011797499999999998,
+        "final_response": "Tokyo is warmer right now.\n\n- Tokyo: 24°C (75°F), sunny, humidity 70%, wind E at 8 km/h  \n- Berlin: 16°C (61°F), overcast, humidity 72%, wind N at 10 km/h\n\nTemperature difference: 8°C (≈14°F) in favor of Tokyo.",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_multi_city_comparison[gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 6995.583400013857,
+      "docstring": "Compare weather in two cities - tests reasoning.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "file": "tests/integration/test_model_benchmark.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1964.3372000136878,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Which is warmer right now, Tokyo or Berlin?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "compare_weather",
+                "arguments": {
+                  "city1": "Tokyo",
+                  "city2": "Berlin"
+                },
+                "result": "{\"city1\": {\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}, \"city2\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"temperature_difference_celsius\": 8, \"warmer_city\": \"Tokyo\", \"humidity_difference\": 2}",
+                "duration_ms": 3.515699994750321
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Right now, Tokyo is warmer than Berlin. The current temperature in Tokyo is 24°C (75°F) with sunny conditions, while Berlin is at 16°C (61°F) and overcast.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 585,
+          "completion": 64,
+          "total": 649
+        },
+        "cost_usd": 0.001682,
+        "final_response": "Right now, Tokyo is warmer than Berlin. The current temperature in Tokyo is 24°C (75°F) with sunny conditions, while Berlin is at 16°C (61°F) and overcast.",
+        "tools_called": [
+          "compare_weather"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_forecast_interpretation[gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 18232.7488999872,
+      "docstring": "Forecast + interpretation - tests comprehension.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "file": "tests/integration/test_model_benchmark.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 12839.044199994532,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Should I bring an umbrella to London this week?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_forecast",
+                "arguments": {
+                  "city": "London",
+                  "days": 7
+                },
+                "result": "[{\"day\": 1, \"city\": \"London\", \"high_celsius\": 16, \"low_celsius\": 8, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"London\", \"high_celsius\": 17, \"low_celsius\": 9, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"London\", \"high_celsius\": 18, \"low_celsius\": 10, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}, {\"day\": 4, \"city\": \"London\", \"high_celsius\": 16, \"low_celsius\": 8, \"conditions\": \"Rainy\", \"precipitation_chance\": 50}, {\"day\": 5, \"city\": \"London\", \"high_celsius\": 17, \"low_celsius\": 9, \"conditions\": \"Clear\", \"precipitation_chance\": 60}, {\"day\": 6, \"city\": \"London\", \"high_celsius\": 18, \"low_celsius\": 10, \"conditions\": \"Sunny\", \"precipitation_chance\": 70}, {\"day\": 7, \"city\": \"London\", \"high_celsius\": 16, \"low_celsius\": 8, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 80}]",
+                "duration_ms": 3.1094000150915235
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Short answer: yes — bring a small travel umbrella this week.\n\nWhy: the 7‑day forecast for London shows several days with a substantial chance of precipitation (30–80%), and one day specifically listed as “Rainy.” Even when a day is mostly sunny or clear the forecast shows non‑trivial rain risk, so keeping an umbrella handy is the simplest way to avoid getting caught out.\n\nQuick day‑by‑day (assuming day 1 = today):\n- Day 1 (Mon): Sunny, 20% → umbrella optional for long periods outside.\n- Day 2 (Tue): Partly cloudy, 30% → bring a compact umbrella.\n- Day 3 (Wed): Cloudy, 40% → bring an umbrella.\n- Day 4 (Thu): Rainy, 50% → definitely bring umbrella + a waterproof layer.\n- Day 5 (Fri): Clear but 60% → bring umbrella (forecast inconsistency, don’t risk it).\n- Day 6 (Sat): Sunny but 70% → bring umbrella.\n- Day 7 (Sun): Partly cloudy, 80% → bring umbrella.\n\nPractical tips:\n- Pack a compact folding umbrella in your bag or keep one at work — lightweight and low hassle.\n- If it’s windy, a packable waterproof jacket with a hood may be more practical than a small umbrella.\n- Check the same‑day forecast before heading out for any last‑minute updates.\n\nIf you’d like, I can remind you which specific day(s) you’ll be out and give a more focused recommendation for that day.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 937,
+          "completion": 1005,
+          "total": 1942
+        },
+        "cost_usd": 0.0022442499999999997,
+        "final_response": "Short answer: yes — bring a small travel umbrella this week.\n\nWhy: the 7‑day forecast for London shows several days with a substantial chance of precipitation (30–80%), and one day specifically listed as “Rainy.” Even when a day is mostly sunny or clear the forecast shows non‑trivial rain risk, so keeping an umbrella handy is the simplest way to avoid getting caught out.\n\nQuick day‑by‑day (assuming day 1 = today):\n- Day 1 (Mon): Sunny, 20% → umbrella optional for long periods outside.\n- Day 2 (Tue): Partly cloudy, 30% → bring a compact umbrella.\n- Day 3 (Wed): Cloudy, 40% → bring an umbrella.\n- Day 4 (Thu): Rainy, 50% → definitely bring umbrella + a waterproof layer.\n- Day 5 (Fri): Clear but 60% → bring umbrella (forecast inconsistency, don’t risk it).\n- Day 6 (Sat): Sunny but 70% → bring umbrella.\n- Day 7 (Sun): Partly cloudy, 80% → bring umbrella.\n\nPractical tips:\n- Pack a compact folding umbrella in your bag or keep one at work — lightweight and low hassle.\n- If it’s windy, a packable waterproof jacket with a hood may be more practical than a small umbrella.\n- Check the same‑day forecast before heading out for any last‑minute updates.\n\nIf you’d like, I can remind you which specific day(s) you’ll be out and give a more focused recommendation for that day.",
+        "tools_called": [
+          "get_forecast"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_model_benchmark.py::TestModelBenchmark::test_forecast_interpretation[gpt-4.1]",
+      "outcome": "passed",
+      "duration_ms": 7588.865900004748,
+      "docstring": "Forecast + interpretation - tests comprehension.",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4.1",
+        "file": "tests/integration/test_model_benchmark.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1535.6300999992527,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Should I bring an umbrella to London this week?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_forecast",
+                "arguments": {
+                  "city": "London",
+                  "days": 7
+                },
+                "result": "[{\"day\": 1, \"city\": \"London\", \"high_celsius\": 16, \"low_celsius\": 8, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"London\", \"high_celsius\": 17, \"low_celsius\": 9, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"London\", \"high_celsius\": 18, \"low_celsius\": 10, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}, {\"day\": 4, \"city\": \"London\", \"high_celsius\": 16, \"low_celsius\": 8, \"conditions\": \"Rainy\", \"precipitation_chance\": 50}, {\"day\": 5, \"city\": \"London\", \"high_celsius\": 17, \"low_celsius\": 9, \"conditions\": \"Clear\", \"precipitation_chance\": 60}, {\"day\": 6, \"city\": \"London\", \"high_celsius\": 18, \"low_celsius\": 10, \"conditions\": \"Sunny\", \"precipitation_chance\": 70}, {\"day\": 7, \"city\": \"London\", \"high_celsius\": 16, \"low_celsius\": 8, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 80}]",
+                "duration_ms": 2.8805000183638185
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Yes, you should bring an umbrella to London this week. Several days have a significant chance of rain, especially towards the end of the week, with precipitation chances reaching 50% and higher. It’s always practical to be prepared for showers in London!",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 763,
+          "completion": 73,
+          "total": 836
+        },
+        "cost_usd": 0.00211,
+        "final_response": "Yes, you should bring an umbrella to London this week. Several days have a significant chance of rain, especially towards the end of the week, with precipitation chances reaching 50% and higher. It’s always practical to be prepared for showers in London!",
+        "tools_called": [
+          "get_forecast"
+        ],
+        "session_context_count": 0
+      }
+    }
+  ]
+}

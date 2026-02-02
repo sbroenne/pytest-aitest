@@ -1,0 +1,91 @@
+{# Side-by-side comparison partial - compare tests across models/prompts #}
+{# Shows multiple sequence diagrams side by side for the same test #}
+{% if flags.show_side_by_side and side_by_side_tests %}
+<section class="section">
+    <div class="section-header">
+        <h2>🔄 Side-by-Side Comparison</h2>
+    </div>
+    <div class="section-body">
+        <div class="side-by-side-controls">
+            <label for="sbs-test-select">Select test to compare:</label>
+            <select id="sbs-test-select" onchange="showSideBySideTest(this.value)">
+                {% for test_group in side_by_side_tests %}
+                <option value="sbs-{{ loop.index0 }}">{{ test_group.test_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        {% for test_group in side_by_side_tests %}
+        <div id="sbs-{{ loop.index0 }}" class="side-by-side-group {{ 'active' if loop.first else '' }}">
+            <h3 class="sbs-test-name">{{ test_group.test_name }}</h3>
+            
+            {# Comparison header #}
+            <div class="sbs-header">
+                {% for variant in test_group.variants %}
+                <div class="sbs-header-cell {{ 'passed' if variant.passed else 'failed' }}">
+                    <div class="sbs-variant-name">{{ variant.name }}</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge {{ 'passed' if variant.passed else 'failed' }}">
+                            {{ 'passed' if variant.passed else 'failed' }}
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>{{ "%.1f"|format(variant.duration_ms / 1000) }}s</span>
+                        <span>{{ variant.total_tokens }} tok</span>
+                        <span>{{ variant.tool_calls }} tools</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {# Side-by-side diagrams #}
+            <div class="sbs-diagrams" style="grid-template-columns: repeat({{ test_group.variants | length }}, 1fr);">
+                {% for variant in test_group.variants %}
+                <div class="sbs-diagram-cell">
+                    {% if variant.agent_result and variant.agent_result.turns %}
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">{{ generate_mermaid(variant.agent_result) }}</div>
+                    </div>
+                    
+                    {# Final response comparison #}
+                    {% if variant.agent_result.final_response %}
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">{{ variant.agent_result.final_response[:300] }}{{ '...' if variant.agent_result.final_response|length > 300 else '' }}</div>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="sbs-no-data">No agent result available</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            {# Tool calls comparison #}
+            {% if test_group.has_tool_calls %}
+            <div class="sbs-tools-header">Tool Calls</div>
+            <div class="sbs-tools" style="grid-template-columns: repeat({{ test_group.variants | length }}, 1fr);">
+                {% for variant in test_group.variants %}
+                <div class="sbs-tools-cell">
+                    {% if variant.agent_result %}
+                    <ul class="sbs-tool-list">
+                        {% for tc in variant.agent_result.all_tool_calls %}
+                        <li>
+                            <span class="tool-name">{{ tc.name }}</span>
+                            {% if tc.duration_ms %}<span class="tool-timing">{{ tc.duration_ms | int }}ms</span>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if variant.agent_result.all_tool_calls | length == 0 %}
+                    <span class="no-tools">No tools called</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}

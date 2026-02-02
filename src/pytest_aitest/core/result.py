@@ -14,10 +14,12 @@ class ToolCall:
     arguments: dict[str, Any]
     result: str | None = None
     error: str | None = None
+    duration_ms: float | None = None
 
     def __repr__(self) -> str:
         status = "error" if self.error else "ok"
-        return f"ToolCall({self.name}, {status})"
+        timing = f", {self.duration_ms:.1f}ms" if self.duration_ms else ""
+        return f"ToolCall({self.name}, {status}{timing})"
 
 
 @dataclass(slots=True)

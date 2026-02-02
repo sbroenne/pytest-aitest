@@ -1,0 +1,9 @@
+{# AI Summary partial - LLM-generated analysis #}
+{% if ai_summary %}
+<section class="section" style="border-left: 4px solid var(--c-secondary);">
+    <div class="section-header" style="background: linear-gradient(90deg, #f3e8ff, #f8fafc);">
+        <h2>🤖 AI Analysis</h2>
+    </div>
+    <div class="section-body ai-summary">{{ ai_summary | markdown }}</div>
+</section>
+{% endif %}

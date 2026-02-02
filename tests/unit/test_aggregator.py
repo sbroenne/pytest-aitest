@@ -285,3 +285,181 @@ class TestTestDimensions:
         dims = TestDimensions(mode=ReportMode.MATRIX, models=["a"], prompts=["x"])
         assert dims.is_matrix is True
         assert dims.is_comparison is True
+
+
+def make_test_with_tools(
+    name: str,
+    model: str | None = None,
+    prompt: str | None = None,
+    tool_calls: list[str] | None = None,
+) -> TestReport:
+    """Helper to create test reports with tool calls."""
+    from pytest_aitest.core.result import ToolCall
+
+    tool_list = []
+    if tool_calls:
+        tool_list = [
+            ToolCall(name=tool_name, arguments={}, result="ok")
+            for tool_name in tool_calls
+        ]
+
+    metadata = {}
+    if model:
+        metadata["model"] = model
+    if prompt:
+        metadata["prompt"] = prompt
+
+    result = AgentResult(
+        turns=[Turn(role="assistant", content="Hello", tool_calls=tool_list)],
+        success=True,
+        duration_ms=100,
+        token_usage={"prompt": 100, "completion": 50},
+        cost_usd=0.001,
+    )
+
+    return TestReport(
+        name=name,
+        outcome="passed",
+        duration_ms=100,
+        agent_result=result,
+        metadata=metadata,
+    )
+
+
+class TestToolComparison:
+    """Tests for tool usage comparison across models/prompts."""
+
+    def test_tool_comparison_with_models(self) -> None:
+        """Tool comparison shows tool usage per model."""
+        suite = make_suite(
+            make_test_with_tools("test[model_a]", model="model_a", tool_calls=["get_weather", "get_time"]),
+            make_test_with_tools("test[model_b]", model="model_b", tool_calls=["get_weather"]),
+        )
+
+        aggregator = DimensionAggregator()
+        result = aggregator.build_tool_comparison(suite)
+
+        assert result is not None
+        assert result["columns"] == ["model_a", "model_b"]
+        assert len(result["tools"]) == 2
+        
+        # get_weather used by both
+        weather_tool = next(t for t in result["tools"] if t["name"] == "get_weather")
+        assert weather_tool["counts"] == [1, 1]
+        assert weather_tool["total"] == 2
+        
+        # get_time only used by model_a
+        time_tool = next(t for t in result["tools"] if t["name"] == "get_time")
+        assert time_tool["counts"] == [1, 0]
+        assert time_tool["total"] == 1
+
+    def test_tool_comparison_with_prompts(self) -> None:
+        """Tool comparison shows tool usage per prompt."""
+        suite = make_suite(
+            make_test_with_tools("test[prompt_x]", prompt="prompt_x", tool_calls=["search"]),
+            make_test_with_tools("test[prompt_y]", prompt="prompt_y", tool_calls=["search", "search"]),
+        )
+
+        aggregator = DimensionAggregator()
+        result = aggregator.build_tool_comparison(suite)
+
+        assert result is not None
+        assert result["columns"] == ["prompt_x", "prompt_y"]
+        assert result["column_totals"] == [1, 2]
+        assert result["grand_total"] == 3
+
+    def test_tool_comparison_returns_none_for_simple(self) -> None:
+        """No tool comparison for simple tests (no models/prompts)."""
+        suite = make_suite(
+            make_test_with_tools("test1", tool_calls=["tool_a"]),
+            make_test_with_tools("test2", tool_calls=["tool_b"]),
+        )
+
+        aggregator = DimensionAggregator()
+        result = aggregator.build_tool_comparison(suite)
+
+        assert result is None
+
+
+class TestSideBySideComparison:
+    """Tests for side-by-side comparison data."""
+
+    def test_side_by_side_groups_variants(self) -> None:
+        """Tests with same base name are grouped."""
+        suite = make_suite(
+            make_test_with_tools("test[model_a]", model="model_a"),
+            make_test_with_tools("test[model_b]", model="model_b"),
+        )
+
+        aggregator = DimensionAggregator()
+        result = aggregator.build_side_by_side(suite)
+
+        assert result is not None
+        assert len(result) == 1  # One test group
+        assert result[0]["test_name"] == "test"
+        assert len(result[0]["variants"]) == 2
+
+    def test_side_by_side_calculates_metrics(self) -> None:
+        """Variant metrics are calculated correctly."""
+        test_a = make_test_with_tools("test[a]", model="a", tool_calls=["t1", "t2"])
+        test_b = make_test_with_tools("test[b]", model="b", tool_calls=["t1"])
+        test_b.outcome = "failed"
+        test_b.agent_result.success = False
+        
+        suite = make_suite(test_a, test_b)
+
+        aggregator = DimensionAggregator()
+        result = aggregator.build_side_by_side(suite)
+
+        assert result is not None
+        variants = result[0]["variants"]
+        
+        # First variant passed with 2 tool calls
+        assert variants[0]["passed"] is True
+        assert variants[0]["tool_calls"] == 2
+        
+        # Second variant failed with 1 tool call
+        assert variants[1]["passed"] is False
+        assert variants[1]["tool_calls"] == 1
+
+    def test_side_by_side_returns_none_for_single_variant(self) -> None:
+        """No side-by-side for tests with only one variant."""
+        suite = make_suite(
+            make_test_with_tools("test1", model="a"),
+            make_test_with_tools("test2", model="a"),  # Different test, not variant
+        )
+
+        aggregator = DimensionAggregator()
+        result = aggregator.build_side_by_side(suite)
+
+        assert result is None  # No tests have multiple variants
+
+
+class TestAdaptiveFlags:
+    """Tests for adaptive rendering flags."""
+
+    def test_flags_include_tool_comparison(self) -> None:
+        """Tool comparison flag is set when there are multiple models with tools."""
+        suite = make_suite(
+            make_test_with_tools("test[a]", model="a", tool_calls=["t1"]),
+            make_test_with_tools("test[b]", model="b", tool_calls=["t1"]),
+        )
+
+        aggregator = DimensionAggregator()
+        flags = aggregator.get_adaptive_flags(suite)
+
+        assert flags.show_tool_comparison is True
+        assert flags.show_side_by_side is True
+
+    def test_flags_no_tool_comparison_for_simple(self) -> None:
+        """Tool comparison not shown for simple tests."""
+        suite = make_suite(
+            make_test_report("test1"),
+            make_test_report("test2"),
+        )
+
+        aggregator = DimensionAggregator()
+        flags = aggregator.get_adaptive_flags(suite)
+
+        assert flags.show_tool_comparison is False
+        assert flags.show_side_by_side is False

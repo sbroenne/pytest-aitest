@@ -1,0 +1,44 @@
+{# Comparison matrix partial - model × prompt grid #}
+{% if flags.show_matrix and matrix %}
+<section class="section">
+    <div class="section-header">
+        <h2>📊 Comparison Matrix</h2>
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix">
+                <thead>
+                    <tr>
+                        <th>Test / Prompt</th>
+                        {% for model in dimensions.models %}
+                        <th>{{ model }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in matrix %}
+                    <tr>
+                        <td class="test-name">{{ row[0].prompt }}</td>
+                        {% for cell in row %}
+                        <td class="matrix-cell {{ 'cell-passed' if cell.passed else 'cell-failed' if cell.test else '' }}">
+                            {% if cell.test %}
+                            <div class="status">{{ '✅' if cell.passed else '❌' }}</div>
+                            {% if cell.test.agent_result %}
+                            <div class="metrics">
+                                {{ "%.1f"|format(cell.test.duration_ms / 1000) }}s · 
+                                {{ cell.test.agent_result.token_usage.get('prompt', 0) + cell.test.agent_result.token_usage.get('completion', 0) }} tok
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <span style="color: var(--c-text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pytest-aitest Report - {{ report.name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+{% include 'partials/styles.css' %}
+    </style>
+</head>
+<body>
+    <div class="container">
+        {# Header #}
+        {% include 'partials/header.html' %}
+
+        {# Summary Cards #}
+        {% include 'partials/summary_cards.html' %}
+
+        {# Model Leaderboard (conditional) #}
+        {% include 'partials/model_leaderboard.html' %}
+
+        {# Prompt Comparison (conditional) #}
+        {% include 'partials/prompt_comparison.html' %}
+
+        {# AI Summary (conditional) #}
+        {% include 'partials/ai_summary.html' %}
+
+        {# Comparison Matrix (conditional) #}
+        {% include 'partials/comparison_matrix.html' %}
+
+        {# Tool Comparison Grid (conditional) #}
+        {% include 'partials/tool_comparison.html' %}
+
+        {# Side-by-Side Comparison (conditional) #}
+        {% include 'partials/side_by_side.html' %}
+
+        {# Test Overview Table (conditional - comparison modes only) #}
+        {% include 'partials/test_overview.html' %}
+
+        {# Detailed Results (test list grouped by sessions) #}
+        {% include 'partials/detailed_results.html' %}
+    </div>
+
+    {# Fullscreen Overlay for Diagrams #}
+    {% include 'partials/overlay.html' %}
+
+    <script>
+{% include 'partials/scripts.js' %}
+    </script>
+</body>
+</html>

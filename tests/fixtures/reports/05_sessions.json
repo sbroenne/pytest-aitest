@@ -1,0 +1,413 @@
+{
+  "schema_version": "2.0",
+  "name": "pytest-aitest",
+  "timestamp": "2026-02-02T17:03:19.977557Z",
+  "duration_ms": 165504.24060001387,
+  "mode": "model_comparison",
+  "dimensions": {
+    "models": [
+      "gpt-4o-mini",
+      "gpt-5-mini"
+    ],
+    "prompts": [],
+    "base_tests": [
+      "tests/integration/test_sessions.py::TestBankingWorkflow::test_01_introduce_context",
+      "tests/integration/test_sessions.py::TestBankingWorkflow::test_02_reference_prior_context",
+      "tests/integration/test_sessions.py::TestBankingWorkflow::test_03_pure_context_question",
+      "tests/integration/test_sessions.py::TestBankingWorkflow::test_04_multi_turn_reasoning",
+      "tests/integration/test_sessions.py::TestBankingWorkflow::test_05_context_summary",
+      "tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention",
+      "tests/integration/test_sessions.py::TestSessionIsolation::test_fresh_session_starts_clean"
+    ],
+    "files": [
+      "tests/integration/test_sessions.py"
+    ]
+  },
+  "summary": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate": 100.0,
+    "total_tokens": 13737,
+    "total_cost_usd": 0.00920716,
+    "total_tool_calls": 5,
+    "token_stats": {
+      "min": 667,
+      "max": 3779,
+      "avg": 1717
+    },
+    "cost_stats": {
+      "min": 0.00012441,
+      "max": 0.0031165000000000003,
+      "avg": 0.001150895
+    },
+    "duration_stats": {
+      "min": 7256.7862999858335,
+      "max": 32388.33230000455,
+      "avg": 20688.030075001734
+    }
+  },
+  "tests": [
+    {
+      "name": "tests/integration/test_sessions.py::TestBankingWorkflow::test_01_introduce_context",
+      "outcome": "passed",
+      "duration_ms": 31528.14850001596,
+      "docstring": "Establish memorable context (Paris trip) and check balances.\n\n        This test introduces \"Paris\" as a memorable detail that will be\n        verified in later tests. The agent should check account balances\n        and acknowledge the trip planning context.\n\n        Session State After:\n            - Contains user's Paris trip mention\n            - Contains agent's balance response\n            - Approximately 5 messages\n        ",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 12943.276400008472,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Hi! I'm planning a trip to Paris next summer and want to start saving for it. Can you check my account balances first?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_all_balances",
+                "arguments": {},
+                "result": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}",
+                "duration_ms": 5.109400022774935
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Great — I pulled your current balances.\n\n- Checking: $1,500.00  \n- Savings: $3,000.00  \n- Total: $4,500.00\n\nNext steps I can help with:\n- Build a savings plan if you tell me the trip target amount and when you want to go (I’ll calculate how much to save per month).\n- Move money into savings now (tell me an amount to transfer from checking → savings).\n- Show recent transactions to spot where you could free up extra money.\n\nWhich would you like to do next — set a savings target and timeline, make a transfer now, or see transactions?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 990,
+          "completion": 483,
+          "total": 1473
+        },
+        "cost_usd": 0.0012135,
+        "final_response": "Great — I pulled your current balances.\n\n- Checking: $1,500.00  \n- Savings: $3,000.00  \n- Total: $4,500.00\n\nNext steps I can help with:\n- Build a savings plan if you tell me the trip target amount and when you want to go (I’ll calculate how much to save per month).\n- Move money into savings now (tell me an amount to transfer from checking → savings).\n- Show recent transactions to spot where you could free up extra money.\n\nWhich would you like to do next — set a savings target and timeline, make a transfer now, or see transactions?",
+        "tools_called": [
+          "get_all_balances"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_sessions.py::TestBankingWorkflow::test_02_reference_prior_context",
+      "outcome": "passed",
+      "duration_ms": 10331.026500003645,
+      "docstring": "Reference prior context without repeating it.\n\n        Key Test Design:\n            The prompt says \"that trip I mentioned\" NOT \"Paris trip\".\n            The agent must remember that \"that trip\" refers to Paris.\n\n        This tests implicit context retention - the agent should understand\n        the reference without us restating it explicitly.\n\n        Session State After:\n            - Contains transfer request and confirmation\n            - Account state changed: Checking -$500, Savings +$500\n            - Approximately 9 messages total\n        ",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 2860.765299992636,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Great! Let's start saving. Move $500 from checking to savings for that trip I mentioned.",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "transfer",
+                "arguments": {
+                  "from_account": "checking",
+                  "to_account": "savings",
+                  "amount": 500
+                },
+                "result": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 500, \"amount_formatted\": \"$500.00\", \"new_balance_from\": 1000.0, \"new_balance_to\": 3500.0, \"message\": \"Successfully transferred $500.00 from checking to savings.\"}",
+                "duration_ms": 3.31590001587756
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Done — I transferred $500.00 from checking to savings.\n\n- New checking balance: $1,000.00  \n- New savings balance: $3,500.00\n\nWould you like to set a target amount and timeline for your Paris trip so I can create a monthly savings plan? Or anything else?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 1529,
+          "completion": 102,
+          "total": 1631
+        },
+        "cost_usd": 0.00058625,
+        "final_response": "Done — I transferred $500.00 from checking to savings.\n\n- New checking balance: $1,000.00  \n- New savings balance: $3,500.00\n\nWould you like to set a target amount and timeline for your Paris trip so I can create a monthly savings plan? Or anything else?",
+        "tools_called": [
+          "transfer"
+        ],
+        "session_context_count": 5
+      }
+    },
+    {
+      "name": "tests/integration/test_sessions.py::TestBankingWorkflow::test_03_pure_context_question",
+      "outcome": "passed",
+      "duration_ms": 11390.818100015167,
+      "docstring": "Ask a question that can ONLY be answered from conversation history.\n\n        THIS IS THE CRITICAL TEST.\n\n        The question \"what was I saving for?\" cannot be answered by any tool.\n        The BankingService has no concept of goals or purposes - it only knows\n        about accounts and transactions.\n\n        The agent MUST retrieve \"Paris\" from the conversation history established\n        in test_01. If sessions don't work, this test fails.\n\n        Why This Works:\n            - No tool provides trip/goal information\n            - \"Paris\" was only mentioned in test_01's user message\n            - The agent must use the `messages` parameter to access history\n        ",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 5043.775500002084,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Wait, remind me - what was I saving for again?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "You were saving for your trip to Paris next summer — and I’ve already moved $500 into your savings for that. \n\nWould you like to:\n- Set a target budget and travel date so I can calculate monthly savings needed,\n- Set up a recurring transfer into savings, or\n- Do something else (view transactions, adjust transfers)?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 911,
+          "completion": 206,
+          "total": 1117
+        },
+        "cost_usd": 0.0006397499999999999,
+        "final_response": "You were saving for your trip to Paris next summer — and I’ve already moved $500 into your savings for that. \n\nWould you like to:\n- Set a target budget and travel date so I can calculate monthly savings needed,\n- Set up a recurring transfer into savings, or\n- Do something else (view transactions, adjust transfers)?",
+        "tools_called": [],
+        "session_context_count": 9
+      }
+    },
+    {
+      "name": "tests/integration/test_sessions.py::TestBankingWorkflow::test_04_multi_turn_reasoning",
+      "outcome": "passed",
+      "duration_ms": 25288.130500004627,
+      "docstring": "Complex question requiring both context retention AND tool usage.\n\n        This test combines:\n            1. Context: \"where I'm going\" refers to Paris (from history)\n            2. Tool call: Check current savings balance\n            3. Reasoning: Calculate months to afford $800 flight\n\n        Tests that the agent can use tools WHILE retaining conversation context.\n        ",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 15027.354100020602,
+        "turns": [
+          {
+            "role": "user",
+            "content": "If I keep saving $500 per month for my trip, and flights to where I'm going cost about $800, how many months until I can afford the flight? Check my current savings balance first.",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_balance",
+                "arguments": {
+                  "account": "savings"
+                },
+                "result": "{\"account\": \"savings\", \"balance\": 3000.0, \"formatted\": \"$3,000.00\"}",
+                "duration_ms": 3.4143000084441155
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "I checked your savings balance: $3,000.00.\n\nAt a flight cost of $800:\n- Months required at $500/month = 0 — you can afford the flight right now.\n- If you paid the $800, remaining savings would be $2,200.00.\n\nWould you like me to:\n- Set aside $800 (move it to a labeled sub-savings or earmark it),\n- Transfer $800 to checking for purchase, or\n- Reconcile balances/transactions (I can show recent activity or re-check all balances)?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 2113,
+          "completion": 1044,
+          "total": 3157
+        },
+        "cost_usd": 0.0026162499999999997,
+        "final_response": "I checked your savings balance: $3,000.00.\n\nAt a flight cost of $800:\n- Months required at $500/month = 0 — you can afford the flight right now.\n- If you paid the $800, remaining savings would be $2,200.00.\n\nWould you like me to:\n- Set aside $800 (move it to a labeled sub-savings or earmark it),\n- Transfer $800 to checking for purchase, or\n- Reconcile balances/transactions (I can show recent activity or re-check all balances)?",
+        "tools_called": [
+          "get_balance"
+        ],
+        "session_context_count": 11
+      }
+    },
+    {
+      "name": "tests/integration/test_sessions.py::TestBankingWorkflow::test_05_context_summary",
+      "outcome": "passed",
+      "duration_ms": 32388.33230000455,
+      "docstring": "Request a summary to verify full conversation history retention.\n\n        This tests that the agent remembers the ENTIRE conversation:\n            - The original Paris trip goal\n            - The $500 transfer\n            - The flight cost calculation\n\n        A good summary proves the agent has access to complete history.\n        ",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 22108.99859998608,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Give me a quick summary of what we've discussed and done today.",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_all_balances",
+                "arguments": {},
+                "result": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}",
+                "duration_ms": 2.8039000171702355
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Here’s a quick timeline and current status:\n\nWhat we discussed\n- You’re saving for a trip to Paris next summer.\n- You asked how long until you can afford an $800 flight if you save $500/month.\n\nWhat I did for you\n- Checked your account balances.\n- Transferred $500 from checking → savings (transaction confirmed: TX0001, $500.00).\n- Re-checked your savings when you asked about the flight.\n\nCurrent balances (most recent check)\n- Checking: $1,500.00  \n- Savings: $3,000.00\n\nNotes/observations\n- After the transfer I confirmed success (TX0001 showed new balances of $1,000 checking / $3,500 savings), but the most recent balance check returned $1,500 / $3,000. If you want, I can reconcile that discrepancy and re-run or correct the transfer.\n\nNext steps I can take now\n- Set aside $800 for the flight (earmark or move to checking),\n- Reconcile and confirm your transfer and balances,\n- Set up a recurring $500/month transfer into savings,\n- Build a monthly savings plan for the entire trip.\n\nWhich would you like me to do?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 2538,
+          "completion": 1241,
+          "total": 3779
+        },
+        "cost_usd": 0.0031165000000000003,
+        "final_response": "Here’s a quick timeline and current status:\n\nWhat we discussed\n- You’re saving for a trip to Paris next summer.\n- You asked how long until you can afford an $800 flight if you save $500/month.\n\nWhat I did for you\n- Checked your account balances.\n- Transferred $500 from checking → savings (transaction confirmed: TX0001, $500.00).\n- Re-checked your savings when you asked about the flight.\n\nCurrent balances (most recent check)\n- Checking: $1,500.00  \n- Savings: $3,000.00\n\nNotes/observations\n- After the transfer I confirmed success (TX0001 showed new balances of $1,000 checking / $3,500 savings), but the most recent balance check returned $1,500 / $3,000. If you want, I can reconcile that discrepancy and re-run or correct the transfer.\n\nNext steps I can take now\n- Set aside $800 for the flight (earmark or move to checking),\n- Reconcile and confirm your transfer and balances,\n- Set up a recurring $500/month transfer into savings,\n- Build a monthly savings plan for the entire trip.\n\nWhich would you like me to do?",
+        "tools_called": [
+          "get_all_balances"
+        ],
+        "session_context_count": 15
+      }
+    },
+    {
+      "name": "tests/integration/test_sessions.py::TestSessionIsolation::test_fresh_session_starts_clean",
+      "outcome": "passed",
+      "duration_ms": 7256.7862999858335,
+      "docstring": "This class should NOT see TestBankingWorkflow's conversation.\n\n        The conversation history should be empty, even though the server\n        state (account balances) reflects changes from the prior test class.\n\n        Expected:\n            - session[\"messages\"] starts empty (no Paris context here)\n            - Banking balance ~$1,000 (after $500 transfer in prior class)\n        ",
+      "error_count": 0,
+      "metadata": {
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 1898.6763000139035,
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's my current checking balance?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_balance",
+                "arguments": {
+                  "account": "checking"
+                },
+                "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
+                "duration_ms": 4.039499995997176
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Your current checking balance is $1,500.00. Would you like to do anything with this account (transfer, withdraw, view transactions)?",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 905,
+          "completion": 57,
+          "total": 962
+        },
+        "cost_usd": 0.00034025,
+        "final_response": "Your current checking balance is $1,500.00. Would you like to do anything with this account (transfer, withdraw, view transactions)?",
+        "tools_called": [
+          "get_balance"
+        ],
+        "session_context_count": 0
+      }
+    },
+    {
+      "name": "tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention[gpt-5-mini]",
+      "outcome": "passed",
+      "duration_ms": 27195.174899999984,
+      "docstring": "Full session workflow: introduce context → reference it → verify memory.\n\n        This runs a complete session in a single test to compare models fairly.\n        Each model gets the same prompts and must demonstrate context retention.\n        ",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-5-mini",
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 3248.5285000002477,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Remind me - what was I saving for?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "You were saving for your trip to Paris next summer.\n\nWould you like me to set a savings goal (target amount and date), create a recurring transfer, or schedule a reminder about the trip? If a goal, tell me the target amount and by when.",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 761,
+          "completion": 190,
+          "total": 951
+        },
+        "cost_usd": 0.00057025,
+        "final_response": "You were saving for your trip to Paris next summer.\n\nWould you like me to set a savings goal (target amount and date), create a recurring transfer, or schedule a reminder about the trip? If a goal, tell me the target amount and by when.",
+        "tools_called": [],
+        "session_context_count": 9
+      }
+    },
+    {
+      "name": "tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention[gpt-4o-mini]",
+      "outcome": "passed",
+      "duration_ms": 20125.823499984108,
+      "docstring": "Full session workflow: introduce context → reference it → verify memory.\n\n        This runs a complete session in a single test to compare models fairly.\n        Each model gets the same prompts and must demonstrate context retention.\n        ",
+      "error_count": 0,
+      "metadata": {
+        "model": "gpt-4o-mini",
+        "file": "tests/integration/test_sessions.py"
+      },
+      "agent_result": {
+        "success": true,
+        "duration_ms": 722.8264000150375,
+        "turns": [
+          {
+            "role": "user",
+            "content": "Remind me - what was I saving for?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "You mentioned planning a trip to Paris next summer. If you need assistance with budgeting or saving for that trip, feel free to ask!",
+            "tool_calls": []
+          }
+        ],
+        "token_usage": {
+          "prompt": 638,
+          "completion": 29,
+          "total": 667
+        },
+        "cost_usd": 0.00012441,
+        "final_response": "You mentioned planning a trip to Paris next summer. If you need assistance with budgeting or saving for that trip, feel free to ask!",
+        "tools_called": [],
+        "session_context_count": 9
+      }
+    }
+  ]
+}

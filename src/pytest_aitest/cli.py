@@ -20,7 +20,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from pytest_aitest.reporting.collector import SuiteReport, TestReport
+from pytest_aitest.reporting.collector import SuiteReport as LegacySuiteReport
+from pytest_aitest.reporting.collector import TestReport as LegacyTestReport
 from pytest_aitest.reporting.generator import ReportGenerator
 from pytest_aitest.result import AgentResult, ToolCall, Turn
 
@@ -69,14 +70,108 @@ def get_config_value(key: str, cli_value: Any, env_var: str) -> Any:
     return config.get(key)
 
 
-def load_suite_report(json_path: Path) -> tuple[SuiteReport, str | None]:
+def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None]:
     """Load SuiteReport from JSON file.
+
+    Supports both v2.0 Pydantic schema and legacy formats.
 
     Returns:
         Tuple of (SuiteReport, ai_summary or None)
     """
     data = json.loads(json_path.read_text(encoding="utf-8"))
 
+    # Check for v2.0 schema
+    schema_version = data.get("schema_version")
+    if schema_version == "2.0":
+        return _load_v2_report(data)
+    
+    # Fall back to legacy format
+    return _load_legacy_report(data)
+
+
+def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None]:
+    """Load report from v2.0 Pydantic schema format."""
+    from pytest_aitest.models import SuiteReport as PydanticReport
+    
+    # Validate and parse with Pydantic
+    pydantic_report = PydanticReport.model_validate(data)
+    
+    # Extract AI summary
+    ai_summary = pydantic_report.ai_summary
+    
+    # Convert Pydantic models back to legacy dataclasses for compatibility
+    # with the existing HTML template rendering
+    tests = []
+    for t in pydantic_report.tests:
+        agent_result = None
+        if t.agent_result:
+            ar = t.agent_result
+            turns = [
+                Turn(
+                    role=turn.role.value,
+                    content=turn.content,
+                    tool_calls=[
+                        ToolCall(
+                            name=tc.name,
+                            arguments=tc.arguments,
+                            result=tc.result,
+                            error=tc.error,
+                            duration_ms=tc.duration_ms,
+                        )
+                        for tc in turn.tool_calls
+                    ],
+                )
+                for turn in ar.turns
+            ]
+            agent_result = AgentResult(
+                turns=turns,
+                success=ar.success,
+                error=ar.error,
+                duration_ms=ar.duration_ms,
+                token_usage={
+                    "prompt": ar.token_usage.prompt or 0,
+                    "completion": ar.token_usage.completion or 0,
+                },
+                cost_usd=ar.cost_usd,
+                session_context_count=ar.session_context_count or 0,
+            )
+        
+        metadata = {}
+        if t.metadata:
+            if t.metadata.model:
+                metadata["model"] = t.metadata.model
+            if t.metadata.prompt:
+                metadata["prompt"] = t.metadata.prompt
+        
+        tests.append(LegacyTestReport(
+            name=t.name,
+            outcome=t.outcome.value,
+            duration_ms=t.duration_ms,
+            agent_result=agent_result,
+            error=t.error,
+            assertions=[
+                {"type": a.type, "passed": a.passed, "message": a.message, "details": a.details}
+                for a in (t.assertions or [])
+            ],
+            metadata=metadata,
+            docstring=t.docstring,
+        ))
+    
+    report = LegacySuiteReport(
+        name=pydantic_report.name,
+        timestamp=pydantic_report.timestamp.isoformat(),
+        duration_ms=pydantic_report.duration_ms,
+        tests=tests,
+        passed=pydantic_report.summary.passed,
+        failed=pydantic_report.summary.failed,
+        skipped=pydantic_report.summary.skipped,
+    )
+    
+    return report, ai_summary
+
+
+def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None]:
+    """Load report from legacy format (pre-v2.0)."""
     # Extract AI summary if present
     ai_summary = data.get("ai_summary")
 
@@ -84,7 +179,7 @@ def load_suite_report(json_path: Path) -> tuple[SuiteReport, str | None]:
     tests = [_deserialize_test(t) for t in data.get("tests", [])]
 
     # Create SuiteReport
-    report = SuiteReport(
+    report = LegacySuiteReport(
         name=data.get("name", "pytest-aitest"),
         timestamp=data.get("timestamp", ""),
         duration_ms=data.get("duration_ms", 0.0),
@@ -97,13 +192,13 @@ def load_suite_report(json_path: Path) -> tuple[SuiteReport, str | None]:
     return report, ai_summary
 
 
-def _deserialize_test(data: dict[str, Any]) -> TestReport:
+def _deserialize_test(data: dict[str, Any]) -> LegacyTestReport:
     """Deserialize test from JSON dict."""
     agent_result = None
     if "agent_result" in data:
         agent_result = _deserialize_agent_result(data["agent_result"])
 
-    return TestReport(
+    return LegacyTestReport(
         name=data.get("name", ""),
         outcome=data.get("outcome", "unknown"),
         duration_ms=data.get("duration_ms", 0.0),
@@ -147,6 +242,7 @@ def _deserialize_tool_call(data: dict[str, Any]) -> ToolCall:
         arguments=data.get("arguments", {}),
         result=data.get("result"),
         error=data.get("error"),
+        duration_ms=data.get("duration_ms"),
     )
 
 

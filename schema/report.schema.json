@@ -1,0 +1,399 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "pytest-aitest Report",
+  "description": "Schema for pytest-aitest test report output",
+  "type": "object",
+  "required": ["schema_version", "name", "timestamp", "duration_ms", "tests", "summary"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2.0",
+      "description": "Schema version for compatibility checking"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the test suite"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when report was generated"
+    },
+    "duration_ms": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total duration in milliseconds"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["simple", "model_comparison", "prompt_comparison", "matrix"],
+      "description": "Report display mode based on test dimensions"
+    },
+    "dimensions": {
+      "$ref": "#/$defs/TestDimensions"
+    },
+    "summary": {
+      "$ref": "#/$defs/SuiteSummary"
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TestReport"
+      },
+      "description": "List of all test results"
+    },
+    "ai_summary": {
+      "type": ["string", "null"],
+      "description": "Optional AI-generated analysis of test results"
+    }
+  },
+  "$defs": {
+    "TestDimensions": {
+      "type": "object",
+      "description": "Detected dimensions for comparison modes",
+      "properties": {
+        "models": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Unique models used in tests"
+        },
+        "prompts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Unique prompts used in tests"
+        },
+        "base_tests": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Base test names without parameters"
+        },
+        "files": {
+          "type": ["array", "null"],
+          "items": { "type": "string" },
+          "description": "Test file paths"
+        },
+        "sessions": {
+          "type": ["array", "null"],
+          "items": { "type": "string" },
+          "description": "Session/class names"
+        }
+      },
+      "required": ["models", "prompts", "base_tests"]
+    },
+    "SuiteSummary": {
+      "type": "object",
+      "description": "Aggregate statistics for the test suite",
+      "required": ["total", "passed", "failed", "skipped", "pass_rate"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pass_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Pass rate as percentage (0-100)"
+        },
+        "total_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_cost_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "total_tool_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "token_stats": {
+          "$ref": "#/$defs/IntStats"
+        },
+        "cost_stats": {
+          "$ref": "#/$defs/FloatStats"
+        },
+        "duration_stats": {
+          "$ref": "#/$defs/FloatStats"
+        }
+      }
+    },
+    "IntStats": {
+      "type": "object",
+      "description": "Integer statistics (min/max/avg)",
+      "properties": {
+        "min": { "type": "integer" },
+        "max": { "type": "integer" },
+        "avg": { "type": "integer" }
+      },
+      "required": ["min", "max", "avg"]
+    },
+    "FloatStats": {
+      "type": "object",
+      "description": "Float statistics (min/max/avg)",
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "avg": { "type": "number" }
+      },
+      "required": ["min", "max", "avg"]
+    },
+    "TestReport": {
+      "type": "object",
+      "description": "Report data for a single test",
+      "required": ["name", "outcome", "duration_ms"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full test node ID (e.g., 'test_weather[gpt-4o-PROMPT_V1]')"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["passed", "failed", "skipped"],
+          "description": "Test outcome"
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Test duration in milliseconds"
+        },
+        "docstring": {
+          "type": ["string", "null"],
+          "description": "Test function's docstring for human-readable description"
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "Error message if test failed"
+        },
+        "error_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of errors encountered (may differ from failure count)"
+        },
+        "metadata": {
+          "$ref": "#/$defs/TestMetadata"
+        },
+        "assertions": {
+          "type": ["array", "null"],
+          "items": {
+            "$ref": "#/$defs/Assertion"
+          },
+          "description": "List of assertion results"
+        },
+        "agent_result": {
+          "oneOf": [
+            { "$ref": "#/$defs/AgentResult" },
+            { "type": "null" }
+          ],
+          "description": "Agent execution result if test used aitest_run"
+        }
+      }
+    },
+    "TestMetadata": {
+      "type": "object",
+      "description": "Additional test metadata extracted from parametrization",
+      "properties": {
+        "model": {
+          "type": ["string", "null"],
+          "description": "Model name if parametrized"
+        },
+        "prompt": {
+          "type": ["string", "null"],
+          "description": "Prompt name if parametrized"
+        },
+        "session": {
+          "type": ["string", "null"],
+          "description": "Session/class name"
+        },
+        "file": {
+          "type": ["string", "null"],
+          "description": "Test file path"
+        }
+      }
+    },
+    "Assertion": {
+      "type": "object",
+      "description": "An assertion result",
+      "required": ["type", "passed"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Assertion type (e.g., 'tool_called', 'contains')"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": ["string", "null"],
+          "description": "Assertion message or failure reason"
+        },
+        "details": {
+          "type": ["object", "null"],
+          "description": "Additional assertion details"
+        }
+      }
+    },
+    "AgentResult": {
+      "type": "object",
+      "description": "Result of running an agent via aitest_run",
+      "required": ["success", "turns", "duration_ms", "token_usage", "cost_usd"],
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Whether the agent completed successfully"
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "Error message if agent failed"
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Agent execution duration in milliseconds"
+        },
+        "turns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Turn"
+          },
+          "description": "Conversation turns"
+        },
+        "token_usage": {
+          "$ref": "#/$defs/TokenUsage"
+        },
+        "cost_usd": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cost in USD"
+        },
+        "final_response": {
+          "type": "string",
+          "description": "Last assistant message content"
+        },
+        "tools_called": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of unique tool names called"
+        },
+        "session_context_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of prior messages from session context"
+        },
+        "rate_limit_stats": {
+          "oneOf": [
+            { "$ref": "#/$defs/RateLimitStats" },
+            { "type": "null" }
+          ],
+          "description": "Rate limiting statistics if any occurred"
+        }
+      }
+    },
+    "Turn": {
+      "type": "object",
+      "description": "A single conversational turn",
+      "required": ["role", "content"],
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["user", "assistant", "tool", "system"],
+          "description": "Message role"
+        },
+        "content": {
+          "type": "string",
+          "description": "Message content"
+        },
+        "tool_calls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ToolCall"
+          },
+          "default": [],
+          "description": "Tool calls made in this turn (for assistant turns)"
+        }
+      }
+    },
+    "ToolCall": {
+      "type": "object",
+      "description": "A tool call made by the agent",
+      "required": ["name", "arguments"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Tool name"
+        },
+        "arguments": {
+          "type": "object",
+          "description": "Tool arguments as key-value pairs"
+        },
+        "result": {
+          "type": ["string", "null"],
+          "description": "Tool execution result"
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "Tool execution error if any"
+        },
+        "duration_ms": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Tool execution duration in milliseconds"
+        }
+      }
+    },
+    "TokenUsage": {
+      "type": "object",
+      "description": "Token usage breakdown",
+      "properties": {
+        "prompt": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Input/prompt tokens"
+        },
+        "completion": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Output/completion tokens"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total tokens (prompt + completion)"
+        }
+      }
+    },
+    "RateLimitStats": {
+      "type": "object",
+      "description": "Rate limiting statistics",
+      "properties": {
+        "retry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of retries due to rate limiting"
+        },
+        "total_wait_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total time spent waiting for rate limits"
+        },
+        "http_429_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of HTTP 429 responses received"
+        }
+      }
+    }
+  }
+}

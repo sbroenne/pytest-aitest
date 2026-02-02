@@ -298,10 +298,11 @@ class AgentEngine:
             raise RateLimitError(retry_after) from e
 
     async def _execute_tool_calls(self, tool_calls: list[Any]) -> list[ToolCall]:
-        """Execute tool calls and return results."""
+        """Execute tool calls and return results with timing."""
         results = []
         for tc in tool_calls:
             name = tc.function.name
+            start_time = time.perf_counter()
             try:
                 arguments = json.loads(tc.function.arguments)
 
@@ -311,15 +312,33 @@ class AgentEngine:
                 else:
                     result = await self.server_manager.call_tool(name, arguments)
 
-                results.append(ToolCall(name=name, arguments=arguments, result=result))
+                duration_ms = (time.perf_counter() - start_time) * 1000
+                results.append(ToolCall(
+                    name=name,
+                    arguments=arguments,
+                    result=result,
+                    duration_ms=duration_ms,
+                ))
             except json.JSONDecodeError as e:
+                duration_ms = (time.perf_counter() - start_time) * 1000
                 results.append(
-                    ToolCall(name=name, arguments={}, error=f"Invalid JSON arguments: {e}")
+                    ToolCall(
+                        name=name,
+                        arguments={},
+                        error=f"Invalid JSON arguments: {e}",
+                        duration_ms=duration_ms,
+                    )
                 )
             except Exception as e:
+                duration_ms = (time.perf_counter() - start_time) * 1000
                 try:
                     arguments = json.loads(tc.function.arguments)
                 except Exception:
                     arguments = {}
-                results.append(ToolCall(name=name, arguments=arguments, error=str(e)))
+                results.append(ToolCall(
+                    name=name,
+                    arguments=arguments,
+                    error=str(e),
+                    duration_ms=duration_ms,
+                ))
         return results

@@ -1,0 +1,50 @@
+{# Test overview partial - summary table in comparison modes #}
+{% if mode != 'simple' and report.total > 1 %}
+<section class="section">
+    <div class="section-header">
+        <h2>📋 Test Overview</h2>
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Test Name</th>
+                        <th>Status</th>
+                        <th>Session</th>
+                        <th>Duration</th>
+                        <th>Tokens</th>
+                        <th>Tools</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test in report.tests %}
+                    <tr class="{{ 'cell-passed' if test.is_passed else 'cell-failed' if test.is_failed else '' }}">
+                        <td class="test-name" title="{{ test.short_name }}">{{ test.display_name }}</td>
+                        <td class="matrix-cell">
+                            <span class="badge {{ test.outcome }}">{{ test.outcome }}</span>
+                        </td>
+                        <td class="matrix-cell">
+                            {% if test.agent_result and test.agent_result.is_session_continuation %}
+                            <span title="{{ test.agent_result.session_context_count }} prior messages">🔗 {{ test.agent_result.session_context_count }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="matrix-cell">{{ "%.2f"|format(test.duration_ms / 1000) }}s</td>
+                        <td class="matrix-cell">
+                            {% if test.agent_result %}
+                            {{ test.agent_result.token_usage.get('prompt', 0) + test.agent_result.token_usage.get('completion', 0) }}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="matrix-cell">
+                            {% if test.agent_result %}
+                            {{ test.agent_result.all_tool_calls | length }}
+                            {% else %}—{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}

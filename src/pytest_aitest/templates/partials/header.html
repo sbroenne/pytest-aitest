@@ -1,0 +1,41 @@
+{# Header partial - report title, status, badges, metadata #}
+<header class="report-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="display: flex; align-items: center; gap: 0.75rem;">
+                🧪 {{ report.name }}
+                {% if report.failed == 0 and report.passed > 0 %}
+                <span class="header-status all-passed">✓ All Passed</span>
+                {% elif report.failed > 0 %}
+                <span class="header-status has-failures">✗ {{ report.failed }} Failed</span>
+                {% endif %}
+            </h1>
+            {% if report.test_files %}
+            <div class="header-subtitle">
+                {% for f in report.test_files %}<a href="{{ to_file_url(f) }}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">{{ f.split('/')[-1].split('\\')[-1] }}</a>{{ ', ' if not loop.last else '' }}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div style="text-align: right; font-size: 0.8125rem; opacity: 0.85;">
+            <div>{{ report.timestamp[:10] }} at {{ report.timestamp[11:19] }}</div>
+            <div style="font-size: 1.125rem; font-weight: 600; margin-top: 0.25rem;">{{ "%.1f"|format(report.duration_ms / 1000) }}s</div>
+        </div>
+    </div>
+    <div class="header-badges">
+        <span class="header-badge">📊 {{ report.total }} test{{ 's' if report.total != 1 else '' }}</span>
+        {% if flags.model_count > 1 %}
+        <span class="header-badge">🤖 {{ flags.model_count }} models</span>
+        {% elif flags.single_model_name %}
+        <span class="header-badge">🤖 {{ flags.single_model_name }}</span>
+        {% endif %}
+        {% if flags.prompt_count > 1 %}
+        <span class="header-badge">📝 {{ flags.prompt_count }} prompts</span>
+        {% endif %}
+        {% if session_groups | selectattr('is_session') | list | length > 0 %}
+        <span class="header-badge">🔗 {{ session_groups | selectattr('is_session') | list | length }} session{{ 's' if session_groups | selectattr('is_session') | list | length > 1 else '' }}</span>
+        {% endif %}
+        {% if report.total_cost_usd > 0 %}
+        <span class="header-badge">💰 {{ format_cost(report.total_cost_usd) }}</span>
+        {% endif %}
+    </div>
+</header>
