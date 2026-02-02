@@ -223,13 +223,22 @@ See **[Assertions](assertions.md)** for details.
 
 ## CLI Options
 
+### pytest options
+
 | Option | Description |
 |--------|-------------|
 | `--aitest-model=MODEL` | Default model for agents |
 | `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`) |
 | `--aitest-html=PATH` | HTML report path |
-| `--aitest-json=PATH` | JSON report path |
+| `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
 | `--aitest-md=PATH` | Markdown report path |
 | `--aitest-summary` | Include AI summary |
 
-See **[Reporting](reporting.md)** for details.
+### pytest-aitest-report (report regeneration)
+
+| Option | Description |
+|--------|-------------|
+| `--html PATH` | Generate HTML report |
+| `--md PATH` | Generate Markdown report |
+| `--summary` | Generate AI summary (requires `--summary-model`) |
+| `--summary-model MODEL` | Model for AI summary |

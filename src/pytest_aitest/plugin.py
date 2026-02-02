@@ -106,11 +106,8 @@ def pytest_configure(config: Config) -> None:
         "aitest_skip_report: Exclude this test from AI test reports",
     )
 
-    # Initialize report collector if any reporting is enabled
-    html_path = config.getoption("--aitest-html")
-    json_path = config.getoption("--aitest-json")
-    if html_path or json_path:
-        config.stash[COLLECTOR_KEY] = ReportCollector()
+    # Always initialize report collector - JSON is always generated
+    config.stash[COLLECTOR_KEY] = ReportCollector()
 
 
 def _extract_metadata_from_nodeid(nodeid: str) -> dict[str, Any]:
@@ -236,8 +233,9 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     json_path = config.getoption("--aitest-json")
     md_path = config.getoption("--aitest-md")
 
-    if not html_path and not json_path and not md_path:
-        return
+    # Default paths - JSON is always generated
+    default_dir = Path("aitest-reports")
+    default_json_path = default_dir / "results.json"
 
     # Build suite report
     suite_report = collector.build_suite_report(
@@ -251,19 +249,18 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     if (html_path or md_path) and config.getoption("--aitest-summary"):
         ai_summary = _generate_ai_summary(config, suite_report)
 
-    # Generate HTML report
+    # Always generate JSON report (to default or custom path)
+    json_output_path = Path(json_path) if json_path else default_json_path
+    json_output_path.parent.mkdir(parents=True, exist_ok=True)
+    generator.generate_json(suite_report, json_output_path, ai_summary=ai_summary)
+    _log_report_path(config, "JSON", json_output_path)
+
+    # Generate HTML report if requested
     if html_path:
         path = Path(html_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         generator.generate_html(suite_report, path, ai_summary=ai_summary)
         _log_report_path(config, "HTML", path)
-
-    # Generate JSON report
-    if json_path:
-        path = Path(json_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_json(suite_report, path)
-        _log_report_path(config, "JSON", path)
 
     # Generate Markdown report
     if md_path:

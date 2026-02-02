@@ -5,31 +5,60 @@ Generate HTML, JSON, and Markdown reports with auto-detected comparison views.
 ## Quick Start
 
 ```bash
+# Run tests - JSON is always generated to aitest-reports/results.json
+pytest tests/
+
 # Generate HTML report
 pytest tests/ --aitest-html=report.html
-
-# Generate JSON report
-pytest tests/ --aitest-json=report.json
 
 # Generate Markdown report
 pytest tests/ --aitest-md=report.md
 
 # Multiple formats
-pytest tests/ --aitest-html=report.html --aitest-json=report.json --aitest-md=report.md
+pytest tests/ --aitest-html=report.html --aitest-md=report.md
 
 # With AI-powered summary
 pytest tests/ --aitest-html=report.html --aitest-summary --aitest-summary-model=azure/gpt-4.1
 ```
 
+## Report Regeneration
+
+Regenerate reports from existing JSON without re-running tests. This is useful for:
+- Iterating on report styling without expensive LLM calls
+- Generating different formats from one test run
+- Experimenting with AI summary models
+
+```bash
+# Regenerate HTML from saved JSON
+pytest-aitest-report aitest-reports/results.json --html report.html
+
+# Generate multiple formats
+pytest-aitest-report results.json --html report.html --md report.md
+
+# Regenerate with fresh AI summary (uses different model)
+pytest-aitest-report results.json --html report.html --summary --summary-model azure/gpt-4.1
+```
+
 ## CLI Options
+
+### pytest options
 
 | Option | Description |
 |--------|-------------|
 | `--aitest-html=PATH` | Generate HTML report |
-| `--aitest-json=PATH` | Generate JSON report |
+| `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
 | `--aitest-md=PATH` | Generate Markdown report |
 | `--aitest-summary` | Include AI-powered analysis |
 | `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model like `gpt-4.1`. |
+
+### pytest-aitest-report options
+
+| Option | Description |
+|--------|-------------|
+| `--html PATH` | Generate HTML report |
+| `--md PATH` | Generate Markdown report |
+| `--summary` | Generate AI-powered summary |
+| `--summary-model MODEL` | Model for AI summary (required with `--summary`) |
 
 ## pyproject.toml Configuration
 

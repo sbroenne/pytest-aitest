@@ -49,6 +49,9 @@ azure = [
     "azure-identity>=1.25",
 ]
 
+[project.scripts]
+pytest-aitest-report = "pytest_aitest.cli:main"
+
 [project.entry-points.pytest11]
 aitest = "pytest_aitest.plugin"
 
