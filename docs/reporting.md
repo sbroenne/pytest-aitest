@@ -84,6 +84,42 @@ Reports auto-detect test dimensions from `@pytest.mark.parametrize` and adapt:
 | `@parametrize("prompt", ...)` | Prompt comparison table |
 | Both | 2D matrix grid |
 
+### Adaptive Display Rules
+
+The HTML report automatically shows or hides sections based on test results. This ensures reports are clean and focused—showing only relevant information.
+
+| Section | Display Condition |
+|---------|-------------------|
+| **Model Leaderboard** | 2+ models tested |
+| **Prompt Comparison** | 2+ prompts tested AND NOT matrix mode |
+| **Matrix Grid** | 2+ models AND 2+ prompts (shows prompts as rows, models as columns) |
+| **Tool Comparison** | Comparison mode (models or prompts) AND tests used tools |
+| **Side-by-Side Details** | Matrix mode only (deep-dive per prompt×model) |
+| **Session Groups** | Any test uses session continuity |
+| **AI Summary** | `--aitest-summary` flag enabled |
+| **Detailed Results** | Always shown (collapsible per test) |
+
+### Mode Detection
+
+The report generator detects the test mode automatically:
+
+```
+Single Model + Single Prompt  → Basic Mode (test list only)
+Multiple Models + Single Prompt → Model Comparison Mode
+Single Model + Multiple Prompts → Prompt Comparison Mode  
+Multiple Models + Multiple Prompts → Matrix Mode
+```
+
+### Leaderboard Ranking
+
+When comparing models or prompts, the leaderboard ranks by:
+
+1. **Pass rate** (primary) - higher is better
+2. **Efficiency** (secondary) - passes per 1K tokens, higher is better
+3. **Total cost** (tiebreaker) - lower is better
+
+Rankings display medals: 🥇 Gold, 🥈 Silver, 🥉 Bronze
+
 ### Simple Test List
 
 With no parametrize, you get a clean test list:
