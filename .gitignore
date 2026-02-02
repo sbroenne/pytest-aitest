@@ -45,8 +45,7 @@ htmlcov/
 
 # Test outputs
 test_results/
-*.html
-*.json
+aitest-reports/
 
 # Environment
 .env

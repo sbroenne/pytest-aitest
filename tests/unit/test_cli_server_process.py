@@ -258,7 +258,9 @@ class TestCommandExecution:
         parsed = json.loads(result)
 
         assert parsed["exit_code"] == 0
-        assert "hello world" in parsed["stdout"]
+        # Windows echo may split args, just check both words are present
+        assert "hello" in parsed["stdout"]
+        assert "world" in parsed["stdout"]
 
     @pytest.mark.asyncio
     async def test_command_with_empty_args(self) -> None:
@@ -362,17 +364,30 @@ class TestEnvironmentAndCwd:
 
     @pytest.mark.asyncio
     async def test_custom_env_variable(self) -> None:
-        config = CLIServer(
-            name="printenv",
-            command="printenv",
-            tool_prefix="env",
-            env={"MY_TEST_VAR": "test_value_123"},
-            discover_help=False,
-        )
-        server = CLIServerProcess(config)
-        await server.start()
-
-        result = await server.call_tool("env_execute", {"args": "MY_TEST_VAR"})
+        if sys.platform == "win32":
+            # On Windows, use cmd /c set to show env var
+            config = CLIServer(
+                name="env",
+                command="cmd",
+                tool_prefix="env",
+                env={"MY_TEST_VAR": "test_value_123"},
+                discover_help=False,
+            )
+            server = CLIServerProcess(config)
+            await server.start()
+            result = await server.call_tool("env_execute", {"args": "/c echo %MY_TEST_VAR%"})
+        else:
+            config = CLIServer(
+                name="env",
+                command="printenv",
+                tool_prefix="env",
+                env={"MY_TEST_VAR": "test_value_123"},
+                discover_help=False,
+            )
+            server = CLIServerProcess(config)
+            await server.start()
+            result = await server.call_tool("env_execute", {"args": "MY_TEST_VAR"})
+        
         parsed = json.loads(result)
 
         assert parsed["exit_code"] == 0
@@ -380,21 +395,38 @@ class TestEnvironmentAndCwd:
 
     @pytest.mark.asyncio
     async def test_custom_working_directory(self) -> None:
-        config = CLIServer(
-            name="pwd",
-            command="pwd",
-            tool_prefix="pwd",
-            cwd="/tmp",
-            discover_help=False,
-        )
-        server = CLIServerProcess(config)
-        await server.start()
-
-        result = await server.call_tool("pwd_execute", {"args": ""})
-        parsed = json.loads(result)
-
-        assert parsed["exit_code"] == 0
-        assert "/tmp" in parsed["stdout"]
+        if sys.platform == "win32":
+            # Use temp directory that exists on Windows
+            import tempfile
+            temp_dir = tempfile.gettempdir()
+            config = CLIServer(
+                name="pwd",
+                command="cmd",
+                tool_prefix="pwd",
+                cwd=temp_dir,
+                discover_help=False,
+            )
+            server = CLIServerProcess(config)
+            await server.start()
+            result = await server.call_tool("pwd_execute", {"args": "/c cd"})
+            parsed = json.loads(result)
+            assert parsed["exit_code"] == 0
+            # Windows temp dir path should be in output
+            assert temp_dir.lower() in parsed["stdout"].lower() or "temp" in parsed["stdout"].lower()
+        else:
+            config = CLIServer(
+                name="pwd",
+                command="pwd",
+                tool_prefix="pwd",
+                cwd="/tmp",
+                discover_help=False,
+            )
+            server = CLIServerProcess(config)
+            await server.start()
+            result = await server.call_tool("pwd_execute", {"args": ""})
+            parsed = json.loads(result)
+            assert parsed["exit_code"] == 0
+            assert "/tmp" in parsed["stdout"]
 
 
 class TestJsonOutput:
