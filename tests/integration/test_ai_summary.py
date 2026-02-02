@@ -10,8 +10,12 @@ from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING, Any
 
 import pytest
+
+if TYPE_CHECKING:
+    from litellm.types.utils import ModelResponse
 
 pytestmark = [pytest.mark.integration]
 
@@ -19,6 +23,29 @@ pytestmark = [pytest.mark.integration]
 def _get_api_base() -> str | None:
     """Get API base from LiteLLM standard env var."""
     return os.environ.get("AZURE_API_BASE")
+
+
+def _get_azure_auth_kwargs() -> dict:
+    """Get Azure Entra ID auth kwargs for LiteLLM.
+
+    Returns empty dict if Azure auth is not available (falls back to API key).
+    """
+    try:
+        from litellm.secret_managers.get_azure_ad_token_provider import (
+            get_azure_ad_token_provider,
+        )
+
+        return {"azure_ad_token_provider": get_azure_ad_token_provider()}
+    except ImportError:
+        # Azure identity not installed, fall back to API key auth
+        return {}
+
+
+def _get_response_content(response: ModelResponse | Any) -> str:
+    """Extract content from LiteLLM response, handling type union."""
+    # litellm types ModelResponse.choices as list[Choices | StreamingChoices]
+    # but completion() without stream=True always returns Choices with .message
+    return response.choices[0].message.content or ""  # type: ignore[union-attr]
 
 
 class TestAISummaryGeneration:
@@ -48,16 +75,7 @@ class TestAISummaryGeneration:
 - test_compare_cities: failed (AssertionError: Expected comparison)
 """
 
-        # Set up Azure Entra ID auth
-        kwargs: dict = {}
-        try:
-            from litellm.secret_managers.get_azure_ad_token_provider import (
-                get_azure_ad_token_provider,
-            )
-
-            kwargs["azure_ad_token_provider"] = get_azure_ad_token_provider()
-        except (ImportError, Exception):
-            pass
+        kwargs = _get_azure_auth_kwargs()
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -71,7 +89,7 @@ class TestAISummaryGeneration:
             **kwargs,
         )
 
-        summary = response.choices[0].message.content or ""
+        summary = _get_response_content(response)
 
         # Verify required sections for single-model evaluation
         assert "Verdict" in summary, f"Missing 'Verdict' section in summary:\n{summary}"
@@ -119,15 +137,7 @@ Models tested: gpt-5-mini, gpt-4.1
 - test_complex[gpt-4.1]: passed
 """
 
-        kwargs: dict = {}
-        try:
-            from litellm.secret_managers.get_azure_ad_token_provider import (
-                get_azure_ad_token_provider,
-            )
-
-            kwargs["azure_ad_token_provider"] = get_azure_ad_token_provider()
-        except (ImportError, Exception):
-            pass
+        kwargs = _get_azure_auth_kwargs()
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -141,7 +151,7 @@ Models tested: gpt-5-mini, gpt-4.1
             **kwargs,
         )
 
-        summary = response.choices[0].message.content or ""
+        summary = _get_response_content(response)
 
         # Verify it's a multi-model comparison
         assert "Verdict" in summary, f"Missing 'Verdict' section:\n{summary}"
@@ -187,15 +197,7 @@ Models tested: gpt-5-mini, gpt-4.1
 - test_simple: passed
 """
 
-        kwargs: dict = {}
-        try:
-            from litellm.secret_managers.get_azure_ad_token_provider import (
-                get_azure_ad_token_provider,
-            )
-
-            kwargs["azure_ad_token_provider"] = get_azure_ad_token_provider()
-        except (ImportError, Exception):
-            pass
+        kwargs = _get_azure_auth_kwargs()
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -209,7 +211,7 @@ Models tested: gpt-5-mini, gpt-4.1
             **kwargs,
         )
 
-        summary = response.choices[0].message.content or ""
+        summary = _get_response_content(response)
 
         # Count words (rough estimate)
         word_count = len(summary.split())
@@ -243,15 +245,7 @@ Models tested: model-a, model-b
 - test_2[model-b]: passed
 """
 
-        kwargs: dict = {}
-        try:
-            from litellm.secret_managers.get_azure_ad_token_provider import (
-                get_azure_ad_token_provider,
-            )
-
-            kwargs["azure_ad_token_provider"] = get_azure_ad_token_provider()
-        except (ImportError, Exception):
-            pass
+        kwargs = _get_azure_auth_kwargs()
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -265,7 +259,7 @@ Models tested: model-a, model-b
             **kwargs,
         )
 
-        summary = response.choices[0].message.content or ""
+        summary = _get_response_content(response)
 
         # Check for markdown table syntax (| col1 | col2 |)
         table_pattern = r"\|.*\|.*\|"

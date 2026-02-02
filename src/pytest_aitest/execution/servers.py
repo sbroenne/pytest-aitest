@@ -273,8 +273,9 @@ class CLIServerProcess:
                 if len(help_text) > 2000:
                     help_text = help_text[:2000] + "\n... (truncated)"
                 return help_text
-        except Exception:
-            pass
+        except (OSError, asyncio.TimeoutError):
+            # Help discovery is optional - if it fails, just skip it
+            return None
         return None
 
     async def _run_command(self, args: str) -> dict[str, Any]:
