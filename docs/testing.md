@@ -2,15 +2,95 @@
 
 This document describes the test infrastructure for pytest-aitest.
 
-## Test Philosophy
+## Test Categories
 
-**Unit tests with mocks are valuable but insufficient for template rendering.**
+```
+tests/
+├── unit/                      # Fast tests, no LLM calls (~400 tests)
+│   ├── test_templates/        # Report template rendering
+│   ├── test_config.py         # Configuration parsing
+│   ├── test_result.py         # AgentResult assertions
+│   ├── test_retry.py          # Rate limit retry logic
+│   ├── test_cli.py            # CLI commands
+│   ├── test_schema.py         # Pydantic model validation
+│   └── ...
+└── integration/               # Real LLM calls (~20 tests)
+    ├── test_basic_usage.py    # Core agent execution
+    ├── test_model_benchmark.py # Model comparison
+    ├── test_prompt_arena.py   # Prompt comparison
+    ├── test_matrix.py         # Model × Prompt grid
+    ├── test_sessions.py       # Multi-turn conversations
+    ├── test_skills.py         # Skill injection
+    └── ...
+```
 
-When testing HTML report generation, traditional "mock the data, check the output" tests miss critical bugs. The AI summary bug taught us this: the partial template worked perfectly in isolation, but the context dict never passed the variable to it.
+## Unit Tests
 
-## Four-Layer Testing Architecture
+Unit tests run fast (< 30 seconds total) and don't require LLM credentials.
 
-We use a four-layer defense system to guarantee correct HTML rendering:
+### Core Logic Tests
+
+| File | What It Tests |
+|------|---------------|
+| `test_config.py` | Configuration parsing, environment variables |
+| `test_result.py` | `AgentResult` assertion methods (`.tool_was_called()`, `.response_contains()`) |
+| `test_retry.py` | Rate limit retry logic with exponential backoff |
+| `test_prompt.py` | YAML prompt loading and variable substitution |
+| `test_aggregator.py` | Report dimension detection (model/prompt comparison modes) |
+| `test_schema.py` | Pydantic model validation for JSON schema |
+| `test_cli.py` | CLI command parsing and execution |
+| `test_cli_server_process.py` | CLI server process management |
+
+### Report Template Tests
+
+See [Report Template Testing](#report-template-testing) below for the four-layer architecture.
+
+## Integration Tests
+
+Integration tests make real LLM API calls and validate end-to-end behavior.
+
+**Requirements:**
+```bash
+# Azure OpenAI (uses Entra ID)
+export AZURE_API_BASE=https://your-resource.cognitiveservices.azure.com
+az login
+```
+
+### Test Scenarios
+
+| File | What It Tests |
+|------|---------------|
+| `test_basic_usage.py` | Agent executes tools correctly |
+| `test_model_benchmark.py` | Compare multiple models on same tests |
+| `test_prompt_arena.py` | Compare multiple prompts with same model |
+| `test_matrix.py` | Full model × prompt comparison grid |
+| `test_sessions.py` | Multi-turn conversations with context |
+| `test_skills.py` | Skill file injection |
+| `test_cli_server.py` | CLI tools as agent servers |
+| `test_ai_summary.py` | LLM-generated report summaries |
+| `test_fixture_scenarios.py` | Generate test fixtures for unit tests |
+
+### Test Harnesses
+
+Integration tests use built-in MCP servers for predictable tool behavior:
+
+```python
+from pytest_aitest.testing import WeatherMCPServer, TodoMCPServer
+
+# Weather server - deterministic responses
+server = WeatherMCPServer()  # get_weather, get_forecast, compare_weather
+
+# Todo server - CRUD operations
+server = TodoMCPServer()  # add_todo, list_todos, complete_todo, delete_todo
+```
+
+See [Test Harnesses](test-harnesses.md) for details.
+
+---
+
+## Report Template Testing
+
+When testing HTML report generation, traditional tests miss critical bugs. We use a four-layer defense:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -193,3 +273,80 @@ def test_costs_appear_in_html():
     total_cost = data["summary"]["total_cost_usd"]
     assert f"${total_cost:.2f}" in html or str(total_cost) in html
 ```
+
+---
+
+## Writing Integration Tests
+
+Integration tests validate that agents actually work with real LLMs.
+
+### Basic Pattern
+
+```python
+# tests/integration/test_my_feature.py
+import pytest
+from pytest_aitest import Agent, Provider, MCPServer
+
+@pytest.fixture
+def my_agent():
+    return Agent(
+        provider=Provider(model="azure/gpt-4o-mini"),
+        mcp_servers=[WeatherMCPServer()],
+        system_prompt="You help users check weather.",
+    )
+
+async def test_agent_uses_tool(my_agent, aitest_run):
+    result = await aitest_run(my_agent, "What's the weather in Paris?")
+    
+    assert result.success
+    assert result.tool_was_called("get_weather")
+    assert "Paris" in result.final_response
+```
+
+### Parametrized Tests (Benchmarking)
+
+```python
+# Compare multiple models
+@pytest.mark.parametrize("model", ["azure/gpt-4o-mini", "azure/gpt-4o"])
+async def test_model_comparison(model, aitest_run):
+    agent = Agent(provider=Provider(model=model), ...)
+    result = await aitest_run(agent, "What's the weather?")
+    assert result.success
+
+# Compare multiple prompts
+PROMPTS = load_prompts(Path("prompts/"))
+
+@pytest.mark.parametrize("prompt", PROMPTS, ids=lambda p: p.name)
+async def test_prompt_comparison(prompt, aitest_run):
+    agent = Agent(system_prompt=prompt.system_prompt, ...)
+    result = await aitest_run(agent, "What's the weather?")
+    assert result.success
+```
+
+### Test Execution Time
+
+Integration tests are slow (5-30+ seconds per test) because they make real API calls. This is expected and necessary — fast tests that mock LLM responses don't validate real behavior.
+
+---
+
+## Test Philosophy
+
+### What We Test
+
+| Category | Tests | Purpose |
+|----------|-------|---------|
+| **Core Logic** | Unit tests with mocks | Fast validation of algorithms |
+| **Agent Behavior** | Integration tests with real LLMs | Validate tools are used correctly |
+| **Report Rendering** | Four-layer template tests | Guarantee HTML output correctness |
+| **Schema Validation** | Pydantic model tests | Ensure JSON schema compliance |
+
+### What We Don't Mock
+
+- **LLM responses in integration tests**: The whole point is testing real agent behavior
+- **Report fixtures**: We use real integration test outputs, not hand-crafted JSON
+
+### Test Coverage Goals
+
+- **Unit tests**: Run on every commit, fast CI feedback
+- **Integration tests**: Run on PR merge, validate real-world behavior
+- **Template tests**: Catch rendering bugs before they reach users
