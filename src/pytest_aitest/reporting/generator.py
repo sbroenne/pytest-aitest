@@ -142,6 +142,145 @@ class ReportGenerator:
         data = self._serialize_report(report)
         Path(output_path).write_text(json.dumps(data, indent=2), encoding="utf-8")
 
+    def generate_markdown(
+        self,
+        report: SuiteReport,
+        output_path: str | Path,
+        *,
+        ai_summary: str | None = None,
+    ) -> None:
+        """Generate Markdown report.
+
+        Produces GitHub-flavored markdown with:
+        - Summary section with pass rate, tokens, duration
+        - Model/prompt comparison tables
+        - Test results list with status indicators
+        - Collapsible sections for test details (using <details> tags)
+        """
+        dimensions = self._aggregator.detect_dimensions(report)
+        lines: list[str] = []
+
+        # Header
+        lines.append(f"# {report.name}")
+        lines.append("")
+        lines.append(f"**Generated:** {report.timestamp}")
+        lines.append(f"**Duration:** {report.duration_ms / 1000:.2f}s")
+        lines.append("")
+
+        # Summary section
+        lines.append("## Summary")
+        lines.append("")
+        lines.append("| Metric | Value |")
+        lines.append("|--------|-------|")
+        lines.append(f"| **Total Tests** | {report.total} |")
+        lines.append(f"| **Passed** | {report.passed} ✅ |")
+        lines.append(f"| **Failed** | {report.failed} ❌ |")
+        if report.skipped > 0:
+            lines.append(f"| **Skipped** | {report.skipped} ⏭️ |")
+        lines.append(f"| **Pass Rate** | {report.pass_rate:.1f}% |")
+        if report.total_tokens > 0:
+            lines.append(f"| **Total Tokens** | {report.total_tokens:,} |")
+        if report.total_cost_usd > 0:
+            lines.append(f"| **Est. Cost** | {self._format_cost(report.total_cost_usd)} |")
+        lines.append("")
+
+        # AI Summary (if provided)
+        if ai_summary:
+            lines.append("## AI Analysis")
+            lines.append("")
+            lines.append(ai_summary)
+            lines.append("")
+
+        # Model comparison (if multi-model)
+        if dimensions.mode == ReportMode.MODEL_COMPARISON or dimensions.mode == ReportMode.MATRIX:
+            model_groups = self._aggregator.group_by_model(report)
+            if model_groups:
+                lines.append("## Model Comparison")
+                lines.append("")
+                lines.append("| Model | Pass Rate | Passed | Failed | Tokens | Cost |")
+                lines.append("|-------|-----------|--------|--------|--------|------|")
+                for group in sorted(model_groups, key=lambda g: -g.pass_rate):
+                    cost_str = self._format_cost(group.total_cost)
+                    lines.append(
+                        f"| {group.dimension_value} | {group.pass_rate:.0f}% | "
+                        f"{group.passed} | {group.failed} | {group.total_tokens:,} | {cost_str} |"
+                    )
+                lines.append("")
+
+        # Prompt comparison (if multi-prompt)
+        if dimensions.mode == ReportMode.PROMPT_COMPARISON or dimensions.mode == ReportMode.MATRIX:
+            prompt_groups = self._aggregator.group_by_prompt(report)
+            if prompt_groups:
+                lines.append("## Prompt Comparison")
+                lines.append("")
+                lines.append("| Prompt | Pass Rate | Passed | Failed | Tokens |")
+                lines.append("|--------|-----------|--------|--------|--------|")
+                for group in sorted(prompt_groups, key=lambda g: -g.pass_rate):
+                    lines.append(
+                        f"| {group.dimension_value} | {group.pass_rate:.0f}% | "
+                        f"{group.passed} | {group.failed} | {group.total_tokens:,} |"
+                    )
+                lines.append("")
+
+        # Test Results
+        lines.append("## Test Results")
+        lines.append("")
+
+        for test in report.tests:
+            status = "✅" if test.is_passed else "❌" if test.is_failed else "⏭️"
+            lines.append(f"### {status} {test.display_name}")
+            lines.append("")
+
+            # Test metadata
+            lines.append(f"- **Status:** {test.outcome}")
+            lines.append(f"- **Duration:** {test.duration_ms / 1000:.2f}s")
+            if test.model:
+                lines.append(f"- **Model:** {test.model}")
+
+            if test.agent_result:
+                result = test.agent_result
+                tokens = result.token_usage.get("prompt", 0) + result.token_usage.get(
+                    "completion", 0
+                )
+                if tokens > 0:
+                    lines.append(f"- **Tokens:** {tokens:,}")
+                if result.cost_usd > 0:
+                    lines.append(f"- **Cost:** {self._format_cost(result.cost_usd)}")
+                if result.all_tool_calls:
+                    tool_names = ", ".join(f"`{tc.name}`" for tc in result.all_tool_calls)
+                    lines.append(f"- **Tools:** {tool_names}")
+
+            lines.append("")
+
+            # Error details (if failed)
+            if test.error:
+                lines.append("<details>")
+                lines.append("<summary>Error Details</summary>")
+                lines.append("")
+                lines.append("```")
+                lines.append(test.error[:500])  # Truncate long errors
+                lines.append("```")
+                lines.append("</details>")
+                lines.append("")
+
+            # Final response (collapsible)
+            if test.agent_result and test.agent_result.final_response:
+                lines.append("<details>")
+                lines.append("<summary>Agent Response</summary>")
+                lines.append("")
+                lines.append(test.agent_result.final_response)
+                lines.append("")
+                lines.append("</details>")
+                lines.append("")
+
+        # Footer
+        lines.append("---")
+        lines.append("")
+        lines.append("*Generated by [pytest-aitest](https://github.com/sbroenne/pytest-aitest)*")
+
+        # Write to file
+        Path(output_path).write_text("\n".join(lines), encoding="utf-8")
+
     @staticmethod
     def _format_cost(cost: float) -> str:
         """Format cost in USD."""

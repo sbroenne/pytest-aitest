@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -302,6 +303,100 @@ class TestReportGenerator:
         assert ReportGenerator._format_cost(0.001) == "$0.001000"
         assert ReportGenerator._format_cost(0.01) == "$0.0100"
         assert ReportGenerator._format_cost(1.5) == "$1.5000"
+
+    def test_generate_markdown(
+        self, generator: ReportGenerator, sample_suite: SuiteReport, tmp_path: Path
+    ) -> None:
+        output = tmp_path / "report.md"
+        generator.generate_markdown(sample_suite, output)
+
+        assert output.exists()
+        md = output.read_text(encoding="utf-8")
+
+        # Check header uses suite name
+        assert "# test-suite" in md
+        # Check summary table
+        assert "| Metric | Value |" in md
+        assert "| **Total Tests** |" in md
+        assert "| **Passed** |" in md
+        assert "| **Failed** |" in md
+        assert "| **Pass Rate** |" in md
+        # Check test results
+        assert "## Test Results" in md
+        assert "test_example" in md
+        assert "test_failed" in md
+
+    def test_generate_markdown_with_ai_summary(
+        self, generator: ReportGenerator, sample_suite: SuiteReport, tmp_path: Path
+    ) -> None:
+        output = tmp_path / "report.md"
+        ai_summary = "This is an AI-generated summary of the test results."
+        generator.generate_markdown(sample_suite, output, ai_summary=ai_summary)
+
+        md = output.read_text(encoding="utf-8")
+
+        assert "## AI Analysis" in md
+        assert ai_summary in md
+
+    def test_generate_markdown_test_details(
+        self, generator: ReportGenerator, sample_suite: SuiteReport, tmp_path: Path
+    ) -> None:
+        output = tmp_path / "report.md"
+        generator.generate_markdown(sample_suite, output)
+
+        md = output.read_text(encoding="utf-8")
+
+        # Check passed test
+        assert "✅ test_example" in md
+        # Check failed test
+        assert "❌ test_failed" in md
+        # Check details section for failures
+        assert "<details>" in md
+        assert "AssertionError" in md
+
+    def test_generate_markdown_with_model_comparison(
+        self, generator: ReportGenerator, tmp_path: Path
+    ) -> None:
+        """Test markdown generation with model dimension for comparison table."""
+        result = AgentResult(
+            turns=[Turn(role="user", content="test")],
+            success=True,
+        )
+        tests = [
+            TestReport(
+                name="test_example[gpt-4]",
+                outcome="passed",
+                duration_ms=100.0,
+                agent_result=result,
+                metadata={"model": "gpt-4"},
+            ),
+            TestReport(
+                name="test_example[gpt-3.5]",
+                outcome="failed",
+                duration_ms=200.0,
+                agent_result=result,
+                metadata={"model": "gpt-3.5"},
+                error="Test failed",
+            ),
+        ]
+        suite = SuiteReport(
+            name="benchmark-suite",
+            tests=tests,
+            timestamp=datetime.now(UTC).isoformat(),
+            duration_ms=300.0,
+            passed=1,
+            failed=1,
+        )
+
+        output = tmp_path / "report.md"
+        generator.generate_markdown(suite, output)
+
+        md = output.read_text(encoding="utf-8")
+
+        assert "## Model Comparison" in md
+        assert "| Model |" in md
+        assert "gpt-4" in md
+        assert "gpt-3.5" in md
 
 
 class TestGenerateMermaidSequence:

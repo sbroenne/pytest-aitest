@@ -1,6 +1,6 @@
 # Reporting
 
-Generate HTML and JSON reports with auto-detected comparison views.
+Generate HTML, JSON, and Markdown reports with auto-detected comparison views.
 
 ## Quick Start
 
@@ -11,11 +11,14 @@ pytest tests/ --aitest-html=report.html
 # Generate JSON report
 pytest tests/ --aitest-json=report.json
 
-# Both formats
-pytest tests/ --aitest-html=report.html --aitest-json=report.json
+# Generate Markdown report
+pytest tests/ --aitest-md=report.md
+
+# Multiple formats
+pytest tests/ --aitest-html=report.html --aitest-json=report.json --aitest-md=report.md
 
 # With AI-powered summary
-pytest tests/ --aitest-html=report.html --aitest-summary
+pytest tests/ --aitest-html=report.html --aitest-summary --aitest-summary-model=azure/gpt-4.1
 ```
 
 ## CLI Options
@@ -24,6 +27,7 @@ pytest tests/ --aitest-html=report.html --aitest-summary
 |--------|-------------|
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Generate JSON report |
+| `--aitest-md=PATH` | Generate Markdown report |
 | `--aitest-summary` | Include AI-powered analysis |
 | `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model like `gpt-4.1`. |
 
@@ -207,6 +211,50 @@ Tests using [sessions](sessions.md) (multi-turn conversations) are visually grou
 }
 ```
 
+## Markdown Report
+
+The markdown format is useful for documentation and GitHub wikis. It includes:
+
+- **Summary table** with pass rate, tokens, and duration
+- **Model/prompt comparison tables** (GitHub-flavored markdown)
+- **Test results** with status indicators (✅/❌)
+- **Collapsible sections** for error details and agent responses (using `<details>` tags)
+
+Example output:
+
+```markdown
+# pytest-aitest
+
+**Generated:** 2026-02-02T10:30:00
+**Duration:** 15.50s
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| **Total Tests** | 10 |
+| **Passed** | 8 ✅ |
+| **Failed** | 2 ❌ |
+| **Pass Rate** | 80.0% |
+| **Total Tokens** | 4,500 |
+
+## Model Comparison
+
+| Model | Pass Rate | Passed | Failed | Tokens | Cost |
+|-------|-----------|--------|--------|--------|------|
+| gpt-4.1 | 100% | 5 | 0 | 2,100 | $0.0042 |
+| gpt-5-mini | 60% | 3 | 2 | 2,400 | $0.0024 |
+
+## Test Results
+
+### ✅ Weather lookup returns valid data
+- **Status:** passed
+- **Duration:** 1.25s
+- **Model:** gpt-4.1
+- **Tokens:** 450
+- **Tools:** `get_weather`
+```
+
 ## Report Examples
 
 ### Basic Usage
@@ -227,7 +275,8 @@ open report.html
   run: |
     pytest tests/ \
       --aitest-html=reports/report.html \
-      --aitest-json=reports/report.json
+      --aitest-json=reports/report.json \
+      --aitest-md=reports/report.md
 
 - name: Upload reports
   uses: actions/upload-artifact@v4
@@ -243,5 +292,5 @@ open report.html
   run: |
     pytest tests/integration/test_benchmark.py \
       --aitest-html=benchmark-report.html \
-      --aitest-summary
+      --aitest-summary --aitest-summary-model=azure/gpt-4.1
 ```

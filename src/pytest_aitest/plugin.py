@@ -65,6 +65,12 @@ def pytest_addoption(parser: Parser) -> None:
         help="Generate JSON report to given path (e.g., results.json)",
     )
     group.addoption(
+        "--aitest-md",
+        metavar="PATH",
+        default=None,
+        help="Generate Markdown report to given path (e.g., report.md)",
+    )
+    group.addoption(
         "--aitest-summary",
         action="store_true",
         default=False,
@@ -228,8 +234,9 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     html_path = config.getoption("--aitest-html")
     json_path = config.getoption("--aitest-json")
+    md_path = config.getoption("--aitest-md")
 
-    if not html_path and not json_path:
+    if not html_path and not json_path and not md_path:
         return
 
     # Build suite report
@@ -239,9 +246,9 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     generator = ReportGenerator()
 
-    # Generate AI summary if requested (before HTML so it can be embedded)
+    # Generate AI summary if requested (for HTML and MD reports)
     ai_summary = None
-    if html_path and config.getoption("--aitest-summary"):
+    if (html_path or md_path) and config.getoption("--aitest-summary"):
         ai_summary = _generate_ai_summary(config, suite_report)
 
     # Generate HTML report
@@ -257,6 +264,13 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         generator.generate_json(suite_report, path)
         _log_report_path(config, "JSON", path)
+
+    # Generate Markdown report
+    if md_path:
+        path = Path(md_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        generator.generate_markdown(suite_report, path, ai_summary=ai_summary)
+        _log_report_path(config, "Markdown", path)
 
 
 def _log_report_path(config: Config, format_name: str, path: Path) -> None:
