@@ -76,6 +76,7 @@ class MCPServerProcess:
             try:
                 await self._reader_task
             except asyncio.CancelledError:
+                # Expected when cancelling the reader task - safe to ignore
                 pass
 
         if self._process:
