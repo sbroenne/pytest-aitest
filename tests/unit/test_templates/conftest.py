@@ -136,6 +136,12 @@ def jinja_env() -> Environment:
     return env
 
 
+def _to_file_url(path: str) -> str:
+    """Convert file path to file:// URL."""
+    from pathlib import Path
+    return Path(path).resolve().as_uri()
+
+
 @pytest.fixture
 def render_partial(jinja_env: Environment):
     """Fixture to render a partial template with given context.
@@ -154,6 +160,7 @@ def render_partial(jinja_env: Environment):
         # Add common helper functions that templates expect
         context.setdefault("get_provider", get_provider)
         context.setdefault("format_cost", format_cost)
+        context.setdefault("to_file_url", _to_file_url)
         
         return template.render(**context)
     return _render
