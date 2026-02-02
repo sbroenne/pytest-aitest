@@ -1,0 +1,4648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pytest-aitest Report - pytest-aitest</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+/* ========== pytest-aitest Report Styles ==========
+ * Modern CSS with custom properties, grid, flexbox
+ * Self-contained - no external dependencies
+ */
+
+/* ==================== Color System ==================== */
+:root {
+    --c-pass: #22c55e;
+    --c-fail: #ef4444;
+    --c-warn: #f59e0b;
+    --c-info: #3b82f6;
+    --c-primary: #6366f1;
+    --c-secondary: #8b5cf6;
+    
+    --c-bg: #f8fafc;
+    --c-card: #ffffff;
+    --c-border: #e2e8f0;
+    --c-text: #1e293b;
+    --c-text-light: #64748b;
+    --c-text-muted: #94a3b8;
+    
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);
+    --shadow-md: 0 4px 6px rgb(0 0 0 / 7%);
+    --shadow-lg: 0 10px 15px rgb(0 0 0 / 10%);
+    
+    --radius: 8px;
+    --font: system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* ==================== Reset & Base ==================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: var(--font);
+    background: var(--c-bg);
+    color: var(--c-text);
+    line-height: 1.6;
+    margin: 0;
+    padding: clamp(1rem, 3vw, 2rem);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ==================== Header ==================== */
+.report-header {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-secondary) 100%);
+    color: white;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.report-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+}
+
+.report-header .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.header-status.all-passed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #dcfce7;
+}
+
+.header-status.has-failures {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+}
+
+.header-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+
+.header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.header-badge.clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.header-badge.clickable:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==================== Summary Cards ==================== */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-card {
+    background: var(--c-card);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    border-top: 4px solid var(--c-border);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-card .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.summary-card .label {
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-card.total { border-color: var(--c-info); }
+.summary-card.total .value { color: var(--c-info); }
+.summary-card.passed { border-color: var(--c-pass); }
+.summary-card.passed .value { color: var(--c-pass); }
+.summary-card.failed { border-color: var(--c-fail); }
+.summary-card.failed .value { color: var(--c-fail); }
+.summary-card.rate { border-color: var(--c-secondary); }
+.summary-card.rate .value { color: var(--c-secondary); }
+.summary-card.tokens { border-color: var(--c-warn); }
+.summary-card.tokens .value { color: var(--c-warn); }
+.summary-card.cost { border-color: var(--c-primary); }
+.summary-card.cost .value { color: var(--c-primary); }
+
+.pass-rate-bar {
+    height: 6px;
+    background: var(--c-border);
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.pass-rate-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--c-pass), #84cc16);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ==================== Sections ==================== */
+.section {
+    background: var(--c-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.section-header {
+    background: #f8fafc;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.section-body {
+    padding: 1.25rem;
+}
+
+/* ==================== AI Summary ==================== */
+.ai-summary {
+    line-height: 1.7;
+    font-size: 0.9375rem;
+}
+
+.ai-summary h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--c-text);
+    margin: 1.25rem 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.ai-summary h3:first-child {
+    margin-top: 0;
+}
+
+.ai-summary p { margin: 0.5rem 0; }
+.ai-summary ul, .ai-summary ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+.ai-summary li { margin: 0.25rem 0; }
+.ai-summary strong { font-weight: 600; }
+.ai-summary code {
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+/* ==================== Leaderboard Tables ==================== */
+.leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard th,
+.leaderboard td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.leaderboard th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.leaderboard tbody tr:hover { background: #f8fafc; }
+.leaderboard .rank { width: 3rem; text-align: center; }
+.leaderboard .medal { font-size: 1.25rem; }
+.leaderboard .model-name { font-weight: 500; }
+.leaderboard .pass-rate-cell { width: 200px; }
+.leaderboard .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ==================== Provider Badges ==================== */
+.provider-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+}
+
+.provider-badge.azure { background: #0078d4; color: white; }
+.provider-badge.openai { background: #10a37f; color: white; }
+.provider-badge.anthropic { background: #d97706; color: white; }
+.provider-badge.vertex { background: #4285f4; color: white; }
+.provider-badge.default { background: var(--c-text-light); color: white; }
+
+/* ==================== Comparison Matrix ==================== */
+.matrix-container { overflow-x: auto; }
+
+.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.matrix th,
+.matrix td {
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--c-border);
+}
+
+.matrix th {
+    background: #f8fafc;
+    font-weight: 600;
+    text-align: center;
+}
+
+.matrix .test-name {
+    text-align: left;
+    font-weight: 500;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.matrix .matrix-cell { text-align: center; }
+.matrix .matrix-cell .status { font-size: 1.125rem; }
+.matrix .matrix-cell .metrics {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-top: 0.25rem;
+}
+
+.matrix .cell-passed { background: #dcfce7; }
+.matrix .cell-failed { background: #fee2e2; }
+
+/* ==================== Test Items ==================== */
+.test-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.test-item {
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.test-item .test-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.test-item .test-header:hover { background: #f8fafc; }
+
+.test-item .test-name {
+    flex: 1;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.test-item .test-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    font-variant-numeric: tabular-nums;
+}
+
+.test-item .test-details {
+    display: none;
+    padding: 1rem;
+    border-top: 1px solid var(--c-border);
+    background: #fafafa;
+}
+
+.test-item.expanded .test-details { display: block; }
+
+/* Session tests always show details */
+.session-step .test-item .test-details { display: block; }
+.session-step .test-item .test-header { cursor: default; }
+
+/* ==================== Status Badge ==================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge.passed { background: var(--c-pass); color: white; }
+.badge.failed { background: var(--c-fail); color: white; }
+.badge.skipped { background: var(--c-warn); color: white; }
+.badge.session { background: #6366f1; color: white; cursor: help; }
+
+/* ==================== Sessions ==================== */
+.session-container {
+    background: white;
+    border-radius: var(--radius);
+    border: 2px solid #6366f1;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    user-select: none;
+}
+
+.session-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.session-icon { font-size: 1.25rem; }
+
+.session-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #4338ca;
+}
+
+.session-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+.session-summary {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.session-summary span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.session-tests {
+    padding: 1rem;
+    background: #fafaff;
+}
+
+/* Session Flow */
+.session-flow {
+    display: flex;
+    flex-direction: column;
+}
+
+.session-step {
+    display: flex;
+    align-items: flex-start;
+}
+
+.step-connector {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+    flex-shrink: 0;
+}
+
+.session-step.first .step-connector { visibility: hidden; }
+
+.connector-line {
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(180deg, #6366f1, #a5b4fc);
+}
+
+.connector-label {
+    font-size: 0.625rem;
+    color: #6366f1;
+    background: #eef2ff;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    white-space: nowrap;
+}
+
+.session-step .test-item {
+    flex: 1;
+    margin: 0.25rem 0;
+}
+
+/* ==================== Metrics Grid ==================== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+}
+
+.metrics-grid .metric-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--c-text);
+}
+
+.metrics-grid .metric-label {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+}
+
+/* ==================== Conversation Turns ==================== */
+.turns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.turn {
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    background: white;
+    border-left: 3px solid var(--c-border);
+}
+
+.turn.user { border-color: var(--c-info); }
+.turn.assistant { border-color: var(--c-primary); }
+
+.turn .turn-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.turn .turn-content {
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ==================== Tool Calls ==================== */
+.tool-call {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f1f5f9;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.tool-call .tool-name {
+    font-weight: 600;
+    color: var(--c-warn);
+}
+
+.tool-call .tool-args {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    margin-top: 0.25rem;
+}
+
+.tool-call .tool-result {
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--c-border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+/* ==================== Error Message ==================== */
+.error-message {
+    padding: 0.75rem 1rem;
+    background: #fee2e2;
+    border-left: 3px solid var(--c-fail);
+    border-radius: var(--radius);
+    color: #991b1b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+/* ==================== Mermaid Diagrams ==================== */
+.mermaid-container {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    cursor: pointer;
+    border: 1px solid var(--c-border);
+    transition: box-shadow 0.15s;
+}
+
+.mermaid-container:hover { box-shadow: var(--shadow-md); }
+
+.session-diagram { margin-bottom: 1rem; }
+
+/* ==================== Fullscreen Overlay ==================== */
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 80%);
+    z-index: 1000;
+    padding: 2rem;
+    overflow: auto;
+}
+
+.overlay.active { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.overlay .overlay-content {
+    background: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.overlay .overlay-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.overlay .overlay-close:hover { background: #f1f5f9; }
+
+/* ==================== Final Output Box ==================== */
+.final-output {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-pass);
+}
+
+.final-output h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    color: #166534;
+}
+
+.final-output .content {
+    font-size: 0.9375rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .test-item .test-metrics { flex-direction: column; gap: 0.25rem; }
+    .leaderboard { font-size: 0.875rem; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+    .sbs-header { flex-direction: column; }
+    .sbs-tools { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Print ==================== */
+@media print {
+    body { background: white; padding: 0; }
+    .report-header { box-shadow: none; }
+    .test-item .test-details { display: block; }
+    .overlay { display: none !important; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Tool Comparison Grid ==================== */
+.tool-comparison .tool-name-cell {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+}
+
+.tool-name-code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+}
+
+.tool-comparison .cell-used {
+    background: #dcfce7;
+}
+
+.tool-comparison .cell-unused {
+    background: #f8fafc;
+}
+
+.tool-comparison .tool-count {
+    font-weight: 600;
+    color: var(--c-pass);
+}
+
+.tool-comparison .tool-unused {
+    color: var(--c-text-muted);
+}
+
+.tool-comparison .total-cell {
+    font-weight: 600;
+    background: #f8fafc;
+}
+
+.tool-comparison .totals-row {
+    background: #f1f5f9;
+}
+
+.tool-comparison-summary {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+/* ==================== Side-by-Side Comparison ==================== */
+.side-by-side-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+}
+
+.side-by-side-controls label {
+    font-weight: 500;
+    color: var(--c-text-light);
+}
+
+.side-by-side-controls select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    background: white;
+    min-width: 300px;
+}
+
+.side-by-side-group {
+    display: none;
+}
+
+.side-by-side-group.active {
+    display: block;
+}
+
+.sbs-test-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--c-primary);
+}
+
+.sbs-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-header-cell {
+    flex: 1;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-border);
+}
+
+.sbs-header-cell.passed {
+    border-color: var(--c-pass);
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.sbs-header-cell.failed {
+    border-color: var(--c-fail);
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+.sbs-variant-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-status {
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-diagrams {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-diagram-cell {
+    background: white;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.sbs-diagram-cell .mermaid-container {
+    margin: 0;
+    border: none;
+    padding: 0.5rem;
+}
+
+.sbs-final-response {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--c-primary);
+}
+
+.sbs-final-response h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-response-content {
+    font-size: 0.875rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.sbs-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    color: var(--c-text-muted);
+    font-style: italic;
+}
+
+.sbs-tools-header {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--c-border);
+    margin-bottom: 0.75rem;
+}
+
+.sbs-tools {
+    display: grid;
+    gap: 1rem;
+}
+
+.sbs-tools-cell {
+    background: #f8fafc;
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    min-height: 50px;
+}
+
+.sbs-tool-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8125rem;
+}
+
+.sbs-tool-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed var(--c-border);
+}
+
+.sbs-tool-list li:last-child {
+    border-bottom: none;
+}
+
+.sbs-tool-list .tool-name {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--c-warn);
+}
+
+.sbs-tool-list .tool-timing {
+    color: var(--c-text-muted);
+    font-size: 0.75rem;
+}
+
+.sbs-tools-cell .no-tools {
+    color: var(--c-text-muted);
+    font-style: italic;
+    font-size: 0.8125rem;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        
+<header class="report-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="display: flex; align-items: center; gap: 0.75rem;">
+                🧪 pytest-aitest
+                
+                <span class="header-status all-passed">✓ All Passed</span>
+                
+            </h1>
+            
+            <div class="header-subtitle">
+                <a href="file:///D:/source/pytest-aitest/tests/integration/test_fixture_scenarios.py" style="color: rgba(255,255,255,0.9); text-decoration: underline;">test_fixture_scenarios.py</a>
+            </div>
+            
+        </div>
+        <div style="text-align: right; font-size: 0.8125rem; opacity: 0.85;">
+            <div>2026-02-02 at 18:18:20</div>
+            <div style="font-size: 1.125rem; font-weight: 600; margin-top: 0.25rem;">202.0s</div>
+        </div>
+    </div>
+    <div class="header-badges">
+        <span class="header-badge">📊 18 tests</span>
+        
+        <span class="header-badge">🤖 2 models</span>
+        
+        
+        <span class="header-badge">📝 3 prompts</span>
+        
+        
+        <span class="header-badge">💰 $0.0355</span>
+        
+    </div>
+</header>
+
+        
+        
+<section class="summary-grid">
+    <div class="summary-card total">
+        <div class="value">18</div>
+        <div class="label">Total Tests</div>
+    </div>
+    <div class="summary-card passed">
+        <div class="value">18</div>
+        <div class="label">Passed</div>
+    </div>
+    <div class="summary-card failed">
+        <div class="value">0</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="summary-card rate">
+        <div class="value">100%</div>
+        <div class="label">Pass Rate</div>
+        <div class="pass-rate-bar">
+            <div class="fill" style="width: 100.0%"></div>
+        </div>
+    </div>
+    
+    <div class="summary-card tokens">
+        <div class="value">560–2,916</div>
+        <div class="label">Token Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #3b82f6;">
+        <div class="value" style="color: #3b82f6; font-size: 1.25rem;">4.0–42.3s</div>
+        <div class="label">Duration Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #8b5cf6;">
+        <div class="value" style="color: #8b5cf6;">20</div>
+        <div class="label">Tool Calls</div>
+    </div>
+    
+</section>
+
+        
+        
+
+<section class="section">
+    <div class="section-header">
+        <h2>🏆 Model Leaderboard</h2>
+    </div>
+    <div class="section-body">
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th class="rank">Rank</th>
+                    <th>Model</th>
+                    <th>Pass Rate</th>
+                    <th class="numeric">Passed</th>
+                    <th class="numeric">Failed</th>
+                    <th class="numeric">Tokens</th>
+                    <th class="numeric">Efficiency</th>
+                    <th class="numeric">Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td class="rank">
+                        <span class="medal">🥇</span>
+                        
+                    </td>
+                    <td>
+                        <span class="model-name">gpt-4.1</span>
+                        <span class="provider-badge openai">openai</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">100%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: 100.0%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">9</td>
+                    <td class="numeric" style="color: var(--c-fail);">0</td>
+                    <td class="numeric">7,300</td>
+                    <td class="numeric">811 tok/✓</td>
+                    <td class="numeric">$0.0210</td>
+                </tr>
+                
+                <tr>
+                    <td class="rank">
+                        <span class="medal">🥈</span>
+                        
+                    </td>
+                    <td>
+                        <span class="model-name">gpt-5-mini</span>
+                        <span class="provider-badge openai">openai</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">100%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: 100.0%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">9</td>
+                    <td class="numeric" style="color: var(--c-fail);">0</td>
+                    <td class="numeric">15,413</td>
+                    <td class="numeric">1,713 tok/✓</td>
+                    <td class="numeric">$0.0145</td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+<section class="section">
+    <div class="section-header">
+        
+        <h2>📊 Comparison Matrix</h2>
+        
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">
+                            Prompt
+                        </th>
+                        
+                        <th>gpt-4.1</th>
+                        
+                        <th>gpt-5-mini</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="test-name" title="PROMPT_BRIEF">
+                            
+                            Basic weather - should pass for all combinations.
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                42.3s
+                                · 560 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                7.3s
+                                · 747 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td class="test-name" title="PROMPT_DETAILED">
+                            
+                            Basic weather - should pass for all combinations.
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                5.8s
+                                · 680 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                15.6s
+                                · 1774 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td class="test-name" title="PROMPT_STRUCTURED">
+                            
+                            Basic weather - should pass for all combinations.
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                4.0s
+                                · 680 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                4.8s
+                                · 865 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+        
+        
+
+
+<section class="section">
+    <div class="section-header">
+        <h2>🔧 Tool Usage Comparison</h2>
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix tool-comparison">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Tool</th>
+                        
+                        <th>gpt-4.1</th>
+                        
+                        <th>gpt-5-mini</th>
+                        
+                        <th class="numeric">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">compare_weather</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">6</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">get_forecast</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">6</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">get_weather</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">5</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">8</td>
+                    </tr>
+                    
+                </tbody>
+                <tfoot>
+                    <tr class="totals-row">
+                        <td><strong>Total Calls</strong></td>
+                        
+                        <td class="matrix-cell"><strong>9</strong></td>
+                        
+                        <td class="matrix-cell"><strong>11</strong></td>
+                        
+                        <td class="numeric"><strong>20</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+    </div>
+</section>
+
+
+        
+        
+
+
+<section class="section">
+    <div class="section-header">
+        <h2>🔄 Side-by-Side Comparison</h2>
+    </div>
+    <div class="section-body">
+        <div class="side-by-side-controls">
+            <label for="sbs-test-select">Select test to compare:</label>
+            <select id="sbs-test-select" onchange="showSideBySideTest(this.value)">
+                
+                <option value="sbs-0">test_weather_query</option>
+                
+                <option value="sbs-1">test_forecast_interpretation</option>
+                
+                <option value="sbs-2">test_multi_city_comparison</option>
+                
+            </select>
+        </div>
+        
+        
+        <div id="sbs-0" class="side-by-side-group active">
+            <h3 class="sbs-test-name">test_weather_query</h3>
+            
+            
+            <div class="sbs-header">
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>7.3s</span>
+                        <span>747 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>42.3s</span>
+                        <span>560 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>15.6s</span>
+                        <span>1774 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>5.8s</span>
+                        <span>680 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>4.8s</span>
+                        <span>865 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>4.0s</span>
+                        <span>680 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-diagrams" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris weather: 18°C, partly cloudy, 65% humidity, SW wind at 12 km/h.&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Paris weather: 18°C, partly cloudy, 65% humidity, SW wind at 12 km/h.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Here’s the current weather in Paris plus practical advice and the reasoning behi&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Here’s the current weather in Paris plus practical advice and the reasoning behind it.
+
+Current conditions
+- Temperature: 18 °C (64 °F). I report both units so you can choose whichever you prefer. 18 °C is about 64.4 °F, so the temperature feels mild.
+- Humidity: 65% — moderate. Not excessively dry ...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Here’s the current weather in Paris: - Temperature: 18°C (64°F) - Humidity: 65% &#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Here’s the current weather in Paris:
+
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Conditions: Partly cloudy
+- Wind: 12 km/h from the southwest
+
+Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant day for outdoor activities. Winds are gentle but may make it feel slightly c...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+                    </div>
+                    
+                    
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-tools-header">Tool Calls</div>
+            <div class="sbs-tools" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        <div id="sbs-1" class="side-by-side-group ">
+            <h3 class="sbs-test-name">test_forecast_interpretation</h3>
+            
+            
+            <div class="sbs-header">
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>9.5s</span>
+                        <span>1375 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>4.1s</span>
+                        <span>835 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>17.3s</span>
+                        <span>2916 tok</span>
+                        <span>2 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>7.1s</span>
+                        <span>974 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>16.4s</span>
+                        <span>2780 tok</span>
+                        <span>2 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>5.5s</span>
+                        <span>1022 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-diagrams" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Yes — bring an umbrella. Rain is likely mid–late week: Day 4 is forecast &#39;Rainy&#39;&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Yes — bring an umbrella. Rain is likely mid–late week: Day 4 is forecast &#34;Rainy&#34; (50% chance) and days 5–7 show 60–80% precipitation risk. Carry a compact umbrella or waterproof jacket.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Yes, you should bring an umbrella. Rain and high chances of precipitation are ex&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Yes, you should bring an umbrella. Rain and high chances of precipitation are expected in London later this week.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;London&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;London&#39;, &#39;country&#39;: &#39;UK&#39;, &#39;temperature_celsius&#39;: 1&#34;
+    Agent-&gt;&gt;User: &#34;Short answer: Yes — bring an umbrella this week in London. Why (current conditio&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Short answer: Yes — bring an umbrella this week in London.
+
+Why (current conditions)
+- Temperature: 14 °C (57 °F). I report both because you asked.
+- Humidity: 80% — quite high, which makes the air feel damp and increases the chance that light rain or drizzle will persist.
+- Wind: 18 km/h (≈ 11 mph)...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Yes, you should bring an umbrella to London this week. Here’s the reasoning: - R&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Yes, you should bring an umbrella to London this week. Here’s the reasoning:
+
+- Rain is expected on several days, with precipitation chances rising throughout the week—up to 80% on the last day.
+- The weather includes days of rain and high likelihood of showers, especially towards the end of the wee...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;London&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;London&#39;, &#39;country&#39;: &#39;UK&#39;, &#39;temperature_celsius&#39;: 1&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: London 🌡️ Temperature: 14°C / 57°F 💧 Humidity: 80% 🌤️ Conditions: Ra&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: London
+🌡️ Temperature: 14°C / 57°F
+💧 Humidity: 80%
+🌤️ Conditions: Rainy
+💨 Wind: 18 km/h W
+
+Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast shows several days with moderate-to-high chances of precipitation (day 4: 50% — Rainy; day 5: 60%; day 6: 70%; day 7: 80%). Ev...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;This week in London, the chance of rain increases as the days go by, especially &#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">This week in London, the chance of rain increases as the days go by, especially later in the week:
+
+- Early week (days 1-3): Mostly sunny, partly cloudy, or cloudy with a 20–40% chance of rain.
+- Mid to late week (days 4-7): Increased risk of rain (50–80% chance), with at least one day forecasted as...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-tools-header">Tool Calls</div>
+            <div class="sbs-tools" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        <div id="sbs-2" class="side-by-side-group ">
+            <h3 class="sbs-test-name">test_multi_city_comparison</h3>
+            
+            
+            <div class="sbs-header">
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>12.6s</span>
+                        <span>1293 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>4.7s</span>
+                        <span>688 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>20.8s</span>
+                        <span>2089 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>6.8s</span>
+                        <span>991 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>12.0s</span>
+                        <span>1574 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>5.4s</span>
+                        <span>870 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-diagrams" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Tokyo is better for most outdoor activities. Quick comparison: - Temperature: To&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Tokyo is better for most outdoor activities.
+
+Quick comparison:
+- Temperature: Tokyo 24°C vs Berlin 16°C — Tokyo is warmer and more comfortable for activity.
+- Conditions: Tokyo sunny; Berlin overcast (higher chance of gray/damp conditions).
+- Wind &amp; humidity: Tokyo 8 km/h, 70% humidity; Berlin 10 k...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Tokyo is sunny and warmer (24°C), with light wind. Berlin is cooler (16°C) and o&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Tokyo is sunny and warmer (24°C), with light wind. Berlin is cooler (16°C) and overcast. For outdoor activities, Tokyo has better weather today.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Here’s a direct comparison (numbers from the current observations) and practical&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Here’s a direct comparison (numbers from the current observations) and practical advice so you can decide which location is better for the outdoor activity you have in mind.
+
+Current conditions
+- Tokyo
+  - Temperature: 24 °C (75 °F)
+  - Humidity: 70%
+  - Conditions: Sunny
+  - Wind: 8 km/h, E
+- Berli...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Here&#39;s a detailed comparison of the current weather in Tokyo and Berlin: Tokyo, &#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Here&#39;s a detailed comparison of the current weather in Tokyo and Berlin:
+
+Tokyo, Japan
+
+- Temperature: 24°C (75°F)
+- Humidity: 70%
+- Conditions: Sunny
+- Wind: 8 km/h from the east
+- Outdoor Advice: With warm temperatures, moderate humidity, and sunny skies, Tokyo is very well suited for outdoor acti...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Tokyo 🌡️ Temperature: 24°C / 75°F 💧 Humidity: 70% 🌤️ Conditions: Sun&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Tokyo
+🌡️ Temperature: 24°C / 75°F
+💧 Humidity: 70%
+🌤️ Conditions: Sunny
+💨 Wind: 8 km/h E
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Comparison and recommendation:
+- Tokyo is warmer and sunny, making it the better choice for m...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Tokyo 🌡️ Temperature: 24°C / 75°F 💧 Humidity: 70% 🌤️ Conditions: Sun&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Tokyo
+🌡️ Temperature: 24°C / 75°F
+💧 Humidity: 70%
+🌤️ Conditions: Sunny
+💨 Wind: 8 km/h E
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Summary: Tokyo currently has sunnier and warmer weather, making it more suitable for outdoor ...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-tools-header">Tool Calls</div>
+            <div class="sbs-tools" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+
+        
+        
+<section class="section">
+    <div class="section-header">
+        <h2>🔍 Detailed Results</h2>
+    </div>
+    <div class="section-body">
+        <div class="test-list">
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_query[PROMPT_BRIEF-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Basic weather - should pass for all combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>7.32s</span>
+                        
+                        <span>747 tokens</span>
+                        <span>$0.000279</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">3.95s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">694</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">53</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.000279</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_query[PROMPT_BRIEF-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Basic weather - should pass for all combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>42.31s</span>
+                        
+                        <span>560 tokens</span>
+                        <span>$0.001360</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">39.23s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">520</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">40</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001360</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris weather: 18°C, partly cloudy, 65% humidity, SW wind at 12 km/h.&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Paris weather: 18°C, partly cloudy, 65% humidity, SW wind at 12 km/h.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Paris weather: 18°C, partly cloudy, 65% humidity, SW wind at 12 km/h.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_query[PROMPT_DETAILED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Basic weather - should pass for all combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>15.57s</span>
+                        
+                        <span>1774 tokens</span>
+                        <span>$0.002270</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">12.41s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">730</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1044</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002270</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Here’s the current weather in Paris plus practical advice and the reasoning behi&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Here’s the current weather in Paris plus practical advice and the reasoning behind it.
+
+Current conditions
+- Temperature: 18 °C (64 °F). I report both units so you can choose whichever you prefer. 18 °C is about 64.4 °F, so the temperature feels mild.
+- Humidity: 65% — moderate. Not excessively dry or very muggy, but enough moisture in the air that the air can feel slightly heavy if you’re active.
+- Sky: Partly cloudy — sun and clouds alternating.
+- Wind: 12 km/h (about 7.5 mph) from the southwest. That’s a light-to-moderate breeze.
+
+Practical advice and reasoning
+- What to wear: A light jacket, sweater, or long-sleeve shirt is appropriate. Reason: 18 °C is comfortable but can feel a bit cool in shade or if you’re standing still; the breeze increases the cooling sensation slightly.
+- Outdoor plans (walking, sightseeing, cafés): Fine to go ahead. Reason: partly cloudy skies and mild temperature make for pleasant conditions for walking and outdoor dining.
+- Sun protection: Bring sunglasses and light sunscreen if you’ll be in direct sun for long periods. Reason: Partly cloudy doesn’t eliminate periods of bright sun.
+- Rain gear: Not strictly necessary right now (conditions are “partly cloudy” and no rain reported), but a small foldable umbrella or light waterproof layer is a good backup if you’ll be out for many hours. Reason: clouds can develop into brief showers later even when it’s currently dry.
+- Cycling/running: Good conditions for exercise; expect comfortable temperatures but keep a light layer for the start/end of your activity. Reason: moderate humidity and a 12 km/h breeze won’t overheat you but can cool you when you stop.
+- Driving: Sunglasses are useful because changing cloud cover can create glare. Reason: alternating sun and clouds can make light levels vary quickly.
+
+If you want, I can fetch a short forecast for the next few hours or days (e.g., whether those clouds will bring rain later or how temperatures change).</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Here’s the current weather in Paris plus practical advice and the reasoning behind it.
+
+Current conditions
+- Temperature: 18 °C (64 °F). I report both units so you can choose whichever you prefer. 18 °C is about 64.4 °F, so the temperature feels mild.
+- Humidity: 65% — moderate. Not excessively dry or very muggy, but enough moisture in the air that the air can feel slightly heavy if you’re active.
+- Sky: Partly cloudy — sun and clouds alternating.
+- Wind: 12 km/h (about 7.5 mph) from the southwe...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_query[PROMPT_DETAILED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Basic weather - should pass for all combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>5.80s</span>
+                        
+                        <span>680 tokens</span>
+                        <span>$0.002104</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">2.65s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">556</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">124</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002104</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Here’s the current weather in Paris: - Temperature: 18°C (64°F) - Humidity: 65% &#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Here’s the current weather in Paris:
+
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Conditions: Partly cloudy
+- Wind: 12 km/h from the southwest
+
+Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant day for outdoor activities. Winds are gentle but may make it feel slightly cooler—consider a light jacket if you’ll be outside for a long time. The humidity is moderate, so it shouldn’t feel too muggy. Enjoy your day in Paris!</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Here’s the current weather in Paris:
+
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Conditions: Partly cloudy
+- Wind: 12 km/h from the southwest
+
+Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant day for outdoor activities. Winds are gentle but may make it feel slightly cooler—consider a light jacket if you’ll be outside for a long time. The humidity is moderate, so it shouldn’t feel too muggy. Enjoy your day in Paris!</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_query[PROMPT_STRUCTURED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Basic weather - should pass for all combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>4.81s</span>
+                        
+                        <span>865 tokens</span>
+                        <span>$0.000344</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.93s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">792</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">73</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.000344</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_query[PROMPT_STRUCTURED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Basic weather - should pass for all combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>4.02s</span>
+                        
+                        <span>680 tokens</span>
+                        <span>$0.001732</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.11s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">618</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">62</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001732</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[PROMPT_BRIEF-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Forecast with interpretation - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>9.53s</span>
+                        
+                        <span>1375 tokens</span>
+                        <span>$0.001061</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">6.62s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">965</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">410</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001061</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Yes — bring an umbrella. Rain is likely mid–late week: Day 4 is forecast &#39;Rainy&#39;&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Yes — bring an umbrella. Rain is likely mid–late week: Day 4 is forecast &#34;Rainy&#34; (50% chance) and days 5–7 show 60–80% precipitation risk. Carry a compact umbrella or waterproof jacket.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Yes — bring an umbrella. Rain is likely mid–late week: Day 4 is forecast &#34;Rainy&#34; (50% chance) and days 5–7 show 60–80% precipitation risk. Carry a compact umbrella or waterproof jacket.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[PROMPT_BRIEF-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Forecast with interpretation - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>4.08s</span>
+                        
+                        <span>835 tokens</span>
+                        <span>$0.001934</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.13s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">791</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">44</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001934</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Yes, you should bring an umbrella. Rain and high chances of precipitation are ex&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Yes, you should bring an umbrella. Rain and high chances of precipitation are expected in London later this week.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Yes, you should bring an umbrella. Rain and high chances of precipitation are expected in London later this week.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[PROMPT_DETAILED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Forecast with interpretation - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>17.25s</span>
+                        
+                        <span>2916 tokens</span>
+                        <span>$0.002750</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">14.38s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1761</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1155</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002750</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;London&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;London&#39;, &#39;country&#39;: &#39;UK&#39;, &#39;temperature_celsius&#39;: 1&#34;
+    Agent-&gt;&gt;User: &#34;Short answer: Yes — bring an umbrella this week in London. Why (current conditio&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Short answer: Yes — bring an umbrella this week in London.
+
+Why (current conditions)
+- Temperature: 14 °C (57 °F). I report both because you asked.
+- Humidity: 80% — quite high, which makes the air feel damp and increases the chance that light rain or drizzle will persist.
+- Wind: 18 km/h (≈ 11 mph) from the west. That’s a steady breeze; not gale-force, but enough to make very lightweight umbrellas flip inside-out in strong gusts.
+- Current conditions: Rainy. This means there is immediate wet weather now, not just a forecast.
+
+Why (this week’s forecast)
+- The 7-day forecast shows a mix of sun and clouds but several days with notable precipitation chances: day 4 (50%), day 5 (60%), day 6 (70%), day 7 (80%). Even earlier in the week there are non-trivial chances (20–40%) on days 1–3. Taken together, that’s a substantial risk of rain at some point this week.
+- Even a 20–40% chance means you could get caught in showers, and the higher late-week probabilities make rain likely on multiple days.
+
+Practical advice
+- Bring an umbrella: a compact folding umbrella is convenient for day-to-day use; however, because of the steady westerly wind (~18 km/h), choose one with a sturdy frame or a vented design if possible (less likely to invert).
+- Consider layering: a light waterproof jacket with a hood will keep you dry if gusts make umbrella use awkward.
+- Footwear: waterproof shoes or quick-drying footwear are helpful given high humidity and likely showers.
+- If you’ll be outside for long periods or plan to cycle, a rain jacket + hood might be preferable to an umbrella.
+- Check the forecast the morning you go out — London weather can change quickly, so a last-minute check will give the best guidance for that day.
+
+If you tell me which day(s) you’ll be out and what you’ll be doing (walking, sightseeing, cycling, commuting), I can give a tailored recommendation for umbrella vs. raincoat and suggest what time of day is safest.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (4 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "London"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;London&#34;, &#34;country&#34;: &#34;UK&#34;, &#34;temperature_celsius&#34;: 14, &#34;temperature_fahrenheit&#34;: 57, &#34;humidity&#34;: 80, &#34;conditions&#34;: &#34;Rainy&#34;, &#34;wind_speed_kmh&#34;: 18, &#34;wind_direction&#34;: &#34;W&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Short answer: Yes — bring an umbrella this week in London.
+
+Why (current conditions)
+- Temperature: 14 °C (57 °F). I report both because you asked.
+- Humidity: 80% — quite high, which makes the air feel damp and increases the chance that light rain or drizzle will persist.
+- Wind: 18 km/h (≈ 11 mph) from the west. That’s a steady breeze; not gale-force, but enough to make very lightweight umbrellas flip inside-out in strong gusts.
+- Current conditions: Rainy. This means there is immediate wet we...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[PROMPT_DETAILED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Forecast with interpretation - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>7.07s</span>
+                        
+                        <span>974 tokens</span>
+                        <span>$0.002830</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">2.73s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">827</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">147</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002830</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Yes, you should bring an umbrella to London this week. Here’s the reasoning: - R&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Yes, you should bring an umbrella to London this week. Here’s the reasoning:
+
+- Rain is expected on several days, with precipitation chances rising throughout the week—up to 80% on the last day.
+- The weather includes days of rain and high likelihood of showers, especially towards the end of the week.
+- London often has unexpected showers even on partly cloudy days.
+
+Practical advice: Even though some days will be sunny or partly cloudy, the increasing chance of rain suggests you’ll be more comfortable if you keep an umbrella handy. This will keep you dry, especially if you’ll be moving around the city!</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Yes, you should bring an umbrella to London this week. Here’s the reasoning:
+
+- Rain is expected on several days, with precipitation chances rising throughout the week—up to 80% on the last day.
+- The weather includes days of rain and high likelihood of showers, especially towards the end of the week.
+- London often has unexpected showers even on partly cloudy days.
+
+Practical advice: Even though some days will be sunny or partly cloudy, the increasing chance of rain suggests you’ll be more comf...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[PROMPT_STRUCTURED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Forecast with interpretation - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>16.42s</span>
+                        
+                        <span>2780 tokens</span>
+                        <span>$0.002315</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">13.45s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1854</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">926</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002315</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;London&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;London&#39;, &#39;country&#39;: &#39;UK&#39;, &#39;temperature_celsius&#39;: 1&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: London 🌡️ Temperature: 14°C / 57°F 💧 Humidity: 80% 🌤️ Conditions: Ra&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: London
+🌡️ Temperature: 14°C / 57°F
+💧 Humidity: 80%
+🌤️ Conditions: Rainy
+💨 Wind: 18 km/h W
+
+Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast shows several days with moderate-to-high chances of precipitation (day 4: 50% — Rainy; day 5: 60%; day 6: 70%; day 7: 80%). Even earlier in the week there are 20–40% chances on some days, so a compact umbrella or a waterproof jacket will keep you comfortable. Quick tips: pack a small foldable umbrella, wear water-resistant shoes, and check the forecast before heading out each day.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (4 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "London"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;London&#34;, &#34;country&#34;: &#34;UK&#34;, &#34;temperature_celsius&#34;: 14, &#34;temperature_fahrenheit&#34;: 57, &#34;humidity&#34;: 80, &#34;conditions&#34;: &#34;Rainy&#34;, &#34;wind_speed_kmh&#34;: 18, &#34;wind_direction&#34;: &#34;W&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: London
+🌡️ Temperature: 14°C / 57°F
+💧 Humidity: 80%
+🌤️ Conditions: Rainy
+💨 Wind: 18 km/h W
+
+Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast shows several days with moderate-to-high chances of precipitation (day 4: 50% — Rainy; day 5: 60%; day 6: 70%; day 7: 80%). Even earlier in the week there are 20–40% chances on some days, so a compact umbrella or a waterproof jacket will keep you comfortable. Quick tips: pack a small foldable umbrella, wear water-resistant s...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[PROMPT_STRUCTURED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Forecast with interpretation - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>5.54s</span>
+                        
+                        <span>1022 tokens</span>
+                        <span>$0.002842</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">2.53s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">889</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">133</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002842</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;This week in London, the chance of rain increases as the days go by, especially &#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">This week in London, the chance of rain increases as the days go by, especially later in the week:
+
+- Early week (days 1-3): Mostly sunny, partly cloudy, or cloudy with a 20–40% chance of rain.
+- Mid to late week (days 4-7): Increased risk of rain (50–80% chance), with at least one day forecasted as &#34;Rainy.&#34;
+
+Recommendation: Yes, you should bring an umbrella to London this week, especially for the second half when rain is more likely.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">This week in London, the chance of rain increases as the days go by, especially later in the week:
+
+- Early week (days 1-3): Mostly sunny, partly cloudy, or cloudy with a 20–40% chance of rain.
+- Mid to late week (days 4-7): Increased risk of rain (50–80% chance), with at least one day forecasted as &#34;Rainy.&#34;
+
+Recommendation: Yes, you should bring an umbrella to London this week, especially for the second half when rain is more likely.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[PROMPT_BRIEF-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Compare cities - tests tool chaining.
+                    </span>
+                    <span class="test-metrics">
+                        <span>12.60s</span>
+                        
+                        <span>1293 tokens</span>
+                        <span>$0.001177</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">9.53s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">805</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">488</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001177</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Tokyo is better for most outdoor activities. Quick comparison: - Temperature: To&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Tokyo is better for most outdoor activities.
+
+Quick comparison:
+- Temperature: Tokyo 24°C vs Berlin 16°C — Tokyo is warmer and more comfortable for activity.
+- Conditions: Tokyo sunny; Berlin overcast (higher chance of gray/damp conditions).
+- Wind &amp; humidity: Tokyo 8 km/h, 70% humidity; Berlin 10 km/h, 72% — both light wind, similar humidity.
+
+Recommendation:
+- Choose Tokyo for outdoor sports, sightseeing, or picnics.
+- Choose Berlin only if you prefer cooler, less sun or want to avoid direct sunlight (or if you expect rain under the overcast).</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Compare the weather in Tokyo and Berlin, which is better for outdoor activities?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Tokyo is better for most outdoor activities.
+
+Quick comparison:
+- Temperature: Tokyo 24°C vs Berlin 16°C — Tokyo is warmer and more comfortable for activity.
+- Conditions: Tokyo sunny; Berlin overcast (higher chance of gray/damp conditions).
+- Wind &amp; humidity: Tokyo 8 km/h, 70% humidity; Berlin 10 km/h, 72% — both light wind, similar humidity.
+
+Recommendation:
+- Choose Tokyo for outdoor sports, sightseeing, or picnics.
+- Choose Berlin only if you prefer cooler, less sun or want to avoid direct s...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[PROMPT_BRIEF-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Compare cities - tests tool chaining.
+                    </span>
+                    <span class="test-metrics">
+                        <span>4.71s</span>
+                        
+                        <span>688 tokens</span>
+                        <span>$0.001718</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.39s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">631</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">57</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001718</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Tokyo is sunny and warmer (24°C), with light wind. Berlin is cooler (16°C) and o&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Tokyo is sunny and warmer (24°C), with light wind. Berlin is cooler (16°C) and overcast. For outdoor activities, Tokyo has better weather today.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Compare the weather in Tokyo and Berlin, which is better for outdoor activities?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Tokyo is sunny and warmer (24°C), with light wind. Berlin is cooler (16°C) and overcast. For outdoor activities, Tokyo has better weather today.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[PROMPT_DETAILED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Compare cities - tests tool chaining.
+                    </span>
+                    <span class="test-metrics">
+                        <span>20.77s</span>
+                        
+                        <span>2089 tokens</span>
+                        <span>$0.002706</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">17.84s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">841</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1248</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002706</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Here’s a direct comparison (numbers from the current observations) and practical&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Here’s a direct comparison (numbers from the current observations) and practical advice so you can decide which location is better for the outdoor activity you have in mind.
+
+Current conditions
+- Tokyo
+  - Temperature: 24 °C (75 °F)
+  - Humidity: 70%
+  - Conditions: Sunny
+  - Wind: 8 km/h, E
+- Berlin
+  - Temperature: 16 °C (61 °F)
+  - Humidity: 72%
+  - Conditions: Overcast
+  - Wind: 10 km/h, N
+
+Reasoning about comfort and safety
+- Temperature and activity intensity:
+  - Tokyo is 8 °C (14 °F) warmer than Berlin. Warmer air (24 °C) is pleasant for casual outdoor leisure but combined with 70% humidity can feel a bit muggy. For high-intensity exercise (running, long bike rides), that humidity can increase perceived effort and heat stress.
+  - Berlin’s 16 °C is cooler and often better for sustained, strenuous activity because the body sheds heat more easily when ambient temperature is lower.
+- Humidity:
+  - The humidities are similar (70% vs 72%). That means neither location is extremely dry; Tokyo’s humidity will make the warm temperature feel slightly stickier, while Berlin’s overcast coolness offsets its slightly higher humidity.
+- Sun and precipitation risk:
+  - Tokyo is sunny now — good for sightseeing, photography, picnics, and activities where you want sun. Sunlight increases UV exposure, so sunscreen and shade are needed.
+  - Berlin is overcast — comfortable for activities where you prefer less sun (long runs, cycling, hiking). Overcast can also indicate a higher chance of rain, so check a short-term precipitation forecast if planning long outdoor events.
+- Wind:
+  - Winds are light in both places (8–10 km/h). That won’t strongly affect most outdoor plans, though a light breeze in Berlin may make it feel a touch cooler.
+
+Practical advice
+- If you plan relaxed, sun-focused activities (picnic, sightseeing, photography, outdoor dining): Tokyo is likely better today — pleasant warm temperature and sun. Bring sunscreen, a hat, and water; take shade breaks if you feel sticky from humidity.
+- If you plan vigorous exercise (long runs, intense cycling, long hikes): Berlin is likely better because the cooler 16 °C will reduce heat strain and make sustained exertion more comfortable. Wear layers (a light windbreaker or long-sleeve) in case the overcast brings a breeze or light drizzle.
+- For either city: drink water, wear appropriate clothing (breathable fabrics in Tokyo; layers in Berlin), and check a short-term precipitation forecast if your activity depends on dry conditions.
+
+Bottom line
+- There is no single “better” city for outdoor activities—choose by activity type. For relaxed, sun-filled outdoor plans, Tokyo is more favorable right now. For extended or high-intensity outdoor exercise, Berlin’s cooler, overcast conditions are generally more comfortable and safer for prolonged exertion.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Compare the weather in Tokyo and Berlin, which is better for outdoor activities?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Here’s a direct comparison (numbers from the current observations) and practical advice so you can decide which location is better for the outdoor activity you have in mind.
+
+Current conditions
+- Tokyo
+  - Temperature: 24 °C (75 °F)
+  - Humidity: 70%
+  - Conditions: Sunny
+  - Wind: 8 km/h, E
+- Berlin
+  - Temperature: 16 °C (61 °F)
+  - Humidity: 72%
+  - Conditions: Overcast
+  - Wind: 10 km/h, N
+
+Reasoning about comfort and safety
+- Temperature and activity intensity:
+  - Tokyo is 8 °C (14 °F) war...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[PROMPT_DETAILED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Compare cities - tests tool chaining.
+                    </span>
+                    <span class="test-metrics">
+                        <span>6.76s</span>
+                        
+                        <span>991 tokens</span>
+                        <span>$0.003926</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">4.03s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">667</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">324</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.003926</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Here&#39;s a detailed comparison of the current weather in Tokyo and Berlin: Tokyo, &#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Here&#39;s a detailed comparison of the current weather in Tokyo and Berlin:
+
+Tokyo, Japan
+
+- Temperature: 24°C (75°F)
+- Humidity: 70%
+- Conditions: Sunny
+- Wind: 8 km/h from the east
+- Outdoor Advice: With warm temperatures, moderate humidity, and sunny skies, Tokyo is very well suited for outdoor activities today. Light clothing, sunglasses, and sunscreen are recommended.
+
+Berlin, Germany
+
+- Temperature: 16°C (61°F)
+- Humidity: 72%
+- Conditions: Overcast
+- Wind: 10 km/h from the north
+- Outdoor Advice: It&#39;s cooler and cloudier in Berlin, with slightly higher humidity and a gentle breeze. Overcast skies mean it&#39;s less bright, but the cooler temperature might be comfortable for jogging, hiking, or biking. You might want a light jacket or layers, especially if you&#39;ll be out for a while.
+
+Which is better for outdoor activities?
+- Tokyo offers warmer and sunny weather, which is generally more favorable for a wide range of outdoor activities such as picnics, sports, or walking tours.
+- Berlin&#39;s weather is suitable for active pursuits if you prefer cooler air and less direct sunlight but is less ideal for lounging or sunbathing.
+
+Decision: Tokyo is currently better for most outdoor activities thanks to its sunnier, warmer conditions. If you prefer milder temperatures and less sun exposure, Berlin could still be a good option. Always bring water and dress appropriately for the conditions!</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Compare the weather in Tokyo and Berlin, which is better for outdoor activities?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Here&#39;s a detailed comparison of the current weather in Tokyo and Berlin:
+
+Tokyo, Japan
+
+- Temperature: 24°C (75°F)
+- Humidity: 70%
+- Conditions: Sunny
+- Wind: 8 km/h from the east
+- Outdoor Advice: With warm temperatures, moderate humidity, and sunny skies, Tokyo is very well suited for outdoor activities today. Light clothing, sunglasses, and sunscreen are recommended.
+
+Berlin, Germany
+
+- Temperature: 16°C (61°F)
+- Humidity: 72%
+- Conditions: Overcast
+- Wind: 10 km/h from the north
+- Outdoor Ad...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[PROMPT_STRUCTURED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Compare cities - tests tool chaining.
+                    </span>
+                    <span class="test-metrics">
+                        <span>12.01s</span>
+                        
+                        <span>1574 tokens</span>
+                        <span>$0.001568</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">9.42s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">903</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">671</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001568</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Tokyo 🌡️ Temperature: 24°C / 75°F 💧 Humidity: 70% 🌤️ Conditions: Sun&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Tokyo
+🌡️ Temperature: 24°C / 75°F
+💧 Humidity: 70%
+🌤️ Conditions: Sunny
+💨 Wind: 8 km/h E
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Comparison and recommendation:
+- Tokyo is warmer and sunny, making it the better choice for most outdoor leisure activities (sightseeing, picnics, outdoor dining). The humidity is moderately high but generally comfortable.
+- Berlin is cooler and overcast with slightly stronger wind, which can be preferable for strenuous activities like running or cycling if you prefer cooler temperatures.
+Overall: Tokyo is better for casual outdoor activities; choose Berlin if you want cooler, less sunny conditions for exercise.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Compare the weather in Tokyo and Berlin, which is better for outdoor activities?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Tokyo
+🌡️ Temperature: 24°C / 75°F
+💧 Humidity: 70%
+🌤️ Conditions: Sunny
+💨 Wind: 8 km/h E
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Comparison and recommendation:
+- Tokyo is warmer and sunny, making it the better choice for most outdoor leisure activities (sightseeing, picnics, outdoor dining). The humidity is moderately high but generally comfortable.
+- Berlin is cooler and overcast with slightly stronger wind, which can...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[PROMPT_STRUCTURED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Compare cities - tests tool chaining.
+                    </span>
+                    <span class="test-metrics">
+                        <span>5.42s</span>
+                        
+                        <span>870 tokens</span>
+                        <span>$0.002586</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">2.34s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">729</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">141</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002586</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the weather in Tokyo and Berlin, which is better for outdoor activities?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Tokyo 🌡️ Temperature: 24°C / 75°F 💧 Humidity: 70% 🌤️ Conditions: Sun&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Tokyo
+🌡️ Temperature: 24°C / 75°F
+💧 Humidity: 70%
+🌤️ Conditions: Sunny
+💨 Wind: 8 km/h E
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Summary: Tokyo currently has sunnier and warmer weather, making it more suitable for outdoor activities compared to the cooler and overcast conditions in Berlin.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Compare the weather in Tokyo and Berlin, which is better for outdoor activities?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Tokyo
+🌡️ Temperature: 24°C / 75°F
+💧 Humidity: 70%
+🌤️ Conditions: Sunny
+💨 Wind: 8 km/h E
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Summary: Tokyo currently has sunnier and warmer weather, making it more suitable for outdoor activities compared to the cooler and overcast conditions in Berlin.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+    </div>
+
+    
+    
+<div class="overlay" id="overlay" onclick="hideOverlay()">
+    <button class="overlay-close" onclick="hideOverlay()">✕</button>
+    <div class="overlay-content" onclick="event.stopPropagation()">
+        <div class="mermaid" id="overlay-mermaid"></div>
+    </div>
+</div>
+
+    <script>
+// pytest-aitest Report Scripts
+
+// Initialize Mermaid
+mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose'
+});
+
+// Fullscreen diagram viewer
+function showDiagram(mermaidCode) {
+    const overlay = document.getElementById('overlay');
+    const content = document.getElementById('overlay-mermaid');
+    content.innerHTML = mermaidCode;
+    overlay.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideOverlay() {
+    document.getElementById('overlay').classList.remove('active');
+}
+
+// Close overlay on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideOverlay();
+});
+
+// Side-by-side test selector
+function showSideBySideTest(testId) {
+    // Hide all groups
+    document.querySelectorAll('.side-by-side-group').forEach(group => {
+        group.classList.remove('active');
+    });
+    // Show selected group
+    const selected = document.getElementById(testId);
+    if (selected) {
+        selected.classList.add('active');
+        // Re-render mermaid diagrams in the newly visible group
+        mermaid.run({ nodes: selected.querySelectorAll('.mermaid') });
+    }
+}
+    </script>
+</body>
+</html>

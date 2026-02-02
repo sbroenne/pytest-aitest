@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pytest-aitest Report - pytest-aitest</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+/* ========== pytest-aitest Report Styles ==========
+ * Modern CSS with custom properties, grid, flexbox
+ * Self-contained - no external dependencies
+ */
+
+/* ==================== Color System ==================== */
+:root {
+    --c-pass: #22c55e;
+    --c-fail: #ef4444;
+    --c-warn: #f59e0b;
+    --c-info: #3b82f6;
+    --c-primary: #6366f1;
+    --c-secondary: #8b5cf6;
+    
+    --c-bg: #f8fafc;
+    --c-card: #ffffff;
+    --c-border: #e2e8f0;
+    --c-text: #1e293b;
+    --c-text-light: #64748b;
+    --c-text-muted: #94a3b8;
+    
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);
+    --shadow-md: 0 4px 6px rgb(0 0 0 / 7%);
+    --shadow-lg: 0 10px 15px rgb(0 0 0 / 10%);
+    
+    --radius: 8px;
+    --font: system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* ==================== Reset & Base ==================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: var(--font);
+    background: var(--c-bg);
+    color: var(--c-text);
+    line-height: 1.6;
+    margin: 0;
+    padding: clamp(1rem, 3vw, 2rem);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ==================== Header ==================== */
+.report-header {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-secondary) 100%);
+    color: white;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.report-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+}
+
+.report-header .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.header-status.all-passed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #dcfce7;
+}
+
+.header-status.has-failures {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+}
+
+.header-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+
+.header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.header-badge.clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.header-badge.clickable:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==================== Summary Cards ==================== */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-card {
+    background: var(--c-card);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    border-top: 4px solid var(--c-border);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-card .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.summary-card .label {
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-card.total { border-color: var(--c-info); }
+.summary-card.total .value { color: var(--c-info); }
+.summary-card.passed { border-color: var(--c-pass); }
+.summary-card.passed .value { color: var(--c-pass); }
+.summary-card.failed { border-color: var(--c-fail); }
+.summary-card.failed .value { color: var(--c-fail); }
+.summary-card.rate { border-color: var(--c-secondary); }
+.summary-card.rate .value { color: var(--c-secondary); }
+.summary-card.tokens { border-color: var(--c-warn); }
+.summary-card.tokens .value { color: var(--c-warn); }
+.summary-card.cost { border-color: var(--c-primary); }
+.summary-card.cost .value { color: var(--c-primary); }
+
+.pass-rate-bar {
+    height: 6px;
+    background: var(--c-border);
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.pass-rate-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--c-pass), #84cc16);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ==================== Sections ==================== */
+.section {
+    background: var(--c-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.section-header {
+    background: #f8fafc;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.section-body {
+    padding: 1.25rem;
+}
+
+/* ==================== AI Summary ==================== */
+.ai-summary {
+    line-height: 1.7;
+    font-size: 0.9375rem;
+}
+
+.ai-summary h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--c-text);
+    margin: 1.25rem 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.ai-summary h3:first-child {
+    margin-top: 0;
+}
+
+.ai-summary p { margin: 0.5rem 0; }
+.ai-summary ul, .ai-summary ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+.ai-summary li { margin: 0.25rem 0; }
+.ai-summary strong { font-weight: 600; }
+.ai-summary code {
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+/* ==================== Leaderboard Tables ==================== */
+.leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard th,
+.leaderboard td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.leaderboard th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.leaderboard tbody tr:hover { background: #f8fafc; }
+.leaderboard .rank { width: 3rem; text-align: center; }
+.leaderboard .medal { font-size: 1.25rem; }
+.leaderboard .model-name { font-weight: 500; }
+.leaderboard .pass-rate-cell { width: 200px; }
+.leaderboard .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ==================== Provider Badges ==================== */
+.provider-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+}
+
+.provider-badge.azure { background: #0078d4; color: white; }
+.provider-badge.openai { background: #10a37f; color: white; }
+.provider-badge.anthropic { background: #d97706; color: white; }
+.provider-badge.vertex { background: #4285f4; color: white; }
+.provider-badge.default { background: var(--c-text-light); color: white; }
+
+/* ==================== Comparison Matrix ==================== */
+.matrix-container { overflow-x: auto; }
+
+.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.matrix th,
+.matrix td {
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--c-border);
+}
+
+.matrix th {
+    background: #f8fafc;
+    font-weight: 600;
+    text-align: center;
+}
+
+.matrix .test-name {
+    text-align: left;
+    font-weight: 500;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.matrix .matrix-cell { text-align: center; }
+.matrix .matrix-cell .status { font-size: 1.125rem; }
+.matrix .matrix-cell .metrics {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-top: 0.25rem;
+}
+
+.matrix .cell-passed { background: #dcfce7; }
+.matrix .cell-failed { background: #fee2e2; }
+
+/* ==================== Test Items ==================== */
+.test-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.test-item {
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.test-item .test-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.test-item .test-header:hover { background: #f8fafc; }
+
+.test-item .test-name {
+    flex: 1;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.test-item .test-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    font-variant-numeric: tabular-nums;
+}
+
+.test-item .test-details {
+    display: none;
+    padding: 1rem;
+    border-top: 1px solid var(--c-border);
+    background: #fafafa;
+}
+
+.test-item.expanded .test-details { display: block; }
+
+/* Session tests always show details */
+.session-step .test-item .test-details { display: block; }
+.session-step .test-item .test-header { cursor: default; }
+
+/* ==================== Status Badge ==================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge.passed { background: var(--c-pass); color: white; }
+.badge.failed { background: var(--c-fail); color: white; }
+.badge.skipped { background: var(--c-warn); color: white; }
+.badge.session { background: #6366f1; color: white; cursor: help; }
+
+/* ==================== Sessions ==================== */
+.session-container {
+    background: white;
+    border-radius: var(--radius);
+    border: 2px solid #6366f1;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    user-select: none;
+}
+
+.session-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.session-icon { font-size: 1.25rem; }
+
+.session-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #4338ca;
+}
+
+.session-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+.session-summary {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.session-summary span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.session-tests {
+    padding: 1rem;
+    background: #fafaff;
+}
+
+/* Session Flow */
+.session-flow {
+    display: flex;
+    flex-direction: column;
+}
+
+.session-step {
+    display: flex;
+    align-items: flex-start;
+}
+
+.step-connector {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+    flex-shrink: 0;
+}
+
+.session-step.first .step-connector { visibility: hidden; }
+
+.connector-line {
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(180deg, #6366f1, #a5b4fc);
+}
+
+.connector-label {
+    font-size: 0.625rem;
+    color: #6366f1;
+    background: #eef2ff;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    white-space: nowrap;
+}
+
+.session-step .test-item {
+    flex: 1;
+    margin: 0.25rem 0;
+}
+
+/* ==================== Metrics Grid ==================== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+}
+
+.metrics-grid .metric-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--c-text);
+}
+
+.metrics-grid .metric-label {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+}
+
+/* ==================== Conversation Turns ==================== */
+.turns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.turn {
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    background: white;
+    border-left: 3px solid var(--c-border);
+}
+
+.turn.user { border-color: var(--c-info); }
+.turn.assistant { border-color: var(--c-primary); }
+
+.turn .turn-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.turn .turn-content {
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ==================== Tool Calls ==================== */
+.tool-call {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f1f5f9;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.tool-call .tool-name {
+    font-weight: 600;
+    color: var(--c-warn);
+}
+
+.tool-call .tool-args {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    margin-top: 0.25rem;
+}
+
+.tool-call .tool-result {
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--c-border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+/* ==================== Error Message ==================== */
+.error-message {
+    padding: 0.75rem 1rem;
+    background: #fee2e2;
+    border-left: 3px solid var(--c-fail);
+    border-radius: var(--radius);
+    color: #991b1b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+/* ==================== Mermaid Diagrams ==================== */
+.mermaid-container {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    cursor: pointer;
+    border: 1px solid var(--c-border);
+    transition: box-shadow 0.15s;
+}
+
+.mermaid-container:hover { box-shadow: var(--shadow-md); }
+
+.session-diagram { margin-bottom: 1rem; }
+
+/* ==================== Fullscreen Overlay ==================== */
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 80%);
+    z-index: 1000;
+    padding: 2rem;
+    overflow: auto;
+}
+
+.overlay.active { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.overlay .overlay-content {
+    background: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.overlay .overlay-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.overlay .overlay-close:hover { background: #f1f5f9; }
+
+/* ==================== Final Output Box ==================== */
+.final-output {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-pass);
+}
+
+.final-output h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    color: #166534;
+}
+
+.final-output .content {
+    font-size: 0.9375rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .test-item .test-metrics { flex-direction: column; gap: 0.25rem; }
+    .leaderboard { font-size: 0.875rem; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+    .sbs-header { flex-direction: column; }
+    .sbs-tools { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Print ==================== */
+@media print {
+    body { background: white; padding: 0; }
+    .report-header { box-shadow: none; }
+    .test-item .test-details { display: block; }
+    .overlay { display: none !important; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Tool Comparison Grid ==================== */
+.tool-comparison .tool-name-cell {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+}
+
+.tool-name-code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+}
+
+.tool-comparison .cell-used {
+    background: #dcfce7;
+}
+
+.tool-comparison .cell-unused {
+    background: #f8fafc;
+}
+
+.tool-comparison .tool-count {
+    font-weight: 600;
+    color: var(--c-pass);
+}
+
+.tool-comparison .tool-unused {
+    color: var(--c-text-muted);
+}
+
+.tool-comparison .total-cell {
+    font-weight: 600;
+    background: #f8fafc;
+}
+
+.tool-comparison .totals-row {
+    background: #f1f5f9;
+}
+
+.tool-comparison-summary {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+/* ==================== Side-by-Side Comparison ==================== */
+.side-by-side-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+}
+
+.side-by-side-controls label {
+    font-weight: 500;
+    color: var(--c-text-light);
+}
+
+.side-by-side-controls select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    background: white;
+    min-width: 300px;
+}
+
+.side-by-side-group {
+    display: none;
+}
+
+.side-by-side-group.active {
+    display: block;
+}
+
+.sbs-test-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--c-primary);
+}
+
+.sbs-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-header-cell {
+    flex: 1;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-border);
+}
+
+.sbs-header-cell.passed {
+    border-color: var(--c-pass);
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.sbs-header-cell.failed {
+    border-color: var(--c-fail);
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+.sbs-variant-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-status {
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-diagrams {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-diagram-cell {
+    background: white;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.sbs-diagram-cell .mermaid-container {
+    margin: 0;
+    border: none;
+    padding: 0.5rem;
+}
+
+.sbs-final-response {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--c-primary);
+}
+
+.sbs-final-response h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-response-content {
+    font-size: 0.875rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.sbs-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    color: var(--c-text-muted);
+    font-style: italic;
+}
+
+.sbs-tools-header {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--c-border);
+    margin-bottom: 0.75rem;
+}
+
+.sbs-tools {
+    display: grid;
+    gap: 1rem;
+}
+
+.sbs-tools-cell {
+    background: #f8fafc;
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    min-height: 50px;
+}
+
+.sbs-tool-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8125rem;
+}
+
+.sbs-tool-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed var(--c-border);
+}
+
+.sbs-tool-list li:last-child {
+    border-bottom: none;
+}
+
+.sbs-tool-list .tool-name {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--c-warn);
+}
+
+.sbs-tool-list .tool-timing {
+    color: var(--c-text-muted);
+    font-size: 0.75rem;
+}
+
+.sbs-tools-cell .no-tools {
+    color: var(--c-text-muted);
+    font-style: italic;
+    font-size: 0.8125rem;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        
+<header class="report-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="display: flex; align-items: center; gap: 0.75rem;">
+                🧪 pytest-aitest
+                
+                <span class="header-status all-passed">✓ All Passed</span>
+                
+            </h1>
+            
+            <div class="header-subtitle">
+                <a href="file:///D:/source/pytest-aitest/tests/integration/test_model_benchmark.py" style="color: rgba(255,255,255,0.9); text-decoration: underline;">test_model_benchmark.py</a>
+            </div>
+            
+        </div>
+        <div style="text-align: right; font-size: 0.8125rem; opacity: 0.85;">
+            <div>2026-02-02 at 16:56:08</div>
+            <div style="font-size: 1.125rem; font-weight: 600; margin-top: 0.25rem;">64.0s</div>
+        </div>
+    </div>
+    <div class="header-badges">
+        <span class="header-badge">📊 6 tests</span>
+        
+        <span class="header-badge">🤖 2 models</span>
+        
+        
+        
+        <span class="header-badge">💰 $0.009056</span>
+        
+    </div>
+</header>
+
+        
+        
+<section class="summary-grid">
+    <div class="summary-card total">
+        <div class="value">6</div>
+        <div class="label">Total Tests</div>
+    </div>
+    <div class="summary-card passed">
+        <div class="value">6</div>
+        <div class="label">Passed</div>
+    </div>
+    <div class="summary-card failed">
+        <div class="value">0</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="summary-card rate">
+        <div class="value">100%</div>
+        <div class="label">Pass Rate</div>
+        <div class="pass-rate-bar">
+            <div class="fill" style="width: 100.0%"></div>
+        </div>
+    </div>
+    
+    <div class="summary-card tokens">
+        <div class="value">552–1,942</div>
+        <div class="label">Token Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #3b82f6;">
+        <div class="value" style="color: #3b82f6; font-size: 1.25rem;">6.6–18.2s</div>
+        <div class="label">Duration Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #8b5cf6;">
+        <div class="value" style="color: #8b5cf6;">6</div>
+        <div class="label">Tool Calls</div>
+    </div>
+    
+</section>
+
+        
+        
+
+<section class="section">
+    <div class="section-header">
+        <h2>🏆 Model Leaderboard</h2>
+    </div>
+    <div class="section-body">
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th class="rank">Rank</th>
+                    <th>Model</th>
+                    <th>Pass Rate</th>
+                    <th class="numeric">Passed</th>
+                    <th class="numeric">Failed</th>
+                    <th class="numeric">Tokens</th>
+                    <th class="numeric">Efficiency</th>
+                    <th class="numeric">Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td class="rank">
+                        <span class="medal">🥇</span>
+                        
+                    </td>
+                    <td>
+                        <span class="model-name">gpt-4.1</span>
+                        <span class="provider-badge openai">openai</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">100%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: 100.0%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">3</td>
+                    <td class="numeric" style="color: var(--c-fail);">0</td>
+                    <td class="numeric">2,037</td>
+                    <td class="numeric">679 tok/✓</td>
+                    <td class="numeric">$0.005304</td>
+                </tr>
+                
+                <tr>
+                    <td class="rank">
+                        <span class="medal">🥈</span>
+                        
+                    </td>
+                    <td>
+                        <span class="model-name">gpt-5-mini</span>
+                        <span class="provider-badge openai">openai</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">100%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: 100.0%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">3</td>
+                    <td class="numeric" style="color: var(--c-fail);">0</td>
+                    <td class="numeric">3,936</td>
+                    <td class="numeric">1,312 tok/✓</td>
+                    <td class="numeric">$0.003752</td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+<section class="section">
+    <div class="section-header">
+        
+        <h2>📊 Test Results by Model</h2>
+        
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">
+                            Test
+                        </th>
+                        
+                        <th>gpt-4.1</th>
+                        
+                        <th>gpt-5-mini</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="test-name" title="test_forecast_interpretation">
+                            
+                            Forecast + interpretation - tests comprehension.
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                7.6s
+                                · 836 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                18.2s
+                                · 1942 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td class="test-name" title="test_multi_city_comparison">
+                            
+                            Compare weather in two cities - tests reasoning.
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                7.0s
+                                · 649 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                13.0s
+                                · 1254 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td class="test-name" title="test_simple_weather_query">
+                            
+                            Basic weather lookup - all models should pass this…
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                6.6s
+                                · 552 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                11.5s
+                                · 740 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+        
+        
+
+
+<section class="section">
+    <div class="section-header">
+        <h2>🔧 Tool Usage Comparison</h2>
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix tool-comparison">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Tool</th>
+                        
+                        <th>gpt-4.1</th>
+                        
+                        <th>gpt-5-mini</th>
+                        
+                        <th class="numeric">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">compare_weather</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">1</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">1</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">get_forecast</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">1</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">1</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">get_weather</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">1</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">1</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">2</td>
+                    </tr>
+                    
+                </tbody>
+                <tfoot>
+                    <tr class="totals-row">
+                        <td><strong>Total Calls</strong></td>
+                        
+                        <td class="matrix-cell"><strong>3</strong></td>
+                        
+                        <td class="matrix-cell"><strong>3</strong></td>
+                        
+                        <td class="numeric"><strong>6</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+    </div>
+</section>
+
+
+        
+        
+
+
+
+        
+        
+<section class="section">
+    <div class="section-header">
+        <h2>🔍 Detailed Results</h2>
+    </div>
+    <div class="section-body">
+        <div class="test-list">
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_simple_weather_query[gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Basic weather lookup - all models should pass this.
+                    </span>
+                    <span class="test-metrics">
+                        <span>11.51s</span>
+                        
+                        <span>740 tokens</span>
+                        <span>$0.000329</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">5.82s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">658</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">82</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.000329</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Current weather in Paris, France: - Temperature: 18°C (64°F) - Conditions: Partl&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Current weather in Paris, France:
+- Temperature: 18°C (64°F)
+- Conditions: Partly cloudy
+- Humidity: 65%
+- Wind: 12 km/h from the SW
+
+Would you like a forecast or any weather alerts for Paris?</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Current weather in Paris, France:
+- Temperature: 18°C (64°F)
+- Conditions: Partly cloudy
+- Humidity: 65%
+- Wind: 12 km/h from the SW
+
+Would you like a forecast or any weather alerts for Paris?</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_simple_weather_query[gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Basic weather lookup - all models should pass this.
+                    </span>
+                    <span class="test-metrics">
+                        <span>6.61s</span>
+                        
+                        <span>552 tokens</span>
+                        <span>$0.001512</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.36s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">484</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">68</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001512</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;The current weather in Paris is partly cloudy with a temperature of 18°C (64°F).&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">The current weather in Paris is partly cloudy with a temperature of 18°C (64°F). Humidity is at 65%, and there is a southwest wind blowing at 12 km/h. Let me know if you need more details or a forecast!</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">The current weather in Paris is partly cloudy with a temperature of 18°C (64°F). Humidity is at 65%, and there is a southwest wind blowing at 12 km/h. Let me know if you need more details or a forecast!</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Compare weather in two cities - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>13.04s</span>
+                        
+                        <span>1254 tokens</span>
+                        <span>$0.001180</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">7.93s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">759</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">495</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001180</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Which is warmer right now, Tokyo or Berlin?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Tokyo is warmer right now. - Tokyo: 24°C (75°F), sunny, humidity 70%, wind E at &#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Tokyo is warmer right now.
+
+- Tokyo: 24°C (75°F), sunny, humidity 70%, wind E at 8 km/h  
+- Berlin: 16°C (61°F), overcast, humidity 72%, wind N at 10 km/h
+
+Temperature difference: 8°C (≈14°F) in favor of Tokyo.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Which is warmer right now, Tokyo or Berlin?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Tokyo is warmer right now.
+
+- Tokyo: 24°C (75°F), sunny, humidity 70%, wind E at 8 km/h  
+- Berlin: 16°C (61°F), overcast, humidity 72%, wind N at 10 km/h
+
+Temperature difference: 8°C (≈14°F) in favor of Tokyo.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_city_comparison[gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Compare weather in two cities - tests reasoning.
+                    </span>
+                    <span class="test-metrics">
+                        <span>7.00s</span>
+                        
+                        <span>649 tokens</span>
+                        <span>$0.001682</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.96s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">585</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">64</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001682</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Which is warmer right now, Tokyo or Berlin?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Tokyo&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature&#34;
+    Agent-&gt;&gt;User: &#34;Right now, Tokyo is warmer than Berlin. The current temperature in Tokyo is 24°C&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Right now, Tokyo is warmer than Berlin. The current temperature in Tokyo is 24°C (75°F) with sunny conditions, while Berlin is at 16°C (61°F) and overcast.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Which is warmer right now, Tokyo or Berlin?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Tokyo", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}, &#34;city2&#34;: {&#34;...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Right now, Tokyo is warmer than Berlin. The current temperature in Tokyo is 24°C (75°F) with sunny conditions, while Berlin is at 16°C (61°F) and overcast.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Forecast + interpretation - tests comprehension.
+                    </span>
+                    <span class="test-metrics">
+                        <span>18.23s</span>
+                        
+                        <span>1942 tokens</span>
+                        <span>$0.002244</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">12.84s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">937</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1005</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002244</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Short answer: yes — bring a small travel umbrella this week. Why: the 7‑day fore&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Short answer: yes — bring a small travel umbrella this week.
+
+Why: the 7‑day forecast for London shows several days with a substantial chance of precipitation (30–80%), and one day specifically listed as “Rainy.” Even when a day is mostly sunny or clear the forecast shows non‑trivial rain risk, so keeping an umbrella handy is the simplest way to avoid getting caught out.
+
+Quick day‑by‑day (assuming day 1 = today):
+- Day 1 (Mon): Sunny, 20% → umbrella optional for long periods outside.
+- Day 2 (Tue): Partly cloudy, 30% → bring a compact umbrella.
+- Day 3 (Wed): Cloudy, 40% → bring an umbrella.
+- Day 4 (Thu): Rainy, 50% → definitely bring umbrella + a waterproof layer.
+- Day 5 (Fri): Clear but 60% → bring umbrella (forecast inconsistency, don’t risk it).
+- Day 6 (Sat): Sunny but 70% → bring umbrella.
+- Day 7 (Sun): Partly cloudy, 80% → bring umbrella.
+
+Practical tips:
+- Pack a compact folding umbrella in your bag or keep one at work — lightweight and low hassle.
+- If it’s windy, a packable waterproof jacket with a hood may be more practical than a small umbrella.
+- Check the same‑day forecast before heading out for any last‑minute updates.
+
+If you’d like, I can remind you which specific day(s) you’ll be out and give a more focused recommendation for that day.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Short answer: yes — bring a small travel umbrella this week.
+
+Why: the 7‑day forecast for London shows several days with a substantial chance of precipitation (30–80%), and one day specifically listed as “Rainy.” Even when a day is mostly sunny or clear the forecast shows non‑trivial rain risk, so keeping an umbrella handy is the simplest way to avoid getting caught out.
+
+Quick day‑by‑day (assuming day 1 = today):
+- Day 1 (Mon): Sunny, 20% → umbrella optional for long periods outside.
+- Day 2 (T...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_forecast_interpretation[gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Forecast + interpretation - tests comprehension.
+                    </span>
+                    <span class="test-metrics">
+                        <span>7.59s</span>
+                        
+                        <span>836 tokens</span>
+                        <span>$0.002110</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.54s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">763</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">73</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002110</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Should I bring an umbrella to London this week?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;Yes, you should bring an umbrella to London this week. Several days have a signi&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Yes, you should bring an umbrella to London this week. Several days have a significant chance of rain, especially towards the end of the week, with precipitation chances reaching 50% and higher. It’s always practical to be prepared for showers in London!</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Should I bring an umbrella to London this week?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Yes, you should bring an umbrella to London this week. Several days have a significant chance of rain, especially towards the end of the week, with precipitation chances reaching 50% and higher. It’s always practical to be prepared for showers in London!</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+    </div>
+
+    
+    
+<div class="overlay" id="overlay" onclick="hideOverlay()">
+    <button class="overlay-close" onclick="hideOverlay()">✕</button>
+    <div class="overlay-content" onclick="event.stopPropagation()">
+        <div class="mermaid" id="overlay-mermaid"></div>
+    </div>
+</div>
+
+    <script>
+// pytest-aitest Report Scripts
+
+// Initialize Mermaid
+mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose'
+});
+
+// Fullscreen diagram viewer
+function showDiagram(mermaidCode) {
+    const overlay = document.getElementById('overlay');
+    const content = document.getElementById('overlay-mermaid');
+    content.innerHTML = mermaidCode;
+    overlay.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideOverlay() {
+    document.getElementById('overlay').classList.remove('active');
+}
+
+// Close overlay on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideOverlay();
+});
+
+// Side-by-side test selector
+function showSideBySideTest(testId) {
+    // Hide all groups
+    document.querySelectorAll('.side-by-side-group').forEach(group => {
+        group.classList.remove('active');
+    });
+    // Show selected group
+    const selected = document.getElementById(testId);
+    if (selected) {
+        selected.classList.add('active');
+        // Re-render mermaid diagrams in the newly visible group
+        mermaid.run({ nodes: selected.querySelectorAll('.mermaid') });
+    }
+}
+    </script>
+</body>
+</html>

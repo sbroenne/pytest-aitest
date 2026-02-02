@@ -222,6 +222,29 @@ This tool complements traditional testing by covering LLM behaviour, which conve
 
 ---
 
+## Reports
+
+Adaptive HTML reports auto-compose based on what you're testing.
+
+<p align="center">
+  <a href="docs/reports/08_matrix_full.html">
+    <img src="docs/images/report-example.png" alt="pytest-aitest HTML Report" width="800">
+  </a>
+</p>
+
+**[→ View example reports](docs/reports/README.md)**
+
+| Pattern | Report Shows |
+|---------|--------------|
+| No `@parametrize` | Clean test list with tool usage |
+| `@parametrize("model", ...)` | Model leaderboard + comparison grid |
+| `@parametrize("prompt", ...)` | Prompt comparison + per-prompt results |
+| Both | Full matrix grid + side-by-side analysis |
+
+Add `--aitest-summary` for AI-powered analysis of your test results.
+
+---
+
 ## Installation
 
 ```bash

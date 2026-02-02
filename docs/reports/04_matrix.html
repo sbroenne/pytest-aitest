@@ -1,0 +1,3556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pytest-aitest Report - pytest-aitest</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+/* ========== pytest-aitest Report Styles ==========
+ * Modern CSS with custom properties, grid, flexbox
+ * Self-contained - no external dependencies
+ */
+
+/* ==================== Color System ==================== */
+:root {
+    --c-pass: #22c55e;
+    --c-fail: #ef4444;
+    --c-warn: #f59e0b;
+    --c-info: #3b82f6;
+    --c-primary: #6366f1;
+    --c-secondary: #8b5cf6;
+    
+    --c-bg: #f8fafc;
+    --c-card: #ffffff;
+    --c-border: #e2e8f0;
+    --c-text: #1e293b;
+    --c-text-light: #64748b;
+    --c-text-muted: #94a3b8;
+    
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);
+    --shadow-md: 0 4px 6px rgb(0 0 0 / 7%);
+    --shadow-lg: 0 10px 15px rgb(0 0 0 / 10%);
+    
+    --radius: 8px;
+    --font: system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* ==================== Reset & Base ==================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: var(--font);
+    background: var(--c-bg);
+    color: var(--c-text);
+    line-height: 1.6;
+    margin: 0;
+    padding: clamp(1rem, 3vw, 2rem);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ==================== Header ==================== */
+.report-header {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-secondary) 100%);
+    color: white;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.report-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+}
+
+.report-header .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.header-status.all-passed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #dcfce7;
+}
+
+.header-status.has-failures {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+}
+
+.header-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+
+.header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.header-badge.clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.header-badge.clickable:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==================== Summary Cards ==================== */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-card {
+    background: var(--c-card);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    border-top: 4px solid var(--c-border);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-card .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.summary-card .label {
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-card.total { border-color: var(--c-info); }
+.summary-card.total .value { color: var(--c-info); }
+.summary-card.passed { border-color: var(--c-pass); }
+.summary-card.passed .value { color: var(--c-pass); }
+.summary-card.failed { border-color: var(--c-fail); }
+.summary-card.failed .value { color: var(--c-fail); }
+.summary-card.rate { border-color: var(--c-secondary); }
+.summary-card.rate .value { color: var(--c-secondary); }
+.summary-card.tokens { border-color: var(--c-warn); }
+.summary-card.tokens .value { color: var(--c-warn); }
+.summary-card.cost { border-color: var(--c-primary); }
+.summary-card.cost .value { color: var(--c-primary); }
+
+.pass-rate-bar {
+    height: 6px;
+    background: var(--c-border);
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.pass-rate-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--c-pass), #84cc16);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ==================== Sections ==================== */
+.section {
+    background: var(--c-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.section-header {
+    background: #f8fafc;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.section-body {
+    padding: 1.25rem;
+}
+
+/* ==================== AI Summary ==================== */
+.ai-summary {
+    line-height: 1.7;
+    font-size: 0.9375rem;
+}
+
+.ai-summary h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--c-text);
+    margin: 1.25rem 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.ai-summary h3:first-child {
+    margin-top: 0;
+}
+
+.ai-summary p { margin: 0.5rem 0; }
+.ai-summary ul, .ai-summary ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+.ai-summary li { margin: 0.25rem 0; }
+.ai-summary strong { font-weight: 600; }
+.ai-summary code {
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+/* ==================== Leaderboard Tables ==================== */
+.leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard th,
+.leaderboard td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.leaderboard th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.leaderboard tbody tr:hover { background: #f8fafc; }
+.leaderboard .rank { width: 3rem; text-align: center; }
+.leaderboard .medal { font-size: 1.25rem; }
+.leaderboard .model-name { font-weight: 500; }
+.leaderboard .pass-rate-cell { width: 200px; }
+.leaderboard .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ==================== Provider Badges ==================== */
+.provider-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+}
+
+.provider-badge.azure { background: #0078d4; color: white; }
+.provider-badge.openai { background: #10a37f; color: white; }
+.provider-badge.anthropic { background: #d97706; color: white; }
+.provider-badge.vertex { background: #4285f4; color: white; }
+.provider-badge.default { background: var(--c-text-light); color: white; }
+
+/* ==================== Comparison Matrix ==================== */
+.matrix-container { overflow-x: auto; }
+
+.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.matrix th,
+.matrix td {
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--c-border);
+}
+
+.matrix th {
+    background: #f8fafc;
+    font-weight: 600;
+    text-align: center;
+}
+
+.matrix .test-name {
+    text-align: left;
+    font-weight: 500;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.matrix .matrix-cell { text-align: center; }
+.matrix .matrix-cell .status { font-size: 1.125rem; }
+.matrix .matrix-cell .metrics {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-top: 0.25rem;
+}
+
+.matrix .cell-passed { background: #dcfce7; }
+.matrix .cell-failed { background: #fee2e2; }
+
+/* ==================== Test Items ==================== */
+.test-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.test-item {
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.test-item .test-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.test-item .test-header:hover { background: #f8fafc; }
+
+.test-item .test-name {
+    flex: 1;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.test-item .test-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    font-variant-numeric: tabular-nums;
+}
+
+.test-item .test-details {
+    display: none;
+    padding: 1rem;
+    border-top: 1px solid var(--c-border);
+    background: #fafafa;
+}
+
+.test-item.expanded .test-details { display: block; }
+
+/* Session tests always show details */
+.session-step .test-item .test-details { display: block; }
+.session-step .test-item .test-header { cursor: default; }
+
+/* ==================== Status Badge ==================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge.passed { background: var(--c-pass); color: white; }
+.badge.failed { background: var(--c-fail); color: white; }
+.badge.skipped { background: var(--c-warn); color: white; }
+.badge.session { background: #6366f1; color: white; cursor: help; }
+
+/* ==================== Sessions ==================== */
+.session-container {
+    background: white;
+    border-radius: var(--radius);
+    border: 2px solid #6366f1;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    user-select: none;
+}
+
+.session-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.session-icon { font-size: 1.25rem; }
+
+.session-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #4338ca;
+}
+
+.session-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+.session-summary {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.session-summary span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.session-tests {
+    padding: 1rem;
+    background: #fafaff;
+}
+
+/* Session Flow */
+.session-flow {
+    display: flex;
+    flex-direction: column;
+}
+
+.session-step {
+    display: flex;
+    align-items: flex-start;
+}
+
+.step-connector {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+    flex-shrink: 0;
+}
+
+.session-step.first .step-connector { visibility: hidden; }
+
+.connector-line {
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(180deg, #6366f1, #a5b4fc);
+}
+
+.connector-label {
+    font-size: 0.625rem;
+    color: #6366f1;
+    background: #eef2ff;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    white-space: nowrap;
+}
+
+.session-step .test-item {
+    flex: 1;
+    margin: 0.25rem 0;
+}
+
+/* ==================== Metrics Grid ==================== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+}
+
+.metrics-grid .metric-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--c-text);
+}
+
+.metrics-grid .metric-label {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+}
+
+/* ==================== Conversation Turns ==================== */
+.turns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.turn {
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    background: white;
+    border-left: 3px solid var(--c-border);
+}
+
+.turn.user { border-color: var(--c-info); }
+.turn.assistant { border-color: var(--c-primary); }
+
+.turn .turn-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.turn .turn-content {
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ==================== Tool Calls ==================== */
+.tool-call {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f1f5f9;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.tool-call .tool-name {
+    font-weight: 600;
+    color: var(--c-warn);
+}
+
+.tool-call .tool-args {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    margin-top: 0.25rem;
+}
+
+.tool-call .tool-result {
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--c-border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+/* ==================== Error Message ==================== */
+.error-message {
+    padding: 0.75rem 1rem;
+    background: #fee2e2;
+    border-left: 3px solid var(--c-fail);
+    border-radius: var(--radius);
+    color: #991b1b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+/* ==================== Mermaid Diagrams ==================== */
+.mermaid-container {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    cursor: pointer;
+    border: 1px solid var(--c-border);
+    transition: box-shadow 0.15s;
+}
+
+.mermaid-container:hover { box-shadow: var(--shadow-md); }
+
+.session-diagram { margin-bottom: 1rem; }
+
+/* ==================== Fullscreen Overlay ==================== */
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 80%);
+    z-index: 1000;
+    padding: 2rem;
+    overflow: auto;
+}
+
+.overlay.active { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.overlay .overlay-content {
+    background: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.overlay .overlay-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.overlay .overlay-close:hover { background: #f1f5f9; }
+
+/* ==================== Final Output Box ==================== */
+.final-output {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-pass);
+}
+
+.final-output h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    color: #166534;
+}
+
+.final-output .content {
+    font-size: 0.9375rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .test-item .test-metrics { flex-direction: column; gap: 0.25rem; }
+    .leaderboard { font-size: 0.875rem; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+    .sbs-header { flex-direction: column; }
+    .sbs-tools { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Print ==================== */
+@media print {
+    body { background: white; padding: 0; }
+    .report-header { box-shadow: none; }
+    .test-item .test-details { display: block; }
+    .overlay { display: none !important; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Tool Comparison Grid ==================== */
+.tool-comparison .tool-name-cell {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+}
+
+.tool-name-code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+}
+
+.tool-comparison .cell-used {
+    background: #dcfce7;
+}
+
+.tool-comparison .cell-unused {
+    background: #f8fafc;
+}
+
+.tool-comparison .tool-count {
+    font-weight: 600;
+    color: var(--c-pass);
+}
+
+.tool-comparison .tool-unused {
+    color: var(--c-text-muted);
+}
+
+.tool-comparison .total-cell {
+    font-weight: 600;
+    background: #f8fafc;
+}
+
+.tool-comparison .totals-row {
+    background: #f1f5f9;
+}
+
+.tool-comparison-summary {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+/* ==================== Side-by-Side Comparison ==================== */
+.side-by-side-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+}
+
+.side-by-side-controls label {
+    font-weight: 500;
+    color: var(--c-text-light);
+}
+
+.side-by-side-controls select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    background: white;
+    min-width: 300px;
+}
+
+.side-by-side-group {
+    display: none;
+}
+
+.side-by-side-group.active {
+    display: block;
+}
+
+.sbs-test-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--c-primary);
+}
+
+.sbs-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-header-cell {
+    flex: 1;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-border);
+}
+
+.sbs-header-cell.passed {
+    border-color: var(--c-pass);
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.sbs-header-cell.failed {
+    border-color: var(--c-fail);
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+.sbs-variant-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-status {
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-diagrams {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-diagram-cell {
+    background: white;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.sbs-diagram-cell .mermaid-container {
+    margin: 0;
+    border: none;
+    padding: 0.5rem;
+}
+
+.sbs-final-response {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--c-primary);
+}
+
+.sbs-final-response h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-response-content {
+    font-size: 0.875rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.sbs-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    color: var(--c-text-muted);
+    font-style: italic;
+}
+
+.sbs-tools-header {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--c-border);
+    margin-bottom: 0.75rem;
+}
+
+.sbs-tools {
+    display: grid;
+    gap: 1rem;
+}
+
+.sbs-tools-cell {
+    background: #f8fafc;
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    min-height: 50px;
+}
+
+.sbs-tool-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8125rem;
+}
+
+.sbs-tool-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed var(--c-border);
+}
+
+.sbs-tool-list li:last-child {
+    border-bottom: none;
+}
+
+.sbs-tool-list .tool-name {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--c-warn);
+}
+
+.sbs-tool-list .tool-timing {
+    color: var(--c-text-muted);
+    font-size: 0.75rem;
+}
+
+.sbs-tools-cell .no-tools {
+    color: var(--c-text-muted);
+    font-style: italic;
+    font-size: 0.8125rem;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        
+<header class="report-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="display: flex; align-items: center; gap: 0.75rem;">
+                🧪 pytest-aitest
+                
+                <span class="header-status all-passed">✓ All Passed</span>
+                
+            </h1>
+            
+            <div class="header-subtitle">
+                <a href="file:///D:/source/pytest-aitest/tests/integration/test_matrix.py" style="color: rgba(255,255,255,0.9); text-decoration: underline;">test_matrix.py</a>
+            </div>
+            
+        </div>
+        <div style="text-align: right; font-size: 0.8125rem; opacity: 0.85;">
+            <div>2026-02-02 at 17:00:17</div>
+            <div style="font-size: 1.125rem; font-weight: 600; margin-top: 0.25rem;">133.0s</div>
+        </div>
+    </div>
+    <div class="header-badges">
+        <span class="header-badge">📊 12 tests</span>
+        
+        <span class="header-badge">🤖 2 models</span>
+        
+        
+        <span class="header-badge">📝 3 prompts</span>
+        
+        
+        <span class="header-badge">💰 $0.0199</span>
+        
+    </div>
+</header>
+
+        
+        
+<section class="summary-grid">
+    <div class="summary-card total">
+        <div class="value">12</div>
+        <div class="label">Total Tests</div>
+    </div>
+    <div class="summary-card passed">
+        <div class="value">12</div>
+        <div class="label">Passed</div>
+    </div>
+    <div class="summary-card failed">
+        <div class="value">0</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="summary-card rate">
+        <div class="value">100%</div>
+        <div class="label">Pass Rate</div>
+        <div class="pass-rate-bar">
+            <div class="fill" style="width: 100.0%"></div>
+        </div>
+    </div>
+    
+    <div class="summary-card tokens">
+        <div class="value">560–1,850</div>
+        <div class="label">Token Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #3b82f6;">
+        <div class="value" style="color: #3b82f6; font-size: 1.25rem;">5.0–21.5s</div>
+        <div class="label">Duration Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #8b5cf6;">
+        <div class="value" style="color: #8b5cf6;">12</div>
+        <div class="label">Tool Calls</div>
+    </div>
+    
+</section>
+
+        
+        
+
+<section class="section">
+    <div class="section-header">
+        <h2>🏆 Model Leaderboard</h2>
+    </div>
+    <div class="section-body">
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th class="rank">Rank</th>
+                    <th>Model</th>
+                    <th>Pass Rate</th>
+                    <th class="numeric">Passed</th>
+                    <th class="numeric">Failed</th>
+                    <th class="numeric">Tokens</th>
+                    <th class="numeric">Efficiency</th>
+                    <th class="numeric">Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td class="rank">
+                        <span class="medal">🥇</span>
+                        
+                    </td>
+                    <td>
+                        <span class="model-name">gpt-4.1</span>
+                        <span class="provider-badge openai">openai</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">100%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: 100.0%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">6</td>
+                    <td class="numeric" style="color: var(--c-fail);">0</td>
+                    <td class="numeric">4,370</td>
+                    <td class="numeric">728 tok/✓</td>
+                    <td class="numeric">$0.0128</td>
+                </tr>
+                
+                <tr>
+                    <td class="rank">
+                        <span class="medal">🥈</span>
+                        
+                    </td>
+                    <td>
+                        <span class="model-name">gpt-5-mini</span>
+                        <span class="provider-badge openai">openai</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">100%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: 100.0%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">6</td>
+                    <td class="numeric" style="color: var(--c-fail);">0</td>
+                    <td class="numeric">7,682</td>
+                    <td class="numeric">1,280 tok/✓</td>
+                    <td class="numeric">$0.007078</td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+<section class="section">
+    <div class="section-header">
+        
+        <h2>📊 Comparison Matrix</h2>
+        
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">
+                            Prompt
+                        </th>
+                        
+                        <th>gpt-4.1</th>
+                        
+                        <th>gpt-5-mini</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="test-name" title="PROMPT_BRIEF">
+                            
+                            Weather query across all model/prompt combinations…
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                10.9s
+                                · 560 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                12.9s
+                                · 745 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td class="test-name" title="PROMPT_DETAILED">
+                            
+                            Weather query across all model/prompt combinations…
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                7.9s
+                                · 737 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                21.5s
+                                · 1738 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td class="test-name" title="PROMPT_STRUCTURED">
+                            
+                            Weather query across all model/prompt combinations…
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                6.0s
+                                · 680 tok
+                            </div>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-passed">
+                            
+                            <div class="status">✅</div>
+                            <div class="metrics">
+                                9.7s
+                                · 1063 tok
+                            </div>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+        
+        
+
+
+<section class="section">
+    <div class="section-header">
+        <h2>🔧 Tool Usage Comparison</h2>
+    </div>
+    <div class="section-body">
+        <div class="matrix-container">
+            <table class="matrix tool-comparison">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Tool</th>
+                        
+                        <th>gpt-4.1</th>
+                        
+                        <th>gpt-5-mini</th>
+                        
+                        <th class="numeric">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">compare_weather</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">6</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="tool-name-cell">
+                            <code class="tool-name-code">get_weather</code>
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="matrix-cell cell-used">
+                            
+                            <span class="tool-count">3</span>
+                            
+                        </td>
+                        
+                        <td class="numeric total-cell">6</td>
+                    </tr>
+                    
+                </tbody>
+                <tfoot>
+                    <tr class="totals-row">
+                        <td><strong>Total Calls</strong></td>
+                        
+                        <td class="matrix-cell"><strong>6</strong></td>
+                        
+                        <td class="matrix-cell"><strong>6</strong></td>
+                        
+                        <td class="numeric"><strong>12</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+    </div>
+</section>
+
+
+        
+        
+
+
+<section class="section">
+    <div class="section-header">
+        <h2>🔄 Side-by-Side Comparison</h2>
+    </div>
+    <div class="section-body">
+        <div class="side-by-side-controls">
+            <label for="sbs-test-select">Select test to compare:</label>
+            <select id="sbs-test-select" onchange="showSideBySideTest(this.value)">
+                
+                <option value="sbs-0">test_weather_matrix</option>
+                
+                <option value="sbs-1">test_comparison_matrix</option>
+                
+            </select>
+        </div>
+        
+        
+        <div id="sbs-0" class="side-by-side-group active">
+            <h3 class="sbs-test-name">test_weather_matrix</h3>
+            
+            
+            <div class="sbs-header">
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>12.9s</span>
+                        <span>745 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>10.9s</span>
+                        <span>560 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>21.5s</span>
+                        <span>1738 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>7.9s</span>
+                        <span>737 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>9.7s</span>
+                        <span>1063 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>6.0s</span>
+                        <span>680 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-diagrams" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris: 18°C (64°F), partly cloudy, humidity 65%, wind SW 12 km/h.&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Paris: 18°C (64°F), partly cloudy, humidity 65%, wind SW 12 km/h.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris weather: 18°C, partly cloudy, 65% humidity, wind SW at 12 km/h.&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Paris weather: 18°C, partly cloudy, 65% humidity, wind SW at 12 km/h.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Current conditions in Paris: - Temperature: 18 °C (64 °F) - Conditions: Partly c&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Current conditions in Paris:
+- Temperature: 18 °C (64 °F)
+- Conditions: Partly cloudy
+- Humidity: 65%
+- Wind: SW at 12 km/h (≈3.3 m/s or ≈7.5 mph)
+
+Reasoning and conversions:
+- The temperature was reported as 18 °C. I converted that to Fahrenheit with F = C × 9/5 + 32 → 18 × 9/5 + 32 = 64 °F.
+- Wind...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Currently in Paris: - Temperature: 18°C (64°F) - Humidity: 65% - Conditions: Par&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Currently in Paris:
+
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Conditions: Partly cloudy
+- Wind: 12 km/h from the southwest
+
+Practical advice:
+- The temperature is comfortable for most activities, but with 65% humidity you might feel a bit muggy, especially if you&#39;re active.
+- The wind is gentle,...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+                    </div>
+                    
+                    
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-tools-header">Tool Calls</div>
+            <div class="sbs-tools" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">get_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        <div id="sbs-1" class="side-by-side-group ">
+            <h3 class="sbs-test-name">test_comparison_matrix</h3>
+            
+            
+            <div class="sbs-header">
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>9.2s</span>
+                        <span>931 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_BRIEF</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>5.0s</span>
+                        <span>652 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>18.5s</span>
+                        <span>1850 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_DETAILED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>9.8s</span>
+                        <span>898 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-5-mini / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>13.4s</span>
+                        <span>1355 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+                <div class="sbs-header-cell passed">
+                    <div class="sbs-variant-name">gpt-4.1 / PROMPT_STRUCTURED</div>
+                    <div class="sbs-variant-status">
+                        <span class="badge passed">
+                            passed
+                        </span>
+                    </div>
+                    <div class="sbs-variant-metrics">
+                        <span>8.2s</span>
+                        <span>843 tok</span>
+                        <span>1 tools</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-diagrams" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is warmer — 26°C (79°F) vs 16°C (61°F) in Berlin, a 10°C (18°F) differenc&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Sydney is warmer — 26°C (79°F) vs 16°C (61°F) in Berlin, a 10°C (18°F) difference.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is warmer than Berlin right now.&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Sydney is warmer than Berlin right now.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is warmer right now. What the data shows (and how I reasoned) - Sydney: 2&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Sydney is warmer right now.
+
+What the data shows (and how I reasoned)
+- Sydney: 26°C (79°F). Berlin: 16°C (61°F). The numeric temperature difference is 10°C (18°F), so Sydney is clearly warmer.
+- I used the current temperature readings directly to compare — that’s the simplest, most reliable measure...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is currently warmer than Berlin. Here&#39;s a detailed comparison: Sydney, Au&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">Sydney is currently warmer than Berlin.
+
+Here&#39;s a detailed comparison:
+
+Sydney, Australia:
+- Temperature: 26°C (79°F)
+- Humidity: 60%
+- Conditions: Sunny
+- Wind: 20 km/h from the southeast
+
+Berlin, Germany:
+- Temperature: 16°C (61°F)
+- Humidity: 72%
+- Conditions: Overcast
+- Wind: 10 km/h from the no...</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Sydney 🌡️ Temperature: 26°C / 79°F 💧 Humidity: 60% 🌤️ Conditions: Su&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Sydney
+🌡️ Temperature: 26°C / 79°F
+💧 Humidity: 60%
+🌤️ Conditions: Sunny
+💨 Wind: 20 km/h SE
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Answer: It&#39;s warmer in Sydney right now by 10°C.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="sbs-diagram-cell">
+                    
+                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                        <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Sydney 🌡️ Temperature: 26°C / 79°F 💧 Humidity: 60% 🌤️ Conditions: Su&#34;</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="sbs-final-response">
+                        <h4>💬 Final Response</h4>
+                        <div class="sbs-response-content">📍 Location: Sydney  
+🌡️ Temperature: 26°C / 79°F  
+💧 Humidity: 60%  
+🌤️ Conditions: Sunny  
+💨 Wind: 20 km/h SE
+
+📍 Location: Berlin  
+🌡️ Temperature: 16°C / 61°F  
+💧 Humidity: 72%  
+🌤️ Conditions: Overcast  
+💨 Wind: 10 km/h N
+
+It is currently warmer in Sydney than in Berlin.</div>
+                    </div>
+                    
+                    
+                </div>
+                
+            </div>
+            
+            
+            <div class="sbs-tools-header">Tool Calls</div>
+            <div class="sbs-tools" style="grid-template-columns: repeat(6, 1fr);">
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+                <div class="sbs-tools-cell">
+                    
+                    <ul class="sbs-tool-list">
+                        
+                        <li><span class="tool-name">compare_weather</span></li>
+                        
+                    </ul>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+
+        
+        
+<section class="section">
+    <div class="section-header">
+        <h2>🔍 Detailed Results</h2>
+    </div>
+    <div class="section-body">
+        <div class="test-list">
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_matrix[PROMPT_BRIEF-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Weather query across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>12.94s</span>
+                        
+                        <span>745 tokens</span>
+                        <span>$0.000275</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">6.45s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">694</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">51</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.000275</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris: 18°C (64°F), partly cloudy, humidity 65%, wind SW 12 km/h.&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Paris: 18°C (64°F), partly cloudy, humidity 65%, wind SW 12 km/h.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Paris: 18°C (64°F), partly cloudy, humidity 65%, wind SW 12 km/h.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_matrix[PROMPT_BRIEF-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Weather query across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>10.86s</span>
+                        
+                        <span>560 tokens</span>
+                        <span>$0.001360</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.26s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">520</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">40</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001360</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Paris weather: 18°C, partly cloudy, 65% humidity, wind SW at 12 km/h.&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Paris weather: 18°C, partly cloudy, 65% humidity, wind SW at 12 km/h.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Paris weather: 18°C, partly cloudy, 65% humidity, wind SW at 12 km/h.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_matrix[PROMPT_DETAILED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Weather query across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>21.47s</span>
+                        
+                        <span>1738 tokens</span>
+                        <span>$0.002198</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">15.08s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">730</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1008</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002198</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Current conditions in Paris: - Temperature: 18 °C (64 °F) - Conditions: Partly c&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Current conditions in Paris:
+- Temperature: 18 °C (64 °F)
+- Conditions: Partly cloudy
+- Humidity: 65%
+- Wind: SW at 12 km/h (≈3.3 m/s or ≈7.5 mph)
+
+Reasoning and conversions:
+- The temperature was reported as 18 °C. I converted that to Fahrenheit with F = C × 9/5 + 32 → 18 × 9/5 + 32 = 64 °F.
+- Wind speed 12 km/h converts to meters per second by dividing by 3.6 → 12 / 3.6 ≈ 3.3 m/s, and to miles per hour by multiplying km/h × 0.621371 → 12 × 0.621371 ≈ 7.5 mph.
+- Humidity at 65% is moderate — not enough to feel oppressively muggy, but enough to reduce rapid evaporative cooling, so you may feel slightly warmer than dry-air conditions at the same temperature.
+- Partly cloudy skies mean sun and clouds alternating; chance of widespread rain is low, though isolated showers remain possible depending on local development.
+
+Practical advice:
+- Clothing: Light layers or a light jacket are appropriate (18 °C is mild but a breeze from the SW can feel a bit cool). Layers let you adjust if sun comes out and warms you.
+- Rain gear: Not strictly necessary for short outings given “partly cloudy,” but if you’ll be out for many hours or want to be safe, pack a compact umbrella or lightweight rain jacket.
+- Outdoor activities: Good conditions for walking, sightseeing, or cycling — wind is gentle. If cycling into the wind from the SW, expect a small extra effort on north/east routes.
+- Hair/comfort: With 65% humidity, people prone to frizz may want anti-frizz products or a hat.
+- Sensitive groups: If you’re heat- or cold-sensitive, the mild temperature and moderate humidity are generally comfortable, but bring a light layer just in case.
+
+If you want, I can:
+- Check the hourly forecast for the next few hours,
+- Get a multi-day forecast for Paris,
+- Or compare Paris weather with another city.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Current conditions in Paris:
+- Temperature: 18 °C (64 °F)
+- Conditions: Partly cloudy
+- Humidity: 65%
+- Wind: SW at 12 km/h (≈3.3 m/s or ≈7.5 mph)
+
+Reasoning and conversions:
+- The temperature was reported as 18 °C. I converted that to Fahrenheit with F = C × 9/5 + 32 → 18 × 9/5 + 32 = 64 °F.
+- Wind speed 12 km/h converts to meters per second by dividing by 3.6 → 12 / 3.6 ≈ 3.3 m/s, and to miles per hour by multiplying km/h × 0.621371 → 12 × 0.621371 ≈ 7.5 mph.
+- Humidity at 65% is moderate — no...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_matrix[PROMPT_DETAILED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Weather query across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>7.93s</span>
+                        
+                        <span>737 tokens</span>
+                        <span>$0.002560</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">3.07s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">556</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">181</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002560</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Currently in Paris: - Temperature: 18°C (64°F) - Humidity: 65% - Conditions: Par&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Currently in Paris:
+
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Conditions: Partly cloudy
+- Wind: 12 km/h from the southwest
+
+Practical advice:
+- The temperature is comfortable for most activities, but with 65% humidity you might feel a bit muggy, especially if you&#39;re active.
+- The wind is gentle, so it shouldn&#39;t interfere with outdoor plans.
+- Bring a light jacket or sweater if you&#39;ll be out in the evening, as temperatures might drop and clouds could make it feel cooler.
+- It&#39;s a great day for walking or sightseeing, but consider sunglasses since it’s partly cloudy and the sun may peek through at times.
+
+I based this advice on the current mild weather, moderate humidity, and light wind, which together make for generally pleasant conditions.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Currently in Paris:
+
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Conditions: Partly cloudy
+- Wind: 12 km/h from the southwest
+
+Practical advice:
+- The temperature is comfortable for most activities, but with 65% humidity you might feel a bit muggy, especially if you&#39;re active.
+- The wind is gentle, so it shouldn&#39;t interfere with outdoor plans.
+- Bring a light jacket or sweater if you&#39;ll be out in the evening, as temperatures might drop and clouds could make it feel cooler.
+- It&#39;s a great day fo...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_matrix[PROMPT_STRUCTURED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        Weather query across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>9.67s</span>
+                        
+                        <span>1063 tokens</span>
+                        <span>$0.000740</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">5.55s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">792</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">271</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.000740</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_weather_matrix[PROMPT_STRUCTURED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        Weather query across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>6.02s</span>
+                        
+                        <span>680 tokens</span>
+                        <span>$0.001732</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.38s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">618</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">62</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001732</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather in Paris?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Paris 🌡️ Temperature: 18°C / 64°F 💧 Humidity: 65% 🌤️ Conditions: Par&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather in Paris?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Paris
+🌡️ Temperature: 18°C / 64°F
+💧 Humidity: 65%
+🌤️ Conditions: Partly cloudy
+💨 Wind: 12 km/h SW</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_comparison_matrix[PROMPT_BRIEF-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        City comparison across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>9.17s</span>
+                        
+                        <span>931 tokens</span>
+                        <span>$0.000471</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">3.66s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">795</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">136</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.000471</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is warmer — 26°C (79°F) vs 16°C (61°F) in Berlin, a 10°C (18°F) differenc&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Sydney is warmer — 26°C (79°F) vs 16°C (61°F) in Berlin, a 10°C (18°F) difference.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Is it warmer in Sydney or Berlin right now?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Sydney", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Sydney&#34;, &#34;country&#34;: &#34;Australia&#34;, &#34;temperature_celsius&#34;: 26, &#34;temperature_fahrenheit&#34;: 79, &#34;humidity&#34;: 60, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 20, &#34;wind_direction&#34;: &#34;SE&#34;}, &#34;cit...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Sydney is warmer — 26°C (79°F) vs 16°C (61°F) in Berlin, a 10°C (18°F) difference.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_comparison_matrix[PROMPT_BRIEF-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        City comparison across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>4.99s</span>
+                        
+                        <span>652 tokens</span>
+                        <span>$0.001490</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.09s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">621</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">31</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001490</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is warmer than Berlin right now.&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Sydney is warmer than Berlin right now.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Is it warmer in Sydney or Berlin right now?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Sydney", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Sydney&#34;, &#34;country&#34;: &#34;Australia&#34;, &#34;temperature_celsius&#34;: 26, &#34;temperature_fahrenheit&#34;: 79, &#34;humidity&#34;: 60, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 20, &#34;wind_direction&#34;: &#34;SE&#34;}, &#34;cit...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Sydney is warmer than Berlin right now.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_comparison_matrix[PROMPT_DETAILED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        City comparison across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>18.49s</span>
+                        
+                        <span>1850 tokens</span>
+                        <span>$0.002246</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">13.12s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">831</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1019</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002246</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is warmer right now. What the data shows (and how I reasoned) - Sydney: 2&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Sydney is warmer right now.
+
+What the data shows (and how I reasoned)
+- Sydney: 26°C (79°F). Berlin: 16°C (61°F). The numeric temperature difference is 10°C (18°F), so Sydney is clearly warmer.
+- I used the current temperature readings directly to compare — that’s the simplest, most reliable measure of &#34;warmer right now.&#34;
+
+Full current conditions
+- Sydney, Australia
+  - Temperature: 26°C (79°F)
+  - Humidity: 60%
+  - Wind: 20 km/h from the SE (a noticeable breeze)
+  - Conditions: Sunny
+
+- Berlin, Germany
+  - Temperature: 16°C (61°F)
+  - Humidity: 72%
+  - Wind: 10 km/h from the N (light breeze)
+  - Conditions: Overcast
+
+Practical advice (based on those conditions)
+- If you’re in Sydney: dress for warm weather (shorts, light shirt). It’s sunny with a fresh SE breeze, so use sunscreen, sunglasses, and stay hydrated if you’ll be outdoors — the breeze helps but won’t remove the need for sun protection.
+- If you’re in Berlin: wear layers and have a light jacket or sweater handy. It’s cooler and overcast with higher humidity, so it may feel a bit damp; an umbrella or light rain jacket is reasonable to carry even if no rain is currently reported.
+
+Why humidity and wind matter
+- Higher humidity (Berlin) can make cool air feel damper and less comfortable, while lower-to-moderate humidity (Sydney) with sun feels pleasant but increases sun exposure risk.
+- Wind can change perceived temperature: Sydney’s 20 km/h breeze may make it feel slightly cooler than 26°C in direct sun, but it’s still significantly warmer than Berlin.
+
+If you want I can give a short “what to pack” list for either city or a feels-like temperature estimate. Which would you prefer?</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Is it warmer in Sydney or Berlin right now?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Sydney", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Sydney&#34;, &#34;country&#34;: &#34;Australia&#34;, &#34;temperature_celsius&#34;: 26, &#34;temperature_fahrenheit&#34;: 79, &#34;humidity&#34;: 60, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 20, &#34;wind_direction&#34;: &#34;SE&#34;}, &#34;cit...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Sydney is warmer right now.
+
+What the data shows (and how I reasoned)
+- Sydney: 26°C (79°F). Berlin: 16°C (61°F). The numeric temperature difference is 10°C (18°F), so Sydney is clearly warmer.
+- I used the current temperature readings directly to compare — that’s the simplest, most reliable measure of &#34;warmer right now.&#34;
+
+Full current conditions
+- Sydney, Australia
+  - Temperature: 26°C (79°F)
+  - Humidity: 60%
+  - Wind: 20 km/h from the SE (a noticeable breeze)
+  - Conditions: Sunny
+
+- Berlin,...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_comparison_matrix[PROMPT_DETAILED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        City comparison across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>9.79s</span>
+                        
+                        <span>898 tokens</span>
+                        <span>$0.003242</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">3.80s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">657</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">241</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.003242</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;Sydney is currently warmer than Berlin. Here&#39;s a detailed comparison: Sydney, Au&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Sydney is currently warmer than Berlin.
+
+Here&#39;s a detailed comparison:
+
+Sydney, Australia:
+- Temperature: 26°C (79°F)
+- Humidity: 60%
+- Conditions: Sunny
+- Wind: 20 km/h from the southeast
+
+Berlin, Germany:
+- Temperature: 16°C (61°F)
+- Humidity: 72%
+- Conditions: Overcast
+- Wind: 10 km/h from the north
+
+Reasoning:
+Sydney is 10°C (18°F) warmer than Berlin right now, and it also enjoys sunny weather compared to Berlin&#39;s overcast skies. The higher humidity in Berlin might make it feel a bit muggy, but the lower temperature keeps it cool.
+
+Practical advice:
+- In Sydney, dress lightly, wear sun protection, and stay hydrated due to the warmer, sunnier conditions.
+- In Berlin, consider wearing a light jacket or sweater due to the cooler, overcast weather, and be prepared for possible dampness because of the higher humidity. 
+
+Let me know if you’d like more details or a forecast for either city!</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Is it warmer in Sydney or Berlin right now?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Sydney", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Sydney&#34;, &#34;country&#34;: &#34;Australia&#34;, &#34;temperature_celsius&#34;: 26, &#34;temperature_fahrenheit&#34;: 79, &#34;humidity&#34;: 60, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 20, &#34;wind_direction&#34;: &#34;SE&#34;}, &#34;cit...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Sydney is currently warmer than Berlin.
+
+Here&#39;s a detailed comparison:
+
+Sydney, Australia:
+- Temperature: 26°C (79°F)
+- Humidity: 60%
+- Conditions: Sunny
+- Wind: 20 km/h from the southeast
+
+Berlin, Germany:
+- Temperature: 16°C (61°F)
+- Humidity: 72%
+- Conditions: Overcast
+- Wind: 10 km/h from the north
+
+Reasoning:
+Sydney is 10°C (18°F) warmer than Berlin right now, and it also enjoys sunny weather compared to Berlin&#39;s overcast skies. The higher humidity in Berlin might make it feel a bit muggy, ...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_comparison_matrix[PROMPT_STRUCTURED-gpt-5-mini]">
+                        <span class="badge passed">passed</span>
+                        City comparison across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>13.41s</span>
+                        
+                        <span>1355 tokens</span>
+                        <span>$0.001147</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">7.53s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">893</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">462</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001147</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Sydney 🌡️ Temperature: 26°C / 79°F 💧 Humidity: 60% 🌤️ Conditions: Su&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Sydney
+🌡️ Temperature: 26°C / 79°F
+💧 Humidity: 60%
+🌤️ Conditions: Sunny
+💨 Wind: 20 km/h SE
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Answer: It&#39;s warmer in Sydney right now by 10°C.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Is it warmer in Sydney or Berlin right now?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Sydney", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Sydney&#34;, &#34;country&#34;: &#34;Australia&#34;, &#34;temperature_celsius&#34;: 26, &#34;temperature_fahrenheit&#34;: 79, &#34;humidity&#34;: 60, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 20, &#34;wind_direction&#34;: &#34;SE&#34;}, &#34;cit...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Sydney
+🌡️ Temperature: 26°C / 79°F
+💧 Humidity: 60%
+🌤️ Conditions: Sunny
+💨 Wind: 20 km/h SE
+
+📍 Location: Berlin
+🌡️ Temperature: 16°C / 61°F
+💧 Humidity: 72%
+🌤️ Conditions: Overcast
+💨 Wind: 10 km/h N
+
+Answer: It&#39;s warmer in Sydney right now by 10°C.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_comparison_matrix[PROMPT_STRUCTURED-gpt-4.1]">
+                        <span class="badge passed">passed</span>
+                        City comparison across all model/prompt combinations.
+                    </span>
+                    <span class="test-metrics">
+                        <span>8.24s</span>
+                        
+                        <span>843 tokens</span>
+                        <span>$0.002430</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">1.97s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">719</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">124</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002430</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Is it warmer in Sydney or Berlin right now?&#34;
+    Agent-&gt;&gt;Tools: &#34;compare_weather({&#39;city1&#39;: &#39;Sydney&#39;, &#39;city2&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city1&#39;: {&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temper&#34;
+    Agent-&gt;&gt;User: &#34;📍 Location: Sydney 🌡️ Temperature: 26°C / 79°F 💧 Humidity: 60% 🌤️ Conditions: Su&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">📍 Location: Sydney  
+🌡️ Temperature: 26°C / 79°F  
+💧 Humidity: 60%  
+🌤️ Conditions: Sunny  
+💨 Wind: 20 km/h SE
+
+📍 Location: Berlin  
+🌡️ Temperature: 16°C / 61°F  
+💧 Humidity: 72%  
+🌤️ Conditions: Overcast  
+💨 Wind: 10 km/h N
+
+It is currently warmer in Sydney than in Berlin.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Is it warmer in Sydney or Berlin right now?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 compare_weather</span>
+            <div class="tool-args">{"city1": "Sydney", "city2": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city1&#34;: {&#34;city&#34;: &#34;Sydney&#34;, &#34;country&#34;: &#34;Australia&#34;, &#34;temperature_celsius&#34;: 26, &#34;temperature_fahrenheit&#34;: 79, &#34;humidity&#34;: 60, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 20, &#34;wind_direction&#34;: &#34;SE&#34;}, &#34;cit...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">📍 Location: Sydney  
+🌡️ Temperature: 26°C / 79°F  
+💧 Humidity: 60%  
+🌤️ Conditions: Sunny  
+💨 Wind: 20 km/h SE
+
+📍 Location: Berlin  
+🌡️ Temperature: 16°C / 61°F  
+💧 Humidity: 72%  
+🌤️ Conditions: Overcast  
+💨 Wind: 10 km/h N
+
+It is currently warmer in Sydney than in Berlin.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+    </div>
+
+    
+    
+<div class="overlay" id="overlay" onclick="hideOverlay()">
+    <button class="overlay-close" onclick="hideOverlay()">✕</button>
+    <div class="overlay-content" onclick="event.stopPropagation()">
+        <div class="mermaid" id="overlay-mermaid"></div>
+    </div>
+</div>
+
+    <script>
+// pytest-aitest Report Scripts
+
+// Initialize Mermaid
+mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose'
+});
+
+// Fullscreen diagram viewer
+function showDiagram(mermaidCode) {
+    const overlay = document.getElementById('overlay');
+    const content = document.getElementById('overlay-mermaid');
+    content.innerHTML = mermaidCode;
+    overlay.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideOverlay() {
+    document.getElementById('overlay').classList.remove('active');
+}
+
+// Close overlay on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideOverlay();
+});
+
+// Side-by-side test selector
+function showSideBySideTest(testId) {
+    // Hide all groups
+    document.querySelectorAll('.side-by-side-group').forEach(group => {
+        group.classList.remove('active');
+    });
+    // Show selected group
+    const selected = document.getElementById(testId);
+    if (selected) {
+        selected.classList.add('active');
+        // Re-render mermaid diagrams in the newly visible group
+        mermaid.run({ nodes: selected.querySelectorAll('.mermaid') });
+    }
+}
+    </script>
+</body>
+</html>

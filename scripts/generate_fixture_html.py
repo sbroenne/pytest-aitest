@@ -26,7 +26,8 @@ from pytest_aitest.reporting.generator import ReportGenerator
 
 
 FIXTURES_DIR = ROOT / "tests" / "fixtures" / "reports"
-OUTPUT_DIR = ROOT / "tests" / "fixtures" / "reports" / "html"
+# Output to docs/reports for public viewing (tracked in git)
+OUTPUT_DIR = ROOT / "docs" / "reports"
 
 
 def generate_html(json_path: Path, output_dir: Path) -> Path:

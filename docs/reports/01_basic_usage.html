@@ -1,0 +1,3051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pytest-aitest Report - pytest-aitest</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+/* ========== pytest-aitest Report Styles ==========
+ * Modern CSS with custom properties, grid, flexbox
+ * Self-contained - no external dependencies
+ */
+
+/* ==================== Color System ==================== */
+:root {
+    --c-pass: #22c55e;
+    --c-fail: #ef4444;
+    --c-warn: #f59e0b;
+    --c-info: #3b82f6;
+    --c-primary: #6366f1;
+    --c-secondary: #8b5cf6;
+    
+    --c-bg: #f8fafc;
+    --c-card: #ffffff;
+    --c-border: #e2e8f0;
+    --c-text: #1e293b;
+    --c-text-light: #64748b;
+    --c-text-muted: #94a3b8;
+    
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);
+    --shadow-md: 0 4px 6px rgb(0 0 0 / 7%);
+    --shadow-lg: 0 10px 15px rgb(0 0 0 / 10%);
+    
+    --radius: 8px;
+    --font: system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* ==================== Reset & Base ==================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: var(--font);
+    background: var(--c-bg);
+    color: var(--c-text);
+    line-height: 1.6;
+    margin: 0;
+    padding: clamp(1rem, 3vw, 2rem);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ==================== Header ==================== */
+.report-header {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-secondary) 100%);
+    color: white;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.report-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+}
+
+.report-header .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.header-status.all-passed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #dcfce7;
+}
+
+.header-status.has-failures {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+}
+
+.header-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+
+.header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.header-badge.clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.header-badge.clickable:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==================== Summary Cards ==================== */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-card {
+    background: var(--c-card);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    border-top: 4px solid var(--c-border);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-card .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.summary-card .label {
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-card.total { border-color: var(--c-info); }
+.summary-card.total .value { color: var(--c-info); }
+.summary-card.passed { border-color: var(--c-pass); }
+.summary-card.passed .value { color: var(--c-pass); }
+.summary-card.failed { border-color: var(--c-fail); }
+.summary-card.failed .value { color: var(--c-fail); }
+.summary-card.rate { border-color: var(--c-secondary); }
+.summary-card.rate .value { color: var(--c-secondary); }
+.summary-card.tokens { border-color: var(--c-warn); }
+.summary-card.tokens .value { color: var(--c-warn); }
+.summary-card.cost { border-color: var(--c-primary); }
+.summary-card.cost .value { color: var(--c-primary); }
+
+.pass-rate-bar {
+    height: 6px;
+    background: var(--c-border);
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.pass-rate-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--c-pass), #84cc16);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ==================== Sections ==================== */
+.section {
+    background: var(--c-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.section-header {
+    background: #f8fafc;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.section-body {
+    padding: 1.25rem;
+}
+
+/* ==================== AI Summary ==================== */
+.ai-summary {
+    line-height: 1.7;
+    font-size: 0.9375rem;
+}
+
+.ai-summary h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--c-text);
+    margin: 1.25rem 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.ai-summary h3:first-child {
+    margin-top: 0;
+}
+
+.ai-summary p { margin: 0.5rem 0; }
+.ai-summary ul, .ai-summary ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+.ai-summary li { margin: 0.25rem 0; }
+.ai-summary strong { font-weight: 600; }
+.ai-summary code {
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+/* ==================== Leaderboard Tables ==================== */
+.leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard th,
+.leaderboard td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.leaderboard th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.leaderboard tbody tr:hover { background: #f8fafc; }
+.leaderboard .rank { width: 3rem; text-align: center; }
+.leaderboard .medal { font-size: 1.25rem; }
+.leaderboard .model-name { font-weight: 500; }
+.leaderboard .pass-rate-cell { width: 200px; }
+.leaderboard .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ==================== Provider Badges ==================== */
+.provider-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+}
+
+.provider-badge.azure { background: #0078d4; color: white; }
+.provider-badge.openai { background: #10a37f; color: white; }
+.provider-badge.anthropic { background: #d97706; color: white; }
+.provider-badge.vertex { background: #4285f4; color: white; }
+.provider-badge.default { background: var(--c-text-light); color: white; }
+
+/* ==================== Comparison Matrix ==================== */
+.matrix-container { overflow-x: auto; }
+
+.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.matrix th,
+.matrix td {
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--c-border);
+}
+
+.matrix th {
+    background: #f8fafc;
+    font-weight: 600;
+    text-align: center;
+}
+
+.matrix .test-name {
+    text-align: left;
+    font-weight: 500;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.matrix .matrix-cell { text-align: center; }
+.matrix .matrix-cell .status { font-size: 1.125rem; }
+.matrix .matrix-cell .metrics {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-top: 0.25rem;
+}
+
+.matrix .cell-passed { background: #dcfce7; }
+.matrix .cell-failed { background: #fee2e2; }
+
+/* ==================== Test Items ==================== */
+.test-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.test-item {
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.test-item .test-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.test-item .test-header:hover { background: #f8fafc; }
+
+.test-item .test-name {
+    flex: 1;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.test-item .test-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    font-variant-numeric: tabular-nums;
+}
+
+.test-item .test-details {
+    display: none;
+    padding: 1rem;
+    border-top: 1px solid var(--c-border);
+    background: #fafafa;
+}
+
+.test-item.expanded .test-details { display: block; }
+
+/* Session tests always show details */
+.session-step .test-item .test-details { display: block; }
+.session-step .test-item .test-header { cursor: default; }
+
+/* ==================== Status Badge ==================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge.passed { background: var(--c-pass); color: white; }
+.badge.failed { background: var(--c-fail); color: white; }
+.badge.skipped { background: var(--c-warn); color: white; }
+.badge.session { background: #6366f1; color: white; cursor: help; }
+
+/* ==================== Sessions ==================== */
+.session-container {
+    background: white;
+    border-radius: var(--radius);
+    border: 2px solid #6366f1;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    user-select: none;
+}
+
+.session-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.session-icon { font-size: 1.25rem; }
+
+.session-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #4338ca;
+}
+
+.session-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+.session-summary {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.session-summary span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.session-tests {
+    padding: 1rem;
+    background: #fafaff;
+}
+
+/* Session Flow */
+.session-flow {
+    display: flex;
+    flex-direction: column;
+}
+
+.session-step {
+    display: flex;
+    align-items: flex-start;
+}
+
+.step-connector {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+    flex-shrink: 0;
+}
+
+.session-step.first .step-connector { visibility: hidden; }
+
+.connector-line {
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(180deg, #6366f1, #a5b4fc);
+}
+
+.connector-label {
+    font-size: 0.625rem;
+    color: #6366f1;
+    background: #eef2ff;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    white-space: nowrap;
+}
+
+.session-step .test-item {
+    flex: 1;
+    margin: 0.25rem 0;
+}
+
+/* ==================== Metrics Grid ==================== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+}
+
+.metrics-grid .metric-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--c-text);
+}
+
+.metrics-grid .metric-label {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+}
+
+/* ==================== Conversation Turns ==================== */
+.turns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.turn {
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    background: white;
+    border-left: 3px solid var(--c-border);
+}
+
+.turn.user { border-color: var(--c-info); }
+.turn.assistant { border-color: var(--c-primary); }
+
+.turn .turn-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-light);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.turn .turn-content {
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ==================== Tool Calls ==================== */
+.tool-call {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f1f5f9;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.tool-call .tool-name {
+    font-weight: 600;
+    color: var(--c-warn);
+}
+
+.tool-call .tool-args {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--c-text-light);
+    margin-top: 0.25rem;
+}
+
+.tool-call .tool-result {
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--c-border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+/* ==================== Error Message ==================== */
+.error-message {
+    padding: 0.75rem 1rem;
+    background: #fee2e2;
+    border-left: 3px solid var(--c-fail);
+    border-radius: var(--radius);
+    color: #991b1b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+/* ==================== Mermaid Diagrams ==================== */
+.mermaid-container {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    cursor: pointer;
+    border: 1px solid var(--c-border);
+    transition: box-shadow 0.15s;
+}
+
+.mermaid-container:hover { box-shadow: var(--shadow-md); }
+
+.session-diagram { margin-bottom: 1rem; }
+
+/* ==================== Fullscreen Overlay ==================== */
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 80%);
+    z-index: 1000;
+    padding: 2rem;
+    overflow: auto;
+}
+
+.overlay.active { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.overlay .overlay-content {
+    background: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.overlay .overlay-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.overlay .overlay-close:hover { background: #f1f5f9; }
+
+/* ==================== Final Output Box ==================== */
+.final-output {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-pass);
+}
+
+.final-output h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    color: #166534;
+}
+
+.final-output .content {
+    font-size: 0.9375rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .test-item .test-metrics { flex-direction: column; gap: 0.25rem; }
+    .leaderboard { font-size: 0.875rem; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+    .sbs-header { flex-direction: column; }
+    .sbs-tools { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Print ==================== */
+@media print {
+    body { background: white; padding: 0; }
+    .report-header { box-shadow: none; }
+    .test-item .test-details { display: block; }
+    .overlay { display: none !important; }
+    .sbs-diagrams { grid-template-columns: 1fr !important; }
+}
+
+/* ==================== Tool Comparison Grid ==================== */
+.tool-comparison .tool-name-cell {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+}
+
+.tool-name-code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+}
+
+.tool-comparison .cell-used {
+    background: #dcfce7;
+}
+
+.tool-comparison .cell-unused {
+    background: #f8fafc;
+}
+
+.tool-comparison .tool-count {
+    font-weight: 600;
+    color: var(--c-pass);
+}
+
+.tool-comparison .tool-unused {
+    color: var(--c-text-muted);
+}
+
+.tool-comparison .total-cell {
+    font-weight: 600;
+    background: #f8fafc;
+}
+
+.tool-comparison .totals-row {
+    background: #f1f5f9;
+}
+
+.tool-comparison-summary {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+}
+
+/* ==================== Side-by-Side Comparison ==================== */
+.side-by-side-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+}
+
+.side-by-side-controls label {
+    font-weight: 500;
+    color: var(--c-text-light);
+}
+
+.side-by-side-controls select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    background: white;
+    min-width: 300px;
+}
+
+.side-by-side-group {
+    display: none;
+}
+
+.side-by-side-group.active {
+    display: block;
+}
+
+.sbs-test-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--c-primary);
+}
+
+.sbs-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-header-cell {
+    flex: 1;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--c-border);
+}
+
+.sbs-header-cell.passed {
+    border-color: var(--c-pass);
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.sbs-header-cell.failed {
+    border-color: var(--c-fail);
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+.sbs-variant-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-status {
+    margin-bottom: 0.5rem;
+}
+
+.sbs-variant-metrics {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-diagrams {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sbs-diagram-cell {
+    background: white;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.sbs-diagram-cell .mermaid-container {
+    margin: 0;
+    border: none;
+    padding: 0.5rem;
+}
+
+.sbs-final-response {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--c-primary);
+}
+
+.sbs-final-response h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--c-text-light);
+}
+
+.sbs-response-content {
+    font-size: 0.875rem;
+    color: var(--c-text);
+    white-space: pre-wrap;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.sbs-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    color: var(--c-text-muted);
+    font-style: italic;
+}
+
+.sbs-tools-header {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--c-text-light);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--c-border);
+    margin-bottom: 0.75rem;
+}
+
+.sbs-tools {
+    display: grid;
+    gap: 1rem;
+}
+
+.sbs-tools-cell {
+    background: #f8fafc;
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    min-height: 50px;
+}
+
+.sbs-tool-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8125rem;
+}
+
+.sbs-tool-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed var(--c-border);
+}
+
+.sbs-tool-list li:last-child {
+    border-bottom: none;
+}
+
+.sbs-tool-list .tool-name {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--c-warn);
+}
+
+.sbs-tool-list .tool-timing {
+    color: var(--c-text-muted);
+    font-size: 0.75rem;
+}
+
+.sbs-tools-cell .no-tools {
+    color: var(--c-text-muted);
+    font-style: italic;
+    font-size: 0.8125rem;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        
+<header class="report-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="display: flex; align-items: center; gap: 0.75rem;">
+                🧪 pytest-aitest
+                
+                <span class="header-status has-failures">✗ 1 Failed</span>
+                
+            </h1>
+            
+            <div class="header-subtitle">
+                <a href="file:///D:/source/pytest-aitest/tests/integration/test_basic_usage.py" style="color: rgba(255,255,255,0.9); text-decoration: underline;">test_basic_usage.py</a>
+            </div>
+            
+        </div>
+        <div style="text-align: right; font-size: 0.8125rem; opacity: 0.85;">
+            <div>2026-02-02 at 16:54:43</div>
+            <div style="font-size: 1.125rem; font-weight: 600; margin-top: 0.25rem;">180.0s</div>
+        </div>
+    </div>
+    <div class="header-badges">
+        <span class="header-badge">📊 12 tests</span>
+        
+        
+        
+        <span class="header-badge">💰 $0.0228</span>
+        
+    </div>
+</header>
+
+        
+        
+<section class="summary-grid">
+    <div class="summary-card total">
+        <div class="value">12</div>
+        <div class="label">Total Tests</div>
+    </div>
+    <div class="summary-card passed">
+        <div class="value">11</div>
+        <div class="label">Passed</div>
+    </div>
+    <div class="summary-card failed">
+        <div class="value">1</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="summary-card rate">
+        <div class="value">92%</div>
+        <div class="label">Pass Rate</div>
+        <div class="pass-rate-bar">
+            <div class="fill" style="width: 91.66666666666666%"></div>
+        </div>
+    </div>
+    
+    <div class="summary-card tokens">
+        <div class="value">1,720–4,972</div>
+        <div class="label">Token Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #3b82f6;">
+        <div class="value" style="color: #3b82f6; font-size: 1.25rem;">10.1–25.0s</div>
+        <div class="label">Duration Range</div>
+    </div>
+    
+    
+    <div class="summary-card" style="border-color: #8b5cf6;">
+        <div class="value" style="color: #8b5cf6;">46</div>
+        <div class="label">Tool Calls</div>
+    </div>
+    
+</section>
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+
+
+        
+        
+
+
+
+        
+        
+<section class="section">
+    <div class="section-header">
+        <h2>🔍 Detailed Results</h2>
+    </div>
+    <div class="section-body">
+        <div class="test-list">
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_trip_planning_compare_destinations">
+                        <span class="badge passed">passed</span>
+                        Plan a trip: get forecasts for two cities and recommend the better one.
+                    </span>
+                    <span class="test-metrics">
+                        <span>25.01s</span>
+                        
+                        <span>2259 tokens</span>
+                        <span>$0.002414</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">15.10s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1202</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1057</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002414</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;I&#39;m planning a trip next week and can&#39;t decide between Paris and Sydney. Get me &#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;Paris&#39;, &#39;days&#39;: 3})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;Paris&#39;, &#39;high_celsius&#39;: 20, &#39;low_celsiu&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;Sydney&#39;, &#39;days&#39;: 3})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;Sydney&#39;, &#39;high_celsius&#39;: 28, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;I pulled 3-day forecasts for both cities. Here are the day-by-day details, then &#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">I pulled 3-day forecasts for both cities. Here are the day-by-day details, then a recommendation based on your preference for sunny weather.
+
+Paris (3-day forecast)
+- Day 1: Sunny — high 20°C / low 12°C — precipitation chance 20%
+- Day 2: Partly cloudy — high 21°C / low 13°C — precipitation chance 30%
+- Day 3: Cloudy — high 22°C / low 14°C — precipitation chance 40%
+
+Sydney (3-day forecast)
+- Day 1: Sunny — high 28°C / low 20°C — precipitation chance 20%
+- Day 2: Partly cloudy — high 29°C / low 21°C — precipitation chance 30%
+- Day 3: Cloudy — high 30°C / low 22°C — precipitation chance 40%
+
+Recommendation
+- Both cities show the same pattern: one sunny day, one partly cloudy, then one cloudy day, with similar chances of precipitation. If your top priority is sunny conditions, Sydney will feel sunnier overall because it’s substantially warmer (bright, beach-friendly sunshine). 
+- If you prefer milder temperatures for walking and sightseeing (less heat), Paris is the better choice — still pleasant and with a sunny day as well.
+
+Quick packing tips
+- If you pick Sydney: bring sunscreen, a hat, sunglasses, light breathable clothing and water for walking.
+- If you pick Paris: pack a light jacket/layers and a compact umbrella or light rain jacket.
+
+Want me to check the same 3-day forecast for specific travel dates next week or look at hourly plans for the sunniest times in either city?</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">I&#39;m planning a trip next week and can&#39;t decide between Paris and Sydney. Get me a 3-day forecast for both cities and recommend which has better weather for sightseeing. I prefer sunny weather.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "Paris", "days": 3}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;Paris&#34;, &#34;high_celsius&#34;: 20, &#34;low_celsius&#34;: 12, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;Paris&#34;, &#34;high_celsius&#34;: 21, &#34;low_celsius&#34;: 13, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "Sydney", "days": 3}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;Sydney&#34;, &#34;high_celsius&#34;: 28, &#34;low_celsius&#34;: 20, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;Sydney&#34;, &#34;high_celsius&#34;: 29, &#34;low_celsius&#34;: 21, &#34;conditions...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">I pulled 3-day forecasts for both cities. Here are the day-by-day details, then a recommendation based on your preference for sunny weather.
+
+Paris (3-day forecast)
+- Day 1: Sunny — high 20°C / low 12°C — precipitation chance 20%
+- Day 2: Partly cloudy — high 21°C / low 13°C — precipitation chance 30%
+- Day 3: Cloudy — high 22°C / low 14°C — precipitation chance 40%
+
+Sydney (3-day forecast)
+- Day 1: Sunny — high 28°C / low 20°C — precipitation chance 20%
+- Day 2: Partly cloudy — high 29°C / low ...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_packing_advice_workflow">
+                        <span class="badge failed">failed</span>
+                        Check multiple cities and provide packing advice.
+                    </span>
+                    <span class="test-metrics">
+                        <span>13.81s</span>
+                        
+                        <span>2533 tokens</span>
+                        <span>$0.002371</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+<div class="error-message">tests\integration\test_basic_usage.py:83: in test_packing_advice_workflow
+    assert weather_calls &gt;= 2 or compare_calls &gt;= 1
+E   assert (0 &gt;= 2 or 0 &gt;= 1)</div>
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">10.56s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1540</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">993</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002371</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;I&#39;m traveling to London and Berlin this week. Check the weather in both cities a&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;London&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;London&#39;, &#39;high_celsius&#39;: 16, &#39;low_celsi&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;Berlin&#39;, &#39;days&#39;: 7})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;Berlin&#39;, &#39;high_celsius&#39;: 18, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;I checked the 7-day forecasts for both cities. Quick summary - London: several m&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">I checked the 7-day forecasts for both cities.
+
+Quick summary
+- London: several mild days (highs 16–18°C, lows 8–10°C). One day is explicitly listed as &#34;Rainy&#34; (day 4) with a ~50% chance of precipitation; a few other days show 30–40% chance.
+- Berlin: similar pattern and temperatures slightly warmer (highs 18–20°C, lows 10–12°C). One day is listed &#34;Rainy&#34; (day 4) with ~50% precipitation chance; other days show 30–40% chance.
+
+Recommendation
+- Pack both a compact umbrella and a lightweight waterproof (or water-resistant) jacket. The umbrella is handy for brief, calm showers; a rain jacket is better if it’s windy or you’ll be walking a lot.
+- Temperatures are mild, so a light waterproof layer should be enough (no heavy winter coat needed).
+
+Quick packing checklist
+- Small foldable umbrella
+- Lightweight waterproof/rain jacket (breathable if you’ll be active)
+- A thin layer (sweater/light fleece) for cooler mornings/evenings
+- Water-resistant shoes or an extra pair in case one gets wet
+
+If you tell me the exact dates you’ll be in each city, I can give a day-by-day recommendation for those travel days.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">I&#39;m traveling to London and Berlin this week. Check the weather in both cities and tell me if I should pack an umbrella or rain jacket.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "London", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 16, &#34;low_celsius&#34;: 8, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;London&#34;, &#34;high_celsius&#34;: 17, &#34;low_celsius&#34;: 9, &#34;conditions&#34;:...</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "Berlin", "days": 7}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;Berlin&#34;, &#34;high_celsius&#34;: 18, &#34;low_celsius&#34;: 10, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;Berlin&#34;, &#34;high_celsius&#34;: 19, &#34;low_celsius&#34;: 11, &#34;conditions...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">I checked the 7-day forecasts for both cities.
+
+Quick summary
+- London: several mild days (highs 16–18°C, lows 8–10°C). One day is explicitly listed as &#34;Rainy&#34; (day 4) with a ~50% chance of precipitation; a few other days show 30–40% chance.
+- Berlin: similar pattern and temperatures slightly warmer (highs 18–20°C, lows 10–12°C). One day is listed &#34;Rainy&#34; (day 4) with ~50% precipitation chance; other days show 30–40% chance.
+
+Recommendation
+- Pack both a compact umbrella and a lightweight waterp...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_discovery_then_query_workflow">
+                        <span class="badge passed">passed</span>
+                        Discover available cities, then query the warmest one.
+                    </span>
+                    <span class="test-metrics">
+                        <span>17.56s</span>
+                        
+                        <span>4116 tokens</span>
+                        <span>$0.003027</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">14.46s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2974</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1142</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.003027</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">5</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What cities can you get weather for? Then find the warmest one and give me its 5&#34;
+    Agent-&gt;&gt;Tools: &#34;list_cities({})&#34;
+    Tools--&gt;&gt;Agent: &#34;[&#39;Paris&#39;, &#39;Tokyo&#39;, &#39;New York&#39;, &#39;Berlin&#39;, &#39;London&#39;, &#39;Sydney&#39;]&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Tokyo&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature_celsius&#39;:&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;New York&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;New York&#39;, &#39;country&#39;: &#39;USA&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Berlin&#39;, &#39;country&#39;: &#39;Germany&#39;, &#39;temperature_celsiu&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;London&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;London&#39;, &#39;country&#39;: &#39;UK&#39;, &#39;temperature_celsius&#39;: 1&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Sydney&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Sydney&#39;, &#39;country&#39;: &#39;Australia&#39;, &#39;temperature_cels&#34;
+    Agent-&gt;&gt;Tools: &#34;get_forecast({&#39;city&#39;: &#39;Sydney&#39;, &#39;days&#39;: 5})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;day&#39;: 1, &#39;city&#39;: &#39;Sydney&#39;, &#39;high_celsius&#39;: 28, &#39;low_celsi&#34;
+    Agent-&gt;&gt;User: &#34;I can get weather for these cities: Paris, Tokyo, New York, Berlin, London, Sydn&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">I can get weather for these cities: Paris, Tokyo, New York, Berlin, London, Sydney.
+
+Current conditions (from the weather service):
+- Paris: 18°C (64°F), Partly cloudy
+- Tokyo: 24°C (75°F), Sunny
+- New York: 22°C (72°F), Clear
+- Berlin: 16°C (61°F), Overcast
+- London: 14°C (57°F), Rainy
+- Sydney: 26°C (79°F), Sunny
+
+Warmest right now: Sydney at 26°C (79°F).
+
+Sydney 5-day forecast:
+- Day 1: High 28°C / Low 20°C — Sunny — 20% chance of precipitation
+- Day 2: High 29°C / Low 21°C — Partly cloudy — 30% chance of precipitation
+- Day 3: High 30°C / Low 22°C — Cloudy — 40% chance of precipitation
+- Day 4: High 28°C / Low 20°C — Rainy — 50% chance of precipitation
+- Day 5: High 29°C / Low 21°C — Clear — 60% chance of precipitation
+
+Would you like those temperatures converted to Fahrenheit, or a forecast for a different city?</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (5 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What cities can you get weather for? Then find the warmest one and give me its 5-day forecast.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_cities</span>
+            <div class="tool-args">{}</div>
+            
+            <div class="tool-result">→ [&#34;Paris&#34;, &#34;Tokyo&#34;, &#34;New York&#34;, &#34;Berlin&#34;, &#34;London&#34;, &#34;Sydney&#34;]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Tokyo"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "New York"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;New York&#34;, &#34;country&#34;: &#34;USA&#34;, &#34;temperature_celsius&#34;: 22, &#34;temperature_fahrenheit&#34;: 72, &#34;humidity&#34;: 55, &#34;conditions&#34;: &#34;Clear&#34;, &#34;wind_speed_kmh&#34;: 15, &#34;wind_direction&#34;: &#34;NW&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Berlin&#34;, &#34;country&#34;: &#34;Germany&#34;, &#34;temperature_celsius&#34;: 16, &#34;temperature_fahrenheit&#34;: 61, &#34;humidity&#34;: 72, &#34;conditions&#34;: &#34;Overcast&#34;, &#34;wind_speed_kmh&#34;: 10, &#34;wind_direction&#34;: &#34;N&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "London"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;London&#34;, &#34;country&#34;: &#34;UK&#34;, &#34;temperature_celsius&#34;: 14, &#34;temperature_fahrenheit&#34;: 57, &#34;humidity&#34;: 80, &#34;conditions&#34;: &#34;Rainy&#34;, &#34;wind_speed_kmh&#34;: 18, &#34;wind_direction&#34;: &#34;W&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Sydney"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Sydney&#34;, &#34;country&#34;: &#34;Australia&#34;, &#34;temperature_celsius&#34;: 26, &#34;temperature_fahrenheit&#34;: 79, &#34;humidity&#34;: 60, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 20, &#34;wind_direction&#34;: &#34;SE&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_forecast</span>
+            <div class="tool-args">{"city": "Sydney", "days": 5}</div>
+            
+            <div class="tool-result">→ [{&#34;day&#34;: 1, &#34;city&#34;: &#34;Sydney&#34;, &#34;high_celsius&#34;: 28, &#34;low_celsius&#34;: 20, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;precipitation_chance&#34;: 20}, {&#34;day&#34;: 2, &#34;city&#34;: &#34;Sydney&#34;, &#34;high_celsius&#34;: 29, &#34;low_celsius&#34;: 21, &#34;conditions...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">I can get weather for these cities: Paris, Tokyo, New York, Berlin, London, Sydney.
+
+Current conditions (from the weather service):
+- Paris: 18°C (64°F), Partly cloudy
+- Tokyo: 24°C (75°F), Sunny
+- New York: 22°C (72°F), Clear
+- Berlin: 16°C (61°F), Overcast
+- London: 14°C (57°F), Rainy
+- Sydney: 26°C (79°F), Sunny
+
+Warmest right now: Sydney at 26°C (79°F).
+
+Sydney 5-day forecast:
+- Day 1: High 28°C / Low 20°C — Sunny — 20% chance of precipitation
+- Day 2: High 29°C / Low 21°C — Partly cloudy — ...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_comparative_analysis_three_cities">
+                        <span class="badge passed">passed</span>
+                        Compare weather across three cities and rank them.
+                    </span>
+                    <span class="test-metrics">
+                        <span>11.38s</span>
+                        
+                        <span>1720 tokens</span>
+                        <span>$0.001545</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">8.22s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1083</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">637</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001545</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Compare the current weather in Tokyo, Berlin, and New York. Rank them from warme&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Tokyo&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Tokyo&#39;, &#39;country&#39;: &#39;Japan&#39;, &#39;temperature_celsius&#39;:&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Berlin&#39;, &#39;country&#39;: &#39;Germany&#39;, &#39;temperature_celsiu&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;New York&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;New York&#39;, &#39;country&#39;: &#39;USA&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Ranked warmest → coldest 1) Tokyo — 24°C (75°F). Sunny, humidity 70%, light E wi&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Ranked warmest → coldest
+1) Tokyo — 24°C (75°F). Sunny, humidity 70%, light E wind 8 km/h. Clear sun makes it the warmest now; higher humidity will make it feel a bit muggy.
+2) New York — 22°C (72°F). Clear, humidity 55%, NW wind 15 km/h. Slightly cooler than Tokyo but lower humidity and a stronger breeze make it feel comfortable.
+3) Berlin — 16°C (61°F). Overcast, humidity 72%, N wind 10 km/h. Cloud cover and cooler northern airflow explain why it’s notably cooler than Tokyo and New York.
+
+If you’d like, I can give &#34;feels like&#34; temperatures, a short-term forecast for each city, or show the same comparison with temperatures in only Celsius or Fahrenheit.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (3 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Compare the current weather in Tokyo, Berlin, and New York. Rank them from warmest to coldest and explain the conditions.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Tokyo"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Tokyo&#34;, &#34;country&#34;: &#34;Japan&#34;, &#34;temperature_celsius&#34;: 24, &#34;temperature_fahrenheit&#34;: 75, &#34;humidity&#34;: 70, &#34;conditions&#34;: &#34;Sunny&#34;, &#34;wind_speed_kmh&#34;: 8, &#34;wind_direction&#34;: &#34;E&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Berlin&#34;, &#34;country&#34;: &#34;Germany&#34;, &#34;temperature_celsius&#34;: 16, &#34;temperature_fahrenheit&#34;: 61, &#34;humidity&#34;: 72, &#34;conditions&#34;: &#34;Overcast&#34;, &#34;wind_speed_kmh&#34;: 10, &#34;wind_direction&#34;: &#34;N&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "New York"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;New York&#34;, &#34;country&#34;: &#34;USA&#34;, &#34;temperature_celsius&#34;: 22, &#34;temperature_fahrenheit&#34;: 72, &#34;humidity&#34;: 55, &#34;conditions&#34;: &#34;Clear&#34;, &#34;wind_speed_kmh&#34;: 15, &#34;wind_direction&#34;: &#34;NW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Ranked warmest → coldest
+1) Tokyo — 24°C (75°F). Sunny, humidity 70%, light E wind 8 km/h. Clear sun makes it the warmest now; higher humidity will make it feel a bit muggy.
+2) New York — 22°C (72°F). Clear, humidity 55%, NW wind 15 km/h. Slightly cooler than Tokyo but lower humidity and a stronger breeze make it feel comfortable.
+3) Berlin — 16°C (61°F). Overcast, humidity 72%, N wind 10 km/h. Cloud cover and cooler northern airflow explain why it’s notably cooler than Tokyo and New York.
+
+If y...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_error_recovery_workflow">
+                        <span class="badge passed">passed</span>
+                        Handle an invalid city gracefully and provide alternatives.
+                    </span>
+                    <span class="test-metrics">
+                        <span>14.89s</span>
+                        
+                        <span>1908 tokens</span>
+                        <span>$0.001303</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">11.72s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1436</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">472</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001303</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Get me the weather for Atlantis. If that city isn&#39;t available, list what cities &#34;
+    Agent-&gt;&gt;Tools: &#34;list_cities({})&#34;
+    Tools--&gt;&gt;Agent: &#34;[&#39;Paris&#39;, &#39;Tokyo&#39;, &#39;New York&#39;, &#39;Berlin&#39;, &#39;London&#39;, &#39;Sydney&#39;]&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;User: &#34;I looked for Atlantis but it&#39;s not in the available cities list. Supported citie&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">I looked for Atlantis but it&#39;s not in the available cities list.
+
+Supported cities:
+- Paris
+- Tokyo
+- New York
+- Berlin
+- London
+- Sydney
+
+Current weather for Paris, France:
+- Condition: Partly cloudy
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Wind: 12 km/h from the SW
+
+Would you like a multi-day forecast for Paris or current weather for any of the other supported cities?</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (4 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Get me the weather for Atlantis. If that city isn&#39;t available, list what cities you do support and give me weather for the first one.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_cities</span>
+            <div class="tool-args">{}</div>
+            
+            <div class="tool-result">→ [&#34;Paris&#34;, &#34;Tokyo&#34;, &#34;New York&#34;, &#34;Berlin&#34;, &#34;London&#34;, &#34;Sydney&#34;]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">I looked for Atlantis but it&#39;s not in the available cities list.
+
+Supported cities:
+- Paris
+- Tokyo
+- New York
+- Berlin
+- London
+- Sydney
+
+Current weather for Paris, France:
+- Condition: Partly cloudy
+- Temperature: 18°C (64°F)
+- Humidity: 65%
+- Wind: 12 km/h from the SW
+
+Would you like a multi-day forecast for Paris or current weather for any of the other supported cities?</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_project_setup_workflow">
+                        <span class="badge passed">passed</span>
+                        Create multiple tasks and verify the list.
+                    </span>
+                    <span class="test-metrics">
+                        <span>13.57s</span>
+                        
+                        <span>2991 tokens</span>
+                        <span>$0.001752</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">10.39s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2417</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">574</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001752</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Set up my groceries list: add milk, bread, and eggs. Then show me the complete l&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;milk&#39;, &#39;list&#39;: &#39;groceries&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;7509bbd5&#39;, &#39;title&#39;: &#39;milk&#39;, &#39;list&#39;: &#39;groceries&#39;, &#39;pr&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;bread&#39;, &#39;list&#39;: &#39;groceries&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;a37e4d1d&#39;, &#39;title&#39;: &#39;bread&#39;, &#39;list&#39;: &#39;groceries&#39;, &#39;p&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;eggs&#39;, &#39;list&#39;: &#39;groceries&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;ceb6287b&#39;, &#39;title&#39;: &#39;eggs&#39;, &#39;list&#39;: &#39;groceries&#39;, &#39;pr&#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;groceries&#39;, &#39;show_completed&#39;: True})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;id&#39;: &#39;a37e4d1d&#39;, &#39;title&#39;: &#39;bread&#39;, &#39;list&#39;: &#39;groceries&#39;, &#39;&#34;
+    Agent-&gt;&gt;User: &#34;Done — I added those to your groceries list. Current groceries list: - bread (id&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Done — I added those to your groceries list. Current groceries list:
+- bread (id: a37e4d1d) — normal priority — not completed
+- eggs (id: ceb6287b) — normal priority — not completed
+- milk (id: 7509bbd5) — normal priority — not completed
+
+What would you like to do next?</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (4 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Set up my groceries list: add milk, bread, and eggs. Then show me the complete list to confirm everything was added.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "groceries", "title": "milk"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;7509bbd5&#34;, &#34;title&#34;: &#34;milk&#34;, &#34;list&#34;: &#34;groceries&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;milk&#39; to groceries list&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "groceries", "title": "bread"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;a37e4d1d&#34;, &#34;title&#34;: &#34;bread&#34;, &#34;list&#34;: &#34;groceries&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;bread&#39; to groceries list&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "groceries", "title": "eggs"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;ceb6287b&#34;, &#34;title&#34;: &#34;eggs&#34;, &#34;list&#34;: &#34;groceries&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;eggs&#39; to groceries list&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "groceries", "show_completed": true}</div>
+            
+            <div class="tool-result">→ [{&#34;id&#34;: &#34;a37e4d1d&#34;, &#34;title&#34;: &#34;bread&#34;, &#34;list&#34;: &#34;groceries&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false}, {&#34;id&#34;: &#34;ceb6287b&#34;, &#34;title&#34;: &#34;eggs&#34;, &#34;list&#34;: &#34;groceries&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false}...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Done — I added those to your groceries list. Current groceries list:
+- bread (id: a37e4d1d) — normal priority — not completed
+- eggs (id: ceb6287b) — normal priority — not completed
+- milk (id: 7509bbd5) — normal priority — not completed
+
+What would you like to do next?</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_task_lifecycle_workflow">
+                        <span class="badge passed">passed</span>
+                        Full task lifecycle: create, complete, verify.
+                    </span>
+                    <span class="test-metrics">
+                        <span>14.12s</span>
+                        
+                        <span>3253 tokens</span>
+                        <span>$0.001482</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">6.66s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2871</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">382</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001482</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">5</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Add &#39;review quarterly report&#39; to my work list. Then mark it as complete. Finally&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;review quarterly report&#39;, &#39;list&#39;: &#39;work&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;23f4034d&#39;, &#39;title&#39;: &#39;review quarterly report&#39;, &#39;list&#34;
+    Agent-&gt;&gt;Tools: &#34;complete_task({&#39;task_id&#39;: &#39;23f4034d&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;23f4034d&#39;, &#39;title&#39;: &#39;review quarterly report&#39;, &#39;comp&#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;work&#39;, &#39;show_completed&#39;: True})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;id&#39;: &#39;23f4034d&#39;, &#39;title&#39;: &#39;review quarterly report&#39;, &#39;lis&#34;
+    Agent-&gt;&gt;User: &#34;Done — I added &#39;review quarterly report&#39; to your work list, marked it complete, &#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Done — I added &#34;review quarterly report&#34; to your work list, marked it complete, and verified it. Here’s the current work list:
+
+- review quarterly report (completed, priority: normal)</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (5 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Add &#39;review quarterly report&#39; to my work list. Then mark it as complete. Finally show my work list to confirm it&#39;s marked done.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "work", "title": "review quarterly report"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;23f4034d&#34;, &#34;title&#34;: &#34;review quarterly report&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;review quarterly report&#39; to work list&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 complete_task</span>
+            <div class="tool-args">{"task_id": "23f4034d"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;23f4034d&#34;, &#34;title&#34;: &#34;review quarterly report&#34;, &#34;completed&#34;: true, &#34;message&#34;: &#34;Completed task: review quarterly report&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "work", "show_completed": true}</div>
+            
+            <div class="tool-result">→ [{&#34;id&#34;: &#34;23f4034d&#34;, &#34;title&#34;: &#34;review quarterly report&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: true}]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Done — I added &#34;review quarterly report&#34; to your work list, marked it complete, and verified it. Here’s the current work list:
+
+- review quarterly report (completed, priority: normal)</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_priority_management_workflow">
+                        <span class="badge passed">passed</span>
+                        Create tasks with different priorities and query by priority.
+                    </span>
+                    <span class="test-metrics">
+                        <span>14.15s</span>
+                        
+                        <span>3166 tokens</span>
+                        <span>$0.001915</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">9.25s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2524</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">642</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001915</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Create three tasks in my work list: 1. &#39;Fix critical bug&#39; with HIGH priority 2. &#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;Fix critical bug&#39;, &#39;list&#39;: &#39;work&#39;, &#39;priority&#39;: &#39;h)&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;cb11d1ed&#39;, &#39;title&#39;: &#39;Fix critical bug&#39;, &#39;list&#39;: &#39;wor&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;Update documentation&#39;, &#39;list&#39;: &#39;work&#39;, &#39;priority&#39;)&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;896a95d2&#39;, &#39;title&#39;: &#39;Update documentation&#39;, &#39;list&#39;: &#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;Review PR&#39;, &#39;list&#39;: &#39;work&#39;, &#39;priority&#39;: &#39;normal&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;1acd3918&#39;, &#39;title&#39;: &#39;Review PR&#39;, &#39;list&#39;: &#39;work&#39;, &#39;pr&#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;work&#39;, &#39;show_completed&#39;: True})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;id&#39;: &#39;cb11d1ed&#39;, &#39;title&#39;: &#39;Fix critical bug&#39;, &#39;list&#39;: &#39;wo&#34;
+    Agent-&gt;&gt;User: &#34;Done — I created the three tasks in your work list and confirmed them. Here are &#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Done — I created the three tasks in your work list and confirmed them. Here are the current tasks in &#34;work&#34;:
+
+- [cb11d1ed] Fix critical bug — priority: high — not completed
+- [1acd3918] Review PR — priority: normal — not completed
+- [896a95d2] Update documentation — priority: low — not completed
+
+Which one to do first: Start with &#34;Fix critical bug&#34; (cb11d1ed). It has the highest priority and sounds like it may impact users or blockers — addressing it first reduces risk. If you&#39;d like, I can mark it complete when you&#39;re done or reorder priorities.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (4 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Create three tasks in my work list:
+1. &#39;Fix critical bug&#39; with HIGH priority
+2. &#39;Update documentation&#39; with LOW priority
+3. &#39;Review PR&#39; with NORMAL priority
+
+Then show me all tasks and tell me which one I should do first.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "work", "priority": "high", "title": "Fix critical bug"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;cb11d1ed&#34;, &#34;title&#34;: &#34;Fix critical bug&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;high&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;Fix critical bug&#39; to work list&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "work", "priority": "low", "title": "Update documentation"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;896a95d2&#34;, &#34;title&#34;: &#34;Update documentation&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;low&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;Update documentation&#39; to work list&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "work", "priority": "normal", "title": "Review PR"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;1acd3918&#34;, &#34;title&#34;: &#34;Review PR&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;Review PR&#39; to work list&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "work", "show_completed": true}</div>
+            
+            <div class="tool-result">→ [{&#34;id&#34;: &#34;cb11d1ed&#34;, &#34;title&#34;: &#34;Fix critical bug&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;high&#34;, &#34;completed&#34;: false}, {&#34;id&#34;: &#34;1acd3918&#34;, &#34;title&#34;: &#34;Review PR&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: fa...</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Done — I created the three tasks in your work list and confirmed them. Here are the current tasks in &#34;work&#34;:
+
+- [cb11d1ed] Fix critical bug — priority: high — not completed
+- [1acd3918] Review PR — priority: normal — not completed
+- [896a95d2] Update documentation — priority: low — not completed
+
+Which one to do first: Start with &#34;Fix critical bug&#34; (cb11d1ed). It has the highest priority and sounds like it may impact users or blockers — addressing it first reduces risk. If you&#39;d like, I can mark...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_batch_completion_workflow">
+                        <span class="badge passed">passed</span>
+                        Add tasks, complete multiple, then show remaining.
+                    </span>
+                    <span class="test-metrics">
+                        <span>13.51s</span>
+                        
+                        <span>4972 tokens</span>
+                        <span>$0.002062</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">8.19s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4504</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">468</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002062</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">6</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Add these tasks to my quick-tasks list: &#39;send email&#39;, &#39;make call&#39;, &#39;write note&#39;.&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;send email&#39;, &#39;list&#39;: &#39;quick-tasks&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;86cff68f&#39;, &#39;title&#39;: &#39;send email&#39;, &#39;list&#39;: &#39;quick-tas&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;make call&#39;, &#39;list&#39;: &#39;quick-tasks&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;e6031bf1&#39;, &#39;title&#39;: &#39;make call&#39;, &#39;list&#39;: &#39;quick-task&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;write note&#39;, &#39;list&#39;: &#39;quick-tasks&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;9883d14e&#39;, &#39;title&#39;: &#39;write note&#39;, &#39;list&#39;: &#39;quick-tas&#34;
+    Agent-&gt;&gt;Tools: &#34;complete_task({&#39;task_id&#39;: &#39;86cff68f&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;86cff68f&#39;, &#39;title&#39;: &#39;send email&#39;, &#39;completed&#39;: true,&#34;
+    Agent-&gt;&gt;Tools: &#34;complete_task({&#39;task_id&#39;: &#39;e6031bf1&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;e6031bf1&#39;, &#39;title&#39;: &#39;make call&#39;, &#39;completed&#39;: true, &#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;quick-tasks&#39;, &#39;show_completed&#39;: False})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;id&#39;: &#39;9883d14e&#39;, &#39;title&#39;: &#39;write note&#39;, &#39;list&#39;: &#39;quick-ta&#34;
+    Agent-&gt;&gt;User: &#34;Done. I added the three tasks to quick-tasks, marked &#39;send email&#39; and &#39;make call&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Done. I added the three tasks to quick-tasks, marked &#34;send email&#34; and &#34;make call&#34; complete, and here are the remaining incomplete tasks in quick-tasks:
+
+- write note (id: 9883d14e)</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (6 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Add these tasks to my quick-tasks list: &#39;send email&#39;, &#39;make call&#39;, &#39;write note&#39;. Then mark &#39;send email&#39; and &#39;make call&#39; as complete. Finally show me only the remaining incomplete tasks.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "quick-tasks", "title": "send email"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;86cff68f&#34;, &#34;title&#34;: &#34;send email&#34;, &#34;list&#34;: &#34;quick-tasks&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;send email&#39; to quick-tasks list&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "quick-tasks", "title": "make call"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;e6031bf1&#34;, &#34;title&#34;: &#34;make call&#34;, &#34;list&#34;: &#34;quick-tasks&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;make call&#39; to quick-tasks list&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "quick-tasks", "title": "write note"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;9883d14e&#34;, &#34;title&#34;: &#34;write note&#34;, &#34;list&#34;: &#34;quick-tasks&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;write note&#39; to quick-tasks list&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 complete_task</span>
+            <div class="tool-args">{"task_id": "86cff68f"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;86cff68f&#34;, &#34;title&#34;: &#34;send email&#34;, &#34;completed&#34;: true, &#34;message&#34;: &#34;Completed task: send email&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 complete_task</span>
+            <div class="tool-args">{"task_id": "e6031bf1"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;e6031bf1&#34;, &#34;title&#34;: &#34;make call&#34;, &#34;completed&#34;: true, &#34;message&#34;: &#34;Completed task: make call&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "quick-tasks", "show_completed": false}</div>
+            
+            <div class="tool-result">→ [{&#34;id&#34;: &#34;9883d14e&#34;, &#34;title&#34;: &#34;write note&#34;, &#34;list&#34;: &#34;quick-tasks&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false}]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Done. I added the three tasks to quick-tasks, marked &#34;send email&#34; and &#34;make call&#34; complete, and here are the remaining incomplete tasks in quick-tasks:
+
+- write note (id: 9883d14e)</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_multi_list_organization">
+                        <span class="badge passed">passed</span>
+                        Organize tasks across multiple lists.
+                    </span>
+                    <span class="test-metrics">
+                        <span>14.34s</span>
+                        
+                        <span>4570 tokens</span>
+                        <span>$0.002046</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">8.19s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4054</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">516</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.002046</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">6</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Add &#39;buy groceries&#39; to my personal list and &#39;submit report&#39; to my work list. The&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;buy groceries&#39;, &#39;list&#39;: &#39;personal&#39;, &#39;priority&#39;: &#39;)&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;83f3bcd0&#39;, &#39;title&#39;: &#39;buy groceries&#39;, &#39;list&#39;: &#39;person&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;submit report&#39;, &#39;list&#39;: &#39;work&#39;, &#39;priority&#39;: &#39;norm)&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;90f11a35&#39;, &#39;title&#39;: &#39;submit report&#39;, &#39;list&#39;: &#39;work&#39;,&#34;
+    Agent-&gt;&gt;Tools: &#34;get_lists({})&#34;
+    Tools--&gt;&gt;Agent: &#34;[&#39;personal&#39;, &#39;work&#39;]&#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;personal&#39;, &#39;show_completed&#39;: True})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;id&#39;: &#39;83f3bcd0&#39;, &#39;title&#39;: &#39;buy groceries&#39;, &#39;list&#39;: &#39;perso&#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;work&#39;, &#39;show_completed&#39;: True})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;id&#39;: &#39;90f11a35&#39;, &#39;title&#39;: &#39;submit report&#39;, &#39;list&#39;: &#39;work&#39;&#34;
+    Agent-&gt;&gt;User: &#34;Done — I added both tasks. Your lists: - personal — 1 task - buy groceries (norm&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">Done — I added both tasks.
+
+Your lists:
+- personal — 1 task
+  - buy groceries (normal priority)
+- work — 1 task
+  - submit report (normal priority)
+
+If you want, I can set priorities, add deadlines, or mark any of these as completed.</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (6 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Add &#39;buy groceries&#39; to my personal list and &#39;submit report&#39; to my work list. Then tell me what lists I have and how many tasks are in each.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "personal", "priority": "normal", "title": "buy groceries"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;83f3bcd0&#34;, &#34;title&#34;: &#34;buy groceries&#34;, &#34;list&#34;: &#34;personal&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;buy groceries&#39; to personal list&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "work", "priority": "normal", "title": "submit report"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;90f11a35&#34;, &#34;title&#34;: &#34;submit report&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;submit report&#39; to work list&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_lists</span>
+            <div class="tool-args">{}</div>
+            
+            <div class="tool-result">→ [&#34;personal&#34;, &#34;work&#34;]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "personal", "show_completed": true}</div>
+            
+            <div class="tool-result">→ [{&#34;id&#34;: &#34;83f3bcd0&#34;, &#34;title&#34;: &#34;buy groceries&#34;, &#34;list&#34;: &#34;personal&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false}]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "work", "show_completed": true}</div>
+            
+            <div class="tool-result">→ [{&#34;id&#34;: &#34;90f11a35&#34;, &#34;title&#34;: &#34;submit report&#34;, &#34;list&#34;: &#34;work&#34;, &#34;priority&#34;: &#34;normal&#34;, &#34;completed&#34;: false}]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">Done — I added both tasks.
+
+Your lists:
+- personal — 1 task
+  - buy groceries (normal priority)
+- work — 1 task
+  - submit report (normal priority)
+
+If you want, I can set priorities, add deadlines, or mark any of these as completed.</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_ambiguous_request_clarification">
+                        <span class="badge passed">passed</span>
+                        Handle ambiguous requests intelligently.
+                    </span>
+                    <span class="test-metrics">
+                        <span>17.54s</span>
+                        
+                        <span>2225 tokens</span>
+                        <span>$0.001764</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">11.15s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">1535</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">690</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001764</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">4</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;What&#39;s the weather like in Europe?&#34;
+    Agent-&gt;&gt;Tools: &#34;list_cities({})&#34;
+    Tools--&gt;&gt;Agent: &#34;[&#39;Paris&#39;, &#39;Tokyo&#39;, &#39;New York&#39;, &#39;Berlin&#39;, &#39;London&#39;, &#39;Sydney&#39;]&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Paris&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Paris&#39;, &#39;country&#39;: &#39;France&#39;, &#39;temperature_celsius&#39;&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;Berlin&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;Berlin&#39;, &#39;country&#39;: &#39;Germany&#39;, &#39;temperature_celsiu&#34;
+    Agent-&gt;&gt;Tools: &#34;get_weather({&#39;city&#39;: &#39;London&#39;})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;city&#39;: &#39;London&#39;, &#39;country&#39;: &#39;UK&#39;, &#39;temperature_celsius&#39;: 1&#34;
+    Agent-&gt;&gt;User: &#34;I checked a few European cities I have data for. Current conditions: - Paris, Fr&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">I checked a few European cities I have data for. Current conditions:
+
+- Paris, France: 18°C (64°F), partly cloudy, humidity 65%, wind 12 km/h SW.  
+- Berlin, Germany: 16°C (61°F), overcast, humidity 72%, wind 10 km/h N.  
+- London, UK: 14°C (57°F), rainy, humidity 80%, wind 18 km/h W.
+
+Quick summary: mild temperatures across these locations (mid-teens °C), partly cloudy to overcast, with rain in London and light–moderate winds. Would you like a forecast for any of these cities or weather for a different European location?</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (4 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">What&#39;s the weather like in Europe?</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_cities</span>
+            <div class="tool-args">{}</div>
+            
+            <div class="tool-result">→ [&#34;Paris&#34;, &#34;Tokyo&#34;, &#34;New York&#34;, &#34;Berlin&#34;, &#34;London&#34;, &#34;Sydney&#34;]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Paris"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Paris&#34;, &#34;country&#34;: &#34;France&#34;, &#34;temperature_celsius&#34;: 18, &#34;temperature_fahrenheit&#34;: 64, &#34;humidity&#34;: 65, &#34;conditions&#34;: &#34;Partly cloudy&#34;, &#34;wind_speed_kmh&#34;: 12, &#34;wind_direction&#34;: &#34;SW&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "Berlin"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;Berlin&#34;, &#34;country&#34;: &#34;Germany&#34;, &#34;temperature_celsius&#34;: 16, &#34;temperature_fahrenheit&#34;: 61, &#34;humidity&#34;: 72, &#34;conditions&#34;: &#34;Overcast&#34;, &#34;wind_speed_kmh&#34;: 10, &#34;wind_direction&#34;: &#34;N&#34;}</div>
+            
+            
+        </div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 get_weather</span>
+            <div class="tool-args">{"city": "London"}</div>
+            
+            <div class="tool-result">→ {&#34;city&#34;: &#34;London&#34;, &#34;country&#34;: &#34;UK&#34;, &#34;temperature_celsius&#34;: 14, &#34;temperature_fahrenheit&#34;: 57, &#34;humidity&#34;: 80, &#34;conditions&#34;: &#34;Rainy&#34;, &#34;wind_speed_kmh&#34;: 18, &#34;wind_direction&#34;: &#34;W&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">I checked a few European cities I have data for. Current conditions:
+
+- Paris, France: 18°C (64°F), partly cloudy, humidity 65%, wind 12 km/h SW.  
+- Berlin, Germany: 16°C (61°F), overcast, humidity 72%, wind 10 km/h N.  
+- London, UK: 14°C (57°F), rainy, humidity 80%, wind 18 km/h W.
+
+Quick summary: mild temperatures across these locations (mid-teens °C), partly cloudy to overcast, with rain in London and light–moderate winds. Would you like a forecast for any of these cities or weather for a d...</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <span class="test-name" title="test_conditional_logic_workflow">
+                        <span class="badge passed">passed</span>
+                        Execute conditional logic based on current state.
+                    </span>
+                    <span class="test-metrics">
+                        <span>10.12s</span>
+                        
+                        <span>2983 tokens</span>
+                        <span>$0.001094</span>
+                        
+                    </span>
+                </div>
+                <div class="test-details">
+                    
+
+
+
+
+
+<div class="metrics-grid">
+    <div class="metric">
+        <div class="metric-value">4.62s</div>
+        <div class="metric-label">Duration</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2784</div>
+        <div class="metric-label">Prompt Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">199</div>
+        <div class="metric-label">Completion Tokens</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">$0.001094</div>
+        <div class="metric-label">Cost</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">2</div>
+        <div class="metric-label">Tool Calls</div>
+    </div>
+    <div class="metric">
+        <div class="metric-value">5</div>
+        <div class="metric-label">Turns</div>
+    </div>
+</div>
+
+
+<div class="mermaid-container" onclick="event.stopPropagation(); showDiagram(this.querySelector('.mermaid').innerHTML)">
+    <div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;Check if I have any tasks in my &#39;urgent&#39; list. If not, create one called &#39;check &#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;urgent&#39;, &#39;show_completed&#39;: True})&#34;
+    Tools--&gt;&gt;Agent: &#34;[]&#34;
+    Agent-&gt;&gt;Tools: &#34;add_task({&#39;title&#39;: &#39;check email&#39;, &#39;list&#39;: &#39;urgent&#39;, &#39;priority&#39;: &#39;high)&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;id&#39;: &#39;9da3c061&#39;, &#39;title&#39;: &#39;check email&#39;, &#39;list&#39;: &#39;urgent&#39;,&#34;
+    Agent-&gt;&gt;Tools: &#34;list_tasks({&#39;list&#39;: &#39;urgent&#39;, &#39;show_completed&#39;: True})&#34;
+    Tools--&gt;&gt;Agent: &#34;[{&#39;id&#39;: &#39;9da3c061&#39;, &#39;title&#39;: &#39;check email&#39;, &#39;list&#39;: &#39;urgent&#39;&#34;
+    Agent-&gt;&gt;User: &#34;I checked your urgent list — it was empty, so I added a high-priority task &#39;chec&#34;</div>
+</div>
+
+
+<div class="final-output">
+    <h4>💬 Final Output</h4>
+    <div class="content">I checked your urgent list — it was empty, so I added a high-priority task &#34;check email&#34;. Here’s the current urgent list:
+
+- [ ] check email (high) — id: 9da3c061</div>
+</div>
+
+
+<details style="margin-top: 1rem;">
+    <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--c-text-light);">📜 Full Conversation (5 turns)</summary>
+    <div class="turns" style="margin-top: 0.75rem;">
+    
+    <div class="turn user">
+        <div class="turn-role">user</div>
+        <div class="turn-content">Check if I have any tasks in my &#39;urgent&#39; list. If not, create one called &#39;check email&#39; with high priority. Show me the urgent list either way.</div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "urgent", "show_completed": true}</div>
+            
+            <div class="tool-result">→ []</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 add_task</span>
+            <div class="tool-args">{"list": "urgent", "priority": "high", "title": "check email"}</div>
+            
+            <div class="tool-result">→ {&#34;id&#34;: &#34;9da3c061&#34;, &#34;title&#34;: &#34;check email&#34;, &#34;list&#34;: &#34;urgent&#34;, &#34;priority&#34;: &#34;high&#34;, &#34;completed&#34;: false, &#34;message&#34;: &#34;Added task &#39;check email&#39; to urgent list&#34;}</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content"></div>
+        
+        <div class="tool-call">
+            <span class="tool-name">🔧 list_tasks</span>
+            <div class="tool-args">{"list": "urgent", "show_completed": true}</div>
+            
+            <div class="tool-result">→ [{&#34;id&#34;: &#34;9da3c061&#34;, &#34;title&#34;: &#34;check email&#34;, &#34;list&#34;: &#34;urgent&#34;, &#34;priority&#34;: &#34;high&#34;, &#34;completed&#34;: false}]</div>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="turn assistant">
+        <div class="turn-role">assistant</div>
+        <div class="turn-content">I checked your urgent list — it was empty, so I added a high-priority task &#34;check email&#34;. Here’s the current urgent list:
+
+- [ ] check email (high) — id: 9da3c061</div>
+        
+    </div>
+    
+    </div>
+</details>
+
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+    </div>
+
+    
+    
+<div class="overlay" id="overlay" onclick="hideOverlay()">
+    <button class="overlay-close" onclick="hideOverlay()">✕</button>
+    <div class="overlay-content" onclick="event.stopPropagation()">
+        <div class="mermaid" id="overlay-mermaid"></div>
+    </div>
+</div>
+
+    <script>
+// pytest-aitest Report Scripts
+
+// Initialize Mermaid
+mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose'
+});
+
+// Fullscreen diagram viewer
+function showDiagram(mermaidCode) {
+    const overlay = document.getElementById('overlay');
+    const content = document.getElementById('overlay-mermaid');
+    content.innerHTML = mermaidCode;
+    overlay.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideOverlay() {
+    document.getElementById('overlay').classList.remove('active');
+}
+
+// Close overlay on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideOverlay();
+});
+
+// Side-by-side test selector
+function showSideBySideTest(testId) {
+    // Hide all groups
+    document.querySelectorAll('.side-by-side-group').forEach(group => {
+        group.classList.remove('active');
+    });
+    // Show selected group
+    const selected = document.getElementById(testId);
+    if (selected) {
+        selected.classList.add('active');
+        // Re-render mermaid diagrams in the newly visible group
+        mermaid.run({ nodes: selected.querySelectorAll('.mermaid') });
+    }
+}
+    </script>
+</body>
+</html>

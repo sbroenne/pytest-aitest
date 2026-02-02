@@ -101,8 +101,4 @@ After generating/updating fixtures, generate HTML to visually verify:
 python scripts/generate_fixture_html.py
 ```
 
-This creates HTML files in `tests/fixtures/reports/html/` (gitignored).
-
-## Schema Version
-
-All fixtures use schema version `2.0`. The schema is defined in `schema/report.schema.json`.
+This creates HTML files in `docs/reports/` (tracked in git for public viewing).
