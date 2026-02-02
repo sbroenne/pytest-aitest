@@ -121,3 +121,10 @@ markers = [
     "arena: prompt arena tests (compare prompts)",
     "matrix: matrix tests (model × prompt grid)",
 ]
+
+[dependency-groups]
+dev = [
+    "beautifulsoup4>=4.14.3",
+    "lxml>=6.0.2",
+    "syrupy>=5.1.0",
+]

@@ -40,7 +40,7 @@
                     <td class="numeric" style="color: var(--c-pass);">{{ group.passed }}</td>
                     <td class="numeric" style="color: var(--c-fail);">{{ group.failed }}</td>
                     <td class="numeric">{{ "{:,}".format(group.total_tokens) }}</td>
-                    <td class="numeric">{% if group.efficiency != float('inf') %}{{ "{:,.0f}".format(group.efficiency) }} tok/✓{% else %}—{% endif %}</td>
+                    <td class="numeric">{% if group.efficiency < 1e9 %}{{ "{:,.0f}".format(group.efficiency) }} tok/✓{% else %}—{% endif %}</td>
                     <td class="numeric">{{ format_cost(group.total_cost) }}</td>
                 </tr>
                 {% endfor %}

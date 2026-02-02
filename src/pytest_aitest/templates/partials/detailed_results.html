@@ -1,27 +1,21 @@
-{# Detailed results partial - test list grouped by sessions #}
+{# Detailed results partial - test list #}
 <section class="section">
     <div class="section-header">
         <h2>🔍 Detailed Results</h2>
     </div>
     <div class="section-body">
-        {% for session in session_groups %}
-        {% if session.is_session %}
-        {# Session Container #}
-        {% include 'partials/session_container.html' %}
-        {% else %}
-        {# Non-session tests (regular list) #}
         <div class="test-list">
-            {% for test in session.tests %}
+            {% for test in report.tests %}
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="{{ test.short_name }}">
-                        <span class="badge {{ test.outcome }}">{{ test.outcome }}</span>
-                        {{ test.display_name }}
+                    <span class="test-name" title="{{ test.name.split('::')[-1] }}">
+                        <span class="badge {{ test.outcome.value }}">{{ test.outcome.value }}</span>
+                        {{ test.docstring.split('\n')[0] if test.docstring else test.name.split('::')[-1] }}
                     </span>
                     <span class="test-metrics">
                         <span>{{ "%.2f"|format(test.duration_ms / 1000) }}s</span>
                         {% if test.agent_result %}
-                        <span>{{ test.agent_result.token_usage.get('prompt', 0) + test.agent_result.token_usage.get('completion', 0) }} tokens</span>
+                        <span>{{ (test.agent_result.token_usage.prompt or 0) + (test.agent_result.token_usage.completion or 0) }} tokens</span>
                         <span>{{ format_cost(test.agent_result.cost_usd) }}</span>
                         {% endif %}
                     </span>
@@ -32,7 +26,5 @@
             </div>
             {% endfor %}
         </div>
-        {% endif %}
-        {% endfor %}
     </div>
 </section>

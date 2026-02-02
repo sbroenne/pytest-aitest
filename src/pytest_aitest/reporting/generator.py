@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -60,6 +59,47 @@ def _to_file_url(path: str) -> str:
     return Path(path).resolve().as_uri()
 
 
+def generate_mermaid_sequence_pydantic(result: Any) -> str:
+    """Generate Mermaid sequence diagram from Pydantic AgentResult.
+    
+    Works with pytest_aitest.models.AgentResult (Pydantic model).
+    """
+    if result is None:
+        return ""
+    
+    lines = [
+        "sequenceDiagram",
+        "    participant User",
+        "    participant Agent",
+        "    participant Tools",
+        "",
+    ]
+
+    for turn in result.turns:
+        role = turn.role.value if hasattr(turn.role, 'value') else str(turn.role)
+        
+        if role == "user":
+            content = _sanitize_mermaid_text(turn.content, 80)
+            lines.append(f'    User->>Agent: "{content}"')
+
+        elif role == "assistant":
+            if turn.tool_calls:
+                for tc in turn.tool_calls:
+                    args_preview = _sanitize_mermaid_text(str(tc.arguments), 60)
+                    lines.append(f'    Agent->>Tools: "{tc.name}({args_preview})"')
+                    if tc.error:
+                        err_preview = _sanitize_mermaid_text(str(tc.error), 60)
+                        lines.append(f'    Tools--xAgent: "Error: {err_preview}"')
+                    elif tc.result:
+                        result_preview = _sanitize_mermaid_text(tc.result, 60)
+                        lines.append(f'    Tools-->>Agent: "{result_preview}"')
+            else:
+                content = _sanitize_mermaid_text(turn.content, 80)
+                lines.append(f'    Agent->>User: "{content}"')
+
+    return "\n".join(lines)
+
+
 class ReportGenerator:
     """Generates HTML and JSON reports with smart layout selection.
 
@@ -97,51 +137,362 @@ class ReportGenerator:
         """Generate HTML report with adaptive layout.
 
         Args:
-            report: Test suite report data
+            report: Test suite report data (legacy dataclass)
             output_path: Path to write HTML file
             ai_summary: Optional LLM-generated summary to include
         """
-        # Detect dimensions for smart rendering
-        dimensions = self._aggregator.detect_dimensions(report)
-        flags = self._aggregator.get_adaptive_flags(report)
-
-        # Prepare context based on mode
+        from pytest_aitest.models.converter import convert_suite_report
+        
+        # Convert legacy dataclass to Pydantic model for template
+        pydantic_report = convert_suite_report(report, ai_summary=ai_summary)
+        
+        # Get mode from dimensions
+        mode = pydantic_report.mode.value if pydantic_report.mode else "simple"
+        
+        # Build adaptive flags
+        flags = self._build_adaptive_flags(pydantic_report)
+        
+        # Prepare context - Pydantic models only!
         context: dict[str, Any] = {
-            "report": report,
-            "dimensions": dimensions,
+            "report": pydantic_report,
             "flags": flags,
-            "mode": dimensions.mode.name.lower(),
+            "mode": mode,
             "format_cost": self._format_cost,
-            "generate_mermaid": generate_mermaid_sequence,
-            "generate_session_mermaid": generate_session_mermaid,
+            "generate_mermaid": generate_mermaid_sequence_pydantic,
             "get_provider": get_provider,
             "to_file_url": _to_file_url,
-            "float": float,  # For infinity comparison in template
-            "ai_summary": ai_summary,
-            "session_groups": self._aggregator.group_by_session(report),
         }
 
         # Add grouped data based on mode
-        if dimensions.mode == ReportMode.MODEL_COMPARISON:
-            context["model_groups"] = self._aggregator.group_by_model(report)
-            context["model_rankings"] = self._aggregator.get_model_rankings(report)
-        elif dimensions.mode == ReportMode.PROMPT_COMPARISON:
-            context["prompt_groups"] = self._aggregator.group_by_prompt(report)
-            context["prompt_rankings"] = self._aggregator.get_prompt_rankings(report)
-        elif dimensions.mode == ReportMode.MATRIX:
-            context["matrix"] = self._aggregator.build_matrix(report, dimensions)
-            context["model_groups"] = self._aggregator.group_by_model(report)
-            context["prompt_groups"] = self._aggregator.group_by_prompt(report)
+        if mode in ("model_comparison", "matrix"):
+            context["model_groups"] = self._build_model_rankings(pydantic_report)
+        if mode in ("prompt_comparison", "matrix"):
+            context["prompt_groups"] = self._build_prompt_rankings(pydantic_report)
+        if mode == "matrix":
+            context["matrix"] = self._build_matrix(pydantic_report)
 
         # Add comparison views (available in any comparison mode)
-        if flags.show_tool_comparison:
-            context["tool_comparison"] = self._aggregator.build_tool_comparison(report)
-        if flags.show_side_by_side:
-            context["side_by_side_tests"] = self._aggregator.build_side_by_side(report)
+        if flags["show_tool_comparison"]:
+            context["tool_comparison"] = self._build_tool_comparison(pydantic_report)
+        if flags["show_side_by_side"]:
+            context["side_by_side_tests"] = self._build_side_by_side(pydantic_report)
+        if flags["show_sessions"]:
+            context["session_groups"] = self._build_session_groups(pydantic_report)
 
         template = self._env.get_template("report_v2.html")
         html = template.render(**context)
         Path(output_path).write_text(html, encoding="utf-8")
+    
+    def _build_adaptive_flags(self, report: Any) -> dict[str, Any]:
+        """Build adaptive display flags from Pydantic report."""
+        dims = report.dimensions
+        models = dims.models if dims else []
+        prompts = dims.prompts if dims else []
+        
+        has_tool_calls = any(
+            test.agent_result and test.agent_result.tools_called
+            for test in report.tests
+        )
+        has_sessions = any(
+            test.agent_result and (test.agent_result.session_context_count or 0) > 0
+            for test in report.tests
+        )
+        
+        return {
+            # Display flags
+            "show_model_leaderboard": len(models) >= 2,
+            "show_prompt_comparison": len(prompts) >= 2,
+            "show_matrix": len(models) >= 2 and len(prompts) >= 2,
+            "show_tool_comparison": (len(models) >= 2 or len(prompts) >= 2) and has_tool_calls,
+            "show_side_by_side": len(models) >= 2 and len(prompts) >= 2,
+            "show_sessions": has_sessions,
+            "show_ai_summary": report.ai_summary is not None,
+            "has_failures": report.summary.failed > 0,
+            "has_skipped": report.summary.skipped > 0,
+            # Counts for header badges
+            "model_count": len(models),
+            "prompt_count": len(prompts),
+            "single_model_name": models[0] if len(models) == 1 else None,
+            "single_prompt_name": prompts[0] if len(prompts) == 1 else None,
+        }
+    
+    def _build_model_rankings(self, report: Any) -> list[dict[str, Any]]:
+        """Build model rankings for leaderboard.
+        
+        Returns list of dicts with structure matching template expectations:
+        - dimension_value: model name
+        - medal: 🥇, 🥈, 🥉 or None
+        - rank: numeric rank (1, 2, 3...)
+        - passed, failed, total: counts
+        - pass_rate: percentage (0-100)
+        - total_tokens: sum of all tokens
+        - efficiency: tokens per successful test (or inf)
+        - total_cost: USD cost
+        - avg_duration_ms: average duration in ms
+        """
+        from collections import defaultdict
+        
+        models = report.dimensions.models if report.dimensions else []
+        if len(models) < 2:
+            return []
+        
+        stats: dict[str, dict[str, Any]] = defaultdict(lambda: {
+            "passed": 0, "failed": 0, "total": 0, "tokens": 0, "cost": 0.0, "duration": 0.0
+        })
+        
+        for test in report.tests:
+            model = test.metadata.model if test.metadata else None
+            if not model:
+                continue
+            s = stats[model]
+            s["total"] += 1
+            if test.outcome.value == "passed":
+                s["passed"] += 1
+            elif test.outcome.value == "failed":
+                s["failed"] += 1
+            if test.agent_result:
+                s["tokens"] += test.agent_result.total_tokens
+                s["cost"] += test.agent_result.cost_usd
+            s["duration"] += test.duration_ms
+        
+        rankings = []
+        for model, s in stats.items():
+            pass_rate = (s["passed"] / s["total"] * 100) if s["total"] > 0 else 0
+            efficiency = s["tokens"] / s["passed"] if s["passed"] > 0 else float("inf")
+            rankings.append({
+                "dimension_value": model,  # Template expects this name
+                "passed": s["passed"],
+                "failed": s["failed"],
+                "total": s["total"],
+                "pass_rate": pass_rate,
+                "total_tokens": s["tokens"],  # Template expects total_tokens
+                "total_cost": s["cost"],  # Template expects total_cost
+                "efficiency": efficiency,
+                "avg_duration_ms": s["duration"] / s["total"] if s["total"] > 0 else 0,
+            })
+        
+        # Sort by pass rate desc, then by name
+        rankings.sort(key=lambda x: (-x["pass_rate"], x["dimension_value"]))
+        
+        # Add rank and medal
+        medals = {1: "🥇", 2: "🥈", 3: "🥉"}
+        for i, r in enumerate(rankings, 1):
+            r["rank"] = i
+            r["medal"] = medals.get(i)
+        
+        return rankings
+    
+    def _build_prompt_rankings(self, report: Any) -> list[dict[str, Any]]:
+        """Build prompt rankings for comparison.
+        
+        Returns list of dicts with structure matching template expectations:
+        - dimension_value: prompt name
+        - medal: 🥇, 🥈, 🥉 or None
+        - rank: numeric rank
+        - passed, failed, total: counts
+        - pass_rate: percentage (0-100)
+        - total_tokens: sum of all tokens
+        - avg_duration_ms: average duration in ms
+        """
+        from collections import defaultdict
+        
+        prompts = report.dimensions.prompts if report.dimensions else []
+        if len(prompts) < 2:
+            return []
+        
+        stats: dict[str, dict[str, Any]] = defaultdict(lambda: {
+            "passed": 0, "failed": 0, "total": 0, "tokens": 0, "cost": 0.0, "duration": 0.0
+        })
+        
+        for test in report.tests:
+            prompt = test.metadata.prompt if test.metadata else None
+            if not prompt:
+                continue
+            s = stats[prompt]
+            s["total"] += 1
+            if test.outcome.value == "passed":
+                s["passed"] += 1
+            elif test.outcome.value == "failed":
+                s["failed"] += 1
+            if test.agent_result:
+                s["tokens"] += test.agent_result.total_tokens
+                s["cost"] += test.agent_result.cost_usd
+            s["duration"] += test.duration_ms
+        
+        rankings = []
+        for prompt, s in stats.items():
+            pass_rate = (s["passed"] / s["total"] * 100) if s["total"] > 0 else 0
+            rankings.append({
+                "dimension_value": prompt,  # Template expects this
+                "passed": s["passed"],
+                "failed": s["failed"],
+                "total": s["total"],
+                "pass_rate": pass_rate,
+                "total_tokens": s["tokens"],  # Template expects total_tokens
+                "avg_duration_ms": s["duration"] / s["total"] if s["total"] > 0 else 0,
+            })
+        
+        rankings.sort(key=lambda x: (-x["pass_rate"], x["dimension_value"]))
+        
+        # Add rank and medal
+        medals = {1: "🥇", 2: "🥈", 3: "🥉"}
+        for i, r in enumerate(rankings, 1):
+            r["rank"] = i
+            r["medal"] = medals.get(i)
+        
+        return rankings
+    
+    def _build_matrix(self, report: Any) -> dict[str, Any]:
+        """Build model × prompt matrix."""
+        dims = report.dimensions
+        models = dims.models if dims else []
+        prompts = dims.prompts if dims else []
+        
+        # Build lookup: (model, prompt) -> test
+        cells: dict[tuple[str, str], Any] = {}
+        for test in report.tests:
+            model = test.metadata.model if test.metadata else None
+            prompt = test.metadata.prompt if test.metadata else None
+            if model and prompt:
+                cells[(model, prompt)] = test
+        
+        return {
+            "models": models,
+            "prompts": prompts,
+            "cells": cells,
+        }
+    
+    def _build_tool_comparison(self, report: Any) -> dict[str, Any]:
+        """Build tool usage comparison grid.
+        
+        Returns dict with structure matching template expectations:
+        - columns: list of column headers (model names or prompt names)
+        - tools: list of {name, counts, total} dicts
+        - column_totals: list of totals per column
+        - grand_total: overall total
+        """
+        dims = report.dimensions
+        models = dims.models if dims else []
+        prompts = dims.prompts if dims else []
+        
+        # Determine comparison dimension
+        if len(models) >= 2:
+            columns = models
+            dimension = "model"
+        elif len(prompts) >= 2:
+            columns = prompts
+            dimension = "prompt"
+        else:
+            return {"columns": [], "tools": [], "column_totals": [], "grand_total": 0}
+        
+        # Collect all unique tools and build usage matrix
+        usage: dict[str, dict[str, int]] = {col: {} for col in columns}
+        all_tools: set[str] = set()
+        
+        for test in report.tests:
+            if dimension == "model":
+                key = test.metadata.model if test.metadata else None
+            else:
+                key = test.metadata.prompt if test.metadata else None
+            
+            if key and test.agent_result and test.agent_result.tools_called:
+                for tool in test.agent_result.tools_called:
+                    all_tools.add(tool)
+                    usage[key][tool] = usage[key].get(tool, 0) + 1
+        
+        # Build tools list with counts per column
+        tools = []
+        for tool_name in sorted(all_tools):
+            counts = [usage[col].get(tool_name, 0) for col in columns]
+            tools.append({
+                "name": tool_name,
+                "counts": counts,
+                "total": sum(counts),
+            })
+        
+        # Calculate column totals
+        column_totals = [
+            sum(usage[col].get(tool, 0) for tool in all_tools)
+            for col in columns
+        ]
+        
+        return {
+            "columns": columns,
+            "tools": tools,
+            "column_totals": column_totals,
+            "grand_total": sum(column_totals),
+        }
+    
+    def _build_side_by_side(self, report: Any) -> list[dict[str, Any]]:
+        """Build side-by-side comparison data for tests."""
+        from collections import defaultdict
+        
+        # Group tests by base name (without model/prompt params)
+        groups: dict[str, list[Any]] = defaultdict(list)
+        for test in report.tests:
+            # Extract base name: test_foo[model-prompt] -> test_foo
+            base_name = test.name.split("[")[0].split("::")[-1]
+            groups[base_name].append(test)
+        
+        # Only include groups with multiple variants
+        result = []
+        for base_name, tests in groups.items():
+            if len(tests) >= 2:
+                variants = []
+                for test in tests:
+                    model = test.metadata.model if test.metadata else "unknown"
+                    prompt = test.metadata.prompt if test.metadata else None
+                    label = f"{model}"
+                    if prompt:
+                        label += f" / {prompt}"
+                    
+                    total_tokens = 0
+                    tool_count = 0
+                    if test.agent_result is not None:
+                        total_tokens = test.agent_result.total_tokens
+                        tool_count = len(test.agent_result.tools_called or [])
+                    
+                    variants.append({
+                        "label": label,
+                        "test": test,
+                        "outcome": test.outcome.value,
+                        "duration_ms": test.duration_ms,
+                        "tokens": total_tokens,
+                        "tool_count": tool_count,
+                    })
+                result.append({"base_name": base_name, "variants": variants})
+        
+        return result
+    
+    def _build_session_groups(self, report: Any) -> list[dict[str, Any]]:
+        """Build session groups for session flow visualization."""
+        from collections import defaultdict
+        
+        # Group tests by session (class name)
+        sessions: dict[str, list[Any]] = defaultdict(list)
+        for test in report.tests:
+            # Extract class name from test name
+            parts = test.name.split("::")
+            if len(parts) >= 2:
+                session = parts[-2]  # Class name
+            else:
+                session = "default"
+            sessions[session].append(test)
+        
+        # Only include sessions with context continuation
+        result = []
+        for session_name, tests in sessions.items():
+            has_continuation = any(
+                t.agent_result and (t.agent_result.session_context_count or 0) > 0
+                for t in tests
+            )
+            if has_continuation:
+                result.append({
+                    "name": session_name,
+                    "tests": tests,
+                })
+        
+        return result
 
     def generate_json(
         self,

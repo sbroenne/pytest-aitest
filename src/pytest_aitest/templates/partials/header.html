@@ -10,32 +10,29 @@
                 <span class="header-status has-failures">✗ {{ report.failed }} Failed</span>
                 {% endif %}
             </h1>
-            {% if report.test_files %}
+            {% if report.dimensions and report.dimensions.files %}
             <div class="header-subtitle">
-                {% for f in report.test_files %}<a href="{{ to_file_url(f) }}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">{{ f.split('/')[-1].split('\\')[-1] }}</a>{{ ', ' if not loop.last else '' }}{% endfor %}
+                {% for f in report.dimensions.files %}<a href="{{ to_file_url(f) }}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">{{ f.split('/')[-1].split('\\')[-1] }}</a>{{ ', ' if not loop.last else '' }}{% endfor %}
             </div>
             {% endif %}
         </div>
         <div style="text-align: right; font-size: 0.8125rem; opacity: 0.85;">
-            <div>{{ report.timestamp[:10] }} at {{ report.timestamp[11:19] }}</div>
+            <div>{{ report.timestamp.strftime('%Y-%m-%d') }} at {{ report.timestamp.strftime('%H:%M:%S') }}</div>
             <div style="font-size: 1.125rem; font-weight: 600; margin-top: 0.25rem;">{{ "%.1f"|format(report.duration_ms / 1000) }}s</div>
         </div>
     </div>
     <div class="header-badges">
-        <span class="header-badge">📊 {{ report.total }} test{{ 's' if report.total != 1 else '' }}</span>
-        {% if flags.model_count > 1 %}
-        <span class="header-badge">🤖 {{ flags.model_count }} models</span>
-        {% elif flags.single_model_name %}
-        <span class="header-badge">🤖 {{ flags.single_model_name }}</span>
+        <span class="header-badge">📊 {{ report.tests | length }} test{{ 's' if report.tests | length != 1 else '' }}</span>
+        {% if report.dimensions and report.dimensions.models | length > 1 %}
+        <span class="header-badge">🤖 {{ report.dimensions.models | length }} models</span>
+        {% elif report.dimensions and report.dimensions.models | length == 1 %}
+        <span class="header-badge">🤖 {{ report.dimensions.models[0] }}</span>
         {% endif %}
-        {% if flags.prompt_count > 1 %}
-        <span class="header-badge">📝 {{ flags.prompt_count }} prompts</span>
+        {% if report.dimensions and report.dimensions.prompts | length > 1 %}
+        <span class="header-badge">📝 {{ report.dimensions.prompts | length }} prompts</span>
         {% endif %}
-        {% if session_groups | selectattr('is_session') | list | length > 0 %}
-        <span class="header-badge">🔗 {{ session_groups | selectattr('is_session') | list | length }} session{{ 's' if session_groups | selectattr('is_session') | list | length > 1 else '' }}</span>
-        {% endif %}
-        {% if report.total_cost_usd > 0 %}
-        <span class="header-badge">💰 {{ format_cost(report.total_cost_usd) }}</span>
+        {% if report.summary.total_cost_usd and report.summary.total_cost_usd > 0 %}
+        <span class="header-badge">💰 {{ format_cost(report.summary.total_cost_usd) }}</span>
         {% endif %}
     </div>
 </header>
