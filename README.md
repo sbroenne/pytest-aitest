@@ -225,6 +225,10 @@ This tool complements traditional testing by covering LLM behaviour, which conve
 ## Installation
 
 ```bash
+# Using uv (recommended)
+uv add pytest-aitest
+
+# Using pip
 pip install pytest-aitest
 ```
 

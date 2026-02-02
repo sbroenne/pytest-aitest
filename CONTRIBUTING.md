@@ -8,17 +8,49 @@
    cd pytest-aitest
    ```
 
-2. Create a virtual environment and install dependencies:
+2. Install in editable mode with dev dependencies:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   pip install -e ".[dev]"
+   uv sync --all-extras
    ```
+
+   This installs the package from your local source code. Any changes you make to `src/pytest_aitest/` are immediately available — no reinstall needed.
 
 3. Install pre-commit hooks:
    ```bash
    pre-commit install
    ```
+
+### Editable Install Explained
+
+Python has two install modes:
+
+| Mode | Command | Use case |
+|------|---------|----------|
+| **Regular** | `uv add pytest-aitest` | End users, pulls from PyPI |
+| **Editable** | `uv sync` (in project dir) | Developers, uses local source |
+
+With editable mode, Python points to your source folder instead of copying files. Edit code → run tests → see changes instantly.
+
+### Using in Other Projects
+
+To test your local changes in another project while developing:
+
+```bash
+# In your other project directory
+cd d:\source\my-mcp-server
+
+# Add pytest-aitest as an editable dependency
+uv add --editable d:\source\pytest-aitest
+```
+
+This adds a local reference to your `pyproject.toml`:
+```toml
+dependencies = [
+    "pytest-aitest @ file:///d:/source/pytest-aitest",
+]
+```
+
+Now your other project uses your local source. Changes to pytest-aitest are immediately available — no reinstall needed.
 
 ## Code Quality
 
