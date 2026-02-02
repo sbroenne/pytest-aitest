@@ -1,0 +1,43 @@
+# serializer version: 1
+# name: TestHTMLSnapshots.test_html_structure_snapshot[01_basic_usage]
+  dict({
+    'has_footer': False,
+    'has_header': True,
+    'sections': list([
+      'summary-grid',
+      'section',
+    ]),
+    'table_count': 0,
+    'title': 'pytest-aitest Report - pytest-aitest',
+  })
+# ---
+# name: TestHTMLSnapshots.test_html_structure_snapshot[02_model_comparison]
+  dict({
+    'has_footer': False,
+    'has_header': True,
+    'sections': list([
+      'summary-grid',
+      'section',
+      'section',
+      'section',
+      'section',
+    ]),
+    'table_count': 3,
+    'title': 'pytest-aitest Report - pytest-aitest',
+  })
+# ---
+# name: TestHTMLSnapshots.test_html_structure_snapshot[03_prompt_comparison]
+  dict({
+    'has_footer': False,
+    'has_header': True,
+    'sections': list([
+      'summary-grid',
+      'section',
+      'section',
+      'section',
+      'section',
+    ]),
+    'table_count': 3,
+    'title': 'pytest-aitest Report - pytest-aitest',
+  })
+# ---
