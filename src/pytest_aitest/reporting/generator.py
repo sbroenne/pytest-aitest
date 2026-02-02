@@ -168,8 +168,10 @@ class ReportGenerator:
             context["model_groups"] = self._build_model_rankings(pydantic_report)
         if mode in ("prompt_comparison", "matrix"):
             context["prompt_groups"] = self._build_prompt_rankings(pydantic_report)
-        if mode == "matrix":
-            context["matrix"] = self._build_matrix(pydantic_report)
+        
+        # Build comparison grid for all comparison modes
+        if mode in ("model_comparison", "prompt_comparison", "matrix"):
+            context["comparison_grid"] = self._build_comparison_grid(pydantic_report, mode)
 
         # Add comparison views (available in any comparison mode)
         if flags["show_tool_comparison"]:
@@ -202,7 +204,8 @@ class ReportGenerator:
             # Display flags
             "show_model_leaderboard": len(models) >= 2,
             "show_prompt_comparison": len(prompts) >= 2,
-            "show_matrix": len(models) >= 2 and len(prompts) >= 2,
+            "show_comparison_grid": len(models) >= 2 or len(prompts) >= 2,  # Any comparison mode
+            "show_matrix": len(models) >= 2 and len(prompts) >= 2,  # Legacy flag for matrix-specific features
             "show_tool_comparison": (len(models) >= 2 or len(prompts) >= 2) and has_tool_calls,
             "show_side_by_side": len(models) >= 2 and len(prompts) >= 2,
             "show_sessions": has_sessions,
@@ -360,6 +363,101 @@ class ReportGenerator:
             "models": models,
             "prompts": prompts,
             "cells": cells,
+        }
+    
+    def _build_comparison_grid(self, report: Any, mode: str) -> dict[str, Any]:
+        """Build comparison grid showing tests across models or prompts.
+        
+        For model_comparison: rows are base tests, columns are models
+        For prompt_comparison: rows are base tests, columns are prompts
+        For matrix: rows are prompts, columns are models (2D grid)
+        
+        Returns dict with:
+        - columns: list of column headers
+        - rows: list of row dicts with {name, cells: [{test, outcome, duration, tokens}]}
+        - mode: the comparison mode
+        """
+        dims = report.dimensions
+        models = dims.models if dims else []
+        prompts = dims.prompts if dims else []
+        base_tests = dims.base_tests if dims else []
+        
+        # Build test lookup
+        test_lookup: dict[tuple[str | None, str | None, str], Any] = {}
+        for test in report.tests:
+            model = test.metadata.model if test.metadata else None
+            prompt = test.metadata.prompt if test.metadata else None
+            # Extract base test name (without parameter markers)
+            base = test.name.split("[")[0] if "[" in test.name else test.name
+            test_lookup[(model, prompt, base)] = test
+        
+        if mode == "matrix":
+            # Full matrix: prompts as rows, models as columns
+            columns = models
+            rows = []
+            for prompt in prompts:
+                cells = []
+                for model in models:
+                    # Find any test with this model/prompt combo
+                    cell_test = None
+                    for (m, p, b), t in test_lookup.items():
+                        if m == model and p == prompt:
+                            cell_test = t
+                            break
+                    cells.append(self._build_grid_cell(cell_test))
+                rows.append({"name": prompt, "cells": cells})
+        elif mode == "model_comparison":
+            # Model comparison: base tests as rows, models as columns
+            columns = models
+            rows = []
+            for base_test in base_tests:
+                cells = []
+                for model in models:
+                    cell_test = None
+                    for (m, p, b), t in test_lookup.items():
+                        if m == model and b == base_test:
+                            cell_test = t
+                            break
+                    cells.append(self._build_grid_cell(cell_test))
+                # Use docstring if available, else short name
+                display_name = base_test.split("::")[-1]
+                rows.append({"name": display_name, "cells": cells})
+        else:  # prompt_comparison
+            # Prompt comparison: base tests as rows, prompts as columns
+            columns = prompts
+            rows = []
+            for base_test in base_tests:
+                cells = []
+                for prompt in prompts:
+                    cell_test = None
+                    for (m, p, b), t in test_lookup.items():
+                        if p == prompt and b == base_test:
+                            cell_test = t
+                            break
+                    cells.append(self._build_grid_cell(cell_test))
+                display_name = base_test.split("::")[-1]
+                rows.append({"name": display_name, "cells": cells})
+        
+        return {
+            "columns": columns,
+            "rows": rows,
+            "mode": mode,
+        }
+    
+    def _build_grid_cell(self, test: Any | None) -> dict[str, Any]:
+        """Build a single cell for the comparison grid."""
+        if not test:
+            return {"test": None, "outcome": None, "duration": None, "tokens": None}
+        
+        tokens = None
+        if test.agent_result and test.agent_result.token_usage:
+            tokens = (test.agent_result.token_usage.prompt or 0) + (test.agent_result.token_usage.completion or 0)
+        
+        return {
+            "test": test,
+            "outcome": test.outcome.value if test.outcome else None,
+            "duration": test.duration_ms,
+            "tokens": tokens,
         }
     
     def _build_tool_comparison(self, report: Any) -> dict[str, Any]:

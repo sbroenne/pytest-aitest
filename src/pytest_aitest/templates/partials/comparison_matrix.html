@@ -1,35 +1,46 @@
-{# Comparison matrix partial - model × prompt grid #}
-{% if flags.show_matrix and matrix %}
+{# Comparison grid partial - shows tests across comparison dimensions #}
+{% if flags.show_comparison_grid and comparison_grid %}
 <section class="section">
     <div class="section-header">
+        {% if comparison_grid.mode == 'matrix' %}
         <h2>📊 Comparison Matrix</h2>
+        {% elif comparison_grid.mode == 'model_comparison' %}
+        <h2>📊 Test Results by Model</h2>
+        {% else %}
+        <h2>📊 Test Results by Prompt</h2>
+        {% endif %}
     </div>
     <div class="section-body">
         <div class="matrix-container">
             <table class="matrix">
                 <thead>
                     <tr>
-                        <th>Prompt / Model</th>
-                        {% for model in matrix.models %}
-                        <th>{{ model }}</th>
+                        <th style="text-align: left;">
+                            {% if comparison_grid.mode == 'matrix' %}Prompt{% else %}Test{% endif %}
+                        </th>
+                        {% for col in comparison_grid.columns %}
+                        <th>{{ col }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for prompt in matrix.prompts %}
+                    {% for row in comparison_grid.rows %}
                     <tr>
-                        <td class="test-name">{{ prompt }}</td>
-                        {% for model in matrix.models %}
-                        {% set cell = matrix.cells.get((model, prompt)) %}
-                        <td class="matrix-cell {{ 'cell-passed' if cell and cell.outcome.value == 'passed' else 'cell-failed' if cell else '' }}">
-                            {% if cell %}
-                            <div class="status">{{ '✅' if cell.outcome.value == 'passed' else '❌' }}</div>
-                            {% if cell.agent_result %}
-                            <div class="metrics">
-                                {{ "%.1f"|format(cell.duration_ms / 1000) }}s · 
-                                {{ (cell.agent_result.token_usage.prompt or 0) + (cell.agent_result.token_usage.completion or 0) }} tok
-                            </div>
+                        <td class="test-name" title="{{ row.name }}">
+                            {% if row.cells[0].test and row.cells[0].test.docstring %}
+                            {{ row.cells[0].test.docstring.split('\n')[0][:50] }}{% if row.cells[0].test.docstring.split('\n')[0] | length > 50 %}…{% endif %}
+                            {% else %}
+                            {{ row.name.split('::')[-1] }}
                             {% endif %}
+                        </td>
+                        {% for cell in row.cells %}
+                        <td class="matrix-cell {{ 'cell-passed' if cell.outcome == 'passed' else 'cell-failed' if cell.outcome == 'failed' else '' }}">
+                            {% if cell.test %}
+                            <div class="status">{{ '✅' if cell.outcome == 'passed' else '❌' if cell.outcome == 'failed' else '⏭️' }}</div>
+                            <div class="metrics">
+                                {{ "%.1f"|format(cell.duration / 1000) }}s
+                                {% if cell.tokens %}· {{ cell.tokens }} tok{% endif %}
+                            </div>
                             {% else %}
                             <span style="color: var(--c-text-muted);">—</span>
                             {% endif %}

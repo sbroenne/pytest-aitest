@@ -208,6 +208,23 @@ class TestModelComparison:
         )
         assert leaderboard is not None, "Missing model leaderboard"
 
+    def test_has_comparison_grid(self):
+        """Should have comparison grid showing tests by model."""
+        grid_header = self.soup.find(string=lambda s: s and "Test Results by Model" in s)
+        assert grid_header is not None, "Missing 'Test Results by Model' comparison grid"
+
+    def test_comparison_grid_has_model_columns(self):
+        """Comparison grid should have columns for each model."""
+        # Find the comparison grid table
+        tables = self.soup.find_all("table", class_="matrix")
+        grid_found = False
+        for table in tables:
+            headers = [th.get_text().strip() for th in table.find_all("th")]
+            if "gpt-4.1" in headers and "gpt-5-mini" in headers:
+                grid_found = True
+                break
+        assert grid_found, "Comparison grid should have model columns"
+
     def test_shows_both_models(self):
         """Should show both models (gpt-5-mini and gpt-4.1)."""
         html_lower = self.html.lower()
@@ -246,6 +263,24 @@ class TestPromptComparison:
         )
         assert prompt_section is not None, "Missing prompt comparison"
 
+    def test_has_comparison_grid(self):
+        """Should have comparison grid showing tests by prompt."""
+        grid_header = self.soup.find(string=lambda s: s and "Test Results by Prompt" in s)
+        assert grid_header is not None, "Missing 'Test Results by Prompt' comparison grid"
+
+    def test_comparison_grid_has_prompt_columns(self):
+        """Comparison grid should have columns for each prompt."""
+        # Find the comparison grid table
+        tables = self.soup.find_all("table", class_="matrix")
+        grid_found = False
+        for table in tables:
+            headers = [th.get_text().strip().lower() for th in table.find_all("th")]
+            # Check if all three prompts are represented
+            if any("brief" in h for h in headers) and any("detailed" in h for h in headers):
+                grid_found = True
+                break
+        assert grid_found, "Comparison grid should have prompt columns"
+
     def test_shows_all_prompts(self):
         """Should show all three prompts."""
         html_lower = self.html.lower()
@@ -275,6 +310,11 @@ class TestMatrix:
             or self.soup.find("table", class_=lambda c: c and "grid" in c.lower() if c else False)
         )
         assert matrix is not None, "Missing matrix grid"
+
+    def test_has_comparison_matrix_header(self):
+        """Should have 'Comparison Matrix' header (not by Model or by Prompt)."""
+        grid_header = self.soup.find(string=lambda s: s and "Comparison Matrix" in s)
+        assert grid_header is not None, "Missing 'Comparison Matrix' header"
 
     def test_has_model_leaderboard(self):
         """Matrix mode should also have model leaderboard."""

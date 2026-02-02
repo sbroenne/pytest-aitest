@@ -92,12 +92,25 @@ The HTML report automatically shows or hides sections based on test results. Thi
 |---------|-------------------|
 | **Model Leaderboard** | 2+ models tested |
 | **Prompt Comparison** | 2+ prompts tested AND NOT matrix mode |
+| **Comparison Grid** | Any comparison mode: shows tests as rows with pass/fail per model or prompt |
 | **Matrix Grid** | 2+ models AND 2+ prompts (shows prompts as rows, models as columns) |
 | **Tool Comparison** | Comparison mode (models or prompts) AND tests used tools |
 | **Side-by-Side Details** | Matrix mode only (deep-dive per prompt×model) |
 | **Session Groups** | Any test uses session continuity |
 | **AI Summary** | `--aitest-summary` flag enabled |
 | **Detailed Results** | Always shown (collapsible per test) |
+
+### Comparison Grid
+
+The comparison grid provides a unified view of all tests across models or prompts. Each row is a test, each column is a model or prompt, with cells showing pass/fail status, duration, and token usage.
+
+| Mode | Grid Header | Rows | Columns |
+|------|-------------|------|---------|
+| Model Comparison | "Test Results by Model" | Tests | Models |
+| Prompt Comparison | "Test Results by Prompt" | Tests | Prompts |
+| Matrix | "Comparison Matrix" | Prompts | Models |
+
+This replaces the previous "Test Overview" section which was redundant with Detailed Results.
 
 ### Mode Detection
 
