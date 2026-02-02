@@ -78,6 +78,23 @@ class TestDataValuesFlowToHTML:
         html, data = generate_html("01_basic_usage")
         assert data["name"] in html, f"Report name '{data['name']}' not found in HTML"
 
+    def test_docstrings_preferred_over_test_names(self):
+        """Human-readable docstrings should appear instead of function names."""
+        html, data = generate_html("08_matrix_full")
+        
+        # Collect docstrings from tests
+        docstrings = []
+        for test in data["tests"]:
+            if test.get("docstring"):
+                first_line = test["docstring"].split('\n')[0].strip()
+                if first_line:
+                    docstrings.append(first_line)
+        
+        # At least some docstrings should appear in HTML
+        assert docstrings, "Fixture should have tests with docstrings"
+        found = [d for d in docstrings if d in html]
+        assert found, f"No docstrings found in HTML. Expected one of: {docstrings[:3]}"
+
     def test_timestamp_in_html(self):
         """Timestamp date should appear in generated HTML."""
         html, data = generate_html("01_basic_usage")

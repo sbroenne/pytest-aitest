@@ -27,11 +27,7 @@
                     {% for row in comparison_grid.rows %}
                     <tr>
                         <td class="test-name" title="{{ row.name }}">
-                            {% if row.cells[0].test and row.cells[0].test.docstring %}
-                            {{ row.cells[0].test.docstring.split('\n')[0][:50] }}{% if row.cells[0].test.docstring.split('\n')[0] | length > 50 %}…{% endif %}
-                            {% else %}
-                            {{ row.name.split('::')[-1] }}
-                            {% endif %}
+                            {{ row.display_name }}
                         </td>
                         {% for cell in row.cells %}
                         <td class="matrix-cell {{ 'cell-passed' if cell.outcome == 'passed' else 'cell-failed' if cell.outcome == 'failed' else '' }}">

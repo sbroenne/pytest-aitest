@@ -8,7 +8,7 @@
             {% for test in report.tests %}
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="{{ test.name.split('::')[-1] }}">
+                    <span class="test-name" title="{{ test.name }}">
                         <span class="badge {{ test.outcome.value }}">{{ test.outcome.value }}</span>
                         {{ test.docstring.split('\n')[0] if test.docstring else test.name.split('::')[-1] }}
                     </span>

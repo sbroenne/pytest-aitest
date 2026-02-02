@@ -20,7 +20,7 @@
                 <tbody>
                     {% for test in report.tests %}
                     <tr class="{{ 'cell-passed' if test.outcome.value == 'passed' else 'cell-failed' if test.outcome.value == 'failed' else '' }}">
-                        <td class="test-name" title="{{ test.name.split('::')[-1] }}">{{ test.docstring.split('\n')[0] if test.docstring else test.name.split('::')[-1] }}</td>
+                        <td class="test-name" title="{{ test.name }}">{{ test.docstring.split('\n')[0] if test.docstring else test.name.split('::')[-1] }}</td>
                         <td class="matrix-cell">
                             <span class="badge {{ test.outcome.value }}">{{ test.outcome.value }}</span>
                         </td>

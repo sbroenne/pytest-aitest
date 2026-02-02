@@ -410,44 +410,64 @@ class ReportGenerator:
                             cell_test = t
                             break
                     cells.append(self._build_grid_cell(cell_test))
-                rows.append({"name": prompt, "cells": cells})
+                rows.append({"name": prompt, "display_name": prompt, "cells": cells})
         elif mode == "model_comparison":
             # Model comparison: base tests as rows, models as columns
             columns = models
             rows = []
             for base_test in base_tests:
                 cells = []
+                first_test = None
                 for model in models:
                     cell_test = None
                     for (m, p, b), t in test_lookup.items():
                         if m == model and b == base_test:
                             cell_test = t
+                            if not first_test:
+                                first_test = t
                             break
                     cells.append(self._build_grid_cell(cell_test))
-                # Use docstring if available, else short name
-                display_name = base_test.split("::")[-1]
-                rows.append({"name": display_name, "cells": cells})
+                # Prefer docstring over function name
+                display_name = self._get_test_display_name(first_test, base_test)
+                rows.append({"name": base_test, "display_name": display_name, "cells": cells})
         else:  # prompt_comparison
             # Prompt comparison: base tests as rows, prompts as columns
             columns = prompts
             rows = []
             for base_test in base_tests:
                 cells = []
+                first_test = None
                 for prompt in prompts:
                     cell_test = None
                     for (m, p, b), t in test_lookup.items():
                         if p == prompt and b == base_test:
                             cell_test = t
+                            if not first_test:
+                                first_test = t
                             break
                     cells.append(self._build_grid_cell(cell_test))
-                display_name = base_test.split("::")[-1]
-                rows.append({"name": display_name, "cells": cells})
+                # Prefer docstring over function name
+                display_name = self._get_test_display_name(first_test, base_test)
+                rows.append({"name": base_test, "display_name": display_name, "cells": cells})
         
         return {
             "columns": columns,
             "rows": rows,
             "mode": mode,
         }
+    
+    def _get_test_display_name(self, test: Any | None, fallback: str) -> str:
+        """Get human-readable display name for a test.
+        
+        Prefers docstring (first line) over function name.
+        """
+        if test and test.docstring:
+            # Use first line of docstring, truncated
+            first_line = test.docstring.split('\n')[0].strip()
+            if first_line:
+                return first_line[:60] + ("…" if len(first_line) > 60 else "")
+        # Fallback to function name (last part of test path)
+        return fallback.split("::")[-1]
     
     def _build_grid_cell(self, test: Any | None) -> dict[str, Any]:
         """Build a single cell for the comparison grid."""
