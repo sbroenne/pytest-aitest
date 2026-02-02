@@ -294,7 +294,7 @@ def _generate_ai_summary(config: Config, report: SuiteReport) -> str | None:
             if terminalreporter:
                 terminalreporter.write_line(
                     "\nAI Summary: Skipped - --aitest-summary-model not specified."
-                    "\nUse a capable model like azure/gpt-4.1 or openai/gpt-4o for quality analysis.",
+                    "\nUse a capable model like azure/gpt-4.1 or openai/gpt-4o.",
                     yellow=True,
                 )
             return None

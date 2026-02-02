@@ -369,6 +369,7 @@ def generate_session_mermaid(session: SessionGroup) -> str:
         if i < len(session.tests) - 1:
             ctx_count = result.session_context_count if result else 0
             msg_count = len(result.messages) if result else 0
-            lines.append(f"    Note over T{i},T{i + 1}: +{msg_count - ctx_count} msgs → {msg_count} total")
+            delta = msg_count - ctx_count
+            lines.append(f"    Note over T{i},T{i + 1}: +{delta} msgs → {msg_count} total")
 
     return "\n".join(lines)
