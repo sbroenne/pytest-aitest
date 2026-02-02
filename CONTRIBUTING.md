@@ -84,15 +84,17 @@ The hooks will:
 ## Running Tests
 
 ```bash
-# Run unit tests
+# Run unit tests (fast, no LLM calls)
 pytest tests/unit/ -v
 
-# Run all tests (requires LLM credentials)
-pytest -v
+# Run integration tests (requires LLM credentials)
+pytest tests/integration/ -v
 
-# Run integration tests only
-pytest -m integration -v
+# Run all tests
+pytest -v
 ```
+
+For detailed information about the test architecture, including the four-layer testing system and test fixtures, see **[Testing Architecture](docs/testing.md)**.
 
 ### Integration Tests
 

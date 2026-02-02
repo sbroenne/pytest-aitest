@@ -19,6 +19,7 @@
 ## Development
 
 - **[Test Harnesses](test-harnesses.md)** — Built-in MCP servers for testing
+- **[Testing Architecture](testing.md)** — Four-layer test infrastructure
 
 ## Reference
 
