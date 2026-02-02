@@ -52,9 +52,7 @@ class TestWeatherSkillImprovement:
         print(f"Baseline tool calls: {len(result.all_tool_calls)}")
         print(f"Tools used: {[t.name for t in result.all_tool_calls]}")
 
-    async def test_skilled_packing_advice_always_checks_weather(
-        self, aitest_run, weather_skill
-    ):
+    async def test_skilled_packing_advice_always_checks_weather(self, aitest_run, weather_skill):
         """WITH skill: Agent ALWAYS checks weather before giving packing advice.
 
         The weather-expert skill instructs the agent to:

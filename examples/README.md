@@ -15,8 +15,8 @@ Working examples are in `tests/integration/` — they are the best reference for
 
 ```bash
 # Prerequisites
-pip install pytest-aitest
-az login  # For Azure OpenAI
+uv add pytest-aitest   # or: pip install pytest-aitest
+az login               # For Azure OpenAI
 
 # Run basic usage tests
 pytest tests/integration/test_basic_usage.py -v
