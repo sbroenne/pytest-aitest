@@ -10,7 +10,6 @@ import sys
 from typing import TYPE_CHECKING, Any
 
 from pytest_aitest.core.errors import ServerStartError
-from pytest_aitest.core.result import ToolInfo
 
 if TYPE_CHECKING:
     from pytest_aitest.core.agent import CLIServer, MCPServer
@@ -483,76 +482,6 @@ class ServerManager:
                 )
 
         return tools
-
-    def get_tools_info(self) -> list[ToolInfo]:
-        """Get ToolInfo objects for all available tools with server attribution.
-
-        Returns:
-            List of ToolInfo objects containing tool metadata and server names
-            for AI analysis of tool descriptions.
-        """
-        tools: list[ToolInfo] = []
-
-        # MCP server tools
-        for server in self._mcp_servers:
-            # Derive server name from command (e.g., "weather_mcp" from ["python", "weather_mcp.py"])
-            server_name = self._derive_server_name(server.config.command)
-            for name, tool_def in server.get_tools().items():
-                tools.append(
-                    ToolInfo(
-                        name=name,
-                        description=tool_def.get("description", ""),
-                        input_schema=tool_def.get(
-                            "inputSchema", {"type": "object", "properties": {}}
-                        ),
-                        server_name=server_name,
-                    )
-                )
-
-        # CLI server tools
-        for server in self._cli_servers:
-            # CLI servers have a name attribute
-            server_name = server.config.name
-            for name, tool_def in server.get_tools().items():
-                tools.append(
-                    ToolInfo(
-                        name=name,
-                        description=tool_def.get("description", ""),
-                        input_schema=tool_def.get(
-                            "inputSchema", {"type": "object", "properties": {}}
-                        ),
-                        server_name=server_name,
-                    )
-                )
-
-        return tools
-
-    def _derive_server_name(self, command: list[str]) -> str:
-        """Derive a server name from a command list.
-
-        Args:
-            command: The command list (e.g., ["python", "weather_mcp.py"])
-
-        Returns:
-            A derived server name (e.g., "weather_mcp")
-        """
-        if not command:
-            return "unknown"
-
-        # Look for a script file in the command
-        for part in command:
-            if part.endswith(".py"):
-                # Extract filename without extension
-                import os.path
-
-                return os.path.splitext(os.path.basename(part))[0]
-            if part.endswith(".js"):
-                import os.path
-
-                return os.path.splitext(os.path.basename(part))[0]
-
-        # Fall back to the last part of the command
-        return command[-1]
 
     async def call_tool(self, name: str, arguments: dict[str, Any]) -> str:
         """Call a tool by name."""

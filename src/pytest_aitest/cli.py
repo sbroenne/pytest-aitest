@@ -52,8 +52,8 @@ def load_config_from_pyproject() -> dict[str, Any]:
             try:
                 data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
                 return data.get("tool", {}).get("pytest-aitest-report", {})
-            except Exception as e:
-                _logger.warning(f"Failed to parse pyproject.toml: {e}")
+            except Exception:
+                _logger.warning("Failed to parse pyproject.toml", exc_info=True)
                 return {}
     return {}
 

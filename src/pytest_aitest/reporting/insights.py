@@ -196,8 +196,8 @@ async def generate_insights(
                     cached=True,
                 ),
             )
-        except Exception as e:
-            _logger.debug(f"Cache invalid, regenerating insights: {e}")
+        except Exception:
+            _logger.debug("Cache invalid, regenerating insights", exc_info=True)
 
     # Build prompt
     prompt_template = _load_analysis_prompt()

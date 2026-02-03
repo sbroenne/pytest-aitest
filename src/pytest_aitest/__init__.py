@@ -1,5 +1,13 @@
 """pytest-aitest: Pytest plugin for testing AI agents with MCP and CLI servers."""
 
+import logging
+
+# Configure library logging per Python best practices:
+# https://docs.python.org/3/howto/logging.html#configuring-logging-for-a-library
+# Libraries should add NullHandler to prevent "No handler found" warnings
+# when the application hasn't configured logging.
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 # Core types
 from pytest_aitest.core import (
     Agent,

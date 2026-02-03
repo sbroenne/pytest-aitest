@@ -358,8 +358,8 @@ class AgentEngine:
                 duration_ms = (time.perf_counter() - start_time) * 1000
                 try:
                     arguments = json.loads(tc.function.arguments)
-                except Exception as parse_err:
-                    _logger.debug(f"Could not parse arguments for error reporting: {parse_err}")
+                except Exception:
+                    _logger.debug("Could not parse arguments for error reporting", exc_info=True)
                     arguments = {}
                 results.append(ToolCall(
                     name=name,

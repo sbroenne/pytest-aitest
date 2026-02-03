@@ -42,8 +42,8 @@ def get_azure_ad_token_provider() -> Callable[[], str] | None:
     except ImportError:
         _logger.debug("azure-identity not installed, Azure AD auth unavailable")
         return None
-    except Exception as e:
-        _logger.debug(f"Azure AD credential not available: {e}")
+    except Exception:
+        _logger.debug("Azure AD credential not available", exc_info=True)
         return None
 
 
