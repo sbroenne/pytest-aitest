@@ -112,16 +112,19 @@ Built-in test servers in `src/pytest_aitest/testing/`:
 
 ## Adding New Tests
 
-1. Use `weather_agent_factory` or `todo_agent_factory` for simple tests
-2. For custom configurations, create `Agent` directly:
+Create agents inline using constants from `conftest.py`:
 
 ```python
+from pytest_aitest import Agent, Provider
+from .conftest import DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM, DEFAULT_MAX_TURNS
+
 @pytest.mark.asyncio
 async def test_my_feature(aitest_run, weather_server):
     agent = Agent(
-        provider=Provider(model="azure/gpt-5-mini"),
+        provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
         mcp_servers=[weather_server],
         system_prompt="You are helpful.",
+        max_turns=DEFAULT_MAX_TURNS,
     )
     
     result = await aitest_run(agent, "What's the weather in Paris?")

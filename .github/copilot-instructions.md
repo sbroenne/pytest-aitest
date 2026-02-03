@@ -14,16 +14,18 @@ NEVER say "test agents" or "testing AI agents". Always say "test MCP servers", "
 
 ## Why This Project Exists
 
-MCP servers and CLIs have two problems nobody talks about:
+Your MCP server passes all unit tests. Then an LLM tries to use it and:
 
-1. **Design** — Your tool descriptions, parameter names, and error messages are the entire API for LLMs. Getting them right is hard.
-2. **Testing** — Traditional tests can't verify if an LLM can actually understand and use your tools.
+- Picks the wrong tool
+- Passes garbage parameters
+- Can't recover from errors
+- Ignores your system prompt instructions
 
-- **Bad tool description?** The LLM picks the wrong tool.
-- **Confusing parameter name?** The LLM passes garbage.
-- **Unhelpful error message?** The LLM can't recover.
+**Why?** Because you tested the code, not the AI interface.
 
-**The key insight: your test is a prompt.** You write what a user would say ("What's the weather in Paris?"), and the LLM figures out how to use your tools. If it can't, your tool descriptions need work.
+For LLMs, your API isn't functions and types — it's **tool descriptions, system prompts, skills, and schemas**. These are what the LLM actually sees. Traditional tests can't validate them.
+
+**The key insight: your test is a prompt.** You write what a user would say ("What's the weather in Paris?"), and the LLM figures out how to use your tools. If it can't, your AI interface needs work.
 
 ## What We're Building
 
@@ -147,6 +149,35 @@ This is a testing framework that uses LLMs to test tools, prompts, and skills. T
 - Verify actual tool calls happen and produce expected results
 - Accept that integration tests take 5-30+ seconds per test
 
+## CRITICAL: Efficient Test Execution
+
+**Integration tests are EXPENSIVE. Never re-run passing tests unnecessarily.**
+
+### pytest caching commands:
+```bash
+# Run ONLY tests that failed last time (MOST COMMON)
+pytest --lf tests/integration/
+
+# Run failed tests first, then the rest
+pytest --ff tests/integration/
+
+# Check what's in the cache (see last failures)
+pytest --cache-show
+
+# Clear the cache (fresh start)
+pytest --cache-clear
+
+# Run specific failing test(s) only
+pytest tests/integration/test_foo.py::TestClass::test_name -v
+```
+
+### Rules for the AI assistant:
+1. **NEVER run all integration tests** unless explicitly asked
+2. **After fixing a test, run ONLY that specific test**
+3. **Use `--lf` to re-run only failed tests**
+4. **Check `--cache-show` to see current failure state before running**
+5. **Quote the specific test paths when running individual tests**
+
 ## Azure Configuration
 
 **Endpoint**: `https://stbrnner1.cognitiveservices.azure.com/`
@@ -187,33 +218,86 @@ src/pytest_aitest/
 │   └── retry.py           # Rate limit retry logic
 ├── fixtures/              # Pytest fixtures
 │   ├── run.py             # aitest_run fixture
-│   └── factories.py       # agent_factory, provider_factory
+│   └── factories.py       # skill_factory (Skills only - agents created inline)
 ├── reporting/             # AI-powered reports
 │   ├── collector.py       # Collects test results + ToolInfo + SkillInfo
 │   ├── aggregator.py      # Detects dimensions, groups results
 │   ├── generator.py       # Generates HTML with AI insights
 │   └── insights.py        # AI analysis engine (mandatory)
 ├── templates/
-│   ├── report.html        # Main template
-│   └── partials/
-│       └── ai_summary.html  # 6 insight sections
+│   └── report_v2.html     # Main template with partials/
 └── testing/               # Test harnesses
-    ├── store.py           # Base store for test data
     ├── weather.py         # WeatherStore for demos
     ├── weather_mcp.py     # Weather MCP server
     ├── todo.py            # TodoStore for CRUD tests
-    └── todo_mcp.py        # Todo MCP server
+    ├── todo_mcp.py        # Todo MCP server
+    ├── banking.py         # BankingService for sessions
+    └── banking_mcp.py     # Banking MCP server
 
 tests/
 ├── integration/           # REAL LLM tests (the only tests that matter)
+│   ├── conftest.py        # Constants + server fixtures (agents created inline)
 │   ├── test_basic_usage.py        # Base functionality
 │   ├── test_model_benchmark.py    # Model comparison
 │   ├── test_prompt_arena.py       # Prompt comparison  
 │   ├── test_matrix.py             # Model × Prompt
 │   ├── test_skills.py             # Skill testing
+│   ├── test_skill_improvement.py  # Skill before/after comparisons
+│   ├── test_sessions.py           # Multi-turn sessions
 │   ├── test_ai_summary.py         # AI insights generation
+│   ├── test_ab_servers.py         # Server A/B testing
+│   ├── test_cli_server.py         # CLI server testing
 │   ├── prompts/                   # YAML prompt files
 │   └── skills/                    # Test skills
 └── unit/                  # Pure logic only (no mocking LLMs)
+```
+
+## Test Configuration (conftest.py)
+
+Integration tests use centralized constants from `tests/integration/conftest.py`:
+
+```python
+# Models
+DEFAULT_MODEL = "gpt-5-mini"           # Cheapest, use for most tests
+BENCHMARK_MODELS = ["gpt-5-mini", "gpt-5.1-chat"]  # For model comparison
+
+# Rate limits (Azure deployments)
+DEFAULT_RPM = 10
+DEFAULT_TPM = 10000
+
+# Turn limits
+DEFAULT_MAX_TURNS = 5
+
+# Server fixtures: weather_server, todo_server, banking_server
+# Agents are created INLINE in each test using these constants
+```
+
+**Pattern for writing tests:**
+```python
+from pytest_aitest import Agent, Provider
+from .conftest import DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM, DEFAULT_MAX_TURNS
+
+async def test_weather(aitest_run, weather_server):
+    agent = Agent(
+        provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+        mcp_servers=[weather_server],
+        system_prompt="You are a weather assistant.",
+        max_turns=DEFAULT_MAX_TURNS,
+    )
+    result = await aitest_run(agent, "What's the weather in Paris?")
+    assert result.success
+```
+
+## Semantic Assertions with llm_assert
+
+Use the `llm_assert` fixture from `pytest-llm-assert` for AI-powered assertions:
+
+```python
+async def test_response_quality(aitest_run, weather_server, llm_assert):
+    agent = Agent(...)
+    result = await aitest_run(agent, "Compare Paris and London weather")
+    
+    # Semantic assertion - AI evaluates if condition is met
+    assert llm_assert(result.final_response, "compares temperatures of both cities")
 ```
 

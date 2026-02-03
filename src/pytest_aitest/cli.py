@@ -246,7 +246,7 @@ def _deserialize_tool_call(data: dict[str, Any]) -> ToolCall:
     )
 
 
-def generate_ai_summary(report: SuiteReport, model: str) -> str:
+def generate_ai_summary(report: LegacySuiteReport, model: str) -> str:
     """Generate AI summary for the report.
 
     Args:

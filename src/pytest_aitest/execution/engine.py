@@ -6,7 +6,7 @@ import asyncio
 import json
 import os
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 
 import litellm
 from litellm.exceptions import RateLimitError as LiteLLMRateLimitError
@@ -20,6 +20,10 @@ from pytest_aitest.execution.skill_tools import (
     get_skill_tools_schema,
     is_skill_tool,
 )
+
+# Drop unsupported params automatically for cross-model compatibility
+# e.g., some Azure models don't support tool_choice
+litellm.drop_params = True
 
 if TYPE_CHECKING:
     from pytest_aitest.core.agent import Agent
@@ -83,7 +87,6 @@ class AgentEngine:
                 description=self.agent.skill.metadata.description,
                 instruction_content=self.agent.skill.content,
                 reference_names=list(self.agent.skill.references.keys()),
-                token_count=self.agent.skill.metadata.token_count,
             )
 
         # Auto-configure Azure Entra ID when using Azure model without API key

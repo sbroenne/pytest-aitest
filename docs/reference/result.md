@@ -21,11 +21,11 @@ Validate agent behavior using `AgentResult` properties and methods.
 Check if a tool was invoked:
 
 ```python
-# Basic check
+# Basic check - was it called at all?
 assert result.tool_was_called("get_weather")
 
-# Check exact call count
-assert result.tool_was_called("get_weather", times=2)
+# Check specific call count
+assert result.tool_call_count("get_weather") == 2
 ```
 
 ### tool_call_count
@@ -40,29 +40,29 @@ assert count <= 5
 
 ### tool_call_arg
 
-Get an argument from a tool call:
+Get an argument from the first call to a tool:
 
 ```python
 # Get argument from first call
 city = result.tool_call_arg("get_weather", "city")
 assert city == "Paris"
 
-# Get argument from specific call (0-indexed)
-second_city = result.tool_call_arg("get_weather", "city", call_index=1)
-assert second_city == "London"
+# For multiple calls, use tool_calls_for and index manually
+calls = result.tool_calls_for("get_weather")
+if len(calls) > 1:
+    second_city = calls[1].arguments.get("city")
 ```
 
-### get_tool_calls
+### tool_calls_for
 
 Get all calls to a specific tool:
 
 ```python
-calls = result.get_tool_calls("get_weather")
+calls = result.tool_calls_for("get_weather")
 
 for call in calls:
     print(f"Called with: {call.arguments}")
     print(f"Result: {call.result}")
-    print(f"Duration: {call.duration_ms}ms")
 ```
 
 ## Output Assertions

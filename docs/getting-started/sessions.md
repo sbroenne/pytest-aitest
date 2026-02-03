@@ -20,7 +20,7 @@ Use the `@pytest.mark.session` marker:
 import pytest
 from pytest_aitest import Agent, Provider, MCPServer
 
-weather_server = MCPServer(command="python", args=["weather_mcp.py"])
+weather_server = MCPServer(command=["python", "weather_mcp.py"])
 
 weather_agent = Agent(
     name="weather",
@@ -132,3 +132,5 @@ The report shows each session as a complete flow with all turns visualized.
 
 - [Full Matrix Testing](matrix.md) — Compare MCP servers, models, and prompts
 - [Generate Reports](../how-to/generate-reports.md) — Understand report output
+
+> 📁 **Real Example:** [test_sessions.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_sessions.py) — Banking workflow with session continuity

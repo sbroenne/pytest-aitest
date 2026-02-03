@@ -65,7 +65,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
-    - getting-started/index.md
+    - Overview: getting-started/index.md
     - System Prompts: getting-started/system-prompts.md
     - Agent Skills: getting-started/skills.md
     - Comparing Configurations: getting-started/comparing.md
@@ -73,20 +73,23 @@ nav:
     - Multi-Turn Sessions: getting-started/sessions.md
     - Full Matrix Testing: getting-started/matrix.md
   - How-To Guides:
-    - how-to/index.md
+    - Overview: how-to/index.md
     - Test MCP Servers: how-to/test-mcp-servers.md
     - Test CLI Tools: how-to/test-cli-tools.md
     - Generate Reports: how-to/generate-reports.md
   - Reference:
-    - reference/index.md
+    - Overview: reference/index.md
     - API: reference/api.md
     - CLI Options: reference/cli.md
     - AgentResult: reference/result.md
     - Configuration: reference/configuration.md
     - Test Harnesses: reference/test-harnesses.md
   - Explanation:
-    - explanation/index.md
-    - Testing Philosophy: explanation/testing-philosophy.md
+    - Overview: explanation/index.md
+    - Architecture: explanation/architecture.md
+    - AI-Powered Reports: explanation/ai-reports.md
+    - Comparison Modes: explanation/comparison-modes.md
+    - Skills vs Prompts: explanation/skills-vs-prompts.md
 
 extra:
   social:

@@ -35,7 +35,7 @@ import pytest
 from pytest_aitest import Agent, Provider, MCPServer
 
 # The MCP server you're testing
-weather_server = MCPServer(command="python", args=["weather_mcp.py"])
+weather_server = MCPServer(command=["python", "weather_mcp.py"])
 
 agent = Agent(
     name="basic",

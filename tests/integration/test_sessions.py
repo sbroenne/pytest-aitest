@@ -1,15 +1,14 @@
 """Session-based testing with multi-turn conversation continuity.
 
 This module demonstrates how to test agents across multiple conversation turns
-where context must be retained between tests. It serves as both a working test
-suite and a reference implementation for session-based testing patterns.
+where context must be retained between tests using the @pytest.mark.session decorator.
 
 Key Concepts Demonstrated
 -------------------------
-1. **Session Fixture**: Using `scope="class"` to share conversation state
-2. **Messages Parameter**: Passing prior conversation to `aitest_run()`
+1. **Session Decorator**: Using `@pytest.mark.session("session-name")` for state sharing
+2. **Automatic Context**: The decorator handles message passing between tests
 3. **Context Verification**: Testing that the agent remembers information
-4. **Session Isolation**: Different test classes get independent sessions
+4. **Session Isolation**: Different session names get independent conversations
 5. **Model Comparison**: Parametrizing models to compare session behavior
 
 The "Paris Trip" Pattern
@@ -39,11 +38,21 @@ import pytest
 
 from pytest_aitest import Agent, MCPServer, Provider, Wait
 
+from .conftest import BENCHMARK_MODELS, DEFAULT_RPM, DEFAULT_TPM
+
 # Mark all tests in this module as integration tests
 pytestmark = [pytest.mark.integration]
 
-# Models to compare for session handling
-MODELS = ["gpt-5-mini", "gpt-4o-mini"]
+# Default model for session tests
+DEFAULT_MODEL = "gpt-5-mini"
+
+# Banking system prompt
+BANKING_PROMPT = (
+    "You are a helpful banking assistant. Help users manage their checking "
+    "and savings accounts. Be concise but thorough. When users ask about "
+    "balances or transactions, always use the available tools to get "
+    "current information - don't guess or use stale data."
+)
 
 
 # =============================================================================
@@ -75,79 +84,17 @@ def banking_server():
     )
 
 
-def make_banking_agent(banking_server, model: str) -> Agent:
-    """Create a banking agent with the specified model."""
-    return Agent(
-        provider=Provider(model=f"azure/{model}"),
-        mcp_servers=[banking_server],
-        system_prompt=(
-            "You are a helpful banking assistant. Help users manage their checking "
-            "and savings accounts. Be concise but thorough. When users ask about "
-            "balances or transactions, always use the available tools to get "
-            "current information - don't guess or use stale data."
-        ),
-        max_turns=10,
-    )
-
-
-@pytest.fixture(scope="class")
-def banking_agent(banking_server):
-    """Banking assistant agent configured for helpful, tool-using behavior.
-
-    Scope: class
-        Each test class gets its own agent instance, but they share
-        the same banking_server (so state changes are visible).
-
-    The system prompt encourages the agent to:
-        - Always use tools for current data (not cached/guessed values)
-        - Be concise but thorough in responses
-        - Help with account management tasks
-    """
-    return Agent(
-        provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[banking_server],
-        system_prompt=(
-            "You are a helpful banking assistant. Help users manage their checking "
-            "and savings accounts. Be concise but thorough. When users ask about "
-            "balances or transactions, always use the available tools to get "
-            "current information - don't guess or use stale data."
-        ),
-        max_turns=10,
-    )
-
-
-@pytest.fixture(scope="class")
-def session():
-    """Shared conversation state for tests within a class.
-
-    Scope: class
-        - Tests WITHIN the same class share this session
-        - Tests in DIFFERENT classes get separate sessions
-
-    Usage Pattern:
-        1. Run agent with prior messages:
-           `result = await aitest_run(agent, prompt, messages=session["messages"])`
-        2. Save state for next test:
-           `session["messages"] = result.messages`
-
-    Important:
-        Always save `session["messages"]` BEFORE assertions that might fail.
-        Otherwise, if an assertion fails, the session won't be saved and
-        subsequent tests will receive an empty conversation.
-    """
-    return {"messages": []}
-
-
 # =============================================================================
 # TestBankingWorkflow: Multi-turn session proving context retention
 # =============================================================================
 
 
+@pytest.mark.session("banking-workflow")
 class TestBankingWorkflow:
     """Multi-turn banking workflow demonstrating session continuity.
 
-    This test class PROVES that sessions work correctly by establishing
-    context in early tests and verifying it's retained in later tests.
+    Uses @pytest.mark.session("banking-workflow") to automatically share
+    conversation state between tests. No manual message passing needed!
 
     Test Flow
     ---------
@@ -164,28 +111,27 @@ class TestBankingWorkflow:
     If sessions don't work, test_03 will fail.
     """
 
-    async def test_01_introduce_context(self, aitest_run, judge, banking_agent, session):
+    @pytest.mark.asyncio
+    async def test_01_introduce_context(self, aitest_run, llm_assert, banking_server):
         """Establish memorable context (Paris trip) and check balances.
 
         This test introduces "Paris" as a memorable detail that will be
         verified in later tests. The agent should check account balances
         and acknowledge the trip planning context.
-
-        Session State After:
-            - Contains user's Paris trip mention
-            - Contains agent's balance response
-            - Approximately 5 messages
         """
+        agent = Agent(
+            name="banking-session-01",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
+        )
+
         result = await aitest_run(
-            banking_agent,
+            agent,
             "Hi! I'm planning a trip to Paris next summer and want to start "
             "saving for it. Can you check my account balances first?",
         )
-
-        # CRITICAL: Save session FIRST, before any assertions that might fail.
-        # If we assert first and it fails, session["messages"] never gets set,
-        # causing all subsequent tests to fail with empty context.
-        session["messages"] = result.messages
 
         assert result.success, f"Agent failed: {result.error}"
 
@@ -196,12 +142,13 @@ class TestBankingWorkflow:
         assert balance_calls >= 1, "Agent should use tools to check balances"
 
         # Verify response quality - agent should show actual balances
-        assert judge(
+        assert llm_assert(
             result.final_response,
             "Response shows account balances (checking and/or savings amounts)",
         )
 
-    async def test_02_reference_prior_context(self, aitest_run, judge, banking_agent, session):
+    @pytest.mark.asyncio
+    async def test_02_reference_prior_context(self, aitest_run, llm_assert, banking_server):
         """Reference prior context without repeating it.
 
         Key Test Design:
@@ -210,34 +157,34 @@ class TestBankingWorkflow:
 
         This tests implicit context retention - the agent should understand
         the reference without us restating it explicitly.
-
-        Session State After:
-            - Contains transfer request and confirmation
-            - Account state changed: Checking -$500, Savings +$500
-            - Approximately 9 messages total
         """
+        agent = Agent(
+            name="banking-session-02",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
+        )
+
         result = await aitest_run(
-            banking_agent,
+            agent,
             # IMPORTANT: We say "that trip" NOT "Paris trip"
             # The agent must remember what trip we're talking about
             "Great! Let's start saving. Move $500 from checking to savings "
             "for that trip I mentioned.",
-            messages=session["messages"],  # Continue from test_01
         )
-
-        # Save session before assertions
-        session["messages"] = result.messages
 
         assert result.success, f"Agent failed: {result.error}"
         assert result.tool_was_called("transfer"), "Agent should make a transfer"
 
         # Verify the transfer was completed
-        assert judge(
+        assert llm_assert(
             result.final_response,
             "Response confirms the transfer of $500 to savings was completed",
         )
 
-    async def test_03_pure_context_question(self, aitest_run, judge, banking_agent, session):
+    @pytest.mark.asyncio
+    async def test_03_pure_context_question(self, aitest_run, banking_server):
         """Ask a question that can ONLY be answered from conversation history.
 
         THIS IS THE CRITICAL TEST.
@@ -248,21 +195,20 @@ class TestBankingWorkflow:
 
         The agent MUST retrieve "Paris" from the conversation history established
         in test_01. If sessions don't work, this test fails.
-
-        Why This Works:
-            - No tool provides trip/goal information
-            - "Paris" was only mentioned in test_01's user message
-            - The agent must use the `messages` parameter to access history
         """
-        result = await aitest_run(
-            banking_agent,
-            # This cannot be answered by tools - requires memory
-            "Wait, remind me - what was I saving for again?",
-            messages=session["messages"],
+        agent = Agent(
+            name="banking-session-03",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
         )
 
-        # Save session before assertions
-        session["messages"] = result.messages
+        result = await aitest_run(
+            agent,
+            # This cannot be answered by tools - requires memory
+            "Wait, remind me - what was I saving for again?",
+        )
 
         assert result.success, f"Agent failed: {result.error}"
 
@@ -274,27 +220,30 @@ class TestBankingWorkflow:
             f"Got: {result.final_response}"
         )
 
-    async def test_04_multi_turn_reasoning(self, aitest_run, judge, banking_agent, session):
+    @pytest.mark.asyncio
+    async def test_04_multi_turn_reasoning(self, aitest_run, llm_assert, banking_server):
         """Complex question requiring both context retention AND tool usage.
 
         This test combines:
             1. Context: "where I'm going" refers to Paris (from history)
             2. Tool call: Check current savings balance
             3. Reasoning: Calculate months to afford $800 flight
-
-        Tests that the agent can use tools WHILE retaining conversation context.
         """
+        agent = Agent(
+            name="banking-session-04",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
+        )
+
         result = await aitest_run(
-            banking_agent,
+            agent,
             # Requires: context (Paris), tool call (balance), math (calculation)
             "If I keep saving $500 per month for my trip, and flights to "
             "where I'm going cost about $800, how many months until I can "
             "afford the flight? Check my current savings balance first.",
-            messages=session["messages"],
         )
-
-        # Save session before assertions
-        session["messages"] = result.messages
 
         assert result.success, f"Agent failed: {result.error}"
 
@@ -302,35 +251,38 @@ class TestBankingWorkflow:
         assert result.tool_was_called("get_balance"), "Agent should check savings balance"
 
         # Agent should provide a reasonable answer with calculation
-        assert judge(
+        assert llm_assert(
             result.final_response,
             "Response shows current savings balance and calculates how long "
             "until they can afford an $800 flight (likely already can with ~$3,500)",
         )
 
-    async def test_05_context_summary(self, aitest_run, judge, banking_agent, session):
+    @pytest.mark.asyncio
+    async def test_05_context_summary(self, aitest_run, llm_assert, banking_server):
         """Request a summary to verify full conversation history retention.
 
         This tests that the agent remembers the ENTIRE conversation:
             - The original Paris trip goal
             - The $500 transfer
             - The flight cost calculation
-
-        A good summary proves the agent has access to complete history.
         """
-        result = await aitest_run(
-            banking_agent,
-            "Give me a quick summary of what we've discussed and done today.",
-            messages=session["messages"],
+        agent = Agent(
+            name="banking-session-05",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
         )
 
-        # Save session before assertions
-        session["messages"] = result.messages
+        result = await aitest_run(
+            agent,
+            "Give me a quick summary of what we've discussed and done today.",
+        )
 
         assert result.success, f"Agent failed: {result.error}"
 
         # Summary should mention key points from the entire conversation
-        assert judge(
+        assert llm_assert(
             result.final_response,
             "Summary mentions the Paris trip goal and the $500 transfer "
             "to savings. This proves the agent retained conversation history.",
@@ -342,32 +294,37 @@ class TestBankingWorkflow:
 # =============================================================================
 
 
+@pytest.mark.session("isolated-session")
 class TestSessionIsolation:
-    """Verify that different test classes get isolated sessions.
+    """Verify that different session names get isolated conversations.
 
-    This test class runs AFTER TestBankingWorkflow. It verifies that:
-        1. This class's session starts empty (no Paris context)
-        2. Server state IS shared (balances changed by prior class)
+    This test class runs AFTER TestBankingWorkflow but uses a different
+    session name, so it starts with a fresh conversation.
 
     Key Distinction:
-        - Session (conversation): Isolated per class
+        - Session (conversation): Isolated by session name
         - Server state (balances): Shared across all tests
     """
 
-    async def test_fresh_session_starts_clean(self, aitest_run, banking_agent, session):
+    @pytest.mark.asyncio
+    async def test_fresh_session_starts_clean(self, aitest_run, banking_server):
         """This class should NOT see TestBankingWorkflow's conversation.
 
-        The conversation history should be empty, even though the server
-        state (account balances) reflects changes from the prior test class.
-
-        Expected:
-            - session["messages"] starts empty (no Paris context here)
-            - Banking balance ~$1,000 (after $500 transfer in prior class)
+        The conversation history should be empty because we're using a
+        different session name, even though the server state (account
+        balances) reflects changes from the prior test class.
         """
+        agent = Agent(
+            name="isolated-session-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
+        )
+
         result = await aitest_run(
-            banking_agent,
+            agent,
             "What's my current checking balance?",
-            # Note: session["messages"] is empty - fresh session
         )
 
         assert result.success
@@ -376,8 +333,6 @@ class TestSessionIsolation:
         # The balance will be ~$1,000 (reflecting prior class's transfer)
         # but this class has no knowledge of WHY the transfer happened
         # because conversation history is isolated
-
-        session["messages"] = result.messages
 
 
 # =============================================================================
@@ -389,15 +344,13 @@ class TestModelSessionComparison:
     """Compare how different models handle session context retention.
 
     This tests the same multi-turn workflow across multiple models to see
-    if there are differences in:
-    - Context retention quality
-    - Token usage
-    - Response quality
+    if there are differences in context retention quality.
 
-    Each model runs the full 3-step session workflow independently.
+    Note: This class uses manual message passing to test each model
+    independently within a single test (parametrized comparison).
     """
 
-    @pytest.mark.parametrize("model", MODELS)
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
     @pytest.mark.asyncio
     async def test_session_context_retention(self, aitest_run, banking_server, model):
         """Full session workflow: introduce context → reference it → verify memory.
@@ -405,7 +358,13 @@ class TestModelSessionComparison:
         This runs a complete session in a single test to compare models fairly.
         Each model gets the same prompts and must demonstrate context retention.
         """
-        agent = make_banking_agent(banking_server, model)
+        agent = Agent(
+            name=f"model-comparison-{model}",
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
+        )
         messages: list = []
 
         # Step 1: Introduce Paris trip context

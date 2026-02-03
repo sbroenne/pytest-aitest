@@ -12,11 +12,9 @@ import pytest
 
 from pytest_aitest import Agent, Provider
 
-pytestmark = [pytest.mark.integration, pytest.mark.benchmark]
+from .conftest import BENCHMARK_MODELS, DEFAULT_RPM, DEFAULT_TPM, WEATHER_PROMPT
 
-# Models to benchmark - cheapest first
-# Available on Azure: gpt-5-mini, gpt-5.1-chat, gpt-4.1
-MODELS = ["gpt-5-mini", "gpt-4.1"]
+pytestmark = [pytest.mark.integration, pytest.mark.benchmark]
 
 
 class TestModelBenchmark:
@@ -28,14 +26,15 @@ class TestModelBenchmark:
     - Cost per model
     """
 
-    @pytest.mark.parametrize("model", MODELS)
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
     @pytest.mark.asyncio
     async def test_simple_weather_query(self, aitest_run, weather_server, model):
         """Basic weather lookup - all models should pass this."""
         agent = Agent(
-            provider=Provider(model=f"azure/{model}"),
+            name=f"weather-simple-{model}",
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
-            system_prompt="You are a helpful weather assistant.",
+            system_prompt=WEATHER_PROMPT,
             max_turns=5,
         )
 
@@ -44,14 +43,15 @@ class TestModelBenchmark:
         assert result.success
         assert result.tool_was_called("get_weather")
 
-    @pytest.mark.parametrize("model", MODELS)
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
     @pytest.mark.asyncio
     async def test_multi_city_comparison(self, aitest_run, weather_server, model):
         """Compare weather in two cities - tests reasoning."""
         agent = Agent(
-            provider=Provider(model=f"azure/{model}"),
+            name=f"weather-compare-{model}",
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
-            system_prompt="You are a helpful weather assistant.",
+            system_prompt=WEATHER_PROMPT,
             max_turns=5,
         )
 
@@ -63,14 +63,15 @@ class TestModelBenchmark:
         # Response should answer the question
         assert "tokyo" in result.final_response.lower()
 
-    @pytest.mark.parametrize("model", MODELS)
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
     @pytest.mark.asyncio
     async def test_forecast_interpretation(self, aitest_run, weather_server, model):
         """Forecast + interpretation - tests comprehension."""
         agent = Agent(
-            provider=Provider(model=f"azure/{model}"),
+            name=f"weather-forecast-{model}",
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
-            system_prompt="You are a helpful weather assistant. Give practical advice.",
+            system_prompt=WEATHER_PROMPT,
             max_turns=5,
         )
 

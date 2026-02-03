@@ -6,37 +6,41 @@ A pytest plugin for validating whether language models can understand and operat
 
 ## Why?
 
-MCP servers and CLIs have two problems nobody talks about:
+Your MCP server passes all unit tests. Then an LLM tries to use it and:
 
-1. **Design** — Your tool descriptions, parameter names, and error messages are the entire API for LLMs. Getting them right is hard.
-2. **Testing** — Traditional tests can't verify if an LLM can actually understand and use your tools.
+- Picks the wrong tool
+- Passes garbage parameters
+- Can't recover from errors
+- Ignores your system prompt instructions
 
-- Bad tool description? The LLM picks the wrong tool.
-- Confusing parameter name? The LLM passes garbage.
-- Unhelpful error message? The LLM can't recover.
+**Why?** Because you tested the code, not the AI interface.
 
-**The key insight: your test is a prompt.** You write what a user would say, and the LLM figures out how to use your tools. If it can't, your tool descriptions need work.
+For LLMs, your API isn't functions and types — it's **tool descriptions, system prompts, skills, and schemas**. These are what the LLM actually sees. Traditional tests can't validate them.
+
+**The key insight: your test is a prompt.** You write what a user would say, and the LLM figures out how to use your tools. If it can't, your AI interface needs work.
 
 ## Quick Start
 
 ```python
 from pytest_aitest import Agent, Provider, MCPServer
 
-weather_server = MCPServer(command="python", args=["weather_mcp.py"])
-
-agent = Agent(
-    name="weather-test",
-    provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
-)
+weather_server = MCPServer(command=["python", "weather_mcp.py"])
 
 @pytest.mark.asyncio
 async def test_weather_query(aitest_run):
+    agent = Agent(
+        name="weather-test",
+        provider=Provider(model="azure/gpt-5-mini"),
+        mcp_servers=[weather_server],
+    )
+    
     result = await aitest_run(agent, "What's the weather in Paris?")
     
     assert result.success
     assert result.tool_was_called("get_weather")
 ```
+
+> 📁 See [test_basic_usage.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_basic_usage.py) for complete examples.
 
 ## Features
 

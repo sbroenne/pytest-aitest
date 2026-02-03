@@ -253,3 +253,5 @@ CLIServer(
     cwd=str(Path(__file__).parent / "workspace"),
 )
 ```
+
+> 📁 **Real Example:** [test_cli_server.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_cli_server.py) — CLI server testing with ls and cat commands

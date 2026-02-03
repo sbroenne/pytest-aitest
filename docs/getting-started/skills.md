@@ -110,3 +110,7 @@ async def test_with_skill(aitest_run, weather_skill):
 
 - [Comparing Configurations](comparing.md) — Systematic testing patterns
 - [Multi-Turn Sessions](sessions.md) — Conversations with context
+
+> 📁 **Real Examples:**
+> - [test_skills.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_skills.py) — Skill loading and metadata
+> - [test_skill_improvement.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_skill_improvement.py) — Skill before/after comparisons

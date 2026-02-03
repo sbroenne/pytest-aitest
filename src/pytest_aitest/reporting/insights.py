@@ -99,7 +99,6 @@ def _build_analysis_input(
         for skill in skill_info:
             sections.append(f"### {skill.name}")
             sections.append(f"Description: {skill.description}")
-            sections.append(f"Token count: {skill.token_count}")
             if skill.reference_names:
                 sections.append(f"References: {', '.join(skill.reference_names)}")
             sections.append(f"\n**Content:**\n{skill.instruction_content[:2000]}")

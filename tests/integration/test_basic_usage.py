@@ -10,6 +10,16 @@ from __future__ import annotations
 
 import pytest
 
+from pytest_aitest import Agent, Provider
+
+from .conftest import (
+    DEFAULT_MODEL,
+    DEFAULT_RPM,
+    DEFAULT_TPM,
+    TODO_PROMPT,
+    WEATHER_PROMPT,
+)
+
 pytestmark = [pytest.mark.integration, pytest.mark.basic]
 
 
@@ -23,7 +33,7 @@ class TestWeatherWorkflows:
 
     @pytest.mark.asyncio
     async def test_trip_planning_compare_destinations(
-        self, aitest_run, weather_agent_factory, judge
+        self, aitest_run, weather_server, llm_assert
     ):
         """Plan a trip: get forecasts for two cities and recommend the better one.
 
@@ -33,7 +43,13 @@ class TestWeatherWorkflows:
         - Synthesizing a recommendation
         - AI judge for semantic validation
         """
-        agent = weather_agent_factory("gpt-5-mini", max_turns=10)
+        agent = Agent(
+            name="trip-planner",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[weather_server],
+            system_prompt=WEATHER_PROMPT,
+            max_turns=10,
+        )
 
         result = await aitest_run(
             agent,
@@ -50,7 +66,7 @@ class TestWeatherWorkflows:
         assert "paris" in response_lower
         assert "sydney" in response_lower
         # AI judge validates recommendation quality
-        assert judge(
+        assert llm_assert(
             result.final_response,
             """
             - Compares weather between two cities
@@ -60,7 +76,7 @@ class TestWeatherWorkflows:
         )
 
     @pytest.mark.asyncio
-    async def test_packing_advice_workflow(self, aitest_run, weather_agent_factory):
+    async def test_packing_advice_workflow(self, aitest_run, weather_server):
         """Check multiple cities and provide packing advice.
 
         This tests:
@@ -68,7 +84,13 @@ class TestWeatherWorkflows:
         - Conditional reasoning (rain → umbrella)
         - Practical advice generation
         """
-        agent = weather_agent_factory("gpt-5-mini", max_turns=10)
+        agent = Agent(
+            name="packing-advisor",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[weather_server],
+            system_prompt=WEATHER_PROMPT,
+            max_turns=10,
+        )
 
         result = await aitest_run(
             agent,
@@ -87,7 +109,7 @@ class TestWeatherWorkflows:
         assert any(word in response_lower for word in ["umbrella", "rain", "wet"])
 
     @pytest.mark.asyncio
-    async def test_discovery_then_query_workflow(self, aitest_run, weather_agent_factory):
+    async def test_discovery_then_query_workflow(self, aitest_run, weather_server):
         """Discover available cities, then query the warmest one.
 
         This tests:
@@ -95,7 +117,13 @@ class TestWeatherWorkflows:
         - Decision making based on discovered data
         - Follow-up action based on analysis
         """
-        agent = weather_agent_factory("gpt-5-mini", max_turns=15)
+        agent = Agent(
+            name="city-explorer",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[weather_server],
+            system_prompt=WEATHER_PROMPT,
+            max_turns=15,
+        )
 
         result = await aitest_run(
             agent,
@@ -112,7 +140,7 @@ class TestWeatherWorkflows:
         assert "sydney" in result.final_response.lower()
 
     @pytest.mark.asyncio
-    async def test_comparative_analysis_three_cities(self, aitest_run, weather_agent_factory):
+    async def test_comparative_analysis_three_cities(self, aitest_run, weather_server):
         """Compare weather across three cities and rank them.
 
         This tests:
@@ -120,7 +148,13 @@ class TestWeatherWorkflows:
         - Comparative reasoning
         - Structured output (ranking)
         """
-        agent = weather_agent_factory("gpt-5-mini", max_turns=12)
+        agent = Agent(
+            name="weather-ranker",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[weather_server],
+            system_prompt=WEATHER_PROMPT,
+            max_turns=12,
+        )
 
         result = await aitest_run(
             agent,
@@ -141,7 +175,7 @@ class TestWeatherWorkflows:
         assert "new york" in response_lower
 
     @pytest.mark.asyncio
-    async def test_error_recovery_workflow(self, aitest_run, weather_agent_factory):
+    async def test_error_recovery_workflow(self, aitest_run, weather_server):
         """Handle an invalid city gracefully and provide alternatives.
 
         This tests:
@@ -149,7 +183,13 @@ class TestWeatherWorkflows:
         - Recovery behavior (suggest alternatives)
         - Graceful degradation
         """
-        agent = weather_agent_factory("gpt-5-mini", max_turns=8)
+        agent = Agent(
+            name="error-handler",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[weather_server],
+            system_prompt=WEATHER_PROMPT,
+            max_turns=8,
+        )
 
         result = await aitest_run(
             agent,
@@ -173,7 +213,7 @@ class TestTodoWorkflows:
     """Multi-step task management workflows that test stateful operations."""
 
     @pytest.mark.asyncio
-    async def test_project_setup_workflow(self, aitest_run, todo_agent_factory):
+    async def test_project_setup_workflow(self, aitest_run, todo_server):
         """Create multiple tasks and verify the list.
 
         This tests:
@@ -181,7 +221,13 @@ class TestTodoWorkflows:
         - State persistence between calls
         - Verification via read
         """
-        agent = todo_agent_factory("gpt-5-mini", max_turns=12)
+        agent = Agent(
+            name="project-setup",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[todo_server],
+            system_prompt=TODO_PROMPT,
+            max_turns=12,
+        )
 
         result = await aitest_run(
             agent,
@@ -201,7 +247,7 @@ class TestTodoWorkflows:
         assert "eggs" in response_lower
 
     @pytest.mark.asyncio
-    async def test_task_lifecycle_workflow(self, aitest_run, todo_agent_factory, judge):
+    async def test_task_lifecycle_workflow(self, aitest_run, todo_server, llm_assert):
         """Full task lifecycle: create, complete, verify.
 
         This tests:
@@ -210,7 +256,13 @@ class TestTodoWorkflows:
         - State verification after mutations
         - AI judge for semantic validation
         """
-        agent = todo_agent_factory("gpt-5-mini", max_turns=10)
+        agent = Agent(
+            name="task-lifecycle",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[todo_server],
+            system_prompt=TODO_PROMPT,
+            max_turns=10,
+        )
 
         result = await aitest_run(
             agent,
@@ -225,7 +277,7 @@ class TestTodoWorkflows:
         assert result.tool_was_called("complete_task")
         assert result.tool_was_called("list_tasks")
         # AI judge validates the workflow report
-        assert judge(
+        assert llm_assert(
             result.final_response,
             """
             - Confirms task was added
@@ -235,7 +287,7 @@ class TestTodoWorkflows:
         )
 
     @pytest.mark.asyncio
-    async def test_priority_management_workflow(self, aitest_run, todo_agent_factory):
+    async def test_priority_management_workflow(self, aitest_run, todo_server):
         """Create tasks with different priorities and query by priority.
 
         This tests:
@@ -243,7 +295,13 @@ class TestTodoWorkflows:
         - Querying/filtering results
         - Understanding of priority semantics
         """
-        agent = todo_agent_factory("gpt-5-mini", max_turns=12)
+        agent = Agent(
+            name="priority-manager",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[todo_server],
+            system_prompt=TODO_PROMPT,
+            max_turns=12,
+        )
 
         result = await aitest_run(
             agent,
@@ -265,7 +323,7 @@ class TestTodoWorkflows:
         assert any(word in response_lower for word in ["first", "priority", "urgent"])
 
     @pytest.mark.asyncio
-    async def test_batch_completion_workflow(self, aitest_run, todo_agent_factory):
+    async def test_batch_completion_workflow(self, aitest_run, todo_server):
         """Add tasks, complete multiple, then show remaining.
 
         This tests:
@@ -273,7 +331,13 @@ class TestTodoWorkflows:
         - State tracking across operations
         - Filtering (remaining vs completed)
         """
-        agent = todo_agent_factory("gpt-5-mini", max_turns=15)
+        agent = Agent(
+            name="batch-completer",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[todo_server],
+            system_prompt=TODO_PROMPT,
+            max_turns=15,
+        )
 
         result = await aitest_run(
             agent,
@@ -294,7 +358,7 @@ class TestTodoWorkflows:
         assert "write note" in response_lower or "note" in response_lower
 
     @pytest.mark.asyncio
-    async def test_multi_list_organization(self, aitest_run, todo_agent_factory):
+    async def test_multi_list_organization(self, aitest_run, todo_server):
         """Organize tasks across multiple lists.
 
         This tests:
@@ -302,7 +366,13 @@ class TestTodoWorkflows:
         - Understanding list semantics
         - Cross-list queries
         """
-        agent = todo_agent_factory("gpt-5-mini", max_turns=12)
+        agent = Agent(
+            name="multi-list-organizer",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[todo_server],
+            system_prompt=TODO_PROMPT,
+            max_turns=12,
+        )
 
         result = await aitest_run(
             agent,
@@ -330,7 +400,7 @@ class TestAdvancedPatterns:
     """Tests for more complex agent behaviors."""
 
     @pytest.mark.asyncio
-    async def test_ambiguous_request_clarification(self, aitest_run, weather_agent_factory):
+    async def test_ambiguous_request_clarification(self, aitest_run, weather_server):
         """Handle ambiguous requests intelligently.
 
         This tests:
@@ -338,7 +408,13 @@ class TestAdvancedPatterns:
         - Intelligent defaults or clarification
         - Graceful handling of underspecified input
         """
-        agent = weather_agent_factory("gpt-5-mini", max_turns=8)
+        agent = Agent(
+            name="ambiguity-handler",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[weather_server],
+            system_prompt=WEATHER_PROMPT,
+            max_turns=8,
+        )
 
         result = await aitest_run(
             agent,
@@ -355,7 +431,7 @@ class TestAdvancedPatterns:
         assert any(city in response_lower for city in ["paris", "berlin", "london"])
 
     @pytest.mark.asyncio
-    async def test_conditional_logic_workflow(self, aitest_run, todo_agent_factory):
+    async def test_conditional_logic_workflow(self, aitest_run, todo_server):
         """Execute conditional logic based on current state.
 
         This tests:
@@ -363,7 +439,13 @@ class TestAdvancedPatterns:
         - Conditional branching based on data
         - State-aware decision making
         """
-        agent = todo_agent_factory("gpt-5-mini", max_turns=10)
+        agent = Agent(
+            name="conditional-logic",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[todo_server],
+            system_prompt=TODO_PROMPT,
+            max_turns=10,
+        )
 
         result = await aitest_run(
             agent,

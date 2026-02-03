@@ -6,11 +6,14 @@ These tests verify:
 3. Virtual reference tools (list_skill_references, read_skill_reference)
 """
 
+import sys
 from pathlib import Path
 
 import pytest
 
-from pytest_aitest import SkillError, load_skill
+from pytest_aitest import Agent, MCPServer, Provider, SkillError, Wait, load_skill
+
+from .conftest import DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM
 
 # Path to test skills
 SKILLS_DIR = Path(__file__).parent / "skills"
@@ -79,14 +82,18 @@ class TestSkillMetadataValidation:
 class TestSkillWithAgent:
     """Integration tests for skills with actual LLM calls."""
 
-    async def test_skill_prepends_to_system_prompt(self, agent_factory, skill_factory, aitest_run):
+    @pytest.mark.asyncio
+    async def test_skill_prepends_to_system_prompt(self, aitest_run):
         """Skill content should be prepended to agent's system prompt."""
-        skill = skill_factory(SKILLS_DIR / "simple-assistant")
+        skill = load_skill(SKILLS_DIR / "simple-assistant")
 
         # The skill instructs to always include "Hello" in greetings
-        agent = agent_factory(
+        agent = Agent(
+            name="skill-prepend-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             skill=skill,
             system_prompt="Be extremely brief.",  # This comes after skill content
+            max_turns=5,
         )
 
         result = await aitest_run(agent, "Greet me")
@@ -95,18 +102,26 @@ class TestSkillWithAgent:
         # Skill says to include "Hello" in greetings
         assert "hello" in result.final_response.lower()
 
-    async def test_skill_with_references_provides_tools(
-        self, agent_factory, skill_factory, aitest_run
-    ):
+    @pytest.mark.asyncio
+    async def test_skill_with_references_provides_tools(self, aitest_run):
         """Skills with references/ should inject virtual tools."""
-        skill = skill_factory(SKILLS_DIR / "math-helper")
+        skill = load_skill(SKILLS_DIR / "math-helper")
 
-        agent = agent_factory(
+        weather_server = MCPServer(
+            command=[sys.executable, "-u", "-m", "pytest_aitest.testing.weather_mcp"],
+            wait=Wait.for_tools(["get_weather"]),
+        )
+
+        agent = Agent(
+            name="skill-references-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             skill=skill,
+            mcp_servers=[weather_server],
             system_prompt=(
                 "You MUST use the available tools to look up formulas. "
                 "Start by listing available references, then read the formulas file."
             ),
+            max_turns=10,
         )
 
         result = await aitest_run(agent, "What is the formula for the area of a circle?")
@@ -119,18 +134,20 @@ class TestSkillWithAgent:
         # The answer should include the formula from references
         assert "π" in result.final_response or "pi" in result.final_response.lower()
 
-    async def test_skill_references_list_tool_returns_files(
-        self, agent_factory, skill_factory, aitest_run
-    ):
+    @pytest.mark.asyncio
+    async def test_skill_references_list_tool_returns_files(self, aitest_run):
         """The list_skill_references tool should return available filenames."""
-        skill = skill_factory(SKILLS_DIR / "math-helper")
+        skill = load_skill(SKILLS_DIR / "math-helper")
 
-        agent = agent_factory(
+        agent = Agent(
+            name="skill-list-refs-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             skill=skill,
             system_prompt=(
                 "When asked to list references, use the list_skill_references tool. "
                 "Report exactly what files are available."
             ),
+            max_turns=5,
         )
 
         result = await aitest_run(agent, "List all available reference documents")
@@ -140,18 +157,20 @@ class TestSkillWithAgent:
         # The response should mention formulas.md
         assert "formulas" in result.final_response.lower()
 
-    async def test_skill_read_reference_returns_content(
-        self, agent_factory, skill_factory, aitest_run
-    ):
+    @pytest.mark.asyncio
+    async def test_skill_read_reference_returns_content(self, aitest_run):
         """The read_skill_reference tool should return file content."""
-        skill = skill_factory(SKILLS_DIR / "math-helper")
+        skill = load_skill(SKILLS_DIR / "math-helper")
 
-        agent = agent_factory(
+        agent = Agent(
+            name="skill-read-ref-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             skill=skill,
             system_prompt=(
                 "When asked about Pythagorean theorem, use read_skill_reference to read "
                 "formulas.md and then quote the exact formula from the reference."
             ),
+            max_turns=5,
         )
 
         result = await aitest_run(

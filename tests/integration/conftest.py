@@ -1,10 +1,32 @@
-"""Fixtures for integration tests."""
+"""Fixtures for integration tests.
+
+Centralized configuration and server fixtures for all integration tests.
+Tests should import constants from here and create agents inline.
+
+Example:
+    from tests.integration.conftest import (
+        DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM, DEFAULT_MAX_TURNS,
+        BENCHMARK_MODELS, WEATHER_PROMPT, TODO_PROMPT,
+    )
+
+    @pytest.mark.asyncio
+    async def test_weather(aitest_run, weather_server):
+        agent = Agent(
+            name="weather-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[weather_server],
+            system_prompt=WEATHER_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
+        result = await aitest_run(agent, "What's the weather in Paris?")
+        assert result.success
+"""
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
-from typing import Callable
 
 import pytest
 
@@ -15,7 +37,77 @@ if _env_file.exists():
 
     load_dotenv(_env_file)
 
-from pytest_aitest import Agent, MCPServer, Provider, Wait
+# LiteLLM bug workaround: their logging code expects AZURE_API_BASE but
+# Azure SDK uses AZURE_OPENAI_ENDPOINT. Set both to silence the warning.
+if os.environ.get("AZURE_OPENAI_ENDPOINT") and not os.environ.get("AZURE_API_BASE"):
+    os.environ["AZURE_API_BASE"] = os.environ["AZURE_OPENAI_ENDPOINT"]
+
+from pytest_aitest import MCPServer, Wait
+
+
+# =============================================================================
+# Pytest Configuration Hooks
+# =============================================================================
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Configure pytest plugins for integration tests."""
+    # Configure pytest-llm-assert to use Azure instead of OpenAI
+    # This fixture is used for semantic assertions in tests
+    azure_base = os.environ.get("AZURE_API_BASE") or os.environ.get("AZURE_OPENAI_ENDPOINT")
+    if azure_base:
+        # Override the default options for llm_assert fixture
+        config.option.llm_model = "azure/gpt-5-mini"
+        config.option.llm_api_base = azure_base
+
+# =============================================================================
+# Test Configuration Constants
+# =============================================================================
+
+# Default model for most tests (cheapest Azure deployment)
+DEFAULT_MODEL = "gpt-5-mini"
+
+# Models for benchmark comparison (cheap vs capable)
+BENCHMARK_MODELS = ["gpt-5-mini", "gpt-5.1-chat"]
+
+# Rate limits for Azure deployments
+DEFAULT_RPM = 10
+DEFAULT_TPM = 10000
+
+# Default turn limits
+DEFAULT_MAX_TURNS = 5
+
+# =============================================================================
+# System Prompts
+# =============================================================================
+
+WEATHER_PROMPT = """You are a weather assistant with access to real-time weather tools.
+
+IMPORTANT: Always use the available tools to get weather data. Never guess or use your training data for weather information - it may be outdated. The tools provide current, accurate data.
+
+Available tools:
+- get_weather: Get current weather for a city
+- get_forecast: Get multi-day forecast for a city
+- list_cities: See which cities have weather data
+- compare_weather: Compare weather between two cities
+
+When asked about weather, ALWAYS call the appropriate tool first, then respond based on the tool's output."""
+
+TODO_PROMPT = """You are a task management assistant with access to a todo list system.
+
+IMPORTANT: Always use the available tools to manage tasks. The tools are the only way to create, modify, or view tasks.
+
+Available tools:
+- add_task: Add a new task (with optional list name and priority)
+- complete_task: Mark a task as done (requires task_id)
+- list_tasks: View tasks (can filter by list or completion status)
+- get_lists: See all available list names
+- delete_task: Remove a task permanently
+- set_priority: Change task priority (low, normal, high)
+
+When asked to manage tasks, ALWAYS use the appropriate tools. After modifying tasks, use list_tasks to verify and show the user the current state."""
+
+KEYVALUE_PROMPT = "You are a helpful assistant. Use the tools to complete tasks."
 
 # =============================================================================
 # MCP Server Fixtures
@@ -51,8 +143,8 @@ def todo_server():
 
 
 @pytest.fixture(scope="module")
-def test_mcp_server():
-    """KeyValue MCP server - for backwards compatibility."""
+def keyvalue_server():
+    """KeyValue MCP server - simple key-value store."""
     return MCPServer(
         command=[
             sys.executable,
@@ -62,126 +154,3 @@ def test_mcp_server():
         ],
         wait=Wait.for_tools(["get", "set", "list_keys"]),
     )
-
-
-# =============================================================================
-# Provider Helpers
-# =============================================================================
-
-
-# =============================================================================
-# Agent Factories
-# =============================================================================
-
-
-@pytest.fixture
-def weather_agent_factory(weather_server) -> Callable[..., Agent]:
-    """Factory to create agents with the weather server.
-
-    Automatic Azure Entra ID auth - just run `az login`.
-    LLM endpoint configured via AZURE_API_BASE env var.
-
-    Example:
-        def test_weather(weather_agent_factory):
-            agent = weather_agent_factory("gpt-5-mini")
-            result = await aitest_run(agent, "What's the weather in Paris?")
-    """
-    default_prompt = """You are a weather assistant with access to real-time weather tools.
-
-IMPORTANT: Always use the available tools to get weather data. Never guess or use your training data for weather information - it may be outdated. The tools provide current, accurate data.
-
-Available tools:
-- get_weather: Get current weather for a city
-- get_forecast: Get multi-day forecast for a city
-- list_cities: See which cities have weather data
-- compare_weather: Compare weather between two cities
-
-When asked about weather, ALWAYS call the appropriate tool first, then respond based on the tool's output."""
-
-    # Rate limits for Azure gpt-5-mini deployment
-    rpm = 10
-    tpm = 10000
-
-    def create_agent(
-        deployment: str,
-        system_prompt: str = default_prompt,
-        max_turns: int = 5,
-    ) -> Agent:
-        return Agent(
-            provider=Provider(model=f"azure/{deployment}", rpm=rpm, tpm=tpm),
-            mcp_servers=[weather_server],
-            system_prompt=system_prompt,
-            max_turns=max_turns,
-        )
-
-    return create_agent
-
-
-@pytest.fixture
-def todo_agent_factory(todo_server) -> Callable[..., Agent]:
-    """Factory to create agents with the todo server.
-
-    Automatic Azure Entra ID auth - just run `az login`.
-    LLM endpoint configured via AZURE_API_BASE env var.
-
-    Example:
-        def test_todo(todo_agent_factory):
-            agent = todo_agent_factory("gpt-5-mini")
-            result = await aitest_run(agent, "Add buy milk to my shopping list")
-    """
-    default_prompt = """You are a task management assistant with access to a todo list system.
-
-IMPORTANT: Always use the available tools to manage tasks. The tools are the only way to create, modify, or view tasks.
-
-Available tools:
-- add_task: Add a new task (with optional list name and priority)
-- complete_task: Mark a task as done (requires task_id)
-- list_tasks: View tasks (can filter by list or completion status)
-- get_lists: See all available list names
-- delete_task: Remove a task permanently
-- set_priority: Change task priority (low, normal, high)
-
-When asked to manage tasks, ALWAYS use the appropriate tools. After modifying tasks, use list_tasks to verify and show the user the current state."""
-
-    # Rate limits for Azure gpt-5-mini deployment
-    rpm = 10
-    tpm = 10000
-
-    def create_agent(
-        deployment: str,
-        system_prompt: str = default_prompt,
-        max_turns: int = 5,
-    ) -> Agent:
-        return Agent(
-            provider=Provider(model=f"azure/{deployment}", rpm=rpm, tpm=tpm),
-            mcp_servers=[todo_server],
-            system_prompt=system_prompt,
-            max_turns=max_turns,
-        )
-
-    return create_agent
-
-
-@pytest.fixture
-def keyvalue_agent_factory(test_mcp_server) -> Callable[..., Agent]:
-    """Factory to create agents with KeyValue server.
-
-    Use weather_agent_factory or todo_agent_factory for new tests.
-    """
-    # Rate limits for Azure gpt-5-mini deployment
-    rpm = 10
-    tpm = 10000
-
-    def create_agent(
-        deployment: str,
-        system_prompt: str = "You are a helpful assistant. Use the tools to complete tasks.",
-        max_turns: int = 10,
-    ) -> Agent:
-        return Agent(
-            provider=Provider(model=f"azure/{deployment}", rpm=rpm, tpm=tpm),
-            mcp_servers=[test_mcp_server],
-            system_prompt=system_prompt,
-            max_turns=max_turns,
-        )
-
-    return create_agent

@@ -12,7 +12,21 @@ import pytest
 
 from pytest_aitest import Agent, CLIServer, Provider
 
+from .conftest import (
+    DEFAULT_MAX_TURNS,
+    DEFAULT_MODEL,
+    DEFAULT_RPM,
+    DEFAULT_TPM,
+)
+
 pytestmark = [pytest.mark.integration, pytest.mark.cli]
+
+# System prompt for file CLI tools
+FILE_CLI_PROMPT = (
+    "You are a helpful file system assistant. "
+    "Use ls_execute to list files and cat_execute to read files."
+)
+ECHO_CLI_PROMPT = "You are a helpful assistant. Use echo_execute to echo messages."
 
 
 # =============================================================================
@@ -54,44 +68,6 @@ def echo_cli_server():
     )
 
 
-@pytest.fixture
-def file_agent_factory(ls_cli_server, cat_cli_server):
-    """Factory to create agents with file CLI tools."""
-
-    def create_agent(
-        deployment: str = "gpt-5-mini",
-        system_prompt: str = "You are a helpful file system assistant. Use ls_execute to list files and cat_execute to read files.",
-        max_turns: int = 5,
-    ) -> Agent:
-        return Agent(
-            provider=Provider(model=f"azure/{deployment}"),
-            cli_servers=[ls_cli_server, cat_cli_server],
-            system_prompt=system_prompt,
-            max_turns=max_turns,
-        )
-
-    return create_agent
-
-
-@pytest.fixture
-def echo_agent_factory(echo_cli_server):
-    """Factory to create agents with echo CLI tool."""
-
-    def create_agent(
-        deployment: str = "gpt-5-mini",
-        system_prompt: str = "You are a helpful assistant. Use echo_execute to echo messages.",
-        max_turns: int = 5,
-    ) -> Agent:
-        return Agent(
-            provider=Provider(model=f"azure/{deployment}"),
-            cli_servers=[echo_cli_server],
-            system_prompt=system_prompt,
-            max_turns=max_turns,
-        )
-
-    return create_agent
-
-
 # =============================================================================
 # CLI Server Tests
 # =============================================================================
@@ -101,9 +77,15 @@ class TestCLIServerBasicUsage:
     """Basic CLI server functionality tests."""
 
     @pytest.mark.asyncio
-    async def test_list_directory(self, aitest_run, file_agent_factory):
+    async def test_list_directory(self, aitest_run, ls_cli_server, cat_cli_server):
         """Agent can list files using ls_execute tool."""
-        agent = file_agent_factory()
+        agent = Agent(
+            name="ls-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            cli_servers=[ls_cli_server, cat_cli_server],
+            system_prompt=FILE_CLI_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
 
         result = await aitest_run(
             agent,
@@ -114,9 +96,15 @@ class TestCLIServerBasicUsage:
         assert result.tool_was_called("ls_execute")
 
     @pytest.mark.asyncio
-    async def test_read_file_contents(self, aitest_run, file_agent_factory):
+    async def test_read_file_contents(self, aitest_run, ls_cli_server, cat_cli_server):
         """Agent can read file contents using cat_execute tool."""
-        agent = file_agent_factory()
+        agent = Agent(
+            name="cat-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            cli_servers=[ls_cli_server, cat_cli_server],
+            system_prompt=FILE_CLI_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
 
         result = await aitest_run(
             agent,
@@ -130,9 +118,15 @@ class TestCLIServerBasicUsage:
         assert "pytest-aitest" in response_lower or "aitest" in response_lower
 
     @pytest.mark.asyncio
-    async def test_echo_command(self, aitest_run, echo_agent_factory):
+    async def test_echo_command(self, aitest_run, echo_cli_server):
         """Agent can use echo command."""
-        agent = echo_agent_factory()
+        agent = Agent(
+            name="echo-test",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            cli_servers=[echo_cli_server],
+            system_prompt=ECHO_CLI_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
 
         result = await aitest_run(
             agent,
@@ -147,9 +141,15 @@ class TestCLIServerMultiStep:
     """Multi-step workflows with CLI servers."""
 
     @pytest.mark.asyncio
-    async def test_explore_and_read(self, aitest_run, file_agent_factory):
+    async def test_explore_and_read(self, aitest_run, ls_cli_server, cat_cli_server):
         """Agent lists directory, then reads a specific file."""
-        agent = file_agent_factory(max_turns=8)
+        agent = Agent(
+            name="explore-read",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            cli_servers=[ls_cli_server, cat_cli_server],
+            system_prompt=FILE_CLI_PROMPT,
+            max_turns=8,
+        )
 
         result = await aitest_run(
             agent,
@@ -162,9 +162,15 @@ class TestCLIServerMultiStep:
         assert result.tool_was_called("cat_execute")
 
     @pytest.mark.asyncio
-    async def test_file_analysis(self, aitest_run, file_agent_factory, judge):
+    async def test_file_analysis(self, aitest_run, ls_cli_server, cat_cli_server, llm_assert):
         """Agent analyzes a file using multiple CLI tools."""
-        agent = file_agent_factory(max_turns=8)
+        agent = Agent(
+            name="file-analysis",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            cli_servers=[ls_cli_server, cat_cli_server],
+            system_prompt=FILE_CLI_PROMPT,
+            max_turns=8,
+        )
 
         result = await aitest_run(
             agent,
@@ -176,16 +182,22 @@ class TestCLIServerMultiStep:
         # Should use both tools
         assert result.tool_was_called("ls_execute") or result.tool_was_called("cat_execute")
         # AI judge validates the response
-        assert judge(result.final_response, "mentions Python version requirement")
+        assert llm_assert(result.final_response, "mentions Python version requirement")
 
 
 class TestCLIServerErrorHandling:
     """Error handling tests for CLI servers."""
 
     @pytest.mark.asyncio
-    async def test_nonexistent_file(self, aitest_run, file_agent_factory):
+    async def test_nonexistent_file(self, aitest_run, ls_cli_server, cat_cli_server):
         """Agent handles errors when file doesn't exist."""
-        agent = file_agent_factory()
+        agent = Agent(
+            name="error-handling",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            cli_servers=[ls_cli_server, cat_cli_server],
+            system_prompt=FILE_CLI_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
 
         result = await aitest_run(
             agent,

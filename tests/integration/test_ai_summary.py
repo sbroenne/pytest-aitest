@@ -8,7 +8,6 @@ Run with: pytest tests/integration/test_ai_summary.py -v
 
 from __future__ import annotations
 
-import os
 import re
 from typing import TYPE_CHECKING, Any
 
@@ -18,11 +17,6 @@ if TYPE_CHECKING:
     from litellm.types.utils import ModelResponse
 
 pytestmark = [pytest.mark.integration]
-
-
-def _get_api_base() -> str | None:
-    """Get API base from LiteLLM standard env var."""
-    return os.environ.get("AZURE_API_BASE")
 
 
 def _get_azure_auth_kwargs() -> dict:
@@ -48,7 +42,6 @@ def _get_response_content(response: ModelResponse | Any) -> str:
 class TestAISummaryGeneration:
     """Test that AI summary generates proper structured output."""
 
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
     def test_single_model_summary_has_required_sections(self):
         """Single-model summary should have Verdict, Capabilities, Limitations, etc."""
         import litellm
@@ -95,16 +88,18 @@ class TestAISummaryGeneration:
         ), f"Missing verdict status in summary:\n{summary}"
 
         # Should have key sections (case-insensitive check)
+        # The prompt uses "What Worked" / "What Failed" format
         summary_lower = summary.lower()
-        assert "capabilities" in summary_lower, f"Missing 'Capabilities' section:\n{summary}"
-        assert "limitations" in summary_lower or "limitation" in summary_lower, (
-            f"Missing 'Limitations' section:\n{summary}"
+        assert "worked" in summary_lower or "passed" in summary_lower, (
+            f"Missing 'What Worked' section:\n{summary}"
+        )
+        assert "failed" in summary_lower or "issues" in summary_lower, (
+            f"Missing 'What Failed' section:\n{summary}"
         )
         assert "recommendations" in summary_lower or "recommendation" in summary_lower, (
             f"Missing 'Recommendations' section:\n{summary}"
         )
 
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
     def test_multi_model_summary_has_comparison(self):
         """Multi-model summary should compare models and recommend one."""
         import litellm
@@ -172,7 +167,6 @@ Models tested: gpt-5-mini, gpt-4.1
             ]
         ), f"Missing comparison/trade-off language:\n{summary}"
 
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
     def test_summary_under_300_words(self):
         """Summary should be concise (prompt says under 200, allow up to 300)."""
         import litellm
@@ -216,7 +210,6 @@ Models tested: gpt-5-mini, gpt-4.1
         # Allow some flexibility (300 words) since models may not precisely follow limits
         assert word_count < 300, f"Summary too long ({word_count} words):\n{summary}"
 
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
     def test_summary_no_tables(self):
         """Summary should NOT contain tables (per prompt rules)."""
         import litellm

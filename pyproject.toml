@@ -39,6 +39,7 @@ dev = [
     "pytest>=9.0",
     "pytest-cov>=6.0",
     "pytest-asyncio>=0.24",
+    "pytest-llm-assert>=0.1.1",
     "python-dotenv>=1.2",
     "ruff>=0.14",
     "pyright>=1.1.408",
@@ -106,8 +107,13 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 asyncio_mode = "auto"
+# Suppress third-party deprecation warnings we can't fix
+filterwarnings = [
+    "ignore:enable_cleanup_closed:DeprecationWarning:aiohttp",
+]
 # pytest-aitest configuration.
 # LLM auth is handled by LiteLLM via standard env vars (AZURE_API_BASE, OPENAI_API_KEY, etc.)
+# pytest-llm-assert is configured in conftest.py via pytest_configure hook
 addopts = """
 --aitest-summary-model=azure/gpt-5.1-chat
 --aitest-html=aitest-reports/report.html
@@ -119,6 +125,8 @@ markers = [
     "benchmark: model benchmark tests (compare LLMs)",
     "arena: prompt arena tests (compare prompts)",
     "matrix: matrix tests (model × prompt grid)",
+    "abtest: A/B server comparison tests",
+    "cli: CLI server tests",
 ]
 
 [dependency-groups]

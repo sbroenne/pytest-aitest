@@ -9,7 +9,7 @@ Define agents with meaningful names when testing distinct approaches:
 ```python
 from pytest_aitest import Agent, Provider, MCPServer, Skill
 
-weather_server = MCPServer(command="python", args=["weather_mcp.py"])
+weather_server = MCPServer(command=["python", "weather_mcp.py"])
 
 # Test different prompts with the same MCP server
 agent_brief = Agent(
@@ -66,7 +66,7 @@ PROMPTS = {
     "detailed": "Explain your reasoning step by step.",
 }
 
-weather_server = MCPServer(command="python", args=["weather_mcp.py"])
+weather_server = MCPServer(command=["python", "weather_mcp.py"])
 
 # Generate all combinations
 AGENTS = [
@@ -123,3 +123,8 @@ This helps you answer:
 
 - [Multi-Turn Sessions](sessions.md) — Test conversations with context
 - [Full Matrix Testing](matrix.md) — Compare MCP servers, models, and prompts
+
+> 📁 **Real Examples:**
+> - [test_model_benchmark.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_model_benchmark.py) — Model comparison
+> - [test_prompt_arena.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_prompt_arena.py) — Prompt comparison
+> - [test_matrix.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_matrix.py) — Full model × prompt matrix

@@ -13,14 +13,16 @@ A pytest plugin for validating whether language models can understand and operat
 
 ## The Problem
 
-Your MCP server passes all unit tests. Then you deploy, and the LLM:
+Your MCP server passes all unit tests. Then an LLM tries to use it and:
 
 - Picks the wrong tool
-- Passes invalid parameters  
+- Passes garbage parameters
 - Can't recover from errors
-- Ignores your carefully crafted tool descriptions
+- Ignores your system prompt instructions
 
-**Why?** Because your real API isn't code — it's **descriptions, schemas, agent skills and prompts**. Traditional tests can't validate these.
+**Why?** Because you tested the code, not the AI interface.
+
+For LLMs, your API isn't functions and types — it's **tool descriptions, system prompts, skills, and schemas**. These are what the LLM actually sees. Traditional tests can't validate them.
 
 ---
 

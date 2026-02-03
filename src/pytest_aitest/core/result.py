@@ -52,11 +52,10 @@ class SkillInfo:
     description: str
     instruction_content: str
     reference_names: list[str] = field(default_factory=list)
-    token_count: int = 0
 
     def __repr__(self) -> str:
         refs = f", {len(self.reference_names)} refs" if self.reference_names else ""
-        return f"SkillInfo({self.name}, ~{self.token_count} tokens{refs})"
+        return f"SkillInfo({self.name}{refs})"
 
 
 @dataclass(slots=True)

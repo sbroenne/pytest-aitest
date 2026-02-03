@@ -7,8 +7,8 @@ Compare MCP servers, models, and prompts in a single test run.
 A/B test different versions of your MCP server:
 
 ```python
-weather_v1 = MCPServer(name="v1", command="python", args=["weather_v1.py"])
-weather_v2 = MCPServer(name="v2", command="python", args=["weather_v2.py"])
+weather_v1 = MCPServer(command=["python", "weather_v1.py"])
+weather_v2 = MCPServer(command=["python", "weather_v2.py"])
 
 AGENTS = [
     Agent(

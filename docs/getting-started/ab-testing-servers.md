@@ -20,8 +20,8 @@ Compare two versions of your MCP server:
 from pytest_aitest import Agent, Provider, MCPServer
 
 # Two versions to compare
-weather_v1 = MCPServer(name="v1", command="python", args=["weather_v1.py"])
-weather_v2 = MCPServer(name="v2", command="python", args=["weather_v2.py"])
+weather_v1 = MCPServer(command=["python", "weather_v1.py"])
+weather_v2 = MCPServer(command=["python", "weather_v2.py"])
 
 AGENTS = [
     Agent(
@@ -81,8 +81,8 @@ async def test_tool_discovery(aitest_run, agent):
 Test your server against an open-source alternative:
 
 ```python
-my_server = MCPServer(name="mine", command="python", args=["my_server.py"])
-reference = MCPServer(name="reference", command="npx", args=["@org/reference-server"])
+my_server = MCPServer(command=["python", "my_server.py"])
+reference = MCPServer(command=["npx", "-y", "@org/reference-server"])
 
 AGENTS = [
     Agent(name="my-implementation", mcp_servers=[my_server], ...),
@@ -96,14 +96,12 @@ Verify a database migration doesn't affect LLM interactions:
 
 ```python
 server_sqlite = MCPServer(
-    name="sqlite",
-    command="python", args=["server.py"],
+    command=["python", "server.py"],
     env={"DATABASE_URL": "sqlite:///test.db"},
 )
 
 server_postgres = MCPServer(
-    name="postgres", 
-    command="python", args=["server.py"],
+    command=["python", "server.py"],
     env={"DATABASE_URL": "postgresql://localhost/test"},
 )
 ```
@@ -182,3 +180,5 @@ Description is clear and well-targeted.
 
 - [Full Matrix Testing](matrix.md) — Combine servers, models, and prompts
 - [Generate Reports](../how-to/generate-reports.md) — Get AI insights on your comparison
+
+> 📁 **Real Example:** [test_ab_servers.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_ab_servers.py) — Server version comparison and tool description impact testing

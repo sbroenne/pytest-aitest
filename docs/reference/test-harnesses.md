@@ -8,6 +8,7 @@ Built-in MCP servers for testing agent behavior without external dependencies.
 |--------|----------|-------|
 | `WeatherStore` | Basic tool usage | Stateless |
 | `TodoStore` | CRUD operations | Stateful |
+| `BankingService` | Multi-turn sessions | Stateful |
 
 ## WeatherStore
 
@@ -35,13 +36,16 @@ Paris, Tokyo, New York, Berlin, London, Sydney
 ### Example
 
 ```python
-from pytest_aitest import Agent, Provider
+import sys
+from pytest_aitest import Agent, Provider, MCPServer, Wait
 from pytest_aitest.testing import WeatherStore
-from pytest_aitest.testing.weather_mcp import create_weather_server
 
 @pytest.fixture(scope="module")
 def weather_server():
-    return create_weather_server()
+    return MCPServer(
+        command=[sys.executable, "-m", "pytest_aitest.testing.weather_mcp"],
+        wait=Wait.for_tools(["get_weather", "get_forecast", "list_cities"]),
+    )
 
 @pytest.fixture
 def weather_agent(weather_server):
@@ -101,13 +105,16 @@ Stateful task management for testing CRUD operations.
 ### Example
 
 ```python
-from pytest_aitest import Agent, Provider
+import sys
+from pytest_aitest import Agent, Provider, MCPServer, Wait
 from pytest_aitest.testing import TodoStore
-from pytest_aitest.testing.todo_mcp import create_todo_server
 
 @pytest.fixture(scope="module")
 def todo_server():
-    return create_todo_server()
+    return MCPServer(
+        command=[sys.executable, "-m", "pytest_aitest.testing.todo_mcp"],
+        wait=Wait.for_tools(["add_task", "list_tasks", "complete_task"]),
+    )
 
 @pytest.fixture
 def todo_agent(todo_server):
@@ -148,6 +155,95 @@ assert result.success
 
 result = store.list_tasks()
 print(result.value["tasks"])
+```
+
+## BankingService
+
+Stateful banking service for multi-turn session testing.
+
+### Use Case
+
+- Multi-turn conversations with state changes
+- Session-based workflows (check balance → transfer → verify)
+- Testing context retention across conversation turns
+- Complex prompts requiring multiple tool calls
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `get_balance` | Get balance for one account |
+| `get_all_balances` | Get balances for all accounts |
+| `transfer` | Move money between accounts |
+| `get_transactions` | View transaction history |
+
+### Initial State
+
+| Account | Balance |
+|---------|---------|
+| Checking | $1,500.00 |
+| Savings | $3,000.00 |
+
+### Example
+
+```python
+import sys
+from pytest_aitest import Agent, Provider, MCPServer, Wait
+
+@pytest.fixture(scope="module")
+def banking_server():
+    return MCPServer(
+        command=[sys.executable, "-m", "pytest_aitest.testing.banking_mcp"],
+        wait=Wait.for_tools(["get_balance", "transfer", "get_transactions"]),
+    )
+
+@pytest.mark.session("banking-workflow")
+class TestBankingWorkflow:
+    """Tests share conversation context via session decorator."""
+
+    @pytest.mark.asyncio
+    async def test_check_balance(self, aitest_run, banking_server):
+        agent = Agent(
+            name="banking",
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[banking_server],
+            system_prompt="You are a banking assistant.",
+        )
+        
+        result = await aitest_run(agent, "What's my checking balance?")
+        assert result.tool_was_called("get_balance")
+
+    @pytest.mark.asyncio
+    async def test_transfer_funds(self, aitest_run, banking_server):
+        agent = Agent(
+            name="banking",
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[banking_server],
+            system_prompt="You are a banking assistant.",
+        )
+        
+        result = await aitest_run(
+            agent,
+            "Transfer $500 from checking to savings"
+        )
+        assert result.tool_was_called("transfer")
+```
+
+### Direct Usage
+
+```python
+from pytest_aitest.testing.banking import BankingService
+
+service = BankingService()
+
+result = service.get_balance("checking")
+print(result.value)  # {"account": "checking", "balance": 1500.0, ...}
+
+result = service.transfer("checking", "savings", 500.0)
+assert result.success
+
+result = service.get_all_balances()
+print(result.value["total_formatted"])  # "$4,500.00"
 ```
 
 ## Creating Custom Test Servers
