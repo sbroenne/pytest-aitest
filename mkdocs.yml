@@ -69,6 +69,7 @@ nav:
     - System Prompts: getting-started/system-prompts.md
     - Agent Skills: getting-started/skills.md
     - Comparing Configurations: getting-started/comparing.md
+    - A/B Testing Servers: getting-started/ab-testing-servers.md
     - Multi-Turn Sessions: getting-started/sessions.md
     - Full Matrix Testing: getting-started/matrix.md
   - How-To Guides:

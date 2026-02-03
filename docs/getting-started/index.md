@@ -87,3 +87,4 @@ The report shows:
 - [System Prompts](system-prompts.md) — Control agent behavior
 - [Agent Skills](skills.md) — Add domain knowledge
 - [Comparing Configurations](comparing.md) — Find what works best
+- [A/B Testing Servers](ab-testing-servers.md) — Compare MCP server versions

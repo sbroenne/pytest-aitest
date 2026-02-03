@@ -41,6 +41,7 @@ async def test_weather_query(aitest_run):
 ## Features
 
 - **Test MCP Servers** — Verify LLMs can discover and use your tools
+- **A/B Test Servers** — Compare MCP server versions or implementations
 - **Test CLI Tools** — Wrap command-line interfaces as testable servers
 - **Compare Models** — Benchmark different LLMs against your tools
 - **Compare Prompts** — Find the system prompt that works best
