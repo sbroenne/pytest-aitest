@@ -129,6 +129,9 @@ class TestBankingWorkflow:
 uv add pytest-aitest
 # or
 pip install pytest-aitest
+
+# For Azure OpenAI with Entra ID authentication
+pip install pytest-aitest[azure]
 ```
 
 ### Configure
@@ -138,7 +141,7 @@ Add to `pyproject.toml`:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-summary-model=azure/gpt-5-mini
+--aitest-summary-model=azure/gpt-5.1-chat
 --aitest-html=aitest-reports/report.html
 """
 ```

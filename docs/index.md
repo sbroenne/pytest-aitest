@@ -29,7 +29,6 @@ weather_server = MCPServer(command=["python", "weather_mcp.py"])
 @pytest.mark.asyncio
 async def test_weather_query(aitest_run):
     agent = Agent(
-        name="weather-test",
         provider=Provider(model="azure/gpt-5-mini"),
         mcp_servers=[weather_server],
     )
@@ -57,6 +56,9 @@ async def test_weather_query(aitest_run):
 
 ```bash
 pip install pytest-aitest
+
+# For Azure OpenAI with Entra ID authentication
+pip install pytest-aitest[azure]
 ```
 
 ## Documentation

@@ -2,7 +2,36 @@
 
 Generate HTML, JSON, and Markdown reports with AI-powered insights.
 
-## Quick Start
+## Quick Start (Recommended)
+
+Configure once in `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+addopts = """
+--aitest-summary-model=azure/gpt-5.1-chat
+--aitest-html=aitest-reports/report.html
+"""
+```
+
+Then just run:
+
+```bash
+pytest tests/
+```
+
+Reports are generated automatically with AI insights. This approach is recommended because:
+
+- **Version controlled** — Team shares the same configuration
+- **Less typing** — No need to remember CLI flags
+- **Consistent** — Every run produces reports the same way
+
+!!! important
+    AI insights are **mandatory** for report generation. You must specify `--aitest-summary-model`.
+
+## CLI Options (Alternative)
+
+You can also use CLI flags directly:
 
 ```bash
 # Run tests with AI-powered HTML report
@@ -17,29 +46,12 @@ pytest tests/ \
     --aitest-md=report.md
 ```
 
-!!! important
-    AI insights are **mandatory** for report generation. You must specify `--aitest-summary-model`.
-
-## CLI Options
-
 | Option | Description |
 |--------|-------------|
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
 | `--aitest-md=PATH` | Generate Markdown report |
 | `--aitest-summary-model=MODEL` | Model for AI insights (**required**) |
-
-## pyproject.toml Configuration
-
-Set defaults once:
-
-```toml
-[tool.pytest.ini_options]
-addopts = """
---aitest-summary-model=azure/gpt-5.1-chat
---aitest-html=aitest-reports/report.html
-"""
-```
 
 ## Report Regeneration
 
@@ -104,16 +116,18 @@ The AI analysis includes:
 
 ### Recommended Models
 
-Use a capable model for quality analysis:
+Use the **most capable model you can afford** for quality analysis:
 
 | Provider | Recommended Models |
 |----------|-------------------|
-| Azure OpenAI | `azure/gpt-5.1-chat`, `azure/gpt-4.1` |
-| OpenAI | `openai/gpt-4o`, `openai/gpt-4.1` |
-| Anthropic | `anthropic/claude-sonnet-4` |
+| Azure OpenAI | `azure/gpt-5.1-chat` (best), `azure/gpt-4.1` |
+| OpenAI | `openai/gpt-4.1`, `openai/gpt-4o` |
+| Anthropic | `anthropic/claude-opus-4`, `anthropic/claude-sonnet-4` |
 
-!!! warning
+!!! warning "Don't Use Cheap Models for Analysis"
     Smaller models (gpt-4o-mini, gpt-5-mini) produce generic, low-quality insights.
+    The summary model analyzes your test results and generates actionable feedback.
+    Use your most capable model here—this is a one-time cost per test run.
 
 ## HTML Report Contents
 

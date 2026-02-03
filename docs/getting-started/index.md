@@ -18,11 +18,10 @@ An **Agent** is the test harness that bundles your configuration:
 from pytest_aitest import Agent, Provider, MCPServer
 
 Agent(
-    name="weather-test",
     provider=Provider(model="azure/gpt-5-mini"),   # LLM provider (required)
-    mcp_servers=[weather_server],                  # MCP servers with tools
-    system_prompt="Be concise.",                   # Agent behavior (optional)
-    skill=weather_skill,                           # Agent Skill (optional)
+    mcp_servers=[weather_server],                   # MCP servers with tools
+    system_prompt="Be concise.",                    # Agent behavior (optional)
+    skill=weather_skill,                            # Agent Skill (optional)
 )
 ```
 
@@ -38,7 +37,6 @@ from pytest_aitest import Agent, Provider, MCPServer
 weather_server = MCPServer(command=["python", "weather_mcp.py"])
 
 agent = Agent(
-    name="basic",
     provider=Provider(model="azure/gpt-5-mini"),
     mcp_servers=[weather_server],
 )
@@ -73,7 +71,7 @@ First, configure reporting in `pyproject.toml`:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-summary-model=azure/gpt-5-mini
+--aitest-summary-model=azure/gpt-5.1-chat
 --aitest-html=aitest-reports/report.html
 """
 ```

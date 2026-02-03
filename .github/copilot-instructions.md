@@ -75,7 +75,7 @@ Reports include:
 
 ```bash
 # Run tests with AI-powered report (mandatory --aitest-summary-model)
-pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5-mini
+pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5.1-chat
 ```
 
 ### Key Types

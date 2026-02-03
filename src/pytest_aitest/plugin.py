@@ -40,13 +40,13 @@ def pytest_addoption(parser: Parser) -> None:
     """
     group = parser.getgroup("aitest", "AI agent testing")
 
-    # Model selection for AI summary (use a more capable model)
+    # Model selection for AI summary (use the most capable model you can afford)
     group.addoption(
         "--aitest-summary-model",
         default=None,
         help=(
             "LiteLLM model for AI analysis. Required when generating reports. "
-            "Use a capable model like gpt-4.1 or claude-sonnet-4 for quality insights."
+            "Use the most capable model you can afford (e.g., gpt-5.1-chat, claude-opus-4)."
         ),
     )
 

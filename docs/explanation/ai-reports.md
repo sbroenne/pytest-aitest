@@ -28,7 +28,7 @@ Metrics can't diagnose these problems. AI can.
 pytest-aitest **requires** an AI model to generate reports:
 
 ```bash
-pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5-mini
+pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5.1-chat
 ```
 
 This is intentional. Without AI analysis, reports would just show pass/fail metrics. With it, you get **actionable insights**.
@@ -161,10 +161,10 @@ The AI summary appears at the top, followed by detailed test results, tool infor
 
 The summary model analyzes your test results, which are relatively small. Typical costs:
 
-| Tests | Input Tokens | Cost (gpt-5-mini) |
-|-------|--------------|-------------------|
-| 10    | ~2,000       | $0.001            |
-| 50    | ~8,000       | $0.004            |
-| 200   | ~30,000      | $0.015            |
+| Tests | Input Tokens | Cost (gpt-5.1-chat) |
+|-------|--------------|---------------------|
+| 10    | ~2,000       | $0.01               |
+| 50    | ~8,000       | $0.04               |
+| 200   | ~30,000      | $0.15               |
 
 The insights are worth far more than the cost.

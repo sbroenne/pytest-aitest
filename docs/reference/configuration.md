@@ -7,7 +7,7 @@ The recommended way to configure pytest-aitest is via `pyproject.toml`:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-summary-model=azure/gpt-5-mini
+--aitest-summary-model=azure/gpt-5.1-chat
 --aitest-html=aitest-reports/report.html
 """
 ```
@@ -77,13 +77,13 @@ provider = Provider(
 from pytest_aitest import Agent, Provider, MCPServer
 
 agent = Agent(
-    name="my-agent",                    # Identifier for reports
-    provider=Provider(model="azure/gpt-5-mini"),
+    provider=Provider(model=\"azure/gpt-5-mini\"),
     mcp_servers=[server],               # MCP servers
     cli_servers=[cli],                  # CLI servers (optional)
-    system_prompt="You are...",         # System prompt (optional)
+    system_prompt=\"You are...\",         # System prompt (optional)
     skill=my_skill,                     # Agent Skill (optional)
     max_turns=10,                       # Max tool-call rounds
+    name=\"my-agent\",                    # Identifier for reports (optional)
 )
 ```
 
@@ -144,7 +144,7 @@ You can override pyproject.toml settings via CLI:
 
 ```bash
 # Use a different model for this run
-pytest tests/ --aitest-summary-model=azure/gpt-4.1
+pytest tests/ --aitest-summary-model=azure/gpt-5.1-chat
 
 # Different output path
 pytest tests/ --aitest-html=custom-report.html

@@ -1,5 +1,19 @@
 # CLI Options
 
+## Recommended: pyproject.toml
+
+Configure once, run simply:
+
+```toml
+[tool.pytest.ini_options]
+addopts = """
+--aitest-summary-model=azure/gpt-5.1-chat
+--aitest-html=aitest-reports/report.html
+"""
+```
+
+Then just `pytest tests/` — reports are generated automatically.
+
 ## pytest Options
 
 | Option | Description | Required |
@@ -9,7 +23,7 @@
 | `--aitest-json=PATH` | Custom JSON path | No (default: `aitest-reports/results.json`) |
 | `--aitest-md=PATH` | Generate Markdown report | No |
 
-### Examples
+### CLI Examples
 
 ```bash
 # Run tests with HTML report
@@ -57,18 +71,6 @@ pytest-aitest-report results.json \
 pytest-aitest-report results.json \
     --html report.html \
     --summary-model azure/gpt-4.1
-```
-
-## pyproject.toml Configuration
-
-Set defaults once:
-
-```toml
-[tool.pytest.ini_options]
-addopts = """
---aitest-summary-model=azure/gpt-5.1-chat
---aitest-html=aitest-reports/report.html
-"""
 ```
 
 ## Environment Variables
