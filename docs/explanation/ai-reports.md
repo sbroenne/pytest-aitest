@@ -25,13 +25,15 @@ Metrics can't diagnose these problems. AI can.
 
 ## Mandatory AI Analysis
 
-pytest-aitest requires an AI model to generate reports:
+pytest-aitest **requires** an AI model to generate reports:
 
 ```bash
 pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5-mini
 ```
 
-This is intentional. Without AI analysis, you get a list of failures. With it, you get **actionable insights**.
+This is intentional. Without AI analysis, reports would just show pass/fail metrics. With it, you get **actionable insights**.
+
+> **Note:** If you request `--aitest-html` or `--aitest-md` without `--aitest-summary-model`, pytest will error.
 
 ## The Six Insight Sections
 

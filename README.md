@@ -160,6 +160,8 @@ async def test_basic_query(aitest_run, my_server):
 
 ### Run with Reports
 
+Reports require AI analysis. Specify both the output path and a model:
+
 ```bash
 pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5-mini
 ```

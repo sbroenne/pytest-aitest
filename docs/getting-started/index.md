@@ -68,13 +68,15 @@ pytest tests/test_weather.py -v
 
 ## Generating Reports
 
-Add the `--aitest-summary-model` flag to generate AI-powered reports:
+To generate reports, you **must** specify a model for AI analysis:
 
 ```bash
 pytest tests/ \
-    --aitest-summary-model=azure/gpt-5-mini \
-    --aitest-html=report.html
+    --aitest-html=report.html \
+    --aitest-summary-model=azure/gpt-5-mini
 ```
+
+> **Note:** AI insights are mandatory for report generation. The `--aitest-summary-model` flag is required when using `--aitest-html` or `--aitest-md`.
 
 The report shows:
 
