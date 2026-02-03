@@ -281,7 +281,6 @@ def _generate_structured_insights(config: Config, report: SuiteReport, *, requir
         pytest.UsageError: If required=True and model not configured.
     """
     import asyncio
-    import os
 
     try:
         from pytest_aitest.reporting.insights import generate_insights
@@ -334,7 +333,8 @@ def _generate_structured_insights(config: Config, report: SuiteReport, *, requir
                 model=model,
             )
 
-        insights, metadata = asyncio.get_event_loop().run_until_complete(_run())
+        # Use asyncio.run() instead of deprecated get_event_loop().run_until_complete()
+        insights, metadata = asyncio.run(_run())
 
         # Log generation stats
         terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
@@ -380,8 +380,6 @@ def _generate_ai_summary(config: Config, report: SuiteReport) -> str | None:
 
     Returns the summary text or None if generation fails.
     """
-    import os
-
     try:
         import litellm
 

@@ -58,6 +58,10 @@ class TestWeatherConversation:
 
 - Tests in a session run **in order** (top to bottom)
 - Each test sees the **full conversation history** from previous tests
+
+!!! warning "Not compatible with pytest-xdist"
+    Sessions require sequential test execution to maintain conversation order.
+    Don't use `-n auto` or other parallel execution with session tests.
 - The session name (`"weather-chat"`) groups related tests
 
 ## Session Context Flow

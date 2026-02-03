@@ -326,8 +326,20 @@ class AgentEngine:
         """Execute tool calls and return results with timing."""
         results = []
         for tc in tool_calls:
-            name = tc.function.name
             start_time = time.perf_counter()
+            
+            # Validate tool call structure
+            if not hasattr(tc, "function") or tc.function is None:
+                _logger.warning("Malformed tool call: missing function attribute")
+                results.append(ToolCall(
+                    name="unknown",
+                    arguments={},
+                    error="Malformed tool call: missing function",
+                    duration_ms=(time.perf_counter() - start_time) * 1000,
+                ))
+                continue
+            
+            name = tc.function.name
             try:
                 arguments = json.loads(tc.function.arguments)
 
