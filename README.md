@@ -194,9 +194,7 @@ Reports auto-compose based on what you're testing:
 | **Always** | 🎯 Recommendation, ❌ Failures, 🔧 Tool Feedback |
 
 <p align="center">
-  <a href="docs/reports/">
-    <img src="docs/images/report-example.png" alt="pytest-aitest HTML Report" width="800">
-  </a>
+  <img src="docs/images/report-example.png" alt="pytest-aitest HTML Report" width="800">
 </p>
 
 **[→ View example reports](docs/reports/)**

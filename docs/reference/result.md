@@ -99,12 +99,13 @@ assert result.duration_ms < 30000  # Under 30 seconds
 ### Token Usage
 
 ```python
-# Check token consumption
-assert result.token_usage.total_tokens < 5000
+# Check total token consumption
+total = result.token_usage.get("prompt", 0) + result.token_usage.get("completion", 0)
+assert total < 5000
 
 # Detailed breakdown
-print(f"Prompt tokens: {result.token_usage.prompt_tokens}")
-print(f"Completion tokens: {result.token_usage.completion_tokens}")
+print(f"Prompt tokens: {result.token_usage.get('prompt', 0)}")
+print(f"Completion tokens: {result.token_usage.get('completion', 0)}")
 ```
 
 ### Cost

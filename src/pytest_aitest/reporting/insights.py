@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from pytest_aitest.core.auth import get_azure_ad_token_provider
 from pytest_aitest.models import (
     AIInsights,
     AnalysisMetadata,
@@ -18,15 +19,10 @@ if TYPE_CHECKING:
     from pytest_aitest.core.result import SkillInfo, ToolInfo
     from pytest_aitest.reporting.collector import SuiteReport
 
+_logger = logging.getLogger(__name__)
 
 # Load the analysis prompt template
 _PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "report_analysis.md"
-
-
-# Import shared auth utility
-from pytest_aitest.core.auth import get_azure_ad_token_provider
-
-_logger = logging.getLogger(__name__)
 
 
 def _load_analysis_prompt() -> str:

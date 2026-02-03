@@ -85,27 +85,6 @@ async def test_clothing_recommendation(aitest_run, agent):
 
 The report shows whether the skill improves performance.
 
-## Using the skill_factory Fixture
-
-For cleaner test setup, use the `skill_factory` fixture:
-
-```python
-@pytest.fixture
-def weather_skill(skill_factory):
-    return skill_factory("skills/weather-expert")
-
-@pytest.mark.asyncio
-async def test_with_skill(aitest_run, weather_skill):
-    agent = Agent(
-        name="test",
-        provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
-        skill=weather_skill,
-    )
-    result = await aitest_run(agent, "What should I wear in 5°C?")
-    assert result.success
-```
-
 ## Next Steps
 
 - [Comparing Configurations](comparing.md) — Systematic testing patterns
