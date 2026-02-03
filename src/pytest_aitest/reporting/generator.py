@@ -132,19 +132,22 @@ class ReportGenerator:
         report: SuiteReport,
         output_path: str | Path,
         *,
-        ai_summary: str | None = None,
+        ai_summary: str | None = None,  # DEPRECATED
+        insights: Any | None = None,
     ) -> None:
         """Generate HTML report with adaptive layout.
 
         Args:
             report: Test suite report data (legacy dataclass)
             output_path: Path to write HTML file
-            ai_summary: Optional LLM-generated summary to include
+            ai_summary: DEPRECATED - use insights parameter instead
+            insights: AIInsights object (if None, placeholder is used)
         """
         from pytest_aitest.models.converter import convert_suite_report
         
         # Convert legacy dataclass to Pydantic model for template
-        pydantic_report = convert_suite_report(report, ai_summary=ai_summary)
+        # Pass insights through to converter
+        pydantic_report = convert_suite_report(report, insights=insights)
         
         # Get mode from dimensions
         mode = pydantic_report.mode.value if pydantic_report.mode else "simple"
@@ -161,8 +164,8 @@ class ReportGenerator:
             "generate_mermaid": generate_mermaid_sequence_pydantic,
             "get_provider": get_provider,
             "to_file_url": _to_file_url,
-            # Pass ai_summary directly for template partial
-            "ai_summary": pydantic_report.ai_summary,
+            # Pass insights for template - always available (may be placeholder)
+            "insights": pydantic_report.insights,
         }
 
         # Add grouped data based on mode
@@ -211,7 +214,8 @@ class ReportGenerator:
             "show_tool_comparison": (len(models) >= 2 or len(prompts) >= 2) and has_tool_calls,
             "show_side_by_side": len(models) >= 2 and len(prompts) >= 2,
             "show_sessions": has_sessions,
-            "show_ai_summary": report.ai_summary is not None,
+            "show_ai_insights": True,  # Always show insights (may be placeholder)
+            "has_real_insights": report.insights.recommendation.configuration != "(analysis pending)",
             "has_failures": report.summary.failed > 0,
             "has_skipped": report.summary.skipped > 0,
             # Counts for header badges
@@ -562,6 +566,7 @@ class ReportGenerator:
         for base_name, tests in groups.items():
             if len(tests) >= 2:
                 variants = []
+                first_test = tests[0] if tests else None
                 for test in tests:
                     model = test.metadata.model if test.metadata else "unknown"
                     prompt = test.metadata.prompt if test.metadata else None
@@ -583,7 +588,13 @@ class ReportGenerator:
                         "tokens": total_tokens,
                         "tool_count": tool_count,
                     })
-                result.append({"base_name": base_name, "variants": variants})
+                # Use docstring for display name if available
+                display_name = self._get_test_display_name(first_test, base_name)
+                result.append({
+                    "base_name": base_name,
+                    "display_name": display_name,
+                    "variants": variants,
+                })
         
         return result
     
@@ -622,18 +633,20 @@ class ReportGenerator:
         report: SuiteReport,
         output_path: str | Path,
         *,
-        ai_summary: str | None = None,
+        ai_summary: str | None = None,  # DEPRECATED
+        insights: Any | None = None,
     ) -> None:
         """Generate JSON report using Pydantic schema.
 
         Args:
             report: Test suite report data
             output_path: Path to write JSON file
-            ai_summary: Optional AI-generated summary to include
+            ai_summary: DEPRECATED - use insights parameter instead
+            insights: AIInsights object (if None, placeholder is used)
         """
         from pytest_aitest.models.converter import convert_suite_report
         
-        pydantic_report = convert_suite_report(report, ai_summary=ai_summary)
+        pydantic_report = convert_suite_report(report, insights=insights)
         json_str = pydantic_report.model_dump_json(indent=2, exclude_none=True)
         Path(output_path).write_text(json_str, encoding="utf-8")
 
@@ -642,7 +655,8 @@ class ReportGenerator:
         report: SuiteReport,
         output_path: str | Path,
         *,
-        ai_summary: str | None = None,
+        ai_summary: str | None = None,  # DEPRECATED
+        insights: Any | None = None,
     ) -> None:
         """Generate Markdown report.
 

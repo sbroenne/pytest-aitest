@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from pytest_aitest.core.result import AgentResult, ToolCall, Turn
 from pytest_aitest.reporting import (
     ReportCollector,
     ReportGenerator,
@@ -17,7 +18,6 @@ from pytest_aitest.reporting import (
     generate_session_mermaid,
 )
 from pytest_aitest.reporting.aggregator import SessionGroup
-from pytest_aitest.result import AgentResult, ToolCall, Turn
 
 
 class TestTestReport:

@@ -8,35 +8,34 @@ Generate HTML, JSON, and Markdown reports with auto-detected comparison views.
 # Run tests - JSON is always generated to aitest-reports/results.json
 pytest tests/
 
-# Generate HTML report
-pytest tests/ --aitest-html=report.html
+# Generate HTML report with AI insights (--aitest-summary-model required)
+pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5.1-chat
 
 # Generate Markdown report
-pytest tests/ --aitest-md=report.md
+pytest tests/ --aitest-md=report.md --aitest-summary-model=azure/gpt-5.1-chat
 
 # Multiple formats
-pytest tests/ --aitest-html=report.html --aitest-md=report.md
-
-# With AI-powered summary
-pytest tests/ --aitest-html=report.html --aitest-summary --aitest-summary-model=azure/gpt-4.1
+pytest tests/ --aitest-html=report.html --aitest-md=report.md --aitest-summary-model=azure/gpt-5.1-chat
 ```
+
+> **Note:** AI insights are mandatory for report generation. You must specify `--aitest-summary-model` when using `--aitest-html` or `--aitest-md`.
 
 ## Report Regeneration
 
 Regenerate reports from existing JSON without re-running tests. This is useful for:
-- Iterating on report styling without expensive LLM calls
+- Iterating on report styling without re-running expensive LLM tests
 - Generating different formats from one test run
-- Experimenting with AI summary models
+- Experimenting with different AI summary models
 
 ```bash
 # Regenerate HTML from saved JSON
-pytest-aitest-report aitest-reports/results.json --html report.html
+pytest-aitest-report aitest-reports/results.json --html report.html --summary-model azure/gpt-5.1-chat
 
 # Generate multiple formats
-pytest-aitest-report results.json --html report.html --md report.md
+pytest-aitest-report results.json --html report.html --md report.md --summary-model azure/gpt-5.1-chat
 
-# Regenerate with fresh AI summary (uses different model)
-pytest-aitest-report results.json --html report.html --summary --summary-model azure/gpt-4.1
+# Use a different model for fresh analysis
+pytest-aitest-report results.json --html report.html --summary-model azure/gpt-4.1
 ```
 
 ## CLI Options
@@ -45,11 +44,10 @@ pytest-aitest-report results.json --html report.html --summary --summary-model a
 
 | Option | Description |
 |--------|-------------|
-| `--aitest-html=PATH` | Generate HTML report |
+| `--aitest-html=PATH` | Generate HTML report (requires `--aitest-summary-model`) |
 | `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
-| `--aitest-md=PATH` | Generate Markdown report |
-| `--aitest-summary` | Include AI-powered analysis |
-| `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model like `gpt-4.1`. |
+| `--aitest-md=PATH` | Generate Markdown report (requires `--aitest-summary-model`) |
+| `--aitest-summary-model=MODEL` | Model for AI insights (**required** for report generation) |
 
 ### pytest-aitest-report options
 
@@ -57,8 +55,7 @@ pytest-aitest-report results.json --html report.html --summary --summary-model a
 |--------|-------------|
 | `--html PATH` | Generate HTML report |
 | `--md PATH` | Generate Markdown report |
-| `--summary` | Generate AI-powered summary |
-| `--summary-model MODEL` | Model for AI summary (required with `--summary`) |
+| `--summary-model MODEL` | Model for AI insights (**required**) |
 
 ## pyproject.toml Configuration
 
@@ -67,9 +64,8 @@ Set defaults once:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-model=azure/gpt-5-mini
---aitest-summary-model=azure/gpt-4.1
---aitest-html=reports/report.html
+--aitest-summary-model=azure/gpt-5.1-chat
+--aitest-html=aitest-reports/report.html
 """
 ```
 
@@ -97,7 +93,7 @@ The HTML report automatically shows or hides sections based on test results. Thi
 | **Tool Comparison** | Comparison mode (models or prompts) AND tests used tools |
 | **Side-by-Side Details** | Matrix mode only (deep-dive per prompt×model) |
 | **Session Groups** | Any test uses session continuity |
-| **AI Summary** | `--aitest-summary` flag enabled |
+| **AI Insights** | Always shown (mandatory for reports) |
 | **Detailed Results** | Always shown (collapsible per test) |
 
 ### Comparison Grid
@@ -194,23 +190,23 @@ async def test_matrix(aitest_run, model, prompt):
 
 Report shows a 2D matrix: models vs prompts.
 
-## AI Summary
+## AI Insights (Mandatory)
 
-Enable AI-powered analysis of test results:
+AI-powered analysis is the core feature of pytest-aitest reports. When generating HTML or Markdown reports, you **must** specify a summary model:
 
 ```bash
-pytest tests/ --aitest-html=report.html --aitest-summary --aitest-summary-model=azure/gpt-4.1
+pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5.1-chat
 ```
 
-**`--aitest-summary-model` is required** when using `--aitest-summary`. Use a capable model for quality analysis:
+Use a capable model for quality analysis:
 
 | Provider | Recommended Models |
 |----------|-------------------|
-| Azure OpenAI | `azure/gpt-4.1`, `azure/gpt-4o` |
+| Azure OpenAI | `azure/gpt-5.1-chat`, `azure/gpt-4.1` |
 | OpenAI | `openai/gpt-4o`, `openai/gpt-4.1` |
 | Anthropic | `anthropic/claude-sonnet-4`, `anthropic/claude-3-5-sonnet` |
 
-**Note:** Smaller models (gpt-4o-mini, gpt-5-mini) produce generic, low-quality summaries. Use a capable model.
+**Note:** Smaller models (gpt-4o-mini, gpt-5-mini) produce generic, low-quality insights. Use a capable model for actionable feedback.
 
 ### Multi-Model Comparison
 
@@ -255,9 +251,13 @@ Tests using [sessions](sessions.md) (multi-turn conversations) are visually grou
 - Token usage
 - Execution time
 
-### AI Summary (if enabled)
-- LLM-generated analysis
-- Recommendations
+### AI Insights
+- 🎯 Recommendation with rationale
+- ❌ Failure analysis with root cause and fix
+- 🔧 MCP tool feedback with suggested rewrites
+- 📝 System Prompt feedback
+- 📚 Agent Skill feedback
+- ⚡ Optimization opportunities
 
 ## JSON Report Structure
 
@@ -370,5 +370,5 @@ open report.html
   run: |
     pytest tests/integration/test_benchmark.py \
       --aitest-html=benchmark-report.html \
-      --aitest-summary --aitest-summary-model=azure/gpt-4.1
+      --aitest-summary-model=azure/gpt-5.1-chat
 ```

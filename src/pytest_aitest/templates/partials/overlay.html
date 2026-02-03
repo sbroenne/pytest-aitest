@@ -5,3 +5,13 @@
         <div class="mermaid" id="overlay-mermaid"></div>
     </div>
 </div>
+
+{# Hover popup for side-by-side diagrams #}
+<div class="diagram-hover-popup" id="diagram-hover-popup" 
+     onmouseenter="keepDiagramHover()" 
+     onmouseleave="hideDiagramHover()"
+     onclick="hideOverlay(); document.getElementById('diagram-hover-popup').classList.remove('active'); showDiagram(document.getElementById('hover-mermaid').innerHTML);">
+    <div class="diagram-hover-content">
+        <div class="mermaid" id="hover-mermaid"></div>
+    </div>
+</div>

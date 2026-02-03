@@ -1,6 +1,6 @@
 # MCP Server
 
-Connect to Model Context Protocol (MCP) servers for testing tool-using agents.
+Test your Model Context Protocol (MCP) servers by running LLM agents against them.
 
 ## Quick Start
 

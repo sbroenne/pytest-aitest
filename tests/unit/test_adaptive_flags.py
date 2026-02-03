@@ -88,27 +88,29 @@ class TestMatrixModeFlags:
         assert flags["show_prompt_comparison"] is True
         assert flags["show_comparison_grid"] is True
         assert flags["show_matrix"] is True
-        assert flags["show_ai_summary"] is True
+        assert flags["show_ai_insights"] is True  # Always True now
 
 
-class TestAISummaryFlag:
-    """Test AI summary flag."""
+class TestAIInsightsFlag:
+    """Test AI insights flags."""
 
-    def test_ai_summary_when_present(self):
-        """Fixtures with AI summary should have flag True."""
+    def test_ai_insights_always_shown(self):
+        """show_ai_insights should always be True (insights are mandatory)."""
+        # All fixtures should have show_ai_insights = True
         flags = extract_flags("06_with_ai_summary")
-        assert flags["show_ai_summary"] is True
+        assert flags["show_ai_insights"] is True
         
-        flags = extract_flags("08_matrix_full")
-        assert flags["show_ai_summary"] is True
-
-    def test_ai_summary_when_absent(self):
-        """Fixtures without AI summary should have flag False."""
         flags = extract_flags("01_basic_usage")
-        assert flags["show_ai_summary"] is False
+        assert flags["show_ai_insights"] is True
+
+    def test_has_real_insights_depends_on_placeholder(self):
+        """has_real_insights should be False for placeholder insights."""
+        # Fixtures migrated to v3.0 have placeholder insights
+        flags = extract_flags("01_basic_usage")
+        assert flags["has_real_insights"] is False  # Placeholder
         
         flags = extract_flags("02_model_comparison")
-        assert flags["show_ai_summary"] is False
+        assert flags["has_real_insights"] is False  # Placeholder
 
 
 class TestSkippedFlag:

@@ -30,12 +30,12 @@ class TestComparisonMatrixHeaders:
         assert "Test Results by Model" in html
 
     def test_prompt_comparison_header(self, render_partial):
-        """Prompt comparison mode should show 'Test Results by Prompt'."""
+        """Prompt comparison mode should show 'Test Results by System Prompt'."""
         grid = make_comparison_grid(mode="prompt_comparison", columns=["brief", "detailed"])
         flags = make_flags(show_comparison_grid=True)
         
         html = render_partial("comparison_matrix.html", comparison_grid=grid, flags=flags)
-        assert "Test Results by Prompt" in html
+        assert "Test Results by System Prompt" in html
 
     def test_matrix_header(self, render_partial):
         """Matrix mode should show 'Comparison Matrix'."""

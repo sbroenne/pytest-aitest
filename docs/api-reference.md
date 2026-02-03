@@ -129,33 +129,7 @@ async def test_example(aitest_run):
     assert result.success
 ```
 
-### judge
-
-AI-powered semantic assertions:
-
-```python
-@pytest.mark.asyncio
-async def test_example(aitest_run, judge):
-    result = await aitest_run(agent, "Question")
-    assert judge(result.final_response, "expected criteria")
-```
-
 See **[Assertions](assertions.md)** for details.
-
-### agent_factory
-
-Create agents with defaults:
-
-```python
-@pytest.mark.asyncio
-async def test_example(agent_factory, aitest_run):
-    agent = agent_factory(
-        model="azure/gpt-5-mini",
-        system_prompt="Be helpful.",
-        skill=my_skill,              # Optional
-    )
-    result = await aitest_run(agent, "Hello")
-```
 
 ### skill_factory
 
@@ -163,9 +137,12 @@ Load skills from paths:
 
 ```python
 @pytest.mark.asyncio
-async def test_example(skill_factory, agent_factory, aitest_run):
+async def test_example(skill_factory, aitest_run):
     skill = skill_factory("skills/my-skill")
-    agent = agent_factory(skill=skill)
+    agent = Agent(
+        provider=Provider(model="azure/gpt-5-mini"),
+        skill=skill,
+    )
     result = await aitest_run(agent, "Do something")
 ```
 

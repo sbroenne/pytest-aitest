@@ -30,15 +30,12 @@ def _get_azure_auth_kwargs() -> dict:
 
     Returns empty dict if Azure auth is not available (falls back to API key).
     """
-    try:
-        from litellm.secret_managers.get_azure_ad_token_provider import (
-            get_azure_ad_token_provider,
-        )
+    from pytest_aitest.core.auth import get_azure_ad_token_provider
 
-        return {"azure_ad_token_provider": get_azure_ad_token_provider()}
-    except ImportError:
-        # Azure identity not installed, fall back to API key auth
-        return {}
+    provider = get_azure_ad_token_provider()
+    if provider:
+        return {"azure_ad_token_provider": provider}
+    return {}
 
 
 def _get_response_content(response: ModelResponse | Any) -> str:

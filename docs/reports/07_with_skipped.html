@@ -660,6 +660,41 @@ body {
 
 .overlay .overlay-close:hover { background: #f1f5f9; }
 
+/* ==================== Diagram Hover Popup ==================== */
+.diagram-hover-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+    padding: 1.5rem;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.diagram-hover-popup.active {
+    display: block;
+}
+
+.diagram-hover-popup .diagram-hover-content {
+    min-width: 400px;
+    min-height: 300px;
+}
+
+.diagram-hover-popup::before {
+    content: "Hover to view • Click to expand";
+    display: block;
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
 /* ==================== Final Output Box ==================== */
 .final-output {
     margin: 1rem 0;
@@ -794,10 +829,13 @@ body {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-header-cell {
     flex: 1;
+    min-width: 280px;
     padding: 1rem;
     background: #f8fafc;
     border-radius: var(--radius);
@@ -835,6 +873,8 @@ body {
     display: grid;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-diagram-cell {
@@ -843,12 +883,19 @@ body {
     border-radius: var(--radius);
     padding: 1rem;
     overflow: hidden;
+    min-width: 280px;
 }
 
 .sbs-diagram-cell .mermaid-container {
     margin: 0;
     border: none;
     padding: 0.5rem;
+    min-height: 200px;
+}
+
+.sbs-diagram-cell .mermaid svg {
+    min-width: 250px;
+    min-height: 180px;
 }
 
 .sbs-final-response {
@@ -1052,7 +1099,7 @@ body {
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_weather_passes">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_weather_passes">
                         <span class="badge passed">passed</span>
                         Normal passing test.
                     </span>
@@ -1170,7 +1217,7 @@ Would you like a forecast for the next few days or tips for staying dry?</div>
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_forecast_passes">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_forecast_passes">
                         <span class="badge passed">passed</span>
                         Another passing test.
                     </span>
@@ -1292,7 +1339,7 @@ Want this tied to calendar dates, an hourly outlook for any day, or alerts if ra
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_compare_passes">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestWithSkipped::test_compare_passes">
                         <span class="badge passed">passed</span>
                         Comparison test that passes.
                     </span>
@@ -1426,6 +1473,16 @@ What that means: Tokyo is warmer and sunnier — light, breathable clothes and s
     </div>
 </div>
 
+
+<div class="diagram-hover-popup" id="diagram-hover-popup" 
+     onmouseenter="keepDiagramHover()" 
+     onmouseleave="hideDiagramHover()"
+     onclick="hideOverlay(); document.getElementById('diagram-hover-popup').classList.remove('active'); showDiagram(document.getElementById('hover-mermaid').innerHTML);">
+    <div class="diagram-hover-content">
+        <div class="mermaid" id="hover-mermaid"></div>
+    </div>
+</div>
+
     <script>
 // pytest-aitest Report Scripts
 
@@ -1453,6 +1510,27 @@ function hideOverlay() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') hideOverlay();
 });
+
+// Hover popup for side-by-side diagrams
+let hoverTimeout = null;
+function showDiagramHover(element, mermaidCode) {
+    clearTimeout(hoverTimeout);
+    const popup = document.getElementById('diagram-hover-popup');
+    const content = document.getElementById('hover-mermaid');
+    content.innerHTML = mermaidCode;
+    popup.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideDiagramHover() {
+    hoverTimeout = setTimeout(() => {
+        document.getElementById('diagram-hover-popup').classList.remove('active');
+    }, 100);
+}
+
+function keepDiagramHover() {
+    clearTimeout(hoverTimeout);
+}
 
 // Side-by-side test selector
 function showSideBySideTest(testId) {

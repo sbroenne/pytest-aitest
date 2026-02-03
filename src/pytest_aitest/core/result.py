@@ -23,6 +23,43 @@ class ToolCall:
 
 
 @dataclass(slots=True)
+class ToolInfo:
+    """Metadata about an MCP tool for AI analysis.
+
+    Captures the tool's description and schema as exposed to the LLM,
+    enabling the AI to analyze whether tool descriptions are clear and
+    suggest improvements.
+    """
+
+    name: str
+    description: str
+    input_schema: dict[str, Any]
+    server_name: str
+
+    def __repr__(self) -> str:
+        return f"ToolInfo({self.name} from {self.server_name})"
+
+
+@dataclass(slots=True)
+class SkillInfo:
+    """Metadata about a skill for AI analysis.
+
+    Captures the skill's instruction content and references,
+    enabling the AI to analyze skill effectiveness and suggest improvements.
+    """
+
+    name: str
+    description: str
+    instruction_content: str
+    reference_names: list[str] = field(default_factory=list)
+    token_count: int = 0
+
+    def __repr__(self) -> str:
+        refs = f", {len(self.reference_names)} refs" if self.reference_names else ""
+        return f"SkillInfo({self.name}, ~{self.token_count} tokens{refs})"
+
+
+@dataclass(slots=True)
 class Turn:
     """A single conversational turn."""
 
@@ -62,6 +99,11 @@ class AgentResult:
     cost_usd: float = 0.0
     _messages: list[dict[str, Any]] = field(default_factory=list)
     session_context_count: int = 0  # Number of prior messages passed in
+
+    # Phase 2: Collection for AI analysis
+    available_tools: list[ToolInfo] = field(default_factory=list)
+    skill_info: SkillInfo | None = None
+    effective_system_prompt: str = ""
 
     @property
     def messages(self) -> list[dict[str, Any]]:

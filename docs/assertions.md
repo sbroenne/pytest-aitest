@@ -1,6 +1,6 @@
 # Assertions
 
-Validate agent behavior using `AgentResult` methods and the AI judge.
+Validate agent behavior using `AgentResult` methods.
 
 ## AgentResult Properties
 
@@ -87,57 +87,28 @@ assert "error" not in result.final_response.lower()
 assert "failed" not in result.final_response.lower()
 ```
 
-## AI Judge
+## AI-Powered Assertions (Optional)
 
-Use LLM-based evaluation for semantic assertions. Requires [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert).
+For semantic validation of responses, you can use [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert) directly:
 
-### Basic Usage
+```bash
+pip install pytest-llm-assert
+```
 
 ```python
+from pytest_llm_assert import LLMAssert
+
+judge = LLMAssert(model="azure/gpt-5-mini")
+
 @pytest.mark.asyncio
-async def test_with_judge(aitest_run, agent, judge):
+async def test_response_quality(aitest_run, agent):
     result = await aitest_run(agent, "What's the weather in Paris?")
     
     assert result.success
-    assert judge(result.final_response, "mentions the weather in Paris")
+    assert judge(result.final_response, "mentions weather conditions")
 ```
 
-### Multi-Criteria Evaluation
-
-```python
-@pytest.mark.asyncio
-async def test_recommendation(aitest_run, agent, judge):
-    result = await aitest_run(
-        agent, 
-        "Compare weather in Paris and London for a trip"
-    )
-    
-    assert result.success
-    assert judge(result.final_response, """
-        - Mentions weather for both Paris and London
-        - Makes a recommendation for one city
-        - Provides reasoning based on weather data
-    """)
-```
-
-### Combining with Tool Assertions
-
-```python
-@pytest.mark.asyncio
-async def test_complete_workflow(aitest_run, agent, judge):
-    result = await aitest_run(agent, "Get 3-day forecast for Paris")
-    
-    # Check tool was used correctly
-    assert result.success
-    assert result.tool_was_called("get_forecast")
-    
-    # Check response quality
-    assert judge(result.final_response, """
-        - Shows forecast for 3 days
-        - Includes temperature information
-        - Mentions Paris specifically
-    """)
-```
+See the [pytest-llm-assert documentation](https://github.com/sbroenne/pytest-llm-assert) for more details.
 
 ## Performance Assertions
 

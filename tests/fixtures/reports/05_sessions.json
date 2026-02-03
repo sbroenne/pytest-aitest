@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "name": "pytest-aitest",
   "timestamp": "2026-02-02T17:03:19.977557Z",
   "duration_ms": 165504.24060001387,
@@ -81,7 +81,7 @@
           },
           {
             "role": "assistant",
-            "content": "Great — I pulled your current balances.\n\n- Checking: $1,500.00  \n- Savings: $3,000.00  \n- Total: $4,500.00\n\nNext steps I can help with:\n- Build a savings plan if you tell me the trip target amount and when you want to go (I’ll calculate how much to save per month).\n- Move money into savings now (tell me an amount to transfer from checking → savings).\n- Show recent transactions to spot where you could free up extra money.\n\nWhich would you like to do next — set a savings target and timeline, make a transfer now, or see transactions?",
+            "content": "Great \u2014 I pulled your current balances.\n\n- Checking: $1,500.00  \n- Savings: $3,000.00  \n- Total: $4,500.00\n\nNext steps I can help with:\n- Build a savings plan if you tell me the trip target amount and when you want to go (I\u2019ll calculate how much to save per month).\n- Move money into savings now (tell me an amount to transfer from checking \u2192 savings).\n- Show recent transactions to spot where you could free up extra money.\n\nWhich would you like to do next \u2014 set a savings target and timeline, make a transfer now, or see transactions?",
             "tool_calls": []
           }
         ],
@@ -91,7 +91,7 @@
           "total": 1473
         },
         "cost_usd": 0.0012135,
-        "final_response": "Great — I pulled your current balances.\n\n- Checking: $1,500.00  \n- Savings: $3,000.00  \n- Total: $4,500.00\n\nNext steps I can help with:\n- Build a savings plan if you tell me the trip target amount and when you want to go (I’ll calculate how much to save per month).\n- Move money into savings now (tell me an amount to transfer from checking → savings).\n- Show recent transactions to spot where you could free up extra money.\n\nWhich would you like to do next — set a savings target and timeline, make a transfer now, or see transactions?",
+        "final_response": "Great \u2014 I pulled your current balances.\n\n- Checking: $1,500.00  \n- Savings: $3,000.00  \n- Total: $4,500.00\n\nNext steps I can help with:\n- Build a savings plan if you tell me the trip target amount and when you want to go (I\u2019ll calculate how much to save per month).\n- Move money into savings now (tell me an amount to transfer from checking \u2192 savings).\n- Show recent transactions to spot where you could free up extra money.\n\nWhich would you like to do next \u2014 set a savings target and timeline, make a transfer now, or see transactions?",
         "tools_called": [
           "get_all_balances"
         ],
@@ -134,7 +134,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done — I transferred $500.00 from checking to savings.\n\n- New checking balance: $1,000.00  \n- New savings balance: $3,500.00\n\nWould you like to set a target amount and timeline for your Paris trip so I can create a monthly savings plan? Or anything else?",
+            "content": "Done \u2014 I transferred $500.00 from checking to savings.\n\n- New checking balance: $1,000.00  \n- New savings balance: $3,500.00\n\nWould you like to set a target amount and timeline for your Paris trip so I can create a monthly savings plan? Or anything else?",
             "tool_calls": []
           }
         ],
@@ -144,7 +144,7 @@
           "total": 1631
         },
         "cost_usd": 0.00058625,
-        "final_response": "Done — I transferred $500.00 from checking to savings.\n\n- New checking balance: $1,000.00  \n- New savings balance: $3,500.00\n\nWould you like to set a target amount and timeline for your Paris trip so I can create a monthly savings plan? Or anything else?",
+        "final_response": "Done \u2014 I transferred $500.00 from checking to savings.\n\n- New checking balance: $1,000.00  \n- New savings balance: $3,500.00\n\nWould you like to set a target amount and timeline for your Paris trip so I can create a monthly savings plan? Or anything else?",
         "tools_called": [
           "transfer"
         ],
@@ -171,7 +171,7 @@
           },
           {
             "role": "assistant",
-            "content": "You were saving for your trip to Paris next summer — and I’ve already moved $500 into your savings for that. \n\nWould you like to:\n- Set a target budget and travel date so I can calculate monthly savings needed,\n- Set up a recurring transfer into savings, or\n- Do something else (view transactions, adjust transfers)?",
+            "content": "You were saving for your trip to Paris next summer \u2014 and I\u2019ve already moved $500 into your savings for that. \n\nWould you like to:\n- Set a target budget and travel date so I can calculate monthly savings needed,\n- Set up a recurring transfer into savings, or\n- Do something else (view transactions, adjust transfers)?",
             "tool_calls": []
           }
         ],
@@ -181,7 +181,7 @@
           "total": 1117
         },
         "cost_usd": 0.0006397499999999999,
-        "final_response": "You were saving for your trip to Paris next summer — and I’ve already moved $500 into your savings for that. \n\nWould you like to:\n- Set a target budget and travel date so I can calculate monthly savings needed,\n- Set up a recurring transfer into savings, or\n- Do something else (view transactions, adjust transfers)?",
+        "final_response": "You were saving for your trip to Paris next summer \u2014 and I\u2019ve already moved $500 into your savings for that. \n\nWould you like to:\n- Set a target budget and travel date so I can calculate monthly savings needed,\n- Set up a recurring transfer into savings, or\n- Do something else (view transactions, adjust transfers)?",
         "tools_called": [],
         "session_context_count": 9
       }
@@ -220,7 +220,7 @@
           },
           {
             "role": "assistant",
-            "content": "I checked your savings balance: $3,000.00.\n\nAt a flight cost of $800:\n- Months required at $500/month = 0 — you can afford the flight right now.\n- If you paid the $800, remaining savings would be $2,200.00.\n\nWould you like me to:\n- Set aside $800 (move it to a labeled sub-savings or earmark it),\n- Transfer $800 to checking for purchase, or\n- Reconcile balances/transactions (I can show recent activity or re-check all balances)?",
+            "content": "I checked your savings balance: $3,000.00.\n\nAt a flight cost of $800:\n- Months required at $500/month = 0 \u2014 you can afford the flight right now.\n- If you paid the $800, remaining savings would be $2,200.00.\n\nWould you like me to:\n- Set aside $800 (move it to a labeled sub-savings or earmark it),\n- Transfer $800 to checking for purchase, or\n- Reconcile balances/transactions (I can show recent activity or re-check all balances)?",
             "tool_calls": []
           }
         ],
@@ -230,7 +230,7 @@
           "total": 3157
         },
         "cost_usd": 0.0026162499999999997,
-        "final_response": "I checked your savings balance: $3,000.00.\n\nAt a flight cost of $800:\n- Months required at $500/month = 0 — you can afford the flight right now.\n- If you paid the $800, remaining savings would be $2,200.00.\n\nWould you like me to:\n- Set aside $800 (move it to a labeled sub-savings or earmark it),\n- Transfer $800 to checking for purchase, or\n- Reconcile balances/transactions (I can show recent activity or re-check all balances)?",
+        "final_response": "I checked your savings balance: $3,000.00.\n\nAt a flight cost of $800:\n- Months required at $500/month = 0 \u2014 you can afford the flight right now.\n- If you paid the $800, remaining savings would be $2,200.00.\n\nWould you like me to:\n- Set aside $800 (move it to a labeled sub-savings or earmark it),\n- Transfer $800 to checking for purchase, or\n- Reconcile balances/transactions (I can show recent activity or re-check all balances)?",
         "tools_called": [
           "get_balance"
         ],
@@ -269,7 +269,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here’s a quick timeline and current status:\n\nWhat we discussed\n- You’re saving for a trip to Paris next summer.\n- You asked how long until you can afford an $800 flight if you save $500/month.\n\nWhat I did for you\n- Checked your account balances.\n- Transferred $500 from checking → savings (transaction confirmed: TX0001, $500.00).\n- Re-checked your savings when you asked about the flight.\n\nCurrent balances (most recent check)\n- Checking: $1,500.00  \n- Savings: $3,000.00\n\nNotes/observations\n- After the transfer I confirmed success (TX0001 showed new balances of $1,000 checking / $3,500 savings), but the most recent balance check returned $1,500 / $3,000. If you want, I can reconcile that discrepancy and re-run or correct the transfer.\n\nNext steps I can take now\n- Set aside $800 for the flight (earmark or move to checking),\n- Reconcile and confirm your transfer and balances,\n- Set up a recurring $500/month transfer into savings,\n- Build a monthly savings plan for the entire trip.\n\nWhich would you like me to do?",
+            "content": "Here\u2019s a quick timeline and current status:\n\nWhat we discussed\n- You\u2019re saving for a trip to Paris next summer.\n- You asked how long until you can afford an $800 flight if you save $500/month.\n\nWhat I did for you\n- Checked your account balances.\n- Transferred $500 from checking \u2192 savings (transaction confirmed: TX0001, $500.00).\n- Re-checked your savings when you asked about the flight.\n\nCurrent balances (most recent check)\n- Checking: $1,500.00  \n- Savings: $3,000.00\n\nNotes/observations\n- After the transfer I confirmed success (TX0001 showed new balances of $1,000 checking / $3,500 savings), but the most recent balance check returned $1,500 / $3,000. If you want, I can reconcile that discrepancy and re-run or correct the transfer.\n\nNext steps I can take now\n- Set aside $800 for the flight (earmark or move to checking),\n- Reconcile and confirm your transfer and balances,\n- Set up a recurring $500/month transfer into savings,\n- Build a monthly savings plan for the entire trip.\n\nWhich would you like me to do?",
             "tool_calls": []
           }
         ],
@@ -279,7 +279,7 @@
           "total": 3779
         },
         "cost_usd": 0.0031165000000000003,
-        "final_response": "Here’s a quick timeline and current status:\n\nWhat we discussed\n- You’re saving for a trip to Paris next summer.\n- You asked how long until you can afford an $800 flight if you save $500/month.\n\nWhat I did for you\n- Checked your account balances.\n- Transferred $500 from checking → savings (transaction confirmed: TX0001, $500.00).\n- Re-checked your savings when you asked about the flight.\n\nCurrent balances (most recent check)\n- Checking: $1,500.00  \n- Savings: $3,000.00\n\nNotes/observations\n- After the transfer I confirmed success (TX0001 showed new balances of $1,000 checking / $3,500 savings), but the most recent balance check returned $1,500 / $3,000. If you want, I can reconcile that discrepancy and re-run or correct the transfer.\n\nNext steps I can take now\n- Set aside $800 for the flight (earmark or move to checking),\n- Reconcile and confirm your transfer and balances,\n- Set up a recurring $500/month transfer into savings,\n- Build a monthly savings plan for the entire trip.\n\nWhich would you like me to do?",
+        "final_response": "Here\u2019s a quick timeline and current status:\n\nWhat we discussed\n- You\u2019re saving for a trip to Paris next summer.\n- You asked how long until you can afford an $800 flight if you save $500/month.\n\nWhat I did for you\n- Checked your account balances.\n- Transferred $500 from checking \u2192 savings (transaction confirmed: TX0001, $500.00).\n- Re-checked your savings when you asked about the flight.\n\nCurrent balances (most recent check)\n- Checking: $1,500.00  \n- Savings: $3,000.00\n\nNotes/observations\n- After the transfer I confirmed success (TX0001 showed new balances of $1,000 checking / $3,500 savings), but the most recent balance check returned $1,500 / $3,000. If you want, I can reconcile that discrepancy and re-run or correct the transfer.\n\nNext steps I can take now\n- Set aside $800 for the flight (earmark or move to checking),\n- Reconcile and confirm your transfer and balances,\n- Set up a recurring $500/month transfer into savings,\n- Build a monthly savings plan for the entire trip.\n\nWhich would you like me to do?",
         "tools_called": [
           "get_all_balances"
         ],
@@ -341,7 +341,7 @@
       "name": "tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention[gpt-5-mini]",
       "outcome": "passed",
       "duration_ms": 27195.174899999984,
-      "docstring": "Full session workflow: introduce context → reference it → verify memory.\n\n        This runs a complete session in a single test to compare models fairly.\n        Each model gets the same prompts and must demonstrate context retention.\n        ",
+      "docstring": "Full session workflow: introduce context \u2192 reference it \u2192 verify memory.\n\n        This runs a complete session in a single test to compare models fairly.\n        Each model gets the same prompts and must demonstrate context retention.\n        ",
       "error_count": 0,
       "metadata": {
         "model": "gpt-5-mini",
@@ -377,7 +377,7 @@
       "name": "tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention[gpt-4o-mini]",
       "outcome": "passed",
       "duration_ms": 20125.823499984108,
-      "docstring": "Full session workflow: introduce context → reference it → verify memory.\n\n        This runs a complete session in a single test to compare models fairly.\n        Each model gets the same prompts and must demonstrate context retention.\n        ",
+      "docstring": "Full session workflow: introduce context \u2192 reference it \u2192 verify memory.\n\n        This runs a complete session in a single test to compare models fairly.\n        Each model gets the same prompts and must demonstrate context retention.\n        ",
       "error_count": 0,
       "metadata": {
         "model": "gpt-4o-mini",
@@ -409,5 +409,18 @@
         "session_context_count": 9
       }
     }
-  ]
+  ],
+  "insights": {
+    "recommendation": {
+      "configuration": "(analysis pending)",
+      "summary": "AI analysis has not been run yet",
+      "reasoning": "Run with --aitest-html to generate AI-powered insights",
+      "alternatives": []
+    },
+    "failures": [],
+    "mcp_feedback": [],
+    "prompt_feedback": [],
+    "skill_feedback": [],
+    "optimizations": []
+  }
 }

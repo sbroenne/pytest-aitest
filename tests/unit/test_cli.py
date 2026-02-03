@@ -17,8 +17,8 @@ from pytest_aitest.cli import (
     load_suite_report,
     main,
 )
+from pytest_aitest.core.result import AgentResult, ToolCall, Turn
 from pytest_aitest.reporting.collector import TestReport
-from pytest_aitest.result import AgentResult, ToolCall, Turn
 
 
 class TestConfigLoading:

@@ -1,30 +1,23 @@
 {# Detailed results partial - test list #}
-<section class="section">
-    <div class="section-header">
-        <h2>🔍 Detailed Results</h2>
-    </div>
-    <div class="section-body">
-        <div class="test-list">
-            {% for test in report.tests %}
-            <div class="test-item" onclick="this.classList.toggle('expanded')">
-                <div class="test-header">
-                    <span class="test-name" title="{{ test.name }}">
-                        <span class="badge {{ test.outcome.value }}">{{ test.outcome.value }}</span>
-                        {{ test.docstring.split('\n')[0] if test.docstring else test.name.split('::')[-1] }}
-                    </span>
-                    <span class="test-metrics">
-                        <span>{{ "%.2f"|format(test.duration_ms / 1000) }}s</span>
-                        {% if test.agent_result %}
-                        <span>{{ (test.agent_result.token_usage.prompt or 0) + (test.agent_result.token_usage.completion or 0) }} tokens</span>
-                        <span>{{ format_cost(test.agent_result.cost_usd) }}</span>
-                        {% endif %}
-                    </span>
-                </div>
-                <div class="test-details">
-                    {% include 'partials/test_details.html' %}
-                </div>
-            </div>
-            {% endfor %}
+<div class="test-list">
+    {% for test in report.tests %}
+    <div class="test-item" onclick="this.classList.toggle('expanded')">
+        <div class="test-header">
+            <span class="test-name" title="{{ test.name }}">
+                <span class="badge {{ test.outcome.value }}">{{ test.outcome.value }}</span>
+                {{ test.docstring.split('\n')[0] if test.docstring else test.name.split('::')[-1] }}
+            </span>
+            <span class="test-metrics">
+                <span>{{ "%.2f"|format(test.duration_ms / 1000) }}s</span>
+                {% if test.agent_result %}
+                <span>{{ (test.agent_result.token_usage.prompt or 0) + (test.agent_result.token_usage.completion or 0) }} tokens</span>
+                <span>{{ format_cost(test.agent_result.cost_usd) }}</span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="test-details">
+            {% include 'partials/test_details.html' %}
         </div>
     </div>
-</section>
+    {% endfor %}
+</div>

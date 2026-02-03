@@ -66,8 +66,9 @@ az login
 | `test_matrix.py` | Full model × prompt comparison grid |
 | `test_sessions.py` | Multi-turn conversations with context |
 | `test_skills.py` | Skill file injection |
+| `test_skill_improvement.py` | Compare agent with/without skills |
 | `test_cli_server.py` | CLI tools as agent servers |
-| `test_ai_summary.py` | LLM-generated report summaries |
+| `test_ai_summary.py` | AI-generated report insights |
 | `test_fixture_scenarios.py` | Generate test fixtures for unit tests |
 
 ### Test Harnesses

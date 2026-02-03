@@ -7,6 +7,25 @@ mermaid.initialize({
     securityLevel: 'loose'
 });
 
+// Copy to clipboard for suggestions
+function copyToClipboard(button, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = '✓ Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('copied');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        button.textContent = '❌ Error';
+        setTimeout(() => {
+            button.textContent = '📋 Copy';
+        }, 2000);
+    });
+}
+
 // Fullscreen diagram viewer
 function showDiagram(mermaidCode) {
     const overlay = document.getElementById('overlay');
@@ -24,6 +43,27 @@ function hideOverlay() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') hideOverlay();
 });
+
+// Hover popup for side-by-side diagrams
+let hoverTimeout = null;
+function showDiagramHover(element, mermaidCode) {
+    clearTimeout(hoverTimeout);
+    const popup = document.getElementById('diagram-hover-popup');
+    const content = document.getElementById('hover-mermaid');
+    content.innerHTML = mermaidCode;
+    popup.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideDiagramHover() {
+    hoverTimeout = setTimeout(() => {
+        document.getElementById('diagram-hover-popup').classList.remove('active');
+    }, 100);
+}
+
+function keepDiagramHover() {
+    clearTimeout(hoverTimeout);
+}
 
 // Side-by-side test selector
 function showSideBySideTest(testId) {

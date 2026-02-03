@@ -185,22 +185,36 @@ class CLIExecution:
 class Agent:
     """AI agent configuration combining provider and servers.
 
+    The Agent is the unit of comparison in pytest-aitest. Give each agent
+    a meaningful name for identification in reports.
+
     Example:
         Agent(
-            provider=Provider(model="openai/gpt-4o"),
-            mcp_servers=[filesystem_server],
-            system_prompt="You are a helpful assistant.",
+            name="weather-fast",
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[weather_server],
+            system_prompt="Be concise.",
         )
 
     With a skill:
-        skill = Skill.from_path("skills/my-skill")
+        skill = Skill.from_path("skills/weather-expert")
         Agent(
-            provider=Provider(model="openai/gpt-4o"),
-            skill=skill,  # Skill instructions prepended to system_prompt
+            name="weather-expert",
+            provider=Provider(model="azure/gpt-4.1"),
+            mcp_servers=[weather_server],
+            skill=skill,  # Skill content prepended to system_prompt
         )
+
+    Comparing agents:
+        agents = [agent_fast, agent_smart, agent_expert]
+
+        @pytest.mark.parametrize("agent", agents, ids=lambda a: a.name)
+        async def test_query(aitest_run, agent):
+            result = await aitest_run(agent, "What's the weather?")
     """
 
     provider: Provider
+    name: str | None = None
     mcp_servers: list[MCPServer] = field(default_factory=list)
     cli_servers: list[CLIServer] = field(default_factory=list)
     system_prompt: str | None = None

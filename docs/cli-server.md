@@ -262,23 +262,6 @@ async def test_cli_workflow(aitest_run, cli_agent):
     assert ".py" in result.final_response
 ```
 
-### Using AI Judge
-
-For semantic validation of CLI output:
-
-```python
-@pytest.mark.asyncio
-async def test_cli_with_judge(aitest_run, cli_agent, judge):
-    result = await aitest_run(cli_agent, "Show the git log")
-    
-    assert result.success
-    assert judge(result.final_response, """
-        - Shows commit hashes
-        - Shows commit messages
-        - Lists multiple commits
-    """)
-```
-
 ## Troubleshooting
 
 ### Command Not Found

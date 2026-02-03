@@ -32,7 +32,6 @@ dependencies = [
     "pydantic>=2.0",
     "jinja2>=3.1",
     "markdown>=3.5",
-    "pytest-llm-assert>=0.2.0",
 ]
 
 [project.optional-dependencies]
@@ -104,14 +103,9 @@ python_functions = ["test_*"]
 asyncio_mode = "auto"
 # pytest-aitest configuration.
 # LLM auth is handled by LiteLLM via standard env vars (AZURE_API_BASE, OPENAI_API_KEY, etc.)
-# Rate limits match Azure gpt-5-mini deployment: 10 RPM, 10K TPM
-# Note: --aitest-summary requires LLM credentials, use explicitly when needed
 addopts = """
---aitest-model=azure/gpt-5-mini
 --aitest-summary-model=azure/gpt-5.1-chat
 --aitest-html=aitest-reports/report.html
---aitest-rpm=10
---aitest-tpm=10000
 """
 markers = [
     "integration: marks tests as integration tests (require LLM credentials)",

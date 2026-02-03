@@ -61,14 +61,14 @@ def fixture_json(fixture_path) -> dict:
 @pytest.fixture
 def fixture_html(fixture_path) -> str:
     """Generate HTML from a fixture."""
-    report, ai_summary = load_suite_report(fixture_path)
+    report, _ai_summary = load_suite_report(fixture_path)  # ai_summary deprecated
     generator = ReportGenerator()
     
     # Generate to temp file and read back
     with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
         output_path = Path(f.name)
     
-    generator.generate_html(report, output_path, ai_summary=ai_summary)
+    generator.generate_html(report, output_path)
     html = output_path.read_text(encoding="utf-8")
     output_path.unlink()  # Clean up
     return html
@@ -90,13 +90,13 @@ def load_fixture(name: str) -> dict:
 def generate_html_from_fixture(name: str) -> str:
     """Generate HTML from a named fixture."""
     path = FIXTURES_DIR / f"{name}.json"
-    report, ai_summary = load_suite_report(path)
+    report, _ai_summary = load_suite_report(path)  # ai_summary deprecated
     generator = ReportGenerator()
     
     with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
         output_path = Path(f.name)
     
-    generator.generate_html(report, output_path, ai_summary=ai_summary)
+    generator.generate_html(report, output_path)
     html = output_path.read_text(encoding="utf-8")
     output_path.unlink()
     return html
@@ -259,14 +259,14 @@ class TestPromptComparison:
         prompt_section = (
             self.soup.find(id="prompt-comparison")
             or self.soup.find(class_=lambda c: c and "prompt" in c.lower())
-            or self.soup.find(string=lambda s: s and "prompt" in s.lower())
+            or self.soup.find(string=lambda s: s and "system prompt" in s.lower())
         )
-        assert prompt_section is not None, "Missing prompt comparison"
+        assert prompt_section is not None, "Missing system prompt comparison"
 
     def test_has_comparison_grid(self):
-        """Should have comparison grid showing tests by prompt."""
-        grid_header = self.soup.find(string=lambda s: s and "Test Results by Prompt" in s)
-        assert grid_header is not None, "Missing 'Test Results by Prompt' comparison grid"
+        """Should have comparison grid showing tests by system prompt."""
+        grid_header = self.soup.find(string=lambda s: s and "Test Results by System Prompt" in s)
+        assert grid_header is not None, "Missing 'Test Results by System Prompt' comparison grid"
 
     def test_comparison_grid_has_prompt_columns(self):
         """Comparison grid should have columns for each prompt."""
@@ -345,31 +345,25 @@ class TestSessions:
         assert session_indicator is not None, "Missing session information"
 
 
-class TestWithAISummary:
-    """Tests for 06_with_ai_summary.json - AI summary section."""
+class TestWithAIInsights:
+    """Tests for fixtures with AI insights (v3.0 schema)."""
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.data = load_fixture("06_with_ai_summary")
-        self.html = generate_html_from_fixture("06_with_ai_summary")
+        # Use any fixture - all have insights in v3.0
+        self.data = load_fixture("02_model_comparison")
+        self.html = generate_html_from_fixture("02_model_comparison")
         self.soup = parse_html(self.html)
 
-    def test_has_ai_summary(self):
-        """Should have AI summary section."""
-        ai_summary = (
-            self.soup.find(id="ai-summary")
-            or self.soup.find(class_=lambda c: c and "ai-summary" in c.lower() if c else False)
-            or self.soup.find(class_=lambda c: c and "summary" in c.lower() and "ai" in c.lower() if c else False)
-        )
-        assert ai_summary is not None, "Missing AI summary section"
+    def test_has_insights_field(self):
+        """Fixture should have insights field (v3.0 requirement)."""
+        assert self.data.get("insights") is not None
 
-    def test_ai_summary_has_content(self):
-        """AI summary should have meaningful content."""
-        # The ai_summary field is a string with markdown content
-        ai_summary = self.data.get("ai_summary")
-        assert ai_summary is not None
-        # Should have verdict section
-        assert "Verdict" in ai_summary or "verdict" in ai_summary.lower()
+    def test_insights_has_recommendation(self):
+        """Insights should have recommendation structure."""
+        insights = self.data.get("insights")
+        assert insights.get("recommendation") is not None
+        assert insights["recommendation"].get("configuration") is not None
 
 
 class TestWithSkipped:
@@ -427,9 +421,9 @@ class TestMatrixFull:
         assert "leaderboard" in html_lower or "ranking" in html_lower, "Missing leaderboard"
         assert "matrix" in html_lower or "grid" in html_lower, "Missing matrix"
         
-    def test_has_ai_summary(self):
-        """Full matrix should have AI summary."""
-        assert self.data.get("ai_summary") is not None, "Missing AI summary"
+    def test_has_insights(self):
+        """Full matrix should have insights (v3.0)."""
+        assert self.data.get("insights") is not None, "Missing insights"
 
     def test_correct_test_count(self):
         """Should have 18 tests (2 models × 3 prompts × 3 test cases)."""

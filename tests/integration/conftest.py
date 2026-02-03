@@ -75,7 +75,7 @@ def test_mcp_server():
 
 
 @pytest.fixture
-def weather_agent_factory(weather_server, request) -> Callable[..., Agent]:
+def weather_agent_factory(weather_server) -> Callable[..., Agent]:
     """Factory to create agents with the weather server.
 
     Automatic Azure Entra ID auth - just run `az login`.
@@ -98,9 +98,9 @@ Available tools:
 
 When asked about weather, ALWAYS call the appropriate tool first, then respond based on the tool's output."""
 
-    # Get rate limits from CLI options
-    rpm = request.config.getoption("--aitest-rpm", default=None)
-    tpm = request.config.getoption("--aitest-tpm", default=None)
+    # Rate limits for Azure gpt-5-mini deployment
+    rpm = 10
+    tpm = 10000
 
     def create_agent(
         deployment: str,
@@ -118,7 +118,7 @@ When asked about weather, ALWAYS call the appropriate tool first, then respond b
 
 
 @pytest.fixture
-def todo_agent_factory(todo_server, request) -> Callable[..., Agent]:
+def todo_agent_factory(todo_server) -> Callable[..., Agent]:
     """Factory to create agents with the todo server.
 
     Automatic Azure Entra ID auth - just run `az login`.
@@ -143,9 +143,9 @@ Available tools:
 
 When asked to manage tasks, ALWAYS use the appropriate tools. After modifying tasks, use list_tasks to verify and show the user the current state."""
 
-    # Get rate limits from CLI options
-    rpm = request.config.getoption("--aitest-rpm", default=None)
-    tpm = request.config.getoption("--aitest-tpm", default=None)
+    # Rate limits for Azure gpt-5-mini deployment
+    rpm = 10
+    tpm = 10000
 
     def create_agent(
         deployment: str,
@@ -163,14 +163,14 @@ When asked to manage tasks, ALWAYS use the appropriate tools. After modifying ta
 
 
 @pytest.fixture
-def keyvalue_agent_factory(test_mcp_server, request) -> Callable[..., Agent]:
+def keyvalue_agent_factory(test_mcp_server) -> Callable[..., Agent]:
     """Factory to create agents with KeyValue server.
 
     Use weather_agent_factory or todo_agent_factory for new tests.
     """
-    # Get rate limits from CLI options
-    rpm = request.config.getoption("--aitest-rpm", default=None)
-    tpm = request.config.getoption("--aitest-tpm", default=None)
+    # Rate limits for Azure gpt-5-mini deployment
+    rpm = 10
+    tpm = 10000
 
     def create_agent(
         deployment: str,

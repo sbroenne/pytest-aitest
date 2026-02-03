@@ -1,15 +1,15 @@
-{# Prompt comparison partial - ranked table of prompts by performance #}
+{# System Prompt comparison partial - ranked table of system prompts by performance #}
 {% if flags.show_prompt_comparison and prompt_groups and not flags.show_matrix %}
 <section class="section">
     <div class="section-header">
-        <h2>📝 Prompt Comparison</h2>
+        <h2>📝 System Prompt Comparison</h2>
     </div>
     <div class="section-body">
         <table class="leaderboard">
             <thead>
                 <tr>
                     <th class="rank">Rank</th>
-                    <th>Prompt</th>
+                    <th>System Prompt</th>
                     <th>Pass Rate</th>
                     <th class="numeric">Passed</th>
                     <th class="numeric">Failed</th>

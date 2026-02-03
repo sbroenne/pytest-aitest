@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "name": "pytest-aitest",
   "timestamp": "2026-02-02T16:54:43.269065Z",
   "duration_ms": 180015.80940006534,
@@ -95,7 +95,7 @@
           },
           {
             "role": "assistant",
-            "content": "I pulled 3-day forecasts for both cities. Here are the day-by-day details, then a recommendation based on your preference for sunny weather.\n\nParis (3-day forecast)\n- Day 1: Sunny — high 20°C / low 12°C — precipitation chance 20%\n- Day 2: Partly cloudy — high 21°C / low 13°C — precipitation chance 30%\n- Day 3: Cloudy — high 22°C / low 14°C — precipitation chance 40%\n\nSydney (3-day forecast)\n- Day 1: Sunny — high 28°C / low 20°C — precipitation chance 20%\n- Day 2: Partly cloudy — high 29°C / low 21°C — precipitation chance 30%\n- Day 3: Cloudy — high 30°C / low 22°C — precipitation chance 40%\n\nRecommendation\n- Both cities show the same pattern: one sunny day, one partly cloudy, then one cloudy day, with similar chances of precipitation. If your top priority is sunny conditions, Sydney will feel sunnier overall because it’s substantially warmer (bright, beach-friendly sunshine). \n- If you prefer milder temperatures for walking and sightseeing (less heat), Paris is the better choice — still pleasant and with a sunny day as well.\n\nQuick packing tips\n- If you pick Sydney: bring sunscreen, a hat, sunglasses, light breathable clothing and water for walking.\n- If you pick Paris: pack a light jacket/layers and a compact umbrella or light rain jacket.\n\nWant me to check the same 3-day forecast for specific travel dates next week or look at hourly plans for the sunniest times in either city?",
+            "content": "I pulled 3-day forecasts for both cities. Here are the day-by-day details, then a recommendation based on your preference for sunny weather.\n\nParis (3-day forecast)\n- Day 1: Sunny \u00e2\u20ac\u201d high 20\u00c2\u00b0C / low 12\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 20%\n- Day 2: Partly cloudy \u00e2\u20ac\u201d high 21\u00c2\u00b0C / low 13\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 30%\n- Day 3: Cloudy \u00e2\u20ac\u201d high 22\u00c2\u00b0C / low 14\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 40%\n\nSydney (3-day forecast)\n- Day 1: Sunny \u00e2\u20ac\u201d high 28\u00c2\u00b0C / low 20\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 20%\n- Day 2: Partly cloudy \u00e2\u20ac\u201d high 29\u00c2\u00b0C / low 21\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 30%\n- Day 3: Cloudy \u00e2\u20ac\u201d high 30\u00c2\u00b0C / low 22\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 40%\n\nRecommendation\n- Both cities show the same pattern: one sunny day, one partly cloudy, then one cloudy day, with similar chances of precipitation. If your top priority is sunny conditions, Sydney will feel sunnier overall because it\u00e2\u20ac\u2122s substantially warmer (bright, beach-friendly sunshine). \n- If you prefer milder temperatures for walking and sightseeing (less heat), Paris is the better choice \u00e2\u20ac\u201d still pleasant and with a sunny day as well.\n\nQuick packing tips\n- If you pick Sydney: bring sunscreen, a hat, sunglasses, light breathable clothing and water for walking.\n- If you pick Paris: pack a light jacket/layers and a compact umbrella or light rain jacket.\n\nWant me to check the same 3-day forecast for specific travel dates next week or look at hourly plans for the sunniest times in either city?",
             "tool_calls": []
           }
         ],
@@ -105,7 +105,7 @@
           "total": 2259
         },
         "cost_usd": 0.0024145,
-        "final_response": "I pulled 3-day forecasts for both cities. Here are the day-by-day details, then a recommendation based on your preference for sunny weather.\n\nParis (3-day forecast)\n- Day 1: Sunny — high 20°C / low 12°C — precipitation chance 20%\n- Day 2: Partly cloudy — high 21°C / low 13°C — precipitation chance 30%\n- Day 3: Cloudy — high 22°C / low 14°C — precipitation chance 40%\n\nSydney (3-day forecast)\n- Day 1: Sunny — high 28°C / low 20°C — precipitation chance 20%\n- Day 2: Partly cloudy — high 29°C / low 21°C — precipitation chance 30%\n- Day 3: Cloudy — high 30°C / low 22°C — precipitation chance 40%\n\nRecommendation\n- Both cities show the same pattern: one sunny day, one partly cloudy, then one cloudy day, with similar chances of precipitation. If your top priority is sunny conditions, Sydney will feel sunnier overall because it’s substantially warmer (bright, beach-friendly sunshine). \n- If you prefer milder temperatures for walking and sightseeing (less heat), Paris is the better choice — still pleasant and with a sunny day as well.\n\nQuick packing tips\n- If you pick Sydney: bring sunscreen, a hat, sunglasses, light breathable clothing and water for walking.\n- If you pick Paris: pack a light jacket/layers and a compact umbrella or light rain jacket.\n\nWant me to check the same 3-day forecast for specific travel dates next week or look at hourly plans for the sunniest times in either city?",
+        "final_response": "I pulled 3-day forecasts for both cities. Here are the day-by-day details, then a recommendation based on your preference for sunny weather.\n\nParis (3-day forecast)\n- Day 1: Sunny \u00e2\u20ac\u201d high 20\u00c2\u00b0C / low 12\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 20%\n- Day 2: Partly cloudy \u00e2\u20ac\u201d high 21\u00c2\u00b0C / low 13\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 30%\n- Day 3: Cloudy \u00e2\u20ac\u201d high 22\u00c2\u00b0C / low 14\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 40%\n\nSydney (3-day forecast)\n- Day 1: Sunny \u00e2\u20ac\u201d high 28\u00c2\u00b0C / low 20\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 20%\n- Day 2: Partly cloudy \u00e2\u20ac\u201d high 29\u00c2\u00b0C / low 21\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 30%\n- Day 3: Cloudy \u00e2\u20ac\u201d high 30\u00c2\u00b0C / low 22\u00c2\u00b0C \u00e2\u20ac\u201d precipitation chance 40%\n\nRecommendation\n- Both cities show the same pattern: one sunny day, one partly cloudy, then one cloudy day, with similar chances of precipitation. If your top priority is sunny conditions, Sydney will feel sunnier overall because it\u00e2\u20ac\u2122s substantially warmer (bright, beach-friendly sunshine). \n- If you prefer milder temperatures for walking and sightseeing (less heat), Paris is the better choice \u00e2\u20ac\u201d still pleasant and with a sunny day as well.\n\nQuick packing tips\n- If you pick Sydney: bring sunscreen, a hat, sunglasses, light breathable clothing and water for walking.\n- If you pick Paris: pack a light jacket/layers and a compact umbrella or light rain jacket.\n\nWant me to check the same 3-day forecast for specific travel dates next week or look at hourly plans for the sunniest times in either city?",
         "tools_called": [
           "get_forecast"
         ],
@@ -116,7 +116,7 @@
       "name": "tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_packing_advice_workflow",
       "outcome": "failed",
       "duration_ms": 13809.328700008336,
-      "docstring": "Check multiple cities and provide packing advice.\n\n        This tests:\n        - Gathering data from multiple sources\n        - Conditional reasoning (rain → umbrella)\n        - Practical advice generation\n        ",
+      "docstring": "Check multiple cities and provide packing advice.\n\n        This tests:\n        - Gathering data from multiple sources\n        - Conditional reasoning (rain \u00e2\u2020\u2019 umbrella)\n        - Practical advice generation\n        ",
       "error": "tests\\integration\\test_basic_usage.py:83: in test_packing_advice_workflow\n    assert weather_calls >= 2 or compare_calls >= 1\nE   assert (0 >= 2 or 0 >= 1)",
       "error_count": 1,
       "metadata": {
@@ -157,7 +157,7 @@
           },
           {
             "role": "assistant",
-            "content": "I checked the 7-day forecasts for both cities.\n\nQuick summary\n- London: several mild days (highs 16–18°C, lows 8–10°C). One day is explicitly listed as \"Rainy\" (day 4) with a ~50% chance of precipitation; a few other days show 30–40% chance.\n- Berlin: similar pattern and temperatures slightly warmer (highs 18–20°C, lows 10–12°C). One day is listed \"Rainy\" (day 4) with ~50% precipitation chance; other days show 30–40% chance.\n\nRecommendation\n- Pack both a compact umbrella and a lightweight waterproof (or water-resistant) jacket. The umbrella is handy for brief, calm showers; a rain jacket is better if it’s windy or you’ll be walking a lot.\n- Temperatures are mild, so a light waterproof layer should be enough (no heavy winter coat needed).\n\nQuick packing checklist\n- Small foldable umbrella\n- Lightweight waterproof/rain jacket (breathable if you’ll be active)\n- A thin layer (sweater/light fleece) for cooler mornings/evenings\n- Water-resistant shoes or an extra pair in case one gets wet\n\nIf you tell me the exact dates you’ll be in each city, I can give a day-by-day recommendation for those travel days.",
+            "content": "I checked the 7-day forecasts for both cities.\n\nQuick summary\n- London: several mild days (highs 16\u00e2\u20ac\u201c18\u00c2\u00b0C, lows 8\u00e2\u20ac\u201c10\u00c2\u00b0C). One day is explicitly listed as \"Rainy\" (day 4) with a ~50% chance of precipitation; a few other days show 30\u00e2\u20ac\u201c40% chance.\n- Berlin: similar pattern and temperatures slightly warmer (highs 18\u00e2\u20ac\u201c20\u00c2\u00b0C, lows 10\u00e2\u20ac\u201c12\u00c2\u00b0C). One day is listed \"Rainy\" (day 4) with ~50% precipitation chance; other days show 30\u00e2\u20ac\u201c40% chance.\n\nRecommendation\n- Pack both a compact umbrella and a lightweight waterproof (or water-resistant) jacket. The umbrella is handy for brief, calm showers; a rain jacket is better if it\u00e2\u20ac\u2122s windy or you\u00e2\u20ac\u2122ll be walking a lot.\n- Temperatures are mild, so a light waterproof layer should be enough (no heavy winter coat needed).\n\nQuick packing checklist\n- Small foldable umbrella\n- Lightweight waterproof/rain jacket (breathable if you\u00e2\u20ac\u2122ll be active)\n- A thin layer (sweater/light fleece) for cooler mornings/evenings\n- Water-resistant shoes or an extra pair in case one gets wet\n\nIf you tell me the exact dates you\u00e2\u20ac\u2122ll be in each city, I can give a day-by-day recommendation for those travel days.",
             "tool_calls": []
           }
         ],
@@ -167,7 +167,7 @@
           "total": 2533
         },
         "cost_usd": 0.002371,
-        "final_response": "I checked the 7-day forecasts for both cities.\n\nQuick summary\n- London: several mild days (highs 16–18°C, lows 8–10°C). One day is explicitly listed as \"Rainy\" (day 4) with a ~50% chance of precipitation; a few other days show 30–40% chance.\n- Berlin: similar pattern and temperatures slightly warmer (highs 18–20°C, lows 10–12°C). One day is listed \"Rainy\" (day 4) with ~50% precipitation chance; other days show 30–40% chance.\n\nRecommendation\n- Pack both a compact umbrella and a lightweight waterproof (or water-resistant) jacket. The umbrella is handy for brief, calm showers; a rain jacket is better if it’s windy or you’ll be walking a lot.\n- Temperatures are mild, so a light waterproof layer should be enough (no heavy winter coat needed).\n\nQuick packing checklist\n- Small foldable umbrella\n- Lightweight waterproof/rain jacket (breathable if you’ll be active)\n- A thin layer (sweater/light fleece) for cooler mornings/evenings\n- Water-resistant shoes or an extra pair in case one gets wet\n\nIf you tell me the exact dates you’ll be in each city, I can give a day-by-day recommendation for those travel days.",
+        "final_response": "I checked the 7-day forecasts for both cities.\n\nQuick summary\n- London: several mild days (highs 16\u00e2\u20ac\u201c18\u00c2\u00b0C, lows 8\u00e2\u20ac\u201c10\u00c2\u00b0C). One day is explicitly listed as \"Rainy\" (day 4) with a ~50% chance of precipitation; a few other days show 30\u00e2\u20ac\u201c40% chance.\n- Berlin: similar pattern and temperatures slightly warmer (highs 18\u00e2\u20ac\u201c20\u00c2\u00b0C, lows 10\u00e2\u20ac\u201c12\u00c2\u00b0C). One day is listed \"Rainy\" (day 4) with ~50% precipitation chance; other days show 30\u00e2\u20ac\u201c40% chance.\n\nRecommendation\n- Pack both a compact umbrella and a lightweight waterproof (or water-resistant) jacket. The umbrella is handy for brief, calm showers; a rain jacket is better if it\u00e2\u20ac\u2122s windy or you\u00e2\u20ac\u2122ll be walking a lot.\n- Temperatures are mild, so a light waterproof layer should be enough (no heavy winter coat needed).\n\nQuick packing checklist\n- Small foldable umbrella\n- Lightweight waterproof/rain jacket (breathable if you\u00e2\u20ac\u2122ll be active)\n- A thin layer (sweater/light fleece) for cooler mornings/evenings\n- Water-resistant shoes or an extra pair in case one gets wet\n\nIf you tell me the exact dates you\u00e2\u20ac\u2122ll be in each city, I can give a day-by-day recommendation for those travel days.",
         "tools_called": [
           "get_forecast"
         ],
@@ -275,7 +275,7 @@
           },
           {
             "role": "assistant",
-            "content": "I can get weather for these cities: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nCurrent conditions (from the weather service):\n- Paris: 18°C (64°F), Partly cloudy\n- Tokyo: 24°C (75°F), Sunny\n- New York: 22°C (72°F), Clear\n- Berlin: 16°C (61°F), Overcast\n- London: 14°C (57°F), Rainy\n- Sydney: 26°C (79°F), Sunny\n\nWarmest right now: Sydney at 26°C (79°F).\n\nSydney 5-day forecast:\n- Day 1: High 28°C / Low 20°C — Sunny — 20% chance of precipitation\n- Day 2: High 29°C / Low 21°C — Partly cloudy — 30% chance of precipitation\n- Day 3: High 30°C / Low 22°C — Cloudy — 40% chance of precipitation\n- Day 4: High 28°C / Low 20°C — Rainy — 50% chance of precipitation\n- Day 5: High 29°C / Low 21°C — Clear — 60% chance of precipitation\n\nWould you like those temperatures converted to Fahrenheit, or a forecast for a different city?",
+            "content": "I can get weather for these cities: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nCurrent conditions (from the weather service):\n- Paris: 18\u00c2\u00b0C (64\u00c2\u00b0F), Partly cloudy\n- Tokyo: 24\u00c2\u00b0C (75\u00c2\u00b0F), Sunny\n- New York: 22\u00c2\u00b0C (72\u00c2\u00b0F), Clear\n- Berlin: 16\u00c2\u00b0C (61\u00c2\u00b0F), Overcast\n- London: 14\u00c2\u00b0C (57\u00c2\u00b0F), Rainy\n- Sydney: 26\u00c2\u00b0C (79\u00c2\u00b0F), Sunny\n\nWarmest right now: Sydney at 26\u00c2\u00b0C (79\u00c2\u00b0F).\n\nSydney 5-day forecast:\n- Day 1: High 28\u00c2\u00b0C / Low 20\u00c2\u00b0C \u00e2\u20ac\u201d Sunny \u00e2\u20ac\u201d 20% chance of precipitation\n- Day 2: High 29\u00c2\u00b0C / Low 21\u00c2\u00b0C \u00e2\u20ac\u201d Partly cloudy \u00e2\u20ac\u201d 30% chance of precipitation\n- Day 3: High 30\u00c2\u00b0C / Low 22\u00c2\u00b0C \u00e2\u20ac\u201d Cloudy \u00e2\u20ac\u201d 40% chance of precipitation\n- Day 4: High 28\u00c2\u00b0C / Low 20\u00c2\u00b0C \u00e2\u20ac\u201d Rainy \u00e2\u20ac\u201d 50% chance of precipitation\n- Day 5: High 29\u00c2\u00b0C / Low 21\u00c2\u00b0C \u00e2\u20ac\u201d Clear \u00e2\u20ac\u201d 60% chance of precipitation\n\nWould you like those temperatures converted to Fahrenheit, or a forecast for a different city?",
             "tool_calls": []
           }
         ],
@@ -285,7 +285,7 @@
           "total": 4116
         },
         "cost_usd": 0.0030275,
-        "final_response": "I can get weather for these cities: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nCurrent conditions (from the weather service):\n- Paris: 18°C (64°F), Partly cloudy\n- Tokyo: 24°C (75°F), Sunny\n- New York: 22°C (72°F), Clear\n- Berlin: 16°C (61°F), Overcast\n- London: 14°C (57°F), Rainy\n- Sydney: 26°C (79°F), Sunny\n\nWarmest right now: Sydney at 26°C (79°F).\n\nSydney 5-day forecast:\n- Day 1: High 28°C / Low 20°C — Sunny — 20% chance of precipitation\n- Day 2: High 29°C / Low 21°C — Partly cloudy — 30% chance of precipitation\n- Day 3: High 30°C / Low 22°C — Cloudy — 40% chance of precipitation\n- Day 4: High 28°C / Low 20°C — Rainy — 50% chance of precipitation\n- Day 5: High 29°C / Low 21°C — Clear — 60% chance of precipitation\n\nWould you like those temperatures converted to Fahrenheit, or a forecast for a different city?",
+        "final_response": "I can get weather for these cities: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nCurrent conditions (from the weather service):\n- Paris: 18\u00c2\u00b0C (64\u00c2\u00b0F), Partly cloudy\n- Tokyo: 24\u00c2\u00b0C (75\u00c2\u00b0F), Sunny\n- New York: 22\u00c2\u00b0C (72\u00c2\u00b0F), Clear\n- Berlin: 16\u00c2\u00b0C (61\u00c2\u00b0F), Overcast\n- London: 14\u00c2\u00b0C (57\u00c2\u00b0F), Rainy\n- Sydney: 26\u00c2\u00b0C (79\u00c2\u00b0F), Sunny\n\nWarmest right now: Sydney at 26\u00c2\u00b0C (79\u00c2\u00b0F).\n\nSydney 5-day forecast:\n- Day 1: High 28\u00c2\u00b0C / Low 20\u00c2\u00b0C \u00e2\u20ac\u201d Sunny \u00e2\u20ac\u201d 20% chance of precipitation\n- Day 2: High 29\u00c2\u00b0C / Low 21\u00c2\u00b0C \u00e2\u20ac\u201d Partly cloudy \u00e2\u20ac\u201d 30% chance of precipitation\n- Day 3: High 30\u00c2\u00b0C / Low 22\u00c2\u00b0C \u00e2\u20ac\u201d Cloudy \u00e2\u20ac\u201d 40% chance of precipitation\n- Day 4: High 28\u00c2\u00b0C / Low 20\u00c2\u00b0C \u00e2\u20ac\u201d Rainy \u00e2\u20ac\u201d 50% chance of precipitation\n- Day 5: High 29\u00c2\u00b0C / Low 21\u00c2\u00b0C \u00e2\u20ac\u201d Clear \u00e2\u20ac\u201d 60% chance of precipitation\n\nWould you like those temperatures converted to Fahrenheit, or a forecast for a different city?",
         "tools_called": [
           "list_cities",
           "get_forecast",
@@ -344,7 +344,7 @@
           },
           {
             "role": "assistant",
-            "content": "Ranked warmest → coldest\n1) Tokyo — 24°C (75°F). Sunny, humidity 70%, light E wind 8 km/h. Clear sun makes it the warmest now; higher humidity will make it feel a bit muggy.\n2) New York — 22°C (72°F). Clear, humidity 55%, NW wind 15 km/h. Slightly cooler than Tokyo but lower humidity and a stronger breeze make it feel comfortable.\n3) Berlin — 16°C (61°F). Overcast, humidity 72%, N wind 10 km/h. Cloud cover and cooler northern airflow explain why it’s notably cooler than Tokyo and New York.\n\nIf you’d like, I can give \"feels like\" temperatures, a short-term forecast for each city, or show the same comparison with temperatures in only Celsius or Fahrenheit.",
+            "content": "Ranked warmest \u00e2\u2020\u2019 coldest\n1) Tokyo \u00e2\u20ac\u201d 24\u00c2\u00b0C (75\u00c2\u00b0F). Sunny, humidity 70%, light E wind 8 km/h. Clear sun makes it the warmest now; higher humidity will make it feel a bit muggy.\n2) New York \u00e2\u20ac\u201d 22\u00c2\u00b0C (72\u00c2\u00b0F). Clear, humidity 55%, NW wind 15 km/h. Slightly cooler than Tokyo but lower humidity and a stronger breeze make it feel comfortable.\n3) Berlin \u00e2\u20ac\u201d 16\u00c2\u00b0C (61\u00c2\u00b0F). Overcast, humidity 72%, N wind 10 km/h. Cloud cover and cooler northern airflow explain why it\u00e2\u20ac\u2122s notably cooler than Tokyo and New York.\n\nIf you\u00e2\u20ac\u2122d like, I can give \"feels like\" temperatures, a short-term forecast for each city, or show the same comparison with temperatures in only Celsius or Fahrenheit.",
             "tool_calls": []
           }
         ],
@@ -354,7 +354,7 @@
           "total": 1720
         },
         "cost_usd": 0.00154475,
-        "final_response": "Ranked warmest → coldest\n1) Tokyo — 24°C (75°F). Sunny, humidity 70%, light E wind 8 km/h. Clear sun makes it the warmest now; higher humidity will make it feel a bit muggy.\n2) New York — 22°C (72°F). Clear, humidity 55%, NW wind 15 km/h. Slightly cooler than Tokyo but lower humidity and a stronger breeze make it feel comfortable.\n3) Berlin — 16°C (61°F). Overcast, humidity 72%, N wind 10 km/h. Cloud cover and cooler northern airflow explain why it’s notably cooler than Tokyo and New York.\n\nIf you’d like, I can give \"feels like\" temperatures, a short-term forecast for each city, or show the same comparison with temperatures in only Celsius or Fahrenheit.",
+        "final_response": "Ranked warmest \u00e2\u2020\u2019 coldest\n1) Tokyo \u00e2\u20ac\u201d 24\u00c2\u00b0C (75\u00c2\u00b0F). Sunny, humidity 70%, light E wind 8 km/h. Clear sun makes it the warmest now; higher humidity will make it feel a bit muggy.\n2) New York \u00e2\u20ac\u201d 22\u00c2\u00b0C (72\u00c2\u00b0F). Clear, humidity 55%, NW wind 15 km/h. Slightly cooler than Tokyo but lower humidity and a stronger breeze make it feel comfortable.\n3) Berlin \u00e2\u20ac\u201d 16\u00c2\u00b0C (61\u00c2\u00b0F). Overcast, humidity 72%, N wind 10 km/h. Cloud cover and cooler northern airflow explain why it\u00e2\u20ac\u2122s notably cooler than Tokyo and New York.\n\nIf you\u00e2\u20ac\u2122d like, I can give \"feels like\" temperatures, a short-term forecast for each city, or show the same comparison with temperatures in only Celsius or Fahrenheit.",
         "tools_called": [
           "get_weather"
         ],
@@ -407,7 +407,7 @@
           },
           {
             "role": "assistant",
-            "content": "I looked for Atlantis but it's not in the available cities list.\n\nSupported cities:\n- Paris\n- Tokyo\n- New York\n- Berlin\n- London\n- Sydney\n\nCurrent weather for Paris, France:\n- Condition: Partly cloudy\n- Temperature: 18°C (64°F)\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a multi-day forecast for Paris or current weather for any of the other supported cities?",
+            "content": "I looked for Atlantis but it's not in the available cities list.\n\nSupported cities:\n- Paris\n- Tokyo\n- New York\n- Berlin\n- London\n- Sydney\n\nCurrent weather for Paris, France:\n- Condition: Partly cloudy\n- Temperature: 18\u00c2\u00b0C (64\u00c2\u00b0F)\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a multi-day forecast for Paris or current weather for any of the other supported cities?",
             "tool_calls": []
           }
         ],
@@ -417,7 +417,7 @@
           "total": 1908
         },
         "cost_usd": 0.001303,
-        "final_response": "I looked for Atlantis but it's not in the available cities list.\n\nSupported cities:\n- Paris\n- Tokyo\n- New York\n- Berlin\n- London\n- Sydney\n\nCurrent weather for Paris, France:\n- Condition: Partly cloudy\n- Temperature: 18°C (64°F)\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a multi-day forecast for Paris or current weather for any of the other supported cities?",
+        "final_response": "I looked for Atlantis but it's not in the available cities list.\n\nSupported cities:\n- Paris\n- Tokyo\n- New York\n- Berlin\n- London\n- Sydney\n\nCurrent weather for Paris, France:\n- Condition: Partly cloudy\n- Temperature: 18\u00c2\u00b0C (64\u00c2\u00b0F)\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a multi-day forecast for Paris or current weather for any of the other supported cities?",
         "tools_called": [
           "list_cities",
           "get_weather"
@@ -493,7 +493,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done — I added those to your groceries list. Current groceries list:\n- bread (id: a37e4d1d) — normal priority — not completed\n- eggs (id: ceb6287b) — normal priority — not completed\n- milk (id: 7509bbd5) — normal priority — not completed\n\nWhat would you like to do next?",
+            "content": "Done \u00e2\u20ac\u201d I added those to your groceries list. Current groceries list:\n- bread (id: a37e4d1d) \u00e2\u20ac\u201d normal priority \u00e2\u20ac\u201d not completed\n- eggs (id: ceb6287b) \u00e2\u20ac\u201d normal priority \u00e2\u20ac\u201d not completed\n- milk (id: 7509bbd5) \u00e2\u20ac\u201d normal priority \u00e2\u20ac\u201d not completed\n\nWhat would you like to do next?",
             "tool_calls": []
           }
         ],
@@ -503,7 +503,7 @@
           "total": 2991
         },
         "cost_usd": 0.0017522500000000001,
-        "final_response": "Done — I added those to your groceries list. Current groceries list:\n- bread (id: a37e4d1d) — normal priority — not completed\n- eggs (id: ceb6287b) — normal priority — not completed\n- milk (id: 7509bbd5) — normal priority — not completed\n\nWhat would you like to do next?",
+        "final_response": "Done \u00e2\u20ac\u201d I added those to your groceries list. Current groceries list:\n- bread (id: a37e4d1d) \u00e2\u20ac\u201d normal priority \u00e2\u20ac\u201d not completed\n- eggs (id: ceb6287b) \u00e2\u20ac\u201d normal priority \u00e2\u20ac\u201d not completed\n- milk (id: 7509bbd5) \u00e2\u20ac\u201d normal priority \u00e2\u20ac\u201d not completed\n\nWhat would you like to do next?",
         "tools_called": [
           "add_task",
           "list_tasks"
@@ -515,7 +515,7 @@
       "name": "tests/integration/test_basic_usage.py::TestTodoWorkflows::test_task_lifecycle_workflow",
       "outcome": "passed",
       "duration_ms": 14124.625500000548,
-      "docstring": "Full task lifecycle: create, complete, verify.\n\n        This tests:\n        - Create → state change → verify pattern\n        - ID tracking between operations\n        - State verification after mutations\n        - AI judge for semantic validation\n        ",
+      "docstring": "Full task lifecycle: create, complete, verify.\n\n        This tests:\n        - Create \u00e2\u2020\u2019 state change \u00e2\u2020\u2019 verify pattern\n        - ID tracking between operations\n        - State verification after mutations\n        - AI judge for semantic validation\n        ",
       "error_count": 0,
       "metadata": {
         "file": "tests/integration/test_basic_usage.py"
@@ -575,7 +575,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done — I added \"review quarterly report\" to your work list, marked it complete, and verified it. Here’s the current work list:\n\n- review quarterly report (completed, priority: normal)",
+            "content": "Done \u00e2\u20ac\u201d I added \"review quarterly report\" to your work list, marked it complete, and verified it. Here\u00e2\u20ac\u2122s the current work list:\n\n- review quarterly report (completed, priority: normal)",
             "tool_calls": []
           }
         ],
@@ -585,7 +585,7 @@
           "total": 3253
         },
         "cost_usd": 0.00148175,
-        "final_response": "Done — I added \"review quarterly report\" to your work list, marked it complete, and verified it. Here’s the current work list:\n\n- review quarterly report (completed, priority: normal)",
+        "final_response": "Done \u00e2\u20ac\u201d I added \"review quarterly report\" to your work list, marked it complete, and verified it. Here\u00e2\u20ac\u2122s the current work list:\n\n- review quarterly report (completed, priority: normal)",
         "tools_called": [
           "add_task",
           "complete_task",
@@ -665,7 +665,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done — I created the three tasks in your work list and confirmed them. Here are the current tasks in \"work\":\n\n- [cb11d1ed] Fix critical bug — priority: high — not completed\n- [1acd3918] Review PR — priority: normal — not completed\n- [896a95d2] Update documentation — priority: low — not completed\n\nWhich one to do first: Start with \"Fix critical bug\" (cb11d1ed). It has the highest priority and sounds like it may impact users or blockers — addressing it first reduces risk. If you'd like, I can mark it complete when you're done or reorder priorities.",
+            "content": "Done \u00e2\u20ac\u201d I created the three tasks in your work list and confirmed them. Here are the current tasks in \"work\":\n\n- [cb11d1ed] Fix critical bug \u00e2\u20ac\u201d priority: high \u00e2\u20ac\u201d not completed\n- [1acd3918] Review PR \u00e2\u20ac\u201d priority: normal \u00e2\u20ac\u201d not completed\n- [896a95d2] Update documentation \u00e2\u20ac\u201d priority: low \u00e2\u20ac\u201d not completed\n\nWhich one to do first: Start with \"Fix critical bug\" (cb11d1ed). It has the highest priority and sounds like it may impact users or blockers \u00e2\u20ac\u201d addressing it first reduces risk. If you'd like, I can mark it complete when you're done or reorder priorities.",
             "tool_calls": []
           }
         ],
@@ -675,7 +675,7 @@
           "total": 3166
         },
         "cost_usd": 0.001915,
-        "final_response": "Done — I created the three tasks in your work list and confirmed them. Here are the current tasks in \"work\":\n\n- [cb11d1ed] Fix critical bug — priority: high — not completed\n- [1acd3918] Review PR — priority: normal — not completed\n- [896a95d2] Update documentation — priority: low — not completed\n\nWhich one to do first: Start with \"Fix critical bug\" (cb11d1ed). It has the highest priority and sounds like it may impact users or blockers — addressing it first reduces risk. If you'd like, I can mark it complete when you're done or reorder priorities.",
+        "final_response": "Done \u00e2\u20ac\u201d I created the three tasks in your work list and confirmed them. Here are the current tasks in \"work\":\n\n- [cb11d1ed] Fix critical bug \u00e2\u20ac\u201d priority: high \u00e2\u20ac\u201d not completed\n- [1acd3918] Review PR \u00e2\u20ac\u201d priority: normal \u00e2\u20ac\u201d not completed\n- [896a95d2] Update documentation \u00e2\u20ac\u201d priority: low \u00e2\u20ac\u201d not completed\n\nWhich one to do first: Start with \"Fix critical bug\" (cb11d1ed). It has the highest priority and sounds like it may impact users or blockers \u00e2\u20ac\u201d addressing it first reduces risk. If you'd like, I can mark it complete when you're done or reorder priorities.",
         "tools_called": [
           "add_task",
           "list_tasks"
@@ -886,7 +886,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done — I added both tasks.\n\nYour lists:\n- personal — 1 task\n  - buy groceries (normal priority)\n- work — 1 task\n  - submit report (normal priority)\n\nIf you want, I can set priorities, add deadlines, or mark any of these as completed.",
+            "content": "Done \u00e2\u20ac\u201d I added both tasks.\n\nYour lists:\n- personal \u00e2\u20ac\u201d 1 task\n  - buy groceries (normal priority)\n- work \u00e2\u20ac\u201d 1 task\n  - submit report (normal priority)\n\nIf you want, I can set priorities, add deadlines, or mark any of these as completed.",
             "tool_calls": []
           }
         ],
@@ -896,7 +896,7 @@
           "total": 4570
         },
         "cost_usd": 0.0020455,
-        "final_response": "Done — I added both tasks.\n\nYour lists:\n- personal — 1 task\n  - buy groceries (normal priority)\n- work — 1 task\n  - submit report (normal priority)\n\nIf you want, I can set priorities, add deadlines, or mark any of these as completed.",
+        "final_response": "Done \u00e2\u20ac\u201d I added both tasks.\n\nYour lists:\n- personal \u00e2\u20ac\u201d 1 task\n  - buy groceries (normal priority)\n- work \u00e2\u20ac\u201d 1 task\n  - submit report (normal priority)\n\nIf you want, I can set priorities, add deadlines, or mark any of these as completed.",
         "tools_called": [
           "add_task",
           "get_lists",
@@ -967,7 +967,7 @@
           },
           {
             "role": "assistant",
-            "content": "I checked a few European cities I have data for. Current conditions:\n\n- Paris, France: 18°C (64°F), partly cloudy, humidity 65%, wind 12 km/h SW.  \n- Berlin, Germany: 16°C (61°F), overcast, humidity 72%, wind 10 km/h N.  \n- London, UK: 14°C (57°F), rainy, humidity 80%, wind 18 km/h W.\n\nQuick summary: mild temperatures across these locations (mid-teens °C), partly cloudy to overcast, with rain in London and light–moderate winds. Would you like a forecast for any of these cities or weather for a different European location?",
+            "content": "I checked a few European cities I have data for. Current conditions:\n\n- Paris, France: 18\u00c2\u00b0C (64\u00c2\u00b0F), partly cloudy, humidity 65%, wind 12 km/h SW.  \n- Berlin, Germany: 16\u00c2\u00b0C (61\u00c2\u00b0F), overcast, humidity 72%, wind 10 km/h N.  \n- London, UK: 14\u00c2\u00b0C (57\u00c2\u00b0F), rainy, humidity 80%, wind 18 km/h W.\n\nQuick summary: mild temperatures across these locations (mid-teens \u00c2\u00b0C), partly cloudy to overcast, with rain in London and light\u00e2\u20ac\u201cmoderate winds. Would you like a forecast for any of these cities or weather for a different European location?",
             "tool_calls": []
           }
         ],
@@ -977,7 +977,7 @@
           "total": 2225
         },
         "cost_usd": 0.00176375,
-        "final_response": "I checked a few European cities I have data for. Current conditions:\n\n- Paris, France: 18°C (64°F), partly cloudy, humidity 65%, wind 12 km/h SW.  \n- Berlin, Germany: 16°C (61°F), overcast, humidity 72%, wind 10 km/h N.  \n- London, UK: 14°C (57°F), rainy, humidity 80%, wind 18 km/h W.\n\nQuick summary: mild temperatures across these locations (mid-teens °C), partly cloudy to overcast, with rain in London and light–moderate winds. Would you like a forecast for any of these cities or weather for a different European location?",
+        "final_response": "I checked a few European cities I have data for. Current conditions:\n\n- Paris, France: 18\u00c2\u00b0C (64\u00c2\u00b0F), partly cloudy, humidity 65%, wind 12 km/h SW.  \n- Berlin, Germany: 16\u00c2\u00b0C (61\u00c2\u00b0F), overcast, humidity 72%, wind 10 km/h N.  \n- London, UK: 14\u00c2\u00b0C (57\u00c2\u00b0F), rainy, humidity 80%, wind 18 km/h W.\n\nQuick summary: mild temperatures across these locations (mid-teens \u00c2\u00b0C), partly cloudy to overcast, with rain in London and light\u00e2\u20ac\u201cmoderate winds. Would you like a forecast for any of these cities or weather for a different European location?",
         "tools_called": [
           "list_cities",
           "get_weather"
@@ -1051,7 +1051,7 @@
           },
           {
             "role": "assistant",
-            "content": "I checked your urgent list — it was empty, so I added a high-priority task \"check email\". Here’s the current urgent list:\n\n- [ ] check email (high) — id: 9da3c061",
+            "content": "I checked your urgent list \u00e2\u20ac\u201d it was empty, so I added a high-priority task \"check email\". Here\u00e2\u20ac\u2122s the current urgent list:\n\n- [ ] check email (high) \u00e2\u20ac\u201d id: 9da3c061",
             "tool_calls": []
           }
         ],
@@ -1061,7 +1061,7 @@
           "total": 2983
         },
         "cost_usd": 0.001094,
-        "final_response": "I checked your urgent list — it was empty, so I added a high-priority task \"check email\". Here’s the current urgent list:\n\n- [ ] check email (high) — id: 9da3c061",
+        "final_response": "I checked your urgent list \u00e2\u20ac\u201d it was empty, so I added a high-priority task \"check email\". Here\u00e2\u20ac\u2122s the current urgent list:\n\n- [ ] check email (high) \u00e2\u20ac\u201d id: 9da3c061",
         "tools_called": [
           "add_task",
           "list_tasks"
@@ -1069,5 +1069,26 @@
         "session_context_count": 0
       }
     }
-  ]
+  ],
+  "insights": {
+    "recommendation": {
+      "configuration": "azure/gpt-5-mini",
+      "summary": "91.7% pass rate with 11 of 12 tests passing. The single failure in test_conditional_logic_workflow should be investigated.",
+      "reasoning": "The configuration handles most weather and todo workflows well. The conditional logic failure appears to be an edge case that may need prompt refinement.",
+      "alternatives": ["Consider gpt-4.1 for complex conditional reasoning if failure persists after prompt improvements"]
+    },
+    "failures": [
+      {
+        "configuration": "azure/gpt-5-mini",
+        "test_id": "tests/integration/test_basic_usage.py::TestAdvancedPatterns::test_conditional_logic_workflow",
+        "problem": "Agent failed to correctly handle conditional branching in multi-step workflow",
+        "root_cause": "The system prompt lacks explicit guidance for conditional decision making",
+        "suggested_fix": "Add explicit conditional handling instructions to system prompt: 'When faced with conditional choices, evaluate each option explicitly before proceeding.'"
+      }
+    ],
+    "mcp_feedback": [],
+    "prompt_feedback": [],
+    "skill_feedback": [],
+    "optimizations": []
+  }
 }

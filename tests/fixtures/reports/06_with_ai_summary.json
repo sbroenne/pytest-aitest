@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "name": "pytest-aitest",
   "timestamp": "2026-02-02T18:14:37.078527Z",
   "duration_ms": 34464.62510005222,
@@ -77,7 +77,7 @@
           },
           {
             "role": "assistant",
-            "content": "Current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast or any other details (rain chances, hourly outlook, etc.)?",
+            "content": "Current weather in Paris, France:\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast or any other details (rain chances, hourly outlook, etc.)?",
             "tool_calls": []
           }
         ],
@@ -87,7 +87,7 @@
           "total": 971
         },
         "cost_usd": 0.0003985,
-        "final_response": "Current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast or any other details (rain chances, hourly outlook, etc.)?",
+        "final_response": "Current weather in Paris, France:\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast or any other details (rain chances, hourly outlook, etc.)?",
         "tools_called": [
           "get_weather"
         ],
@@ -129,7 +129,7 @@
           },
           {
             "role": "assistant",
-            "content": "I fetched the 3-day forecast for Tokyo. Summary:\n\n- Day 1 — Sunny. High 26°C (79°F), Low 18°C (64°F). Precipitation chance: 20%.\n- Day 2 — Partly cloudy. High 27°C (81°F), Low 19°C (66°F). Precipitation chance: 30%.\n- Day 3 — Cloudy. High 28°C (82°F), Low 20°C (68°F). Precipitation chance: 40%.\n\nBrief tip: temperatures are warm — light layers are fine. Rain chance increases by day 3, so consider carrying a compact umbrella or light rain jacket. Would you like hourly details or an extended forecast?",
+            "content": "I fetched the 3-day forecast for Tokyo. Summary:\n\n- Day 1 \u2014 Sunny. High 26\u00b0C (79\u00b0F), Low 18\u00b0C (64\u00b0F). Precipitation chance: 20%.\n- Day 2 \u2014 Partly cloudy. High 27\u00b0C (81\u00b0F), Low 19\u00b0C (66\u00b0F). Precipitation chance: 30%.\n- Day 3 \u2014 Cloudy. High 28\u00b0C (82\u00b0F), Low 20\u00b0C (68\u00b0F). Precipitation chance: 40%.\n\nBrief tip: temperatures are warm \u2014 light layers are fine. Rain chance increases by day 3, so consider carrying a compact umbrella or light rain jacket. Would you like hourly details or an extended forecast?",
             "tool_calls": []
           }
         ],
@@ -139,7 +139,7 @@
           "total": 1480
         },
         "cost_usd": 0.001259,
-        "final_response": "I fetched the 3-day forecast for Tokyo. Summary:\n\n- Day 1 — Sunny. High 26°C (79°F), Low 18°C (64°F). Precipitation chance: 20%.\n- Day 2 — Partly cloudy. High 27°C (81°F), Low 19°C (66°F). Precipitation chance: 30%.\n- Day 3 — Cloudy. High 28°C (82°F), Low 20°C (68°F). Precipitation chance: 40%.\n\nBrief tip: temperatures are warm — light layers are fine. Rain chance increases by day 3, so consider carrying a compact umbrella or light rain jacket. Would you like hourly details or an extended forecast?",
+        "final_response": "I fetched the 3-day forecast for Tokyo. Summary:\n\n- Day 1 \u2014 Sunny. High 26\u00b0C (79\u00b0F), Low 18\u00b0C (64\u00b0F). Precipitation chance: 20%.\n- Day 2 \u2014 Partly cloudy. High 27\u00b0C (81\u00b0F), Low 19\u00b0C (66\u00b0F). Precipitation chance: 30%.\n- Day 3 \u2014 Cloudy. High 28\u00b0C (82\u00b0F), Low 20\u00b0C (68\u00b0F). Precipitation chance: 40%.\n\nBrief tip: temperatures are warm \u2014 light layers are fine. Rain chance increases by day 3, so consider carrying a compact umbrella or light rain jacket. Would you like hourly details or an extended forecast?",
         "tools_called": [
           "get_forecast"
         ],
@@ -181,7 +181,7 @@
           },
           {
             "role": "assistant",
-            "content": "Sydney is warmer. Current temperatures: Sydney 26°C (79°F) vs Berlin 16°C (61°F) — a difference of 10°C (18°F).\n\nDetails:\n- Sydney: 26°C, sunny, humidity 60%, wind 20 km/h SE.\n- Berlin: 16°C, overcast, humidity 72%, wind 10 km/h N.\n\nQuick tip: expect warm, sunny conditions in Sydney (sunscreen/hat); Berlin is cooler and cloudier (light jacket).",
+            "content": "Sydney is warmer. Current temperatures: Sydney 26\u00b0C (79\u00b0F) vs Berlin 16\u00b0C (61\u00b0F) \u2014 a difference of 10\u00b0C (18\u00b0F).\n\nDetails:\n- Sydney: 26\u00b0C, sunny, humidity 60%, wind 20 km/h SE.\n- Berlin: 16\u00b0C, overcast, humidity 72%, wind 10 km/h N.\n\nQuick tip: expect warm, sunny conditions in Sydney (sunscreen/hat); Berlin is cooler and cloudier (light jacket).",
             "tool_calls": []
           }
         ],
@@ -191,7 +191,7 @@
           "total": 1380
         },
         "cost_usd": 0.00104675,
-        "final_response": "Sydney is warmer. Current temperatures: Sydney 26°C (79°F) vs Berlin 16°C (61°F) — a difference of 10°C (18°F).\n\nDetails:\n- Sydney: 26°C, sunny, humidity 60%, wind 20 km/h SE.\n- Berlin: 16°C, overcast, humidity 72%, wind 10 km/h N.\n\nQuick tip: expect warm, sunny conditions in Sydney (sunscreen/hat); Berlin is cooler and cloudier (light jacket).",
+        "final_response": "Sydney is warmer. Current temperatures: Sydney 26\u00b0C (79\u00b0F) vs Berlin 16\u00b0C (61\u00b0F) \u2014 a difference of 10\u00b0C (18\u00b0F).\n\nDetails:\n- Sydney: 26\u00b0C, sunny, humidity 60%, wind 20 km/h SE.\n- Berlin: 16\u00b0C, overcast, humidity 72%, wind 10 km/h N.\n\nQuick tip: expect warm, sunny conditions in Sydney (sunscreen/hat); Berlin is cooler and cloudier (light jacket).",
         "tools_called": [
           "compare_weather"
         ],
@@ -253,5 +253,17 @@
       }
     }
   ],
-  "ai_summary": "### Verdict\n**Fit for Purpose** — the model handled all tested weather-reporting scenarios accurately and efficiently.  \n*Confidence: High*\n\n### What Worked\n- ✅ Basic weather query. — handled straightforward queries correctly  \n- ✅ Multi-day forecast. — produced multi-day forecasts as requested  \n- ✅ Compare two cities. — correctly compared weather between cities  \n- ✅ Test that intentionally fails for report variety. — produced varied report formats as expected  \n- Runtime: 34.5s total; Tokens: 4,493; Tool calls: 5.\n\n### What Failed\n- All tests passed - no failures to report.\n\n### Recommendation\nSuitable for production weather-query and brief forecasting tasks. If you expect high-volume use, monitor token consumption (4,493 tokens across 4 tests) to manage cost."
+  "insights": {
+    "recommendation": {
+      "configuration": "(analysis pending)",
+      "summary": "AI analysis has not been run yet",
+      "reasoning": "Run with --aitest-html to generate AI-powered insights",
+      "alternatives": []
+    },
+    "failures": [],
+    "mcp_feedback": [],
+    "prompt_feedback": [],
+    "skill_feedback": [],
+    "optimizations": []
+  }
 }

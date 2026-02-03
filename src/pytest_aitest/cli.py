@@ -20,10 +20,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from pytest_aitest.core.result import AgentResult, ToolCall, Turn
 from pytest_aitest.reporting.collector import SuiteReport as LegacySuiteReport
 from pytest_aitest.reporting.collector import TestReport as LegacyTestReport
 from pytest_aitest.reporting.generator import ReportGenerator
-from pytest_aitest.result import AgentResult, ToolCall, Turn
 
 
 def load_config_from_pyproject() -> dict[str, Any]:

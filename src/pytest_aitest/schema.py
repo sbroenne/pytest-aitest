@@ -13,7 +13,7 @@ from typing import Any
 from jsonschema import ValidationError, validate
 
 # Schema version - must match the const in report.schema.json
-SCHEMA_VERSION = "2.0"
+SCHEMA_VERSION = "3.0"
 
 
 class SchemaValidationError(Exception):

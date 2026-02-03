@@ -2,6 +2,7 @@
 
 ## Getting Started
 
+- **[Core Concepts](concepts.md)** — Agents, MCP servers, system prompts, Agent Skills, and how they fit together
 - **[Configuration](configuration.md)** — Setup providers, agents, and servers
 
 ## Servers
@@ -13,7 +14,7 @@
 
 - **[Assertions](assertions.md)** — AgentResult API and AI judge
 - **[Sessions](sessions.md)** — Multi-turn conversations with context retention
-- **[Skills](skills.md)** — Inject domain knowledge via skill files
+- **[Agent Skills](skills.md)** — Domain knowledge modules ([agentskills.io](https://agentskills.io))
 - **[Reporting](reporting.md)** — HTML/JSON reports with auto-comparison
 
 ## Development
@@ -24,7 +25,7 @@
 ## Reference
 
 - **[API Reference](api-reference.md)** — Complete type reference
-- **[Design](DESIGN.md)** — Architecture and design decisions
+- **[Design Archive](DESIGN.md)** — Historical design decisions (some content outdated)
 
 ## Examples
 

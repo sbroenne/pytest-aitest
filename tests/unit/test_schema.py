@@ -19,16 +19,32 @@ from pytest_aitest.schema import (
 )
 
 
+# Placeholder insights for test data (required in v3.0)
+PLACEHOLDER_INSIGHTS = {
+    "recommendation": {
+        "configuration": "(test)",
+        "summary": "Test placeholder",
+        "reasoning": "For testing only",
+        "alternatives": [],
+    },
+    "failures": [],
+    "mcp_feedback": [],
+    "prompt_feedback": [],
+    "skill_feedback": [],
+    "optimizations": [],
+}
+
+
 class TestSchemaModule:
     """Test schema loading and validation utilities."""
 
     def test_schema_version_constant(self) -> None:
         """Schema version should be 2.0."""
-        assert SCHEMA_VERSION == "2.0"
+        assert SCHEMA_VERSION == "3.0"
 
     def test_get_schema_version(self) -> None:
         """get_schema_version should return current version."""
-        assert get_schema_version() == "2.0"
+        assert get_schema_version() == "3.0"
 
     def test_get_schema_path_exists(self) -> None:
         """Schema file should exist at returned path."""
@@ -59,7 +75,7 @@ class TestValidateReport:
     def test_valid_minimal_report(self) -> None:
         """Minimal valid report should pass validation."""
         data = {
-            "schema_version": "2.0",
+            "schema_version": "3.0",
             "name": "test",
             "timestamp": "2026-01-01T00:00:00Z",
             "duration_ms": 1000.0,
@@ -71,6 +87,7 @@ class TestValidateReport:
                 "skipped": 0,
                 "pass_rate": 0.0,
             },
+            "insights": PLACEHOLDER_INSIGHTS,
         }
         # Should not raise
         validate_report(data)
@@ -78,9 +95,9 @@ class TestValidateReport:
     def test_missing_required_field(self) -> None:
         """Missing required field should fail validation."""
         data = {
-            "schema_version": "2.0",
+            "schema_version": "3.0",
             "name": "test",
-            # Missing timestamp, duration_ms, tests, summary
+            # Missing timestamp, duration_ms, tests, summary, insights
         }
         with pytest.raises(SchemaValidationError):
             validate_report(data)
@@ -100,6 +117,7 @@ class TestValidateReport:
                 "skipped": 0,
                 "pass_rate": 0.0,
             },
+            "insights": PLACEHOLDER_INSIGHTS,
         }
         with pytest.raises(SchemaValidationError):
             validate_report(data)
@@ -107,7 +125,7 @@ class TestValidateReport:
     def test_invalid_test_outcome(self) -> None:
         """Invalid test outcome should fail validation."""
         data = {
-            "schema_version": "2.0",
+            "schema_version": "3.0",
             "name": "test",
             "timestamp": "2026-01-01T00:00:00Z",
             "duration_ms": 1000.0,
@@ -125,6 +143,7 @@ class TestValidateReport:
                 "skipped": 0,
                 "pass_rate": 0.0,
             },
+            "insights": PLACEHOLDER_INSIGHTS,
         }
         with pytest.raises(SchemaValidationError):
             validate_report(data)
@@ -135,8 +154,8 @@ class TestValidateSchemaVersion:
 
     def test_valid_version(self) -> None:
         """Valid version should return the version."""
-        data = {"schema_version": "2.0"}
-        assert validate_schema_version(data) == "2.0"
+        data = {"schema_version": "3.0"}
+        assert validate_schema_version(data) == "3.0"
 
     def test_missing_version(self) -> None:
         """Missing version should raise error."""
@@ -208,7 +227,7 @@ class TestFixturesValidation:
             pytest.skip(f"Fixture {fixture_name} not found")
 
         data = json.loads(fixture_path.read_text(encoding="utf-8"))
-        assert data.get("schema_version") == "2.0"
+        assert data.get("schema_version") == "3.0"
 
     @pytest.mark.parametrize(
         "fixture_name",
@@ -230,7 +249,7 @@ class TestFixturesValidation:
 
         data = json.loads(fixture_path.read_text(encoding="utf-8"))
         report = SuiteReport.model_validate(data)
-        assert report.schema_version == "2.0"
+        assert report.schema_version == "3.0"
         assert len(report.tests) > 0
 
     @pytest.mark.parametrize(
@@ -276,7 +295,8 @@ class TestGeneratedModelsCheck:
         """Generated models should match schema version constant."""
         from pytest_aitest.models._generated import PytestAitestReport
 
-        # The schema_version field should be a Literal["2.0"]
+        # The schema_version field should be a Literal["3.0"]
         model_schema = PytestAitestReport.model_json_schema()
         version_prop = model_schema["properties"]["schema_version"]
-        assert version_prop.get("const") == "2.0"
+        assert version_prop.get("const") == "3.0"
+

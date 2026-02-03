@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "name": "pytest-aitest",
   "timestamp": "2026-02-02T18:18:20.481125Z",
   "duration_ms": 202013.93150002696,
@@ -85,7 +85,7 @@
           },
           {
             "role": "assistant",
-            "content": "Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
+            "content": "Paris: 18\u00b0C (64\u00b0F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
             "tool_calls": []
           }
         ],
@@ -95,7 +95,7 @@
           "total": 747
         },
         "cost_usd": 0.00027949999999999996,
-        "final_response": "Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
+        "final_response": "Paris: 18\u00b0C (64\u00b0F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
         "tools_called": [
           "get_weather"
         ],
@@ -138,7 +138,7 @@
           },
           {
             "role": "assistant",
-            "content": "Paris weather: 18°C, partly cloudy, 65% humidity, SW wind at 12 km/h.",
+            "content": "Paris weather: 18\u00b0C, partly cloudy, 65% humidity, SW wind at 12 km/h.",
             "tool_calls": []
           }
         ],
@@ -148,7 +148,7 @@
           "total": 560
         },
         "cost_usd": 0.0013599999999999999,
-        "final_response": "Paris weather: 18°C, partly cloudy, 65% humidity, SW wind at 12 km/h.",
+        "final_response": "Paris weather: 18\u00b0C, partly cloudy, 65% humidity, SW wind at 12 km/h.",
         "tools_called": [
           "get_weather"
         ],
@@ -191,7 +191,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here’s the current weather in Paris plus practical advice and the reasoning behind it.\n\nCurrent conditions\n- Temperature: 18 °C (64 °F). I report both units so you can choose whichever you prefer. 18 °C is about 64.4 °F, so the temperature feels mild.\n- Humidity: 65% — moderate. Not excessively dry or very muggy, but enough moisture in the air that the air can feel slightly heavy if you’re active.\n- Sky: Partly cloudy — sun and clouds alternating.\n- Wind: 12 km/h (about 7.5 mph) from the southwest. That’s a light-to-moderate breeze.\n\nPractical advice and reasoning\n- What to wear: A light jacket, sweater, or long-sleeve shirt is appropriate. Reason: 18 °C is comfortable but can feel a bit cool in shade or if you’re standing still; the breeze increases the cooling sensation slightly.\n- Outdoor plans (walking, sightseeing, cafés): Fine to go ahead. Reason: partly cloudy skies and mild temperature make for pleasant conditions for walking and outdoor dining.\n- Sun protection: Bring sunglasses and light sunscreen if you’ll be in direct sun for long periods. Reason: Partly cloudy doesn’t eliminate periods of bright sun.\n- Rain gear: Not strictly necessary right now (conditions are “partly cloudy” and no rain reported), but a small foldable umbrella or light waterproof layer is a good backup if you’ll be out for many hours. Reason: clouds can develop into brief showers later even when it’s currently dry.\n- Cycling/running: Good conditions for exercise; expect comfortable temperatures but keep a light layer for the start/end of your activity. Reason: moderate humidity and a 12 km/h breeze won’t overheat you but can cool you when you stop.\n- Driving: Sunglasses are useful because changing cloud cover can create glare. Reason: alternating sun and clouds can make light levels vary quickly.\n\nIf you want, I can fetch a short forecast for the next few hours or days (e.g., whether those clouds will bring rain later or how temperatures change).",
+            "content": "Here\u2019s the current weather in Paris plus practical advice and the reasoning behind it.\n\nCurrent conditions\n- Temperature: 18 \u00b0C (64 \u00b0F). I report both units so you can choose whichever you prefer. 18 \u00b0C is about 64.4 \u00b0F, so the temperature feels mild.\n- Humidity: 65% \u2014 moderate. Not excessively dry or very muggy, but enough moisture in the air that the air can feel slightly heavy if you\u2019re active.\n- Sky: Partly cloudy \u2014 sun and clouds alternating.\n- Wind: 12 km/h (about 7.5 mph) from the southwest. That\u2019s a light-to-moderate breeze.\n\nPractical advice and reasoning\n- What to wear: A light jacket, sweater, or long-sleeve shirt is appropriate. Reason: 18 \u00b0C is comfortable but can feel a bit cool in shade or if you\u2019re standing still; the breeze increases the cooling sensation slightly.\n- Outdoor plans (walking, sightseeing, caf\u00e9s): Fine to go ahead. Reason: partly cloudy skies and mild temperature make for pleasant conditions for walking and outdoor dining.\n- Sun protection: Bring sunglasses and light sunscreen if you\u2019ll be in direct sun for long periods. Reason: Partly cloudy doesn\u2019t eliminate periods of bright sun.\n- Rain gear: Not strictly necessary right now (conditions are \u201cpartly cloudy\u201d and no rain reported), but a small foldable umbrella or light waterproof layer is a good backup if you\u2019ll be out for many hours. Reason: clouds can develop into brief showers later even when it\u2019s currently dry.\n- Cycling/running: Good conditions for exercise; expect comfortable temperatures but keep a light layer for the start/end of your activity. Reason: moderate humidity and a 12 km/h breeze won\u2019t overheat you but can cool you when you stop.\n- Driving: Sunglasses are useful because changing cloud cover can create glare. Reason: alternating sun and clouds can make light levels vary quickly.\n\nIf you want, I can fetch a short forecast for the next few hours or days (e.g., whether those clouds will bring rain later or how temperatures change).",
             "tool_calls": []
           }
         ],
@@ -201,7 +201,7 @@
           "total": 1774
         },
         "cost_usd": 0.0022705,
-        "final_response": "Here’s the current weather in Paris plus practical advice and the reasoning behind it.\n\nCurrent conditions\n- Temperature: 18 °C (64 °F). I report both units so you can choose whichever you prefer. 18 °C is about 64.4 °F, so the temperature feels mild.\n- Humidity: 65% — moderate. Not excessively dry or very muggy, but enough moisture in the air that the air can feel slightly heavy if you’re active.\n- Sky: Partly cloudy — sun and clouds alternating.\n- Wind: 12 km/h (about 7.5 mph) from the southwest. That’s a light-to-moderate breeze.\n\nPractical advice and reasoning\n- What to wear: A light jacket, sweater, or long-sleeve shirt is appropriate. Reason: 18 °C is comfortable but can feel a bit cool in shade or if you’re standing still; the breeze increases the cooling sensation slightly.\n- Outdoor plans (walking, sightseeing, cafés): Fine to go ahead. Reason: partly cloudy skies and mild temperature make for pleasant conditions for walking and outdoor dining.\n- Sun protection: Bring sunglasses and light sunscreen if you’ll be in direct sun for long periods. Reason: Partly cloudy doesn’t eliminate periods of bright sun.\n- Rain gear: Not strictly necessary right now (conditions are “partly cloudy” and no rain reported), but a small foldable umbrella or light waterproof layer is a good backup if you’ll be out for many hours. Reason: clouds can develop into brief showers later even when it’s currently dry.\n- Cycling/running: Good conditions for exercise; expect comfortable temperatures but keep a light layer for the start/end of your activity. Reason: moderate humidity and a 12 km/h breeze won’t overheat you but can cool you when you stop.\n- Driving: Sunglasses are useful because changing cloud cover can create glare. Reason: alternating sun and clouds can make light levels vary quickly.\n\nIf you want, I can fetch a short forecast for the next few hours or days (e.g., whether those clouds will bring rain later or how temperatures change).",
+        "final_response": "Here\u2019s the current weather in Paris plus practical advice and the reasoning behind it.\n\nCurrent conditions\n- Temperature: 18 \u00b0C (64 \u00b0F). I report both units so you can choose whichever you prefer. 18 \u00b0C is about 64.4 \u00b0F, so the temperature feels mild.\n- Humidity: 65% \u2014 moderate. Not excessively dry or very muggy, but enough moisture in the air that the air can feel slightly heavy if you\u2019re active.\n- Sky: Partly cloudy \u2014 sun and clouds alternating.\n- Wind: 12 km/h (about 7.5 mph) from the southwest. That\u2019s a light-to-moderate breeze.\n\nPractical advice and reasoning\n- What to wear: A light jacket, sweater, or long-sleeve shirt is appropriate. Reason: 18 \u00b0C is comfortable but can feel a bit cool in shade or if you\u2019re standing still; the breeze increases the cooling sensation slightly.\n- Outdoor plans (walking, sightseeing, caf\u00e9s): Fine to go ahead. Reason: partly cloudy skies and mild temperature make for pleasant conditions for walking and outdoor dining.\n- Sun protection: Bring sunglasses and light sunscreen if you\u2019ll be in direct sun for long periods. Reason: Partly cloudy doesn\u2019t eliminate periods of bright sun.\n- Rain gear: Not strictly necessary right now (conditions are \u201cpartly cloudy\u201d and no rain reported), but a small foldable umbrella or light waterproof layer is a good backup if you\u2019ll be out for many hours. Reason: clouds can develop into brief showers later even when it\u2019s currently dry.\n- Cycling/running: Good conditions for exercise; expect comfortable temperatures but keep a light layer for the start/end of your activity. Reason: moderate humidity and a 12 km/h breeze won\u2019t overheat you but can cool you when you stop.\n- Driving: Sunglasses are useful because changing cloud cover can create glare. Reason: alternating sun and clouds can make light levels vary quickly.\n\nIf you want, I can fetch a short forecast for the next few hours or days (e.g., whether those clouds will bring rain later or how temperatures change).",
         "tools_called": [
           "get_weather"
         ],
@@ -244,7 +244,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here’s the current weather in Paris:\n\n- Temperature: 18°C (64°F)\n- Humidity: 65%\n- Conditions: Partly cloudy\n- Wind: 12 km/h from the southwest\n\nAdvice: With comfortable temperatures and partly cloudy skies, it’s a pleasant day for outdoor activities. Winds are gentle but may make it feel slightly cooler—consider a light jacket if you’ll be outside for a long time. The humidity is moderate, so it shouldn’t feel too muggy. Enjoy your day in Paris!",
+            "content": "Here\u2019s the current weather in Paris:\n\n- Temperature: 18\u00b0C (64\u00b0F)\n- Humidity: 65%\n- Conditions: Partly cloudy\n- Wind: 12 km/h from the southwest\n\nAdvice: With comfortable temperatures and partly cloudy skies, it\u2019s a pleasant day for outdoor activities. Winds are gentle but may make it feel slightly cooler\u2014consider a light jacket if you\u2019ll be outside for a long time. The humidity is moderate, so it shouldn\u2019t feel too muggy. Enjoy your day in Paris!",
             "tool_calls": []
           }
         ],
@@ -254,7 +254,7 @@
           "total": 680
         },
         "cost_usd": 0.002104,
-        "final_response": "Here’s the current weather in Paris:\n\n- Temperature: 18°C (64°F)\n- Humidity: 65%\n- Conditions: Partly cloudy\n- Wind: 12 km/h from the southwest\n\nAdvice: With comfortable temperatures and partly cloudy skies, it’s a pleasant day for outdoor activities. Winds are gentle but may make it feel slightly cooler—consider a light jacket if you’ll be outside for a long time. The humidity is moderate, so it shouldn’t feel too muggy. Enjoy your day in Paris!",
+        "final_response": "Here\u2019s the current weather in Paris:\n\n- Temperature: 18\u00b0C (64\u00b0F)\n- Humidity: 65%\n- Conditions: Partly cloudy\n- Wind: 12 km/h from the southwest\n\nAdvice: With comfortable temperatures and partly cloudy skies, it\u2019s a pleasant day for outdoor activities. Winds are gentle but may make it feel slightly cooler\u2014consider a light jacket if you\u2019ll be outside for a long time. The humidity is moderate, so it shouldn\u2019t feel too muggy. Enjoy your day in Paris!",
         "tools_called": [
           "get_weather"
         ],
@@ -297,7 +297,7 @@
           },
           {
             "role": "assistant",
-            "content": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+            "content": "\ud83d\udccd Location: Paris\n\ud83c\udf21\ufe0f Temperature: 18\u00b0C / 64\u00b0F\n\ud83d\udca7 Humidity: 65%\n\ud83c\udf24\ufe0f Conditions: Partly cloudy\n\ud83d\udca8 Wind: 12 km/h SW",
             "tool_calls": []
           }
         ],
@@ -307,7 +307,7 @@
           "total": 865
         },
         "cost_usd": 0.00034399999999999996,
-        "final_response": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+        "final_response": "\ud83d\udccd Location: Paris\n\ud83c\udf21\ufe0f Temperature: 18\u00b0C / 64\u00b0F\n\ud83d\udca7 Humidity: 65%\n\ud83c\udf24\ufe0f Conditions: Partly cloudy\n\ud83d\udca8 Wind: 12 km/h SW",
         "tools_called": [
           "get_weather"
         ],
@@ -350,7 +350,7 @@
           },
           {
             "role": "assistant",
-            "content": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+            "content": "\ud83d\udccd Location: Paris\n\ud83c\udf21\ufe0f Temperature: 18\u00b0C / 64\u00b0F\n\ud83d\udca7 Humidity: 65%\n\ud83c\udf24\ufe0f Conditions: Partly cloudy\n\ud83d\udca8 Wind: 12 km/h SW",
             "tool_calls": []
           }
         ],
@@ -360,7 +360,7 @@
           "total": 680
         },
         "cost_usd": 0.0017319999999999998,
-        "final_response": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+        "final_response": "\ud83d\udccd Location: Paris\n\ud83c\udf21\ufe0f Temperature: 18\u00b0C / 64\u00b0F\n\ud83d\udca7 Humidity: 65%\n\ud83c\udf24\ufe0f Conditions: Partly cloudy\n\ud83d\udca8 Wind: 12 km/h SW",
         "tools_called": [
           "get_weather"
         ],
@@ -404,7 +404,7 @@
           },
           {
             "role": "assistant",
-            "content": "Yes — bring an umbrella. Rain is likely mid–late week: Day 4 is forecast \"Rainy\" (50% chance) and days 5–7 show 60–80% precipitation risk. Carry a compact umbrella or waterproof jacket.",
+            "content": "Yes \u2014 bring an umbrella. Rain is likely mid\u2013late week: Day 4 is forecast \"Rainy\" (50% chance) and days 5\u20137 show 60\u201380% precipitation risk. Carry a compact umbrella or waterproof jacket.",
             "tool_calls": []
           }
         ],
@@ -414,7 +414,7 @@
           "total": 1375
         },
         "cost_usd": 0.00106125,
-        "final_response": "Yes — bring an umbrella. Rain is likely mid–late week: Day 4 is forecast \"Rainy\" (50% chance) and days 5–7 show 60–80% precipitation risk. Carry a compact umbrella or waterproof jacket.",
+        "final_response": "Yes \u2014 bring an umbrella. Rain is likely mid\u2013late week: Day 4 is forecast \"Rainy\" (50% chance) and days 5\u20137 show 60\u201380% precipitation risk. Carry a compact umbrella or waterproof jacket.",
         "tools_called": [
           "get_forecast"
         ],
@@ -526,7 +526,7 @@
           },
           {
             "role": "assistant",
-            "content": "Short answer: Yes — bring an umbrella this week in London.\n\nWhy (current conditions)\n- Temperature: 14 °C (57 °F). I report both because you asked.\n- Humidity: 80% — quite high, which makes the air feel damp and increases the chance that light rain or drizzle will persist.\n- Wind: 18 km/h (≈ 11 mph) from the west. That’s a steady breeze; not gale-force, but enough to make very lightweight umbrellas flip inside-out in strong gusts.\n- Current conditions: Rainy. This means there is immediate wet weather now, not just a forecast.\n\nWhy (this week’s forecast)\n- The 7-day forecast shows a mix of sun and clouds but several days with notable precipitation chances: day 4 (50%), day 5 (60%), day 6 (70%), day 7 (80%). Even earlier in the week there are non-trivial chances (20–40%) on days 1–3. Taken together, that’s a substantial risk of rain at some point this week.\n- Even a 20–40% chance means you could get caught in showers, and the higher late-week probabilities make rain likely on multiple days.\n\nPractical advice\n- Bring an umbrella: a compact folding umbrella is convenient for day-to-day use; however, because of the steady westerly wind (~18 km/h), choose one with a sturdy frame or a vented design if possible (less likely to invert).\n- Consider layering: a light waterproof jacket with a hood will keep you dry if gusts make umbrella use awkward.\n- Footwear: waterproof shoes or quick-drying footwear are helpful given high humidity and likely showers.\n- If you’ll be outside for long periods or plan to cycle, a rain jacket + hood might be preferable to an umbrella.\n- Check the forecast the morning you go out — London weather can change quickly, so a last-minute check will give the best guidance for that day.\n\nIf you tell me which day(s) you’ll be out and what you’ll be doing (walking, sightseeing, cycling, commuting), I can give a tailored recommendation for umbrella vs. raincoat and suggest what time of day is safest.",
+            "content": "Short answer: Yes \u2014 bring an umbrella this week in London.\n\nWhy (current conditions)\n- Temperature: 14 \u00b0C (57 \u00b0F). I report both because you asked.\n- Humidity: 80% \u2014 quite high, which makes the air feel damp and increases the chance that light rain or drizzle will persist.\n- Wind: 18 km/h (\u2248 11 mph) from the west. That\u2019s a steady breeze; not gale-force, but enough to make very lightweight umbrellas flip inside-out in strong gusts.\n- Current conditions: Rainy. This means there is immediate wet weather now, not just a forecast.\n\nWhy (this week\u2019s forecast)\n- The 7-day forecast shows a mix of sun and clouds but several days with notable precipitation chances: day 4 (50%), day 5 (60%), day 6 (70%), day 7 (80%). Even earlier in the week there are non-trivial chances (20\u201340%) on days 1\u20133. Taken together, that\u2019s a substantial risk of rain at some point this week.\n- Even a 20\u201340% chance means you could get caught in showers, and the higher late-week probabilities make rain likely on multiple days.\n\nPractical advice\n- Bring an umbrella: a compact folding umbrella is convenient for day-to-day use; however, because of the steady westerly wind (~18 km/h), choose one with a sturdy frame or a vented design if possible (less likely to invert).\n- Consider layering: a light waterproof jacket with a hood will keep you dry if gusts make umbrella use awkward.\n- Footwear: waterproof shoes or quick-drying footwear are helpful given high humidity and likely showers.\n- If you\u2019ll be outside for long periods or plan to cycle, a rain jacket + hood might be preferable to an umbrella.\n- Check the forecast the morning you go out \u2014 London weather can change quickly, so a last-minute check will give the best guidance for that day.\n\nIf you tell me which day(s) you\u2019ll be out and what you\u2019ll be doing (walking, sightseeing, cycling, commuting), I can give a tailored recommendation for umbrella vs. raincoat and suggest what time of day is safest.",
             "tool_calls": []
           }
         ],
@@ -536,7 +536,7 @@
           "total": 2916
         },
         "cost_usd": 0.0027502499999999997,
-        "final_response": "Short answer: Yes — bring an umbrella this week in London.\n\nWhy (current conditions)\n- Temperature: 14 °C (57 °F). I report both because you asked.\n- Humidity: 80% — quite high, which makes the air feel damp and increases the chance that light rain or drizzle will persist.\n- Wind: 18 km/h (≈ 11 mph) from the west. That’s a steady breeze; not gale-force, but enough to make very lightweight umbrellas flip inside-out in strong gusts.\n- Current conditions: Rainy. This means there is immediate wet weather now, not just a forecast.\n\nWhy (this week’s forecast)\n- The 7-day forecast shows a mix of sun and clouds but several days with notable precipitation chances: day 4 (50%), day 5 (60%), day 6 (70%), day 7 (80%). Even earlier in the week there are non-trivial chances (20–40%) on days 1–3. Taken together, that’s a substantial risk of rain at some point this week.\n- Even a 20–40% chance means you could get caught in showers, and the higher late-week probabilities make rain likely on multiple days.\n\nPractical advice\n- Bring an umbrella: a compact folding umbrella is convenient for day-to-day use; however, because of the steady westerly wind (~18 km/h), choose one with a sturdy frame or a vented design if possible (less likely to invert).\n- Consider layering: a light waterproof jacket with a hood will keep you dry if gusts make umbrella use awkward.\n- Footwear: waterproof shoes or quick-drying footwear are helpful given high humidity and likely showers.\n- If you’ll be outside for long periods or plan to cycle, a rain jacket + hood might be preferable to an umbrella.\n- Check the forecast the morning you go out — London weather can change quickly, so a last-minute check will give the best guidance for that day.\n\nIf you tell me which day(s) you’ll be out and what you’ll be doing (walking, sightseeing, cycling, commuting), I can give a tailored recommendation for umbrella vs. raincoat and suggest what time of day is safest.",
+        "final_response": "Short answer: Yes \u2014 bring an umbrella this week in London.\n\nWhy (current conditions)\n- Temperature: 14 \u00b0C (57 \u00b0F). I report both because you asked.\n- Humidity: 80% \u2014 quite high, which makes the air feel damp and increases the chance that light rain or drizzle will persist.\n- Wind: 18 km/h (\u2248 11 mph) from the west. That\u2019s a steady breeze; not gale-force, but enough to make very lightweight umbrellas flip inside-out in strong gusts.\n- Current conditions: Rainy. This means there is immediate wet weather now, not just a forecast.\n\nWhy (this week\u2019s forecast)\n- The 7-day forecast shows a mix of sun and clouds but several days with notable precipitation chances: day 4 (50%), day 5 (60%), day 6 (70%), day 7 (80%). Even earlier in the week there are non-trivial chances (20\u201340%) on days 1\u20133. Taken together, that\u2019s a substantial risk of rain at some point this week.\n- Even a 20\u201340% chance means you could get caught in showers, and the higher late-week probabilities make rain likely on multiple days.\n\nPractical advice\n- Bring an umbrella: a compact folding umbrella is convenient for day-to-day use; however, because of the steady westerly wind (~18 km/h), choose one with a sturdy frame or a vented design if possible (less likely to invert).\n- Consider layering: a light waterproof jacket with a hood will keep you dry if gusts make umbrella use awkward.\n- Footwear: waterproof shoes or quick-drying footwear are helpful given high humidity and likely showers.\n- If you\u2019ll be outside for long periods or plan to cycle, a rain jacket + hood might be preferable to an umbrella.\n- Check the forecast the morning you go out \u2014 London weather can change quickly, so a last-minute check will give the best guidance for that day.\n\nIf you tell me which day(s) you\u2019ll be out and what you\u2019ll be doing (walking, sightseeing, cycling, commuting), I can give a tailored recommendation for umbrella vs. raincoat and suggest what time of day is safest.",
         "tools_called": [
           "get_forecast",
           "get_weather"
@@ -581,7 +581,7 @@
           },
           {
             "role": "assistant",
-            "content": "Yes, you should bring an umbrella to London this week. Here’s the reasoning:\n\n- Rain is expected on several days, with precipitation chances rising throughout the week—up to 80% on the last day.\n- The weather includes days of rain and high likelihood of showers, especially towards the end of the week.\n- London often has unexpected showers even on partly cloudy days.\n\nPractical advice: Even though some days will be sunny or partly cloudy, the increasing chance of rain suggests you’ll be more comfortable if you keep an umbrella handy. This will keep you dry, especially if you’ll be moving around the city!",
+            "content": "Yes, you should bring an umbrella to London this week. Here\u2019s the reasoning:\n\n- Rain is expected on several days, with precipitation chances rising throughout the week\u2014up to 80% on the last day.\n- The weather includes days of rain and high likelihood of showers, especially towards the end of the week.\n- London often has unexpected showers even on partly cloudy days.\n\nPractical advice: Even though some days will be sunny or partly cloudy, the increasing chance of rain suggests you\u2019ll be more comfortable if you keep an umbrella handy. This will keep you dry, especially if you\u2019ll be moving around the city!",
             "tool_calls": []
           }
         ],
@@ -591,7 +591,7 @@
           "total": 974
         },
         "cost_usd": 0.00283,
-        "final_response": "Yes, you should bring an umbrella to London this week. Here’s the reasoning:\n\n- Rain is expected on several days, with precipitation chances rising throughout the week—up to 80% on the last day.\n- The weather includes days of rain and high likelihood of showers, especially towards the end of the week.\n- London often has unexpected showers even on partly cloudy days.\n\nPractical advice: Even though some days will be sunny or partly cloudy, the increasing chance of rain suggests you’ll be more comfortable if you keep an umbrella handy. This will keep you dry, especially if you’ll be moving around the city!",
+        "final_response": "Yes, you should bring an umbrella to London this week. Here\u2019s the reasoning:\n\n- Rain is expected on several days, with precipitation chances rising throughout the week\u2014up to 80% on the last day.\n- The weather includes days of rain and high likelihood of showers, especially towards the end of the week.\n- London often has unexpected showers even on partly cloudy days.\n\nPractical advice: Even though some days will be sunny or partly cloudy, the increasing chance of rain suggests you\u2019ll be more comfortable if you keep an umbrella handy. This will keep you dry, especially if you\u2019ll be moving around the city!",
         "tools_called": [
           "get_forecast"
         ],
@@ -649,7 +649,7 @@
           },
           {
             "role": "assistant",
-            "content": "📍 Location: London\n🌡️ Temperature: 14°C / 57°F\n💧 Humidity: 80%\n🌤️ Conditions: Rainy\n💨 Wind: 18 km/h W\n\nYes — bring an umbrella. It's raining right now and the 7-day forecast shows several days with moderate-to-high chances of precipitation (day 4: 50% — Rainy; day 5: 60%; day 6: 70%; day 7: 80%). Even earlier in the week there are 20–40% chances on some days, so a compact umbrella or a waterproof jacket will keep you comfortable. Quick tips: pack a small foldable umbrella, wear water-resistant shoes, and check the forecast before heading out each day.",
+            "content": "\ud83d\udccd Location: London\n\ud83c\udf21\ufe0f Temperature: 14\u00b0C / 57\u00b0F\n\ud83d\udca7 Humidity: 80%\n\ud83c\udf24\ufe0f Conditions: Rainy\n\ud83d\udca8 Wind: 18 km/h W\n\nYes \u2014 bring an umbrella. It's raining right now and the 7-day forecast shows several days with moderate-to-high chances of precipitation (day 4: 50% \u2014 Rainy; day 5: 60%; day 6: 70%; day 7: 80%). Even earlier in the week there are 20\u201340% chances on some days, so a compact umbrella or a waterproof jacket will keep you comfortable. Quick tips: pack a small foldable umbrella, wear water-resistant shoes, and check the forecast before heading out each day.",
             "tool_calls": []
           }
         ],
@@ -659,7 +659,7 @@
           "total": 2780
         },
         "cost_usd": 0.0023155,
-        "final_response": "📍 Location: London\n🌡️ Temperature: 14°C / 57°F\n💧 Humidity: 80%\n🌤️ Conditions: Rainy\n💨 Wind: 18 km/h W\n\nYes — bring an umbrella. It's raining right now and the 7-day forecast shows several days with moderate-to-high chances of precipitation (day 4: 50% — Rainy; day 5: 60%; day 6: 70%; day 7: 80%). Even earlier in the week there are 20–40% chances on some days, so a compact umbrella or a waterproof jacket will keep you comfortable. Quick tips: pack a small foldable umbrella, wear water-resistant shoes, and check the forecast before heading out each day.",
+        "final_response": "\ud83d\udccd Location: London\n\ud83c\udf21\ufe0f Temperature: 14\u00b0C / 57\u00b0F\n\ud83d\udca7 Humidity: 80%\n\ud83c\udf24\ufe0f Conditions: Rainy\n\ud83d\udca8 Wind: 18 km/h W\n\nYes \u2014 bring an umbrella. It's raining right now and the 7-day forecast shows several days with moderate-to-high chances of precipitation (day 4: 50% \u2014 Rainy; day 5: 60%; day 6: 70%; day 7: 80%). Even earlier in the week there are 20\u201340% chances on some days, so a compact umbrella or a waterproof jacket will keep you comfortable. Quick tips: pack a small foldable umbrella, wear water-resistant shoes, and check the forecast before heading out each day.",
         "tools_called": [
           "get_forecast",
           "get_weather"
@@ -704,7 +704,7 @@
           },
           {
             "role": "assistant",
-            "content": "This week in London, the chance of rain increases as the days go by, especially later in the week:\n\n- Early week (days 1-3): Mostly sunny, partly cloudy, or cloudy with a 20–40% chance of rain.\n- Mid to late week (days 4-7): Increased risk of rain (50–80% chance), with at least one day forecasted as \"Rainy.\"\n\nRecommendation: Yes, you should bring an umbrella to London this week, especially for the second half when rain is more likely.",
+            "content": "This week in London, the chance of rain increases as the days go by, especially later in the week:\n\n- Early week (days 1-3): Mostly sunny, partly cloudy, or cloudy with a 20\u201340% chance of rain.\n- Mid to late week (days 4-7): Increased risk of rain (50\u201380% chance), with at least one day forecasted as \"Rainy.\"\n\nRecommendation: Yes, you should bring an umbrella to London this week, especially for the second half when rain is more likely.",
             "tool_calls": []
           }
         ],
@@ -714,7 +714,7 @@
           "total": 1022
         },
         "cost_usd": 0.002842,
-        "final_response": "This week in London, the chance of rain increases as the days go by, especially later in the week:\n\n- Early week (days 1-3): Mostly sunny, partly cloudy, or cloudy with a 20–40% chance of rain.\n- Mid to late week (days 4-7): Increased risk of rain (50–80% chance), with at least one day forecasted as \"Rainy.\"\n\nRecommendation: Yes, you should bring an umbrella to London this week, especially for the second half when rain is more likely.",
+        "final_response": "This week in London, the chance of rain increases as the days go by, especially later in the week:\n\n- Early week (days 1-3): Mostly sunny, partly cloudy, or cloudy with a 20\u201340% chance of rain.\n- Mid to late week (days 4-7): Increased risk of rain (50\u201380% chance), with at least one day forecasted as \"Rainy.\"\n\nRecommendation: Yes, you should bring an umbrella to London this week, especially for the second half when rain is more likely.",
         "tools_called": [
           "get_forecast"
         ],
@@ -758,7 +758,7 @@
           },
           {
             "role": "assistant",
-            "content": "Tokyo is better for most outdoor activities.\n\nQuick comparison:\n- Temperature: Tokyo 24°C vs Berlin 16°C — Tokyo is warmer and more comfortable for activity.\n- Conditions: Tokyo sunny; Berlin overcast (higher chance of gray/damp conditions).\n- Wind & humidity: Tokyo 8 km/h, 70% humidity; Berlin 10 km/h, 72% — both light wind, similar humidity.\n\nRecommendation:\n- Choose Tokyo for outdoor sports, sightseeing, or picnics.\n- Choose Berlin only if you prefer cooler, less sun or want to avoid direct sunlight (or if you expect rain under the overcast).",
+            "content": "Tokyo is better for most outdoor activities.\n\nQuick comparison:\n- Temperature: Tokyo 24\u00b0C vs Berlin 16\u00b0C \u2014 Tokyo is warmer and more comfortable for activity.\n- Conditions: Tokyo sunny; Berlin overcast (higher chance of gray/damp conditions).\n- Wind & humidity: Tokyo 8 km/h, 70% humidity; Berlin 10 km/h, 72% \u2014 both light wind, similar humidity.\n\nRecommendation:\n- Choose Tokyo for outdoor sports, sightseeing, or picnics.\n- Choose Berlin only if you prefer cooler, less sun or want to avoid direct sunlight (or if you expect rain under the overcast).",
             "tool_calls": []
           }
         ],
@@ -768,7 +768,7 @@
           "total": 1293
         },
         "cost_usd": 0.00117725,
-        "final_response": "Tokyo is better for most outdoor activities.\n\nQuick comparison:\n- Temperature: Tokyo 24°C vs Berlin 16°C — Tokyo is warmer and more comfortable for activity.\n- Conditions: Tokyo sunny; Berlin overcast (higher chance of gray/damp conditions).\n- Wind & humidity: Tokyo 8 km/h, 70% humidity; Berlin 10 km/h, 72% — both light wind, similar humidity.\n\nRecommendation:\n- Choose Tokyo for outdoor sports, sightseeing, or picnics.\n- Choose Berlin only if you prefer cooler, less sun or want to avoid direct sunlight (or if you expect rain under the overcast).",
+        "final_response": "Tokyo is better for most outdoor activities.\n\nQuick comparison:\n- Temperature: Tokyo 24\u00b0C vs Berlin 16\u00b0C \u2014 Tokyo is warmer and more comfortable for activity.\n- Conditions: Tokyo sunny; Berlin overcast (higher chance of gray/damp conditions).\n- Wind & humidity: Tokyo 8 km/h, 70% humidity; Berlin 10 km/h, 72% \u2014 both light wind, similar humidity.\n\nRecommendation:\n- Choose Tokyo for outdoor sports, sightseeing, or picnics.\n- Choose Berlin only if you prefer cooler, less sun or want to avoid direct sunlight (or if you expect rain under the overcast).",
         "tools_called": [
           "compare_weather"
         ],
@@ -812,7 +812,7 @@
           },
           {
             "role": "assistant",
-            "content": "Tokyo is sunny and warmer (24°C), with light wind. Berlin is cooler (16°C) and overcast. For outdoor activities, Tokyo has better weather today.",
+            "content": "Tokyo is sunny and warmer (24\u00b0C), with light wind. Berlin is cooler (16\u00b0C) and overcast. For outdoor activities, Tokyo has better weather today.",
             "tool_calls": []
           }
         ],
@@ -822,7 +822,7 @@
           "total": 688
         },
         "cost_usd": 0.001718,
-        "final_response": "Tokyo is sunny and warmer (24°C), with light wind. Berlin is cooler (16°C) and overcast. For outdoor activities, Tokyo has better weather today.",
+        "final_response": "Tokyo is sunny and warmer (24\u00b0C), with light wind. Berlin is cooler (16\u00b0C) and overcast. For outdoor activities, Tokyo has better weather today.",
         "tools_called": [
           "compare_weather"
         ],
@@ -866,7 +866,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here’s a direct comparison (numbers from the current observations) and practical advice so you can decide which location is better for the outdoor activity you have in mind.\n\nCurrent conditions\n- Tokyo\n  - Temperature: 24 °C (75 °F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h, E\n- Berlin\n  - Temperature: 16 °C (61 °F)\n  - Humidity: 72%\n  - Conditions: Overcast\n  - Wind: 10 km/h, N\n\nReasoning about comfort and safety\n- Temperature and activity intensity:\n  - Tokyo is 8 °C (14 °F) warmer than Berlin. Warmer air (24 °C) is pleasant for casual outdoor leisure but combined with 70% humidity can feel a bit muggy. For high-intensity exercise (running, long bike rides), that humidity can increase perceived effort and heat stress.\n  - Berlin’s 16 °C is cooler and often better for sustained, strenuous activity because the body sheds heat more easily when ambient temperature is lower.\n- Humidity:\n  - The humidities are similar (70% vs 72%). That means neither location is extremely dry; Tokyo’s humidity will make the warm temperature feel slightly stickier, while Berlin’s overcast coolness offsets its slightly higher humidity.\n- Sun and precipitation risk:\n  - Tokyo is sunny now — good for sightseeing, photography, picnics, and activities where you want sun. Sunlight increases UV exposure, so sunscreen and shade are needed.\n  - Berlin is overcast — comfortable for activities where you prefer less sun (long runs, cycling, hiking). Overcast can also indicate a higher chance of rain, so check a short-term precipitation forecast if planning long outdoor events.\n- Wind:\n  - Winds are light in both places (8–10 km/h). That won’t strongly affect most outdoor plans, though a light breeze in Berlin may make it feel a touch cooler.\n\nPractical advice\n- If you plan relaxed, sun-focused activities (picnic, sightseeing, photography, outdoor dining): Tokyo is likely better today — pleasant warm temperature and sun. Bring sunscreen, a hat, and water; take shade breaks if you feel sticky from humidity.\n- If you plan vigorous exercise (long runs, intense cycling, long hikes): Berlin is likely better because the cooler 16 °C will reduce heat strain and make sustained exertion more comfortable. Wear layers (a light windbreaker or long-sleeve) in case the overcast brings a breeze or light drizzle.\n- For either city: drink water, wear appropriate clothing (breathable fabrics in Tokyo; layers in Berlin), and check a short-term precipitation forecast if your activity depends on dry conditions.\n\nBottom line\n- There is no single “better” city for outdoor activities—choose by activity type. For relaxed, sun-filled outdoor plans, Tokyo is more favorable right now. For extended or high-intensity outdoor exercise, Berlin’s cooler, overcast conditions are generally more comfortable and safer for prolonged exertion.",
+            "content": "Here\u2019s a direct comparison (numbers from the current observations) and practical advice so you can decide which location is better for the outdoor activity you have in mind.\n\nCurrent conditions\n- Tokyo\n  - Temperature: 24 \u00b0C (75 \u00b0F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h, E\n- Berlin\n  - Temperature: 16 \u00b0C (61 \u00b0F)\n  - Humidity: 72%\n  - Conditions: Overcast\n  - Wind: 10 km/h, N\n\nReasoning about comfort and safety\n- Temperature and activity intensity:\n  - Tokyo is 8 \u00b0C (14 \u00b0F) warmer than Berlin. Warmer air (24 \u00b0C) is pleasant for casual outdoor leisure but combined with 70% humidity can feel a bit muggy. For high-intensity exercise (running, long bike rides), that humidity can increase perceived effort and heat stress.\n  - Berlin\u2019s 16 \u00b0C is cooler and often better for sustained, strenuous activity because the body sheds heat more easily when ambient temperature is lower.\n- Humidity:\n  - The humidities are similar (70% vs 72%). That means neither location is extremely dry; Tokyo\u2019s humidity will make the warm temperature feel slightly stickier, while Berlin\u2019s overcast coolness offsets its slightly higher humidity.\n- Sun and precipitation risk:\n  - Tokyo is sunny now \u2014 good for sightseeing, photography, picnics, and activities where you want sun. Sunlight increases UV exposure, so sunscreen and shade are needed.\n  - Berlin is overcast \u2014 comfortable for activities where you prefer less sun (long runs, cycling, hiking). Overcast can also indicate a higher chance of rain, so check a short-term precipitation forecast if planning long outdoor events.\n- Wind:\n  - Winds are light in both places (8\u201310 km/h). That won\u2019t strongly affect most outdoor plans, though a light breeze in Berlin may make it feel a touch cooler.\n\nPractical advice\n- If you plan relaxed, sun-focused activities (picnic, sightseeing, photography, outdoor dining): Tokyo is likely better today \u2014 pleasant warm temperature and sun. Bring sunscreen, a hat, and water; take shade breaks if you feel sticky from humidity.\n- If you plan vigorous exercise (long runs, intense cycling, long hikes): Berlin is likely better because the cooler 16 \u00b0C will reduce heat strain and make sustained exertion more comfortable. Wear layers (a light windbreaker or long-sleeve) in case the overcast brings a breeze or light drizzle.\n- For either city: drink water, wear appropriate clothing (breathable fabrics in Tokyo; layers in Berlin), and check a short-term precipitation forecast if your activity depends on dry conditions.\n\nBottom line\n- There is no single \u201cbetter\u201d city for outdoor activities\u2014choose by activity type. For relaxed, sun-filled outdoor plans, Tokyo is more favorable right now. For extended or high-intensity outdoor exercise, Berlin\u2019s cooler, overcast conditions are generally more comfortable and safer for prolonged exertion.",
             "tool_calls": []
           }
         ],
@@ -876,7 +876,7 @@
           "total": 2089
         },
         "cost_usd": 0.00270625,
-        "final_response": "Here’s a direct comparison (numbers from the current observations) and practical advice so you can decide which location is better for the outdoor activity you have in mind.\n\nCurrent conditions\n- Tokyo\n  - Temperature: 24 °C (75 °F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h, E\n- Berlin\n  - Temperature: 16 °C (61 °F)\n  - Humidity: 72%\n  - Conditions: Overcast\n  - Wind: 10 km/h, N\n\nReasoning about comfort and safety\n- Temperature and activity intensity:\n  - Tokyo is 8 °C (14 °F) warmer than Berlin. Warmer air (24 °C) is pleasant for casual outdoor leisure but combined with 70% humidity can feel a bit muggy. For high-intensity exercise (running, long bike rides), that humidity can increase perceived effort and heat stress.\n  - Berlin’s 16 °C is cooler and often better for sustained, strenuous activity because the body sheds heat more easily when ambient temperature is lower.\n- Humidity:\n  - The humidities are similar (70% vs 72%). That means neither location is extremely dry; Tokyo’s humidity will make the warm temperature feel slightly stickier, while Berlin’s overcast coolness offsets its slightly higher humidity.\n- Sun and precipitation risk:\n  - Tokyo is sunny now — good for sightseeing, photography, picnics, and activities where you want sun. Sunlight increases UV exposure, so sunscreen and shade are needed.\n  - Berlin is overcast — comfortable for activities where you prefer less sun (long runs, cycling, hiking). Overcast can also indicate a higher chance of rain, so check a short-term precipitation forecast if planning long outdoor events.\n- Wind:\n  - Winds are light in both places (8–10 km/h). That won’t strongly affect most outdoor plans, though a light breeze in Berlin may make it feel a touch cooler.\n\nPractical advice\n- If you plan relaxed, sun-focused activities (picnic, sightseeing, photography, outdoor dining): Tokyo is likely better today — pleasant warm temperature and sun. Bring sunscreen, a hat, and water; take shade breaks if you feel sticky from humidity.\n- If you plan vigorous exercise (long runs, intense cycling, long hikes): Berlin is likely better because the cooler 16 °C will reduce heat strain and make sustained exertion more comfortable. Wear layers (a light windbreaker or long-sleeve) in case the overcast brings a breeze or light drizzle.\n- For either city: drink water, wear appropriate clothing (breathable fabrics in Tokyo; layers in Berlin), and check a short-term precipitation forecast if your activity depends on dry conditions.\n\nBottom line\n- There is no single “better” city for outdoor activities—choose by activity type. For relaxed, sun-filled outdoor plans, Tokyo is more favorable right now. For extended or high-intensity outdoor exercise, Berlin’s cooler, overcast conditions are generally more comfortable and safer for prolonged exertion.",
+        "final_response": "Here\u2019s a direct comparison (numbers from the current observations) and practical advice so you can decide which location is better for the outdoor activity you have in mind.\n\nCurrent conditions\n- Tokyo\n  - Temperature: 24 \u00b0C (75 \u00b0F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h, E\n- Berlin\n  - Temperature: 16 \u00b0C (61 \u00b0F)\n  - Humidity: 72%\n  - Conditions: Overcast\n  - Wind: 10 km/h, N\n\nReasoning about comfort and safety\n- Temperature and activity intensity:\n  - Tokyo is 8 \u00b0C (14 \u00b0F) warmer than Berlin. Warmer air (24 \u00b0C) is pleasant for casual outdoor leisure but combined with 70% humidity can feel a bit muggy. For high-intensity exercise (running, long bike rides), that humidity can increase perceived effort and heat stress.\n  - Berlin\u2019s 16 \u00b0C is cooler and often better for sustained, strenuous activity because the body sheds heat more easily when ambient temperature is lower.\n- Humidity:\n  - The humidities are similar (70% vs 72%). That means neither location is extremely dry; Tokyo\u2019s humidity will make the warm temperature feel slightly stickier, while Berlin\u2019s overcast coolness offsets its slightly higher humidity.\n- Sun and precipitation risk:\n  - Tokyo is sunny now \u2014 good for sightseeing, photography, picnics, and activities where you want sun. Sunlight increases UV exposure, so sunscreen and shade are needed.\n  - Berlin is overcast \u2014 comfortable for activities where you prefer less sun (long runs, cycling, hiking). Overcast can also indicate a higher chance of rain, so check a short-term precipitation forecast if planning long outdoor events.\n- Wind:\n  - Winds are light in both places (8\u201310 km/h). That won\u2019t strongly affect most outdoor plans, though a light breeze in Berlin may make it feel a touch cooler.\n\nPractical advice\n- If you plan relaxed, sun-focused activities (picnic, sightseeing, photography, outdoor dining): Tokyo is likely better today \u2014 pleasant warm temperature and sun. Bring sunscreen, a hat, and water; take shade breaks if you feel sticky from humidity.\n- If you plan vigorous exercise (long runs, intense cycling, long hikes): Berlin is likely better because the cooler 16 \u00b0C will reduce heat strain and make sustained exertion more comfortable. Wear layers (a light windbreaker or long-sleeve) in case the overcast brings a breeze or light drizzle.\n- For either city: drink water, wear appropriate clothing (breathable fabrics in Tokyo; layers in Berlin), and check a short-term precipitation forecast if your activity depends on dry conditions.\n\nBottom line\n- There is no single \u201cbetter\u201d city for outdoor activities\u2014choose by activity type. For relaxed, sun-filled outdoor plans, Tokyo is more favorable right now. For extended or high-intensity outdoor exercise, Berlin\u2019s cooler, overcast conditions are generally more comfortable and safer for prolonged exertion.",
         "tools_called": [
           "compare_weather"
         ],
@@ -920,7 +920,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here's a detailed comparison of the current weather in Tokyo and Berlin:\n\nTokyo, Japan\n\n- Temperature: 24°C (75°F)\n- Humidity: 70%\n- Conditions: Sunny\n- Wind: 8 km/h from the east\n- Outdoor Advice: With warm temperatures, moderate humidity, and sunny skies, Tokyo is very well suited for outdoor activities today. Light clothing, sunglasses, and sunscreen are recommended.\n\nBerlin, Germany\n\n- Temperature: 16°C (61°F)\n- Humidity: 72%\n- Conditions: Overcast\n- Wind: 10 km/h from the north\n- Outdoor Advice: It's cooler and cloudier in Berlin, with slightly higher humidity and a gentle breeze. Overcast skies mean it's less bright, but the cooler temperature might be comfortable for jogging, hiking, or biking. You might want a light jacket or layers, especially if you'll be out for a while.\n\nWhich is better for outdoor activities?\n- Tokyo offers warmer and sunny weather, which is generally more favorable for a wide range of outdoor activities such as picnics, sports, or walking tours.\n- Berlin's weather is suitable for active pursuits if you prefer cooler air and less direct sunlight but is less ideal for lounging or sunbathing.\n\nDecision: Tokyo is currently better for most outdoor activities thanks to its sunnier, warmer conditions. If you prefer milder temperatures and less sun exposure, Berlin could still be a good option. Always bring water and dress appropriately for the conditions!",
+            "content": "Here's a detailed comparison of the current weather in Tokyo and Berlin:\n\nTokyo, Japan\n\n- Temperature: 24\u00b0C (75\u00b0F)\n- Humidity: 70%\n- Conditions: Sunny\n- Wind: 8 km/h from the east\n- Outdoor Advice: With warm temperatures, moderate humidity, and sunny skies, Tokyo is very well suited for outdoor activities today. Light clothing, sunglasses, and sunscreen are recommended.\n\nBerlin, Germany\n\n- Temperature: 16\u00b0C (61\u00b0F)\n- Humidity: 72%\n- Conditions: Overcast\n- Wind: 10 km/h from the north\n- Outdoor Advice: It's cooler and cloudier in Berlin, with slightly higher humidity and a gentle breeze. Overcast skies mean it's less bright, but the cooler temperature might be comfortable for jogging, hiking, or biking. You might want a light jacket or layers, especially if you'll be out for a while.\n\nWhich is better for outdoor activities?\n- Tokyo offers warmer and sunny weather, which is generally more favorable for a wide range of outdoor activities such as picnics, sports, or walking tours.\n- Berlin's weather is suitable for active pursuits if you prefer cooler air and less direct sunlight but is less ideal for lounging or sunbathing.\n\nDecision: Tokyo is currently better for most outdoor activities thanks to its sunnier, warmer conditions. If you prefer milder temperatures and less sun exposure, Berlin could still be a good option. Always bring water and dress appropriately for the conditions!",
             "tool_calls": []
           }
         ],
@@ -930,7 +930,7 @@
           "total": 991
         },
         "cost_usd": 0.003926,
-        "final_response": "Here's a detailed comparison of the current weather in Tokyo and Berlin:\n\nTokyo, Japan\n\n- Temperature: 24°C (75°F)\n- Humidity: 70%\n- Conditions: Sunny\n- Wind: 8 km/h from the east\n- Outdoor Advice: With warm temperatures, moderate humidity, and sunny skies, Tokyo is very well suited for outdoor activities today. Light clothing, sunglasses, and sunscreen are recommended.\n\nBerlin, Germany\n\n- Temperature: 16°C (61°F)\n- Humidity: 72%\n- Conditions: Overcast\n- Wind: 10 km/h from the north\n- Outdoor Advice: It's cooler and cloudier in Berlin, with slightly higher humidity and a gentle breeze. Overcast skies mean it's less bright, but the cooler temperature might be comfortable for jogging, hiking, or biking. You might want a light jacket or layers, especially if you'll be out for a while.\n\nWhich is better for outdoor activities?\n- Tokyo offers warmer and sunny weather, which is generally more favorable for a wide range of outdoor activities such as picnics, sports, or walking tours.\n- Berlin's weather is suitable for active pursuits if you prefer cooler air and less direct sunlight but is less ideal for lounging or sunbathing.\n\nDecision: Tokyo is currently better for most outdoor activities thanks to its sunnier, warmer conditions. If you prefer milder temperatures and less sun exposure, Berlin could still be a good option. Always bring water and dress appropriately for the conditions!",
+        "final_response": "Here's a detailed comparison of the current weather in Tokyo and Berlin:\n\nTokyo, Japan\n\n- Temperature: 24\u00b0C (75\u00b0F)\n- Humidity: 70%\n- Conditions: Sunny\n- Wind: 8 km/h from the east\n- Outdoor Advice: With warm temperatures, moderate humidity, and sunny skies, Tokyo is very well suited for outdoor activities today. Light clothing, sunglasses, and sunscreen are recommended.\n\nBerlin, Germany\n\n- Temperature: 16\u00b0C (61\u00b0F)\n- Humidity: 72%\n- Conditions: Overcast\n- Wind: 10 km/h from the north\n- Outdoor Advice: It's cooler and cloudier in Berlin, with slightly higher humidity and a gentle breeze. Overcast skies mean it's less bright, but the cooler temperature might be comfortable for jogging, hiking, or biking. You might want a light jacket or layers, especially if you'll be out for a while.\n\nWhich is better for outdoor activities?\n- Tokyo offers warmer and sunny weather, which is generally more favorable for a wide range of outdoor activities such as picnics, sports, or walking tours.\n- Berlin's weather is suitable for active pursuits if you prefer cooler air and less direct sunlight but is less ideal for lounging or sunbathing.\n\nDecision: Tokyo is currently better for most outdoor activities thanks to its sunnier, warmer conditions. If you prefer milder temperatures and less sun exposure, Berlin could still be a good option. Always bring water and dress appropriately for the conditions!",
         "tools_called": [
           "compare_weather"
         ],
@@ -974,7 +974,7 @@
           },
           {
             "role": "assistant",
-            "content": "📍 Location: Tokyo\n🌡️ Temperature: 24°C / 75°F\n💧 Humidity: 70%\n🌤️ Conditions: Sunny\n💨 Wind: 8 km/h E\n\n📍 Location: Berlin\n🌡️ Temperature: 16°C / 61°F\n💧 Humidity: 72%\n🌤️ Conditions: Overcast\n💨 Wind: 10 km/h N\n\nComparison and recommendation:\n- Tokyo is warmer and sunny, making it the better choice for most outdoor leisure activities (sightseeing, picnics, outdoor dining). The humidity is moderately high but generally comfortable.\n- Berlin is cooler and overcast with slightly stronger wind, which can be preferable for strenuous activities like running or cycling if you prefer cooler temperatures.\nOverall: Tokyo is better for casual outdoor activities; choose Berlin if you want cooler, less sunny conditions for exercise.",
+            "content": "\ud83d\udccd Location: Tokyo\n\ud83c\udf21\ufe0f Temperature: 24\u00b0C / 75\u00b0F\n\ud83d\udca7 Humidity: 70%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 8 km/h E\n\n\ud83d\udccd Location: Berlin\n\ud83c\udf21\ufe0f Temperature: 16\u00b0C / 61\u00b0F\n\ud83d\udca7 Humidity: 72%\n\ud83c\udf24\ufe0f Conditions: Overcast\n\ud83d\udca8 Wind: 10 km/h N\n\nComparison and recommendation:\n- Tokyo is warmer and sunny, making it the better choice for most outdoor leisure activities (sightseeing, picnics, outdoor dining). The humidity is moderately high but generally comfortable.\n- Berlin is cooler and overcast with slightly stronger wind, which can be preferable for strenuous activities like running or cycling if you prefer cooler temperatures.\nOverall: Tokyo is better for casual outdoor activities; choose Berlin if you want cooler, less sunny conditions for exercise.",
             "tool_calls": []
           }
         ],
@@ -984,7 +984,7 @@
           "total": 1574
         },
         "cost_usd": 0.0015677499999999997,
-        "final_response": "📍 Location: Tokyo\n🌡️ Temperature: 24°C / 75°F\n💧 Humidity: 70%\n🌤️ Conditions: Sunny\n💨 Wind: 8 km/h E\n\n📍 Location: Berlin\n🌡️ Temperature: 16°C / 61°F\n💧 Humidity: 72%\n🌤️ Conditions: Overcast\n💨 Wind: 10 km/h N\n\nComparison and recommendation:\n- Tokyo is warmer and sunny, making it the better choice for most outdoor leisure activities (sightseeing, picnics, outdoor dining). The humidity is moderately high but generally comfortable.\n- Berlin is cooler and overcast with slightly stronger wind, which can be preferable for strenuous activities like running or cycling if you prefer cooler temperatures.\nOverall: Tokyo is better for casual outdoor activities; choose Berlin if you want cooler, less sunny conditions for exercise.",
+        "final_response": "\ud83d\udccd Location: Tokyo\n\ud83c\udf21\ufe0f Temperature: 24\u00b0C / 75\u00b0F\n\ud83d\udca7 Humidity: 70%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 8 km/h E\n\n\ud83d\udccd Location: Berlin\n\ud83c\udf21\ufe0f Temperature: 16\u00b0C / 61\u00b0F\n\ud83d\udca7 Humidity: 72%\n\ud83c\udf24\ufe0f Conditions: Overcast\n\ud83d\udca8 Wind: 10 km/h N\n\nComparison and recommendation:\n- Tokyo is warmer and sunny, making it the better choice for most outdoor leisure activities (sightseeing, picnics, outdoor dining). The humidity is moderately high but generally comfortable.\n- Berlin is cooler and overcast with slightly stronger wind, which can be preferable for strenuous activities like running or cycling if you prefer cooler temperatures.\nOverall: Tokyo is better for casual outdoor activities; choose Berlin if you want cooler, less sunny conditions for exercise.",
         "tools_called": [
           "compare_weather"
         ],
@@ -1028,7 +1028,7 @@
           },
           {
             "role": "assistant",
-            "content": "📍 Location: Tokyo\n🌡️ Temperature: 24°C / 75°F\n💧 Humidity: 70%\n🌤️ Conditions: Sunny\n💨 Wind: 8 km/h E\n\n📍 Location: Berlin\n🌡️ Temperature: 16°C / 61°F\n💧 Humidity: 72%\n🌤️ Conditions: Overcast\n💨 Wind: 10 km/h N\n\nSummary: Tokyo currently has sunnier and warmer weather, making it more suitable for outdoor activities compared to the cooler and overcast conditions in Berlin.",
+            "content": "\ud83d\udccd Location: Tokyo\n\ud83c\udf21\ufe0f Temperature: 24\u00b0C / 75\u00b0F\n\ud83d\udca7 Humidity: 70%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 8 km/h E\n\n\ud83d\udccd Location: Berlin\n\ud83c\udf21\ufe0f Temperature: 16\u00b0C / 61\u00b0F\n\ud83d\udca7 Humidity: 72%\n\ud83c\udf24\ufe0f Conditions: Overcast\n\ud83d\udca8 Wind: 10 km/h N\n\nSummary: Tokyo currently has sunnier and warmer weather, making it more suitable for outdoor activities compared to the cooler and overcast conditions in Berlin.",
             "tool_calls": []
           }
         ],
@@ -1038,7 +1038,7 @@
           "total": 870
         },
         "cost_usd": 0.0025859999999999998,
-        "final_response": "📍 Location: Tokyo\n🌡️ Temperature: 24°C / 75°F\n💧 Humidity: 70%\n🌤️ Conditions: Sunny\n💨 Wind: 8 km/h E\n\n📍 Location: Berlin\n🌡️ Temperature: 16°C / 61°F\n💧 Humidity: 72%\n🌤️ Conditions: Overcast\n💨 Wind: 10 km/h N\n\nSummary: Tokyo currently has sunnier and warmer weather, making it more suitable for outdoor activities compared to the cooler and overcast conditions in Berlin.",
+        "final_response": "\ud83d\udccd Location: Tokyo\n\ud83c\udf21\ufe0f Temperature: 24\u00b0C / 75\u00b0F\n\ud83d\udca7 Humidity: 70%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 8 km/h E\n\n\ud83d\udccd Location: Berlin\n\ud83c\udf21\ufe0f Temperature: 16\u00b0C / 61\u00b0F\n\ud83d\udca7 Humidity: 72%\n\ud83c\udf24\ufe0f Conditions: Overcast\n\ud83d\udca8 Wind: 10 km/h N\n\nSummary: Tokyo currently has sunnier and warmer weather, making it more suitable for outdoor activities compared to the cooler and overcast conditions in Berlin.",
         "tools_called": [
           "compare_weather"
         ],
@@ -1046,5 +1046,17 @@
       }
     }
   ],
-  "ai_summary": "### Verdict\n**Recommended: gpt-5-mini** — both models achieved 100% accuracy on the suite, but gpt-5-mini delivered the same correctness at a lower total cost for these runs.\n*Confidence: Medium-High*\n\n### Model Performance\n- **gpt-4.1**: 100% (9/9), 7,300 tokens, $0.0210 — notable for much lower token usage.\n- **gpt-5-mini**: 100% (9/9), 15,413 tokens, $0.0145 — notable for lowest total run cost despite higher token use.\n\n### Key Differences\n- Test outcomes: no functional differences — every test passed for both models (tests: \"Basic weather\", \"Forecast with interpretation\", \"Compare cities\" across PROMPT_BRIEF / PROMPT_DETAILED / PROMPT_STRUCTURED).\n- Token efficiency: gpt-4.1 used ~7.3k tokens vs gpt-5-mini ~15.4k tokens for identical test coverage.\n- Cost: gpt-5-mini resulted in a lower total dollar cost for the run ($0.0145 vs $0.0210) despite higher token consumption.\n- Quality: both produced the required results on reasoning and tool-chaining tests; no quality shortfalls observed in the suite.\n\n### Recommendation\nChoose gpt-5-mini for cost-sensitive deployments since it matched gpt-4.1’s correctness at lower total cost. Choose gpt-4.1 if you need lower token consumption (e.g., strict token budgets) while preserving the same tested capabilities."
+  "insights": {
+    "recommendation": {
+      "configuration": "(analysis pending)",
+      "summary": "AI analysis has not been run yet",
+      "reasoning": "Run with --aitest-html to generate AI-powered insights",
+      "alternatives": []
+    },
+    "failures": [],
+    "mcp_feedback": [],
+    "prompt_feedback": [],
+    "skill_feedback": [],
+    "optimizations": []
+  }
 }

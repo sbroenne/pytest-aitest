@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "name": "pytest-aitest",
   "timestamp": "2026-02-02T18:13:48.450306Z",
   "duration_ms": 31255.350499995984,
@@ -76,7 +76,7 @@
           },
           {
             "role": "assistant",
-            "content": "Current weather in London, UK:\n- Condition: Rainy\n- Temperature: 14°C (57°F)\n- Humidity: 80%\n- Wind: 18 km/h, W\n\nWould you like a forecast for the next few days or tips for staying dry?",
+            "content": "Current weather in London, UK:\n- Condition: Rainy\n- Temperature: 14\u00b0C (57\u00b0F)\n- Humidity: 80%\n- Wind: 18 km/h, W\n\nWould you like a forecast for the next few days or tips for staying dry?",
             "tool_calls": []
           }
         ],
@@ -86,7 +86,7 @@
           "total": 965
         },
         "cost_usd": 0.00038825,
-        "final_response": "Current weather in London, UK:\n- Condition: Rainy\n- Temperature: 14°C (57°F)\n- Humidity: 80%\n- Wind: 18 km/h, W\n\nWould you like a forecast for the next few days or tips for staying dry?",
+        "final_response": "Current weather in London, UK:\n- Condition: Rainy\n- Temperature: 14\u00b0C (57\u00b0F)\n- Humidity: 80%\n- Wind: 18 km/h, W\n\nWould you like a forecast for the next few days or tips for staying dry?",
         "tools_called": [
           "get_weather"
         ],
@@ -128,7 +128,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here’s the 5-day forecast for New York:\n\n- Day 1: Sunny — High 24°C (75°F), Low 16°C (61°F). Precip chance 20%.  \n- Day 2: Partly cloudy — High 25°C (77°F), Low 17°C (63°F). Precip chance 30%.  \n- Day 3: Cloudy — High 26°C (79°F), Low 18°C (64°F). Precip chance 40%.  \n- Day 4: Rainy — High 24°C (75°F), Low 16°C (61°F). Precip chance 50%.  \n- Day 5: Clear — High 25°C (77°F), Low 17°C (63°F). Precip chance 60%.\n\nWant this tied to calendar dates, an hourly outlook for any day, or alerts if rain is expected?",
+            "content": "Here\u2019s the 5-day forecast for New York:\n\n- Day 1: Sunny \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 20%.  \n- Day 2: Partly cloudy \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 30%.  \n- Day 3: Cloudy \u2014 High 26\u00b0C (79\u00b0F), Low 18\u00b0C (64\u00b0F). Precip chance 40%.  \n- Day 4: Rainy \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 50%.  \n- Day 5: Clear \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 60%.\n\nWant this tied to calendar dates, an hourly outlook for any day, or alerts if rain is expected?",
             "tool_calls": []
           }
         ],
@@ -138,7 +138,7 @@
           "total": 1670
         },
         "cost_usd": 0.0014832499999999998,
-        "final_response": "Here’s the 5-day forecast for New York:\n\n- Day 1: Sunny — High 24°C (75°F), Low 16°C (61°F). Precip chance 20%.  \n- Day 2: Partly cloudy — High 25°C (77°F), Low 17°C (63°F). Precip chance 30%.  \n- Day 3: Cloudy — High 26°C (79°F), Low 18°C (64°F). Precip chance 40%.  \n- Day 4: Rainy — High 24°C (75°F), Low 16°C (61°F). Precip chance 50%.  \n- Day 5: Clear — High 25°C (77°F), Low 17°C (63°F). Precip chance 60%.\n\nWant this tied to calendar dates, an hourly outlook for any day, or alerts if rain is expected?",
+        "final_response": "Here\u2019s the 5-day forecast for New York:\n\n- Day 1: Sunny \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 20%.  \n- Day 2: Partly cloudy \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 30%.  \n- Day 3: Cloudy \u2014 High 26\u00b0C (79\u00b0F), Low 18\u00b0C (64\u00b0F). Precip chance 40%.  \n- Day 4: Rainy \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 50%.  \n- Day 5: Clear \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 60%.\n\nWant this tied to calendar dates, an hourly outlook for any day, or alerts if rain is expected?",
         "tools_called": [
           "get_forecast"
         ],
@@ -180,7 +180,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here’s a quick comparison based on current conditions:\n\n- Temperature: Tokyo 24°C (75°F) vs Paris 18°C (64°F). Tokyo is 6°C warmer.\n- Conditions: Tokyo — sunny; Paris — partly cloudy.\n- Humidity: Tokyo 70% vs Paris 65% (Tokyo +5%).\n- Wind: Tokyo 8 km/h from the E; Paris 12 km/h from the SW.\n\nWhat that means: Tokyo is warmer and sunnier — light, breathable clothes and sun protection are a good idea. Paris is cooler with a bit more wind — a light jacket or layer should be comfortable. No strong indication of rain right now in either city.\n\nWant an hourly forecast for either city or a 5-day outlook?",
+            "content": "Here\u2019s a quick comparison based on current conditions:\n\n- Temperature: Tokyo 24\u00b0C (75\u00b0F) vs Paris 18\u00b0C (64\u00b0F). Tokyo is 6\u00b0C warmer.\n- Conditions: Tokyo \u2014 sunny; Paris \u2014 partly cloudy.\n- Humidity: Tokyo 70% vs Paris 65% (Tokyo +5%).\n- Wind: Tokyo 8 km/h from the E; Paris 12 km/h from the SW.\n\nWhat that means: Tokyo is warmer and sunnier \u2014 light, breathable clothes and sun protection are a good idea. Paris is cooler with a bit more wind \u2014 a light jacket or layer should be comfortable. No strong indication of rain right now in either city.\n\nWant an hourly forecast for either city or a 5-day outlook?",
             "tool_calls": []
           }
         ],
@@ -190,12 +190,25 @@
           "total": 1425
         },
         "cost_usd": 0.0011454999999999998,
-        "final_response": "Here’s a quick comparison based on current conditions:\n\n- Temperature: Tokyo 24°C (75°F) vs Paris 18°C (64°F). Tokyo is 6°C warmer.\n- Conditions: Tokyo — sunny; Paris — partly cloudy.\n- Humidity: Tokyo 70% vs Paris 65% (Tokyo +5%).\n- Wind: Tokyo 8 km/h from the E; Paris 12 km/h from the SW.\n\nWhat that means: Tokyo is warmer and sunnier — light, breathable clothes and sun protection are a good idea. Paris is cooler with a bit more wind — a light jacket or layer should be comfortable. No strong indication of rain right now in either city.\n\nWant an hourly forecast for either city or a 5-day outlook?",
+        "final_response": "Here\u2019s a quick comparison based on current conditions:\n\n- Temperature: Tokyo 24\u00b0C (75\u00b0F) vs Paris 18\u00b0C (64\u00b0F). Tokyo is 6\u00b0C warmer.\n- Conditions: Tokyo \u2014 sunny; Paris \u2014 partly cloudy.\n- Humidity: Tokyo 70% vs Paris 65% (Tokyo +5%).\n- Wind: Tokyo 8 km/h from the E; Paris 12 km/h from the SW.\n\nWhat that means: Tokyo is warmer and sunnier \u2014 light, breathable clothes and sun protection are a good idea. Paris is cooler with a bit more wind \u2014 a light jacket or layer should be comfortable. No strong indication of rain right now in either city.\n\nWant an hourly forecast for either city or a 5-day outlook?",
         "tools_called": [
           "compare_weather"
         ],
         "session_context_count": 0
       }
     }
-  ]
+  ],
+  "insights": {
+    "recommendation": {
+      "configuration": "(analysis pending)",
+      "summary": "AI analysis has not been run yet",
+      "reasoning": "Run with --aitest-html to generate AI-powered insights",
+      "alternatives": []
+    },
+    "failures": [],
+    "mcp_feedback": [],
+    "prompt_feedback": [],
+    "skill_feedback": [],
+    "optimizations": []
+  }
 }

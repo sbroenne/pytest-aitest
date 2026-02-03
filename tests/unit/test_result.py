@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pytest_aitest.result import AgentResult, ToolCall, Turn
+from pytest_aitest.core.result import AgentResult, ToolCall, Turn
 
 
 class TestToolCall:

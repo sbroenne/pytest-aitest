@@ -15,8 +15,27 @@ from pytest_aitest.reporting.generator import (
     generate_session_mermaid,
     get_provider,
 )
+from pytest_aitest.reporting.insights import (
+    InsightsGenerationError,
+    create_placeholder_insights,
+    generate_insights,
+)
+
+# Re-export insight types from models (generated from JSON schema)
+from pytest_aitest.models import (
+    AIInsights,
+    AnalysisMetadata,
+    FailureAnalysis,
+    MCPServerFeedback,
+    OptimizationOpportunity,
+    PromptFeedback,
+    Recommendation,
+    SkillFeedback,
+    ToolFeedback,
+)
 
 __all__ = [
+    # Legacy exports (for backward compatibility)
     "AdaptiveFlags",
     "DimensionAggregator",
     "generate_mermaid_sequence",
@@ -30,4 +49,18 @@ __all__ = [
     "SuiteReport",
     "TestDimensions",
     "TestReport",
+    # Insights generation
+    "create_placeholder_insights",
+    "generate_insights",
+    "InsightsGenerationError",
+    # AI Insight types (from models)
+    "AIInsights",
+    "AnalysisMetadata",
+    "FailureAnalysis",
+    "MCPServerFeedback",
+    "OptimizationOpportunity",
+    "PromptFeedback",
+    "Recommendation",
+    "SkillFeedback",
+    "ToolFeedback",
 ]

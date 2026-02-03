@@ -1,9 +1,12 @@
 # pytest-aitest Design Document
 
-A pytest plugin for testing AI agent behavior with MCP servers and CLI tools.
+> ⚠️ **HISTORICAL ARCHIVE** — This document was written during initial design and contains
+> a mix of implemented features and outdated plans. For current documentation, see:
+> - [Core Concepts](concepts.md) — How the system works today
+> - [API Reference](api-reference.md) — Current API
+> - [Configuration](configuration.md) — Setup and options
 
-> **Note:** This document describes both implemented features and planned designs.
-> See the [API Reference](api-reference.md) for what's currently available.
+A pytest plugin for testing AI agent behavior with MCP servers and CLI tools.
 
 **Part of a two-package ecosystem:**
 - **`pytest-llm-assert`** — Lightweight LLM-powered assertions for any test

@@ -73,8 +73,8 @@ def load_pydantic_report(name: str):
     from pytest_aitest.models.converter import convert_suite_report
     
     path = FIXTURES_DIR / f"{name}.json"
-    report, ai_summary = load_suite_report(path)
-    return convert_suite_report(report, ai_summary=ai_summary)
+    report, _ai_summary = load_suite_report(path)  # ai_summary is deprecated
+    return convert_suite_report(report)
 
 
 def extract_model_groups(fixture_name: str) -> list[dict[str, Any]]:

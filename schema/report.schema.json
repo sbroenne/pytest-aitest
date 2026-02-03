@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "pytest-aitest Report",
-  "description": "Schema for pytest-aitest test report output",
+  "description": "Schema for pytest-aitest test report output with AI-powered insights",
   "type": "object",
-  "required": ["schema_version", "name", "timestamp", "duration_ms", "tests", "summary"],
+  "required": ["schema_version", "name", "timestamp", "duration_ms", "tests", "summary", "insights"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "2.0",
+      "const": "3.0",
       "description": "Schema version for compatibility checking"
     },
     "name": {
@@ -35,16 +35,23 @@
     "summary": {
       "$ref": "#/$defs/SuiteSummary"
     },
+    "insights": {
+      "$ref": "#/$defs/AIInsights",
+      "description": "AI-generated analysis providing actionable insights"
+    },
     "tests": {
       "type": "array",
       "items": {
         "$ref": "#/$defs/TestReport"
       },
-      "description": "List of all test results"
+      "description": "List of all test results (evidence)"
     },
-    "ai_summary": {
-      "type": ["string", "null"],
-      "description": "Optional AI-generated analysis of test results"
+    "analysis_metadata": {
+      "oneOf": [
+        { "$ref": "#/$defs/AnalysisMetadata" },
+        { "type": "null" }
+      ],
+      "description": "Metadata about the AI analysis process"
     }
   },
   "$defs": {
@@ -392,6 +399,281 @@
           "type": "integer",
           "minimum": 0,
           "description": "Number of HTTP 429 responses received"
+        }
+      }
+    },
+    "AIInsights": {
+      "type": "object",
+      "description": "AI-generated insights providing actionable recommendations",
+      "required": ["recommendation", "failures", "mcp_feedback", "prompt_feedback", "skill_feedback", "optimizations"],
+      "properties": {
+        "recommendation": {
+          "$ref": "#/$defs/Recommendation"
+        },
+        "failures": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FailureAnalysis" },
+          "description": "Root cause analysis for each failed test"
+        },
+        "mcp_feedback": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MCPServerFeedback" },
+          "description": "Feedback on MCP server tools"
+        },
+        "prompt_feedback": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PromptFeedback" },
+          "description": "Feedback on system prompts"
+        },
+        "skill_feedback": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SkillFeedback" },
+          "description": "Feedback on agent skills"
+        },
+        "optimizations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/OptimizationOpportunity" },
+          "description": "Cross-cutting optimization suggestions"
+        }
+      }
+    },
+    "Recommendation": {
+      "type": "object",
+      "description": "The primary output: which configuration to deploy",
+      "required": ["configuration", "summary", "reasoning"],
+      "properties": {
+        "configuration": {
+          "type": "string",
+          "description": "Recommended configuration name (e.g., 'fast-agent')"
+        },
+        "summary": {
+          "type": "string",
+          "description": "One-line recommendation"
+        },
+        "reasoning": {
+          "type": "string",
+          "description": "Detailed explanation of why this configuration is recommended"
+        },
+        "alternatives": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other viable options with trade-offs"
+        }
+      }
+    },
+    "FailureAnalysis": {
+      "type": "object",
+      "description": "Root cause analysis for a failed test",
+      "required": ["test_id", "configuration", "problem", "root_cause", "suggested_fix"],
+      "properties": {
+        "test_id": {
+          "type": "string",
+          "description": "Full pytest node ID"
+        },
+        "configuration": {
+          "type": "string",
+          "description": "Which configuration failed"
+        },
+        "problem": {
+          "type": "string",
+          "description": "What went wrong (user-friendly)"
+        },
+        "root_cause": {
+          "type": "string",
+          "description": "Why it went wrong (technical)"
+        },
+        "suggested_fix": {
+          "type": "string",
+          "description": "How to fix it"
+        }
+      }
+    },
+    "ToolFeedback": {
+      "type": "object",
+      "description": "Feedback on a single MCP server tool",
+      "required": ["tool_name", "status", "call_count", "error_count", "current_description"],
+      "properties": {
+        "tool_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["working", "warning", "unused", "error"]
+        },
+        "call_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "error_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "current_description": {
+          "type": "string",
+          "description": "The tool's current description"
+        },
+        "problem": {
+          "type": ["string", "null"],
+          "description": "What's wrong with the tool description (if anything)"
+        },
+        "suggested_description": {
+          "type": ["string", "null"],
+          "description": "Exact rewrite to use"
+        },
+        "rationale": {
+          "type": ["string", "null"],
+          "description": "Why this change helps"
+        }
+      }
+    },
+    "MCPServerFeedback": {
+      "type": "object",
+      "description": "Aggregated feedback on all tools from an MCP server",
+      "required": ["server_name", "tools", "overall_assessment"],
+      "properties": {
+        "server_name": {
+          "type": "string"
+        },
+        "tools": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ToolFeedback" }
+        },
+        "overall_assessment": {
+          "type": "string",
+          "description": "Summary assessment of the MCP server"
+        }
+      }
+    },
+    "PromptFeedback": {
+      "type": "object",
+      "description": "Feedback on a system prompt configuration",
+      "required": ["prompt_id", "effectiveness", "token_count", "current_excerpt"],
+      "properties": {
+        "prompt_id": {
+          "type": "string",
+          "description": "Prompt identifier (e.g., 'brief', 'detailed')"
+        },
+        "effectiveness": {
+          "type": "string",
+          "enum": ["effective", "mixed", "ineffective"]
+        },
+        "token_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Tokens in the prompt"
+        },
+        "current_excerpt": {
+          "type": "string",
+          "description": "Relevant portion of the prompt being analyzed"
+        },
+        "problem": {
+          "type": ["string", "null"],
+          "description": "What's wrong (if anything)"
+        },
+        "suggested_change": {
+          "type": ["string", "null"],
+          "description": "Exact text to add/remove/replace"
+        },
+        "rationale": {
+          "type": ["string", "null"],
+          "description": "Why this change helps"
+        }
+      }
+    },
+    "SkillFeedback": {
+      "type": "object",
+      "description": "Feedback on a skill's usefulness",
+      "required": ["skill_name", "usage_rate", "impact", "token_cost", "current_structure"],
+      "properties": {
+        "skill_name": {
+          "type": "string"
+        },
+        "usage_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "How often it was referenced (0-1)"
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["positive", "neutral", "negative", "unused"]
+        },
+        "token_cost": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Tokens added to prompt"
+        },
+        "current_structure": {
+          "type": "string",
+          "description": "Brief description of skill layout"
+        },
+        "problem": {
+          "type": ["string", "null"],
+          "description": "What's wrong (if anything)"
+        },
+        "suggested_change": {
+          "type": ["string", "null"],
+          "description": "Restructuring suggestion"
+        },
+        "rationale": {
+          "type": ["string", "null"],
+          "description": "Why this change helps"
+        }
+      }
+    },
+    "OptimizationOpportunity": {
+      "type": "object",
+      "description": "A specific optimization suggestion",
+      "required": ["category", "severity", "title", "current_state", "suggested_change", "expected_impact"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["prompt", "skill", "cost", "efficiency"]
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "suggestion", "recommended"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "current_state": {
+          "type": "string",
+          "description": "What's happening now"
+        },
+        "suggested_change": {
+          "type": "string",
+          "description": "What to do"
+        },
+        "expected_impact": {
+          "type": "string",
+          "description": "What will improve"
+        }
+      }
+    },
+    "AnalysisMetadata": {
+      "type": "object",
+      "description": "Metadata about the AI analysis process",
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Model used for analysis"
+        },
+        "tokens_used": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cost_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "cached": {
+          "type": "boolean",
+          "description": "Whether the analysis was served from cache"
         }
       }
     }

@@ -14,29 +14,44 @@
         {# Header #}
         {% include 'partials/header.html' %}
 
-        {# Summary Cards #}
-        {% include 'partials/summary_cards.html' %}
-
-        {# Model Leaderboard (conditional) #}
-        {% include 'partials/model_leaderboard.html' %}
-
-        {# Prompt Comparison (conditional) #}
-        {% include 'partials/prompt_comparison.html' %}
-
-        {# AI Summary (conditional) #}
+        {# AI Insights (Primary Content - Top of Page) #}
         {% include 'partials/ai_summary.html' %}
 
-        {# Comparison Matrix (conditional) #}
-        {% include 'partials/comparison_matrix.html' %}
+        {# Evidence Section (Collapsible) #}
+        <section class="section evidence-section">
+            <details open>
+                <summary class="section-header">📊 Test Results & Configuration</summary>
+                <div class="section-body">
+                    {# Summary Cards #}
+                    {% include 'partials/summary_cards.html' %}
 
-        {# Tool Comparison Grid (conditional) #}
-        {% include 'partials/tool_comparison.html' %}
+                    {# Model Leaderboard (conditional) #}
+                    {% include 'partials/model_leaderboard.html' %}
 
-        {# Side-by-Side Comparison (conditional) #}
-        {% include 'partials/side_by_side.html' %}
+                    {# System Prompt Comparison (conditional) #}
+                    {% include 'partials/prompt_comparison.html' %}
+
+                    {# Comparison Matrix (conditional) #}
+                    {% include 'partials/comparison_matrix.html' %}
+
+                    {# Tool Comparison Grid (conditional) #}
+                    {% include 'partials/tool_comparison.html' %}
+
+                    {# Side-by-Side Comparison (conditional) #}
+                    {% include 'partials/side_by_side.html' %}
+                </div>
+            </details>
+        </section>
 
         {# Detailed Results (test list grouped by sessions) #}
-        {% include 'partials/detailed_results.html' %}
+        <section class="section evidence-section">
+            <details>
+                <summary class="section-header">📋 Test Details</summary>
+                <div class="section-body">
+                    {% include 'partials/detailed_results.html' %}
+                </div>
+            </details>
+        </section>
     </div>
 
     {# Fullscreen Overlay for Diagrams #}

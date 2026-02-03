@@ -27,14 +27,14 @@ def generate_html(fixture_name: str) -> tuple[str, dict]:
     """Generate HTML from a fixture and return (html, json_data)."""
     path = FIXTURES_DIR / f"{fixture_name}.json"
     data = json.loads(path.read_text(encoding="utf-8"))
-    report, ai_summary = load_suite_report(path)
+    report, _ai_summary = load_suite_report(path)  # ai_summary deprecated
     
     generator = ReportGenerator()
     import tempfile
     with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
         output_path = Path(f.name)
     
-    generator.generate_html(report, output_path, ai_summary=ai_summary)
+    generator.generate_html(report, output_path)  # ai_summary no longer passed
     html = output_path.read_text(encoding="utf-8")
     output_path.unlink()
     
@@ -46,54 +46,25 @@ def parse_html(html: str) -> BeautifulSoup:
     return BeautifulSoup(html, "lxml")
 
 
-class TestAISummaryComposition:
-    """Test AI summary section appears when ai_summary is provided."""
+class TestAIInsightsComposition:
+    """Test AI insights section (v3.0 schema)."""
 
-    def test_ai_summary_rendered_in_fixture_06(self):
-        """Fixture 06 has ai_summary - should render in HTML."""
-        html, data = generate_html("06_with_ai_summary")
-        
-        # Verify JSON has ai_summary
-        assert data.get("ai_summary") is not None, "Fixture should have ai_summary"
-        
-        # Verify HTML has AI Analysis section
-        assert "AI Analysis" in html, "AI summary section not rendered in HTML"
-        assert "🤖" in html, "AI Analysis header emoji not found"
+    def test_insights_field_in_fixtures(self):
+        """All v3.0 fixtures should have insights field."""
+        _, data = generate_html("02_model_comparison")
+        assert data.get("insights") is not None, "Fixture should have insights"
 
-    def test_ai_summary_rendered_in_fixture_08(self):
-        """Fixture 08 (matrix_full) has ai_summary - should render in HTML."""
-        html, data = generate_html("08_matrix_full")
+    def test_insights_always_present_in_reports(self):
+        """Reports should always have real insights (AI analysis is mandatory)."""
+        html, data = generate_html("02_model_comparison")
         
-        # Verify JSON has ai_summary
-        assert data.get("ai_summary") is not None, "Fixture should have ai_summary"
+        # Real reports always have insights (AI analysis is mandatory for report generation)
+        # Fixture 02 has real insights
+        config = data["insights"]["recommendation"]["configuration"]
+        assert config != "(analysis pending)", "Real reports should have real insights"
         
-        # Verify HTML has AI Analysis section
-        assert "AI Analysis" in html, "AI summary section not rendered in HTML"
-
-    def test_ai_summary_content_appears(self):
-        """AI summary content should actually appear in HTML."""
-        html, data = generate_html("06_with_ai_summary")
-        ai_summary = data.get("ai_summary", "")
-        
-        # Check that actual content from the summary appears
-        # The summary typically contains "Verdict" or model names
-        soup = parse_html(html)
-        ai_section = soup.find(class_="ai-summary")
-        assert ai_section is not None, "Missing .ai-summary element"
-        
-        # Content should be rendered (not empty)
-        content = ai_section.get_text().strip()
-        assert len(content) > 10, f"AI summary content too short: {content[:50]}"
-
-    def test_ai_summary_not_in_basic_fixture(self):
-        """Fixture 01 has no ai_summary - should not show section."""
-        html, data = generate_html("01_basic_usage")
-        
-        # Verify JSON has no ai_summary
-        assert data.get("ai_summary") is None, "Fixture should not have ai_summary"
-        
-        # Verify HTML has no AI Analysis section
-        assert "AI Analysis" not in html, "AI summary section should not appear"
+        # HTML should show AI Insights section
+        assert "AI Insights" in html, "Reports should always have AI insights"
 
 
 class TestModelLeaderboardComposition:
@@ -134,9 +105,9 @@ class TestComparisonGridComposition:
         assert "Test Results by Model" in html
 
     def test_grid_header_prompt_comparison(self):
-        """Prompt comparison should show 'Test Results by Prompt'."""
+        """Prompt comparison should show 'Test Results by System Prompt'."""
         html, _ = generate_html("03_prompt_comparison")
-        assert "Test Results by Prompt" in html
+        assert "Test Results by System Prompt" in html
 
     def test_grid_header_matrix(self):
         """Matrix mode should show 'Comparison Matrix'."""
@@ -207,10 +178,10 @@ class TestMatrixModeComposition:
         assert "Comparison Matrix" in html
 
     def test_matrix_full_has_all_sections(self):
-        """Fixture 08 should have ALL sections."""
-        html, _ = generate_html("08_matrix_full")
+        """Fixture 08 should have leaderboard and matrix sections."""
+        html, data = generate_html("08_matrix_full")
         
-        # All major sections
+        # Major sections (except AI Insights which are placeholder)
         assert "Model Leaderboard" in html or "leaderboard" in html.lower()
         assert "Comparison Matrix" in html
-        assert "AI Analysis" in html, "Matrix full should have AI summary"
+        # AI Insights won't render because fixture has placeholder

@@ -155,6 +155,202 @@ class RateLimitStats(BaseModel):
     """
 
 
+class Recommendation(BaseModel):
+    configuration: str
+    """
+    Recommended configuration name (e.g., 'fast-agent')
+    """
+    summary: str
+    """
+    One-line recommendation
+    """
+    reasoning: str
+    """
+    Detailed explanation of why this configuration is recommended
+    """
+    alternatives: list[str] | None = None
+    """
+    Other viable options with trade-offs
+    """
+
+
+class FailureAnalysis(BaseModel):
+    test_id: str
+    """
+    Full pytest node ID
+    """
+    configuration: str
+    """
+    Which configuration failed
+    """
+    problem: str
+    """
+    What went wrong (user-friendly)
+    """
+    root_cause: str
+    """
+    Why it went wrong (technical)
+    """
+    suggested_fix: str
+    """
+    How to fix it
+    """
+
+
+class Status(StrEnum):
+    WORKING = "working"
+    WARNING = "warning"
+    UNUSED = "unused"
+    ERROR = "error"
+
+
+class ToolFeedback(BaseModel):
+    tool_name: str
+    status: Status
+    call_count: int = Field(..., ge=0)
+    error_count: int = Field(..., ge=0)
+    current_description: str
+    """
+    The tool's current description
+    """
+    problem: str | None = None
+    """
+    What's wrong with the tool description (if anything)
+    """
+    suggested_description: str | None = None
+    """
+    Exact rewrite to use
+    """
+    rationale: str | None = None
+    """
+    Why this change helps
+    """
+
+
+class MCPServerFeedback(BaseModel):
+    server_name: str
+    tools: list[ToolFeedback]
+    overall_assessment: str
+    """
+    Summary assessment of the MCP server
+    """
+
+
+class Effectiveness(StrEnum):
+    EFFECTIVE = "effective"
+    MIXED = "mixed"
+    INEFFECTIVE = "ineffective"
+
+
+class PromptFeedback(BaseModel):
+    prompt_id: str
+    """
+    Prompt identifier (e.g., 'brief', 'detailed')
+    """
+    effectiveness: Effectiveness
+    token_count: int = Field(..., ge=0)
+    """
+    Tokens in the prompt
+    """
+    current_excerpt: str
+    """
+    Relevant portion of the prompt being analyzed
+    """
+    problem: str | None = None
+    """
+    What's wrong (if anything)
+    """
+    suggested_change: str | None = None
+    """
+    Exact text to add/remove/replace
+    """
+    rationale: str | None = None
+    """
+    Why this change helps
+    """
+
+
+class Impact(StrEnum):
+    POSITIVE = "positive"
+    NEUTRAL = "neutral"
+    NEGATIVE = "negative"
+    UNUSED = "unused"
+
+
+class SkillFeedback(BaseModel):
+    skill_name: str
+    usage_rate: float = Field(..., ge=0.0, le=1.0)
+    """
+    How often it was referenced (0-1)
+    """
+    impact: Impact
+    token_cost: int = Field(..., ge=0)
+    """
+    Tokens added to prompt
+    """
+    current_structure: str
+    """
+    Brief description of skill layout
+    """
+    problem: str | None = None
+    """
+    What's wrong (if anything)
+    """
+    suggested_change: str | None = None
+    """
+    Restructuring suggestion
+    """
+    rationale: str | None = None
+    """
+    Why this change helps
+    """
+
+
+class Category(StrEnum):
+    PROMPT = "prompt"
+    SKILL = "skill"
+    COST = "cost"
+    EFFICIENCY = "efficiency"
+
+
+class Severity(StrEnum):
+    INFO = "info"
+    SUGGESTION = "suggestion"
+    RECOMMENDED = "recommended"
+
+
+class OptimizationOpportunity(BaseModel):
+    category: Category
+    severity: Severity
+    title: str
+    current_state: str
+    """
+    What's happening now
+    """
+    suggested_change: str
+    """
+    What to do
+    """
+    expected_impact: str
+    """
+    What will improve
+    """
+
+
+class AnalysisMetadata(BaseModel):
+    model: str | None = None
+    """
+    Model used for analysis
+    """
+    tokens_used: int | None = Field(default=None, ge=0)
+    cost_usd: float | None = Field(default=None, ge=0.0)
+    duration_ms: float | None = Field(default=None, ge=0.0)
+    cached: bool | None = None
+    """
+    Whether the analysis was served from cache
+    """
+
+
 class SuiteSummary(BaseModel):
     total: int = Field(..., ge=0)
     passed: int = Field(..., ge=0)
@@ -184,6 +380,30 @@ class Turn(BaseModel):
     tool_calls: list[ToolCall] = Field(default_factory=list)
     """
     Tool calls made in this turn (for assistant turns)
+    """
+
+
+class AIInsights(BaseModel):
+    recommendation: Recommendation
+    failures: list[FailureAnalysis]
+    """
+    Root cause analysis for each failed test
+    """
+    mcp_feedback: list[MCPServerFeedback]
+    """
+    Feedback on MCP server tools
+    """
+    prompt_feedback: list[PromptFeedback]
+    """
+    Feedback on system prompts
+    """
+    skill_feedback: list[SkillFeedback]
+    """
+    Feedback on agent skills
+    """
+    optimizations: list[OptimizationOpportunity]
+    """
+    Cross-cutting optimization suggestions
     """
 
 
@@ -264,7 +484,7 @@ class TestReport(BaseModel):
 
 
 class PytestAitestReport(BaseModel):
-    schema_version: Literal["2.0"]
+    schema_version: Literal["3.0"]
     """
     Schema version for compatibility checking
     """
@@ -286,11 +506,15 @@ class PytestAitestReport(BaseModel):
     """
     dimensions: TestDimensions | None = None
     summary: SuiteSummary
+    insights: AIInsights
+    """
+    AI-generated analysis providing actionable insights
+    """
     tests: list[TestReport]
     """
-    List of all test results
+    List of all test results (evidence)
     """
-    ai_summary: str | None = None
+    analysis_metadata: AnalysisMetadata | None = None
     """
-    Optional AI-generated analysis of test results
+    Metadata about the AI analysis process
     """

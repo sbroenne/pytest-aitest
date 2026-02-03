@@ -10,11 +10,13 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from pytest_aitest.models import (
+    AIInsights,
     Assertion,
     FloatStats,
     IntStats,
     Mode,
     Outcome,
+    Recommendation,
     Role,
     SuiteSummary,
     TestDimensions,
@@ -125,13 +127,13 @@ def convert_test_report(test: TestReport) -> PydanticTestReport:
 def convert_suite_report(
     report: SuiteReport,
     *,
-    ai_summary: str | None = None,
+    insights: AIInsights | None = None,
 ) -> PydanticSuiteReport:
     """Convert a legacy SuiteReport to Pydantic model.
     
     Args:
         report: Legacy suite report from collector
-        ai_summary: Optional AI-generated summary to include
+        insights: AI-generated insights (if None, placeholder is used)
         
     Returns:
         Pydantic SuiteReport model ready for JSON serialization
@@ -178,6 +180,22 @@ def convert_suite_report(
     except (ValueError, AttributeError):
         timestamp = datetime.now(timezone.utc)
     
+    # Create placeholder insights - will be replaced by AI analysis
+    # The placeholder has enough info to be valid but indicates analysis needed
+    placeholder_insights = AIInsights(
+        recommendation=Recommendation(
+            configuration="(analysis pending)",
+            summary="AI analysis has not been run yet",
+            reasoning="Run with --aitest-html to generate AI-powered insights",
+            alternatives=[],
+        ),
+        failures=[],
+        mcp_feedback=[],
+        prompt_feedback=[],
+        skill_feedback=[],
+        optimizations=[],
+    )
+    
     return PydanticSuiteReport(
         schema_version=SCHEMA_VERSION,
         name=report.name,
@@ -186,6 +204,7 @@ def convert_suite_report(
         mode=mode_map.get(dims.mode, Mode.SIMPLE),
         dimensions=dimensions,
         summary=summary,
+        insights=insights if insights else placeholder_insights,
         tests=[convert_test_report(t) for t in report.tests],
-        ai_summary=ai_summary,
+        analysis_metadata=None,
     )

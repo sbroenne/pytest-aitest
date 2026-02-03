@@ -28,9 +28,8 @@ Set defaults once:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-model=azure/gpt-5-mini
---aitest-summary-model=azure/gpt-4.1
---aitest-html=reports/report.html
+--aitest-summary-model=azure/gpt-5.1-chat
+--aitest-html=aitest-reports/report.html
 """
 ```
 
@@ -38,12 +37,10 @@ addopts = """
 
 | Option | Description |
 |--------|-------------|
-| `--aitest-model=MODEL` | Default LiteLLM model for agents |
-| `--aitest-summary-model=MODEL` | Model for AI summary (required with `--aitest-summary`). Use a capable model. |
+| `--aitest-summary-model=MODEL` | Model for AI insights (required for reports) |
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Custom path for JSON report (default: `aitest-reports/results.json`) |
 | `--aitest-md=PATH` | Generate Markdown report |
-| `--aitest-summary` | Include AI-powered analysis |
 
 > **Note:** JSON is always generated to `aitest-reports/results.json` by default. Use `--aitest-json` only to specify a custom path.
 
@@ -59,7 +56,7 @@ pytest-aitest-report results.json --html report.html
 pytest-aitest-report results.json --html report.html --md report.md
 
 # Regenerate with fresh AI summary
-pytest-aitest-report results.json --html report.html --summary --summary-model azure/gpt-4.1
+pytest-aitest-report results.json --html report.html --summary --summary-model azure/gpt-5.1-chat
 ```
 
 | Option | Description |
@@ -73,16 +70,18 @@ pytest-aitest-report results.json --html report.html --summary --summary-model a
 
 The CLI reads configuration with this precedence (highest to lowest):
 
-1. **CLI arguments**: `--summary-model azure/gpt-4.1`
-2. **Environment variables**: `AITEST_SUMMARY_MODEL=azure/gpt-4.1`
+1. **CLI arguments**: `--summary-model azure/gpt-5.1-chat`
+2. **Environment variables**: `AITEST_SUMMARY_MODEL=azure/gpt-5.1-chat`
 3. **pyproject.toml**:
 
 ```toml
 [tool.pytest-aitest-report]
-summary-model = "azure/gpt-4.1"
+summary-model = "azure/gpt-5.1-chat"
 ```
 
 ## Provider
+
+Each Agent uses one Provider. To compare different LLM providers or models, create multiple agents.
 
 ```python
 from pytest_aitest import Provider
@@ -96,6 +95,13 @@ provider = Provider(
     temperature=0.7,
     max_tokens=1000,
 )
+
+# With rate limits (model-specific)
+provider = Provider(
+    model="azure/gpt-5-mini",
+    rpm=10,    # Requests per minute
+    tpm=10000, # Tokens per minute
+)
 ```
 
 ## Agent
@@ -107,7 +113,8 @@ agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
     mcp_servers=[server],           # MCP servers
     cli_servers=[cli],              # CLI servers
-    system_prompt="You are...",     # System prompt
+    system_prompt="You are...",     # System Prompt (optional)
+    skill=my_skill,                 # Agent Skill (optional)
     max_turns=10,                   # Max tool-call rounds
 )
 ```
@@ -157,17 +164,6 @@ async def test_weather(aitest_run):
     assert result.success
 ```
 
-### Using judge (AI assertions)
-
-```python
-@pytest.mark.asyncio
-async def test_with_judge(aitest_run, judge):
-    result = await aitest_run(agent, "Compare Paris and London weather")
-    
-    assert result.success
-    assert judge(result.final_response, "mentions both cities")
-```
-
 See **[Assertions documentation](assertions.md)** for complete API.
 
 ## Environment Variables
@@ -185,6 +181,6 @@ See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for complete list.
 
 - **[MCP Server](mcp-server.md)** — MCP server configuration
 - **[CLI Server](cli-server.md)** — CLI tool wrapper configuration  
-- **[Assertions](assertions.md)** — AgentResult API and AI judge
+- **[Assertions](assertions.md)** — AgentResult API and assertions
 - **[Reporting](reporting.md)** — HTML/JSON reports
 - **[API Reference](api-reference.md)** — Complete type reference

@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "name": "pytest-aitest",
   "timestamp": "2026-02-02T16:57:51.486881Z",
   "duration_ms": 90069.16929999716,
@@ -80,7 +80,7 @@
           },
           {
             "role": "assistant",
-            "content": "Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
+            "content": "Paris: 18\u00b0C (64\u00b0F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
             "tool_calls": []
           }
         ],
@@ -90,7 +90,7 @@
           "total": 747
         },
         "cost_usd": 0.00027949999999999996,
-        "final_response": "Paris: 18°C (64°F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
+        "final_response": "Paris: 18\u00b0C (64\u00b0F), partly cloudy. Humidity 65%. Wind SW at 12 km/h.",
         "tools_called": [
           "get_weather"
         ],
@@ -132,7 +132,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here are the current conditions for Paris:\n\n- Temperature: 18 °C (64 °F). Reasoning: that's the reported air temperature; comfortable and typical for mild spring/early-autumn weather.\n- Humidity: 65%. Reasoning: moderate humidity — not dry but not oppressive; it can make temperatures feel slightly damper than the number alone indicates.\n- Conditions: Partly cloudy. Reasoning: sky cover will alternate between sun and clouds, so expect some sunshine but periods of overcast.\n- Wind: 12 km/h (about 7.5 mph) from the SW. Reasoning: a gentle breeze from the southwest — enough to cool you slightly but not strong.\n\nPractical advice (and why):\n- Wear a light jacket or a long-sleeve layer. Reasoning: 18 °C is mild but a breeze and cloud cover can make it feel cooler, especially in shade or near water.\n- No heavy rain gear needed right now, but carry a small travel umbrella or light rain jacket if you’ll be out for many hours. Reasoning: partly cloudy conditions mean low immediate rain probability but clouds can produce brief showers.\n- If drying laundry outdoors, expect slower drying than on a sunny, low-humidity day. Reasoning: 65% humidity and intermittent clouds reduce evaporation speed.\n- Good conditions for walking, sightseeing, or cycling — the wind is light and temperatures are comfortable. Reasoning: gentle SW breeze won’t impede most outdoor activities and temps are pleasant.\n\nIf you want a forecast for the next few days or hourly conditions, I can pull that up.",
+            "content": "Here are the current conditions for Paris:\n\n- Temperature: 18 \u00b0C (64 \u00b0F). Reasoning: that's the reported air temperature; comfortable and typical for mild spring/early-autumn weather.\n- Humidity: 65%. Reasoning: moderate humidity \u2014 not dry but not oppressive; it can make temperatures feel slightly damper than the number alone indicates.\n- Conditions: Partly cloudy. Reasoning: sky cover will alternate between sun and clouds, so expect some sunshine but periods of overcast.\n- Wind: 12 km/h (about 7.5 mph) from the SW. Reasoning: a gentle breeze from the southwest \u2014 enough to cool you slightly but not strong.\n\nPractical advice (and why):\n- Wear a light jacket or a long-sleeve layer. Reasoning: 18 \u00b0C is mild but a breeze and cloud cover can make it feel cooler, especially in shade or near water.\n- No heavy rain gear needed right now, but carry a small travel umbrella or light rain jacket if you\u2019ll be out for many hours. Reasoning: partly cloudy conditions mean low immediate rain probability but clouds can produce brief showers.\n- If drying laundry outdoors, expect slower drying than on a sunny, low-humidity day. Reasoning: 65% humidity and intermittent clouds reduce evaporation speed.\n- Good conditions for walking, sightseeing, or cycling \u2014 the wind is light and temperatures are comfortable. Reasoning: gentle SW breeze won\u2019t impede most outdoor activities and temps are pleasant.\n\nIf you want a forecast for the next few days or hourly conditions, I can pull that up.",
             "tool_calls": []
           }
         ],
@@ -142,7 +142,7 @@
           "total": 1473
         },
         "cost_usd": 0.0016685,
-        "final_response": "Here are the current conditions for Paris:\n\n- Temperature: 18 °C (64 °F). Reasoning: that's the reported air temperature; comfortable and typical for mild spring/early-autumn weather.\n- Humidity: 65%. Reasoning: moderate humidity — not dry but not oppressive; it can make temperatures feel slightly damper than the number alone indicates.\n- Conditions: Partly cloudy. Reasoning: sky cover will alternate between sun and clouds, so expect some sunshine but periods of overcast.\n- Wind: 12 km/h (about 7.5 mph) from the SW. Reasoning: a gentle breeze from the southwest — enough to cool you slightly but not strong.\n\nPractical advice (and why):\n- Wear a light jacket or a long-sleeve layer. Reasoning: 18 °C is mild but a breeze and cloud cover can make it feel cooler, especially in shade or near water.\n- No heavy rain gear needed right now, but carry a small travel umbrella or light rain jacket if you’ll be out for many hours. Reasoning: partly cloudy conditions mean low immediate rain probability but clouds can produce brief showers.\n- If drying laundry outdoors, expect slower drying than on a sunny, low-humidity day. Reasoning: 65% humidity and intermittent clouds reduce evaporation speed.\n- Good conditions for walking, sightseeing, or cycling — the wind is light and temperatures are comfortable. Reasoning: gentle SW breeze won’t impede most outdoor activities and temps are pleasant.\n\nIf you want a forecast for the next few days or hourly conditions, I can pull that up.",
+        "final_response": "Here are the current conditions for Paris:\n\n- Temperature: 18 \u00b0C (64 \u00b0F). Reasoning: that's the reported air temperature; comfortable and typical for mild spring/early-autumn weather.\n- Humidity: 65%. Reasoning: moderate humidity \u2014 not dry but not oppressive; it can make temperatures feel slightly damper than the number alone indicates.\n- Conditions: Partly cloudy. Reasoning: sky cover will alternate between sun and clouds, so expect some sunshine but periods of overcast.\n- Wind: 12 km/h (about 7.5 mph) from the SW. Reasoning: a gentle breeze from the southwest \u2014 enough to cool you slightly but not strong.\n\nPractical advice (and why):\n- Wear a light jacket or a long-sleeve layer. Reasoning: 18 \u00b0C is mild but a breeze and cloud cover can make it feel cooler, especially in shade or near water.\n- No heavy rain gear needed right now, but carry a small travel umbrella or light rain jacket if you\u2019ll be out for many hours. Reasoning: partly cloudy conditions mean low immediate rain probability but clouds can produce brief showers.\n- If drying laundry outdoors, expect slower drying than on a sunny, low-humidity day. Reasoning: 65% humidity and intermittent clouds reduce evaporation speed.\n- Good conditions for walking, sightseeing, or cycling \u2014 the wind is light and temperatures are comfortable. Reasoning: gentle SW breeze won\u2019t impede most outdoor activities and temps are pleasant.\n\nIf you want a forecast for the next few days or hourly conditions, I can pull that up.",
         "tools_called": [
           "get_weather"
         ],
@@ -184,7 +184,7 @@
           },
           {
             "role": "assistant",
-            "content": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+            "content": "\ud83d\udccd Location: Paris\n\ud83c\udf21\ufe0f Temperature: 18\u00b0C / 64\u00b0F\n\ud83d\udca7 Humidity: 65%\n\ud83c\udf24\ufe0f Conditions: Partly cloudy\n\ud83d\udca8 Wind: 12 km/h SW",
             "tool_calls": []
           }
         ],
@@ -194,7 +194,7 @@
           "total": 1063
         },
         "cost_usd": 0.00074,
-        "final_response": "📍 Location: Paris\n🌡️ Temperature: 18°C / 64°F\n💧 Humidity: 65%\n🌤️ Conditions: Partly cloudy\n💨 Wind: 12 km/h SW",
+        "final_response": "\ud83d\udccd Location: Paris\n\ud83c\udf21\ufe0f Temperature: 18\u00b0C / 64\u00b0F\n\ud83d\udca7 Humidity: 65%\n\ud83c\udf24\ufe0f Conditions: Partly cloudy\n\ud83d\udca8 Wind: 12 km/h SW",
         "tools_called": [
           "get_weather"
         ],
@@ -237,7 +237,7 @@
           },
           {
             "role": "assistant",
-            "content": "Quick comparison:\n- Tokyo: 24°C (75°F), sunny, 70% humidity, light wind 8 km/h E — calmer conditions.\n- Sydney: 26°C (79°F), sunny, 60% humidity, breeze 20 km/h SE — warmer and drier but windier.\n\nRecommendation: Sydney is better overall for a beach day (warmer and less humid). If you prefer calmer water and minimal wind, pick Tokyo.",
+            "content": "Quick comparison:\n- Tokyo: 24\u00b0C (75\u00b0F), sunny, 70% humidity, light wind 8 km/h E \u2014 calmer conditions.\n- Sydney: 26\u00b0C (79\u00b0F), sunny, 60% humidity, breeze 20 km/h SE \u2014 warmer and drier but windier.\n\nRecommendation: Sydney is better overall for a beach day (warmer and less humid). If you prefer calmer water and minimal wind, pick Tokyo.",
             "tool_calls": []
           }
         ],
@@ -247,7 +247,7 @@
           "total": 1390
         },
         "cost_usd": 0.0013625,
-        "final_response": "Quick comparison:\n- Tokyo: 24°C (75°F), sunny, 70% humidity, light wind 8 km/h E — calmer conditions.\n- Sydney: 26°C (79°F), sunny, 60% humidity, breeze 20 km/h SE — warmer and drier but windier.\n\nRecommendation: Sydney is better overall for a beach day (warmer and less humid). If you prefer calmer water and minimal wind, pick Tokyo.",
+        "final_response": "Quick comparison:\n- Tokyo: 24\u00b0C (75\u00b0F), sunny, 70% humidity, light wind 8 km/h E \u2014 calmer conditions.\n- Sydney: 26\u00b0C (79\u00b0F), sunny, 60% humidity, breeze 20 km/h SE \u2014 warmer and drier but windier.\n\nRecommendation: Sydney is better overall for a beach day (warmer and less humid). If you prefer calmer water and minimal wind, pick Tokyo.",
         "tools_called": [
           "compare_weather"
         ],
@@ -297,7 +297,7 @@
           },
           {
             "role": "assistant",
-            "content": "Current conditions (just checked):\n\n- Tokyo\n  - Temperature: 24°C (75°F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h (E) — light breeze\n\n- Sydney\n  - Temperature: 26°C (79°F)\n  - Humidity: 60%\n  - Conditions: Sunny\n  - Wind: 20 km/h (SE) — moderate breeze\n\nWhich is better for a beach day — reasoning and practical advice\n\n- Temperature and sun: Both cities are warm and sunny (Tokyo 24°C / 75°F, Sydney 26°C / 79°F), so either location is pleasant for beach activities.\n\n- Humidity: Tokyo is more humid (70%) than Sydney (60%). Higher humidity makes the air feel stickier and can make sun exposure feel hotter; Sydney will feel a bit drier and more comfortable for active play.\n\n- Wind and water conditions: Tokyo’s light easterly wind (8 km/h) will give calmer sea and less sand blowing — better for swimming, sunbathing, picnics and children. Sydney’s stronger southeast wind (20 km/h) will make beaches breezier, which can cause sand to blow and create choppier surf and stronger currents — better for surfing, wind/kite sports, but less comfortable for lounging on the sand.\n\nOverall recommendation:\n- If your idea of a “beach day” is relaxing, sunbathing and easy swimming, Tokyo is the better choice because of the gentler wind and calmer conditions.\n- If you want active water sports (surfing, kitesurfing) or don’t mind a breezy beach, Sydney is better because of the stronger wind and slightly warmer, drier air.\n\nPractical tips\n- For both: bring sunscreen (SPF 30+), water to stay hydrated, sunglasses and a hat. Reapply sunscreen after swimming.\n- Tokyo-specific: the light breeze means less wind chill — a light umbrella or beach blanket will work fine; shade is useful because humidity increases perceived heat.\n- Sydney-specific: expect sand to blow and possible choppy surf — bring a windbreak or heavier towel, secure loose items, and check local lifeguard flags/current advisories before swimming (stronger winds can increase rip-current risk).\n\nIf you tell me which style of beach day you prefer (lounging vs. watersports), I’ll pick one for you and give any extra safety tips.",
+            "content": "Current conditions (just checked):\n\n- Tokyo\n  - Temperature: 24\u00b0C (75\u00b0F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h (E) \u2014 light breeze\n\n- Sydney\n  - Temperature: 26\u00b0C (79\u00b0F)\n  - Humidity: 60%\n  - Conditions: Sunny\n  - Wind: 20 km/h (SE) \u2014 moderate breeze\n\nWhich is better for a beach day \u2014 reasoning and practical advice\n\n- Temperature and sun: Both cities are warm and sunny (Tokyo 24\u00b0C / 75\u00b0F, Sydney 26\u00b0C / 79\u00b0F), so either location is pleasant for beach activities.\n\n- Humidity: Tokyo is more humid (70%) than Sydney (60%). Higher humidity makes the air feel stickier and can make sun exposure feel hotter; Sydney will feel a bit drier and more comfortable for active play.\n\n- Wind and water conditions: Tokyo\u2019s light easterly wind (8 km/h) will give calmer sea and less sand blowing \u2014 better for swimming, sunbathing, picnics and children. Sydney\u2019s stronger southeast wind (20 km/h) will make beaches breezier, which can cause sand to blow and create choppier surf and stronger currents \u2014 better for surfing, wind/kite sports, but less comfortable for lounging on the sand.\n\nOverall recommendation:\n- If your idea of a \u201cbeach day\u201d is relaxing, sunbathing and easy swimming, Tokyo is the better choice because of the gentler wind and calmer conditions.\n- If you want active water sports (surfing, kitesurfing) or don\u2019t mind a breezy beach, Sydney is better because of the stronger wind and slightly warmer, drier air.\n\nPractical tips\n- For both: bring sunscreen (SPF 30+), water to stay hydrated, sunglasses and a hat. Reapply sunscreen after swimming.\n- Tokyo-specific: the light breeze means less wind chill \u2014 a light umbrella or beach blanket will work fine; shade is useful because humidity increases perceived heat.\n- Sydney-specific: expect sand to blow and possible choppy surf \u2014 bring a windbreak or heavier towel, secure loose items, and check local lifeguard flags/current advisories before swimming (stronger winds can increase rip-current risk).\n\nIf you tell me which style of beach day you prefer (lounging vs. watersports), I\u2019ll pick one for you and give any extra safety tips.",
             "tool_calls": []
           }
         ],
@@ -307,7 +307,7 @@
           "total": 1988
         },
         "cost_usd": 0.0025025,
-        "final_response": "Current conditions (just checked):\n\n- Tokyo\n  - Temperature: 24°C (75°F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h (E) — light breeze\n\n- Sydney\n  - Temperature: 26°C (79°F)\n  - Humidity: 60%\n  - Conditions: Sunny\n  - Wind: 20 km/h (SE) — moderate breeze\n\nWhich is better for a beach day — reasoning and practical advice\n\n- Temperature and sun: Both cities are warm and sunny (Tokyo 24°C / 75°F, Sydney 26°C / 79°F), so either location is pleasant for beach activities.\n\n- Humidity: Tokyo is more humid (70%) than Sydney (60%). Higher humidity makes the air feel stickier and can make sun exposure feel hotter; Sydney will feel a bit drier and more comfortable for active play.\n\n- Wind and water conditions: Tokyo’s light easterly wind (8 km/h) will give calmer sea and less sand blowing — better for swimming, sunbathing, picnics and children. Sydney’s stronger southeast wind (20 km/h) will make beaches breezier, which can cause sand to blow and create choppier surf and stronger currents — better for surfing, wind/kite sports, but less comfortable for lounging on the sand.\n\nOverall recommendation:\n- If your idea of a “beach day” is relaxing, sunbathing and easy swimming, Tokyo is the better choice because of the gentler wind and calmer conditions.\n- If you want active water sports (surfing, kitesurfing) or don’t mind a breezy beach, Sydney is better because of the stronger wind and slightly warmer, drier air.\n\nPractical tips\n- For both: bring sunscreen (SPF 30+), water to stay hydrated, sunglasses and a hat. Reapply sunscreen after swimming.\n- Tokyo-specific: the light breeze means less wind chill — a light umbrella or beach blanket will work fine; shade is useful because humidity increases perceived heat.\n- Sydney-specific: expect sand to blow and possible choppy surf — bring a windbreak or heavier towel, secure loose items, and check local lifeguard flags/current advisories before swimming (stronger winds can increase rip-current risk).\n\nIf you tell me which style of beach day you prefer (lounging vs. watersports), I’ll pick one for you and give any extra safety tips.",
+        "final_response": "Current conditions (just checked):\n\n- Tokyo\n  - Temperature: 24\u00b0C (75\u00b0F)\n  - Humidity: 70%\n  - Conditions: Sunny\n  - Wind: 8 km/h (E) \u2014 light breeze\n\n- Sydney\n  - Temperature: 26\u00b0C (79\u00b0F)\n  - Humidity: 60%\n  - Conditions: Sunny\n  - Wind: 20 km/h (SE) \u2014 moderate breeze\n\nWhich is better for a beach day \u2014 reasoning and practical advice\n\n- Temperature and sun: Both cities are warm and sunny (Tokyo 24\u00b0C / 75\u00b0F, Sydney 26\u00b0C / 79\u00b0F), so either location is pleasant for beach activities.\n\n- Humidity: Tokyo is more humid (70%) than Sydney (60%). Higher humidity makes the air feel stickier and can make sun exposure feel hotter; Sydney will feel a bit drier and more comfortable for active play.\n\n- Wind and water conditions: Tokyo\u2019s light easterly wind (8 km/h) will give calmer sea and less sand blowing \u2014 better for swimming, sunbathing, picnics and children. Sydney\u2019s stronger southeast wind (20 km/h) will make beaches breezier, which can cause sand to blow and create choppier surf and stronger currents \u2014 better for surfing, wind/kite sports, but less comfortable for lounging on the sand.\n\nOverall recommendation:\n- If your idea of a \u201cbeach day\u201d is relaxing, sunbathing and easy swimming, Tokyo is the better choice because of the gentler wind and calmer conditions.\n- If you want active water sports (surfing, kitesurfing) or don\u2019t mind a breezy beach, Sydney is better because of the stronger wind and slightly warmer, drier air.\n\nPractical tips\n- For both: bring sunscreen (SPF 30+), water to stay hydrated, sunglasses and a hat. Reapply sunscreen after swimming.\n- Tokyo-specific: the light breeze means less wind chill \u2014 a light umbrella or beach blanket will work fine; shade is useful because humidity increases perceived heat.\n- Sydney-specific: expect sand to blow and possible choppy surf \u2014 bring a windbreak or heavier towel, secure loose items, and check local lifeguard flags/current advisories before swimming (stronger winds can increase rip-current risk).\n\nIf you tell me which style of beach day you prefer (lounging vs. watersports), I\u2019ll pick one for you and give any extra safety tips.",
         "tools_called": [
           "get_weather"
         ],
@@ -350,7 +350,7 @@
           },
           {
             "role": "assistant",
-            "content": "📍 Location: Tokyo\n🌡️ Temperature: 24°C / 75°F\n💧 Humidity: 70%\n🌤️ Conditions: Sunny\n💨 Wind: 8 km/h E\n\n📍 Location: Sydney\n🌡️ Temperature: 26°C / 79°F\n💧 Humidity: 60%\n🌤️ Conditions: Sunny\n💨 Wind: 20 km/h SE\n\nComparison & recommendation: Both cities are sunny, but Sydney is slightly warmer (+2°C) and less humid, making it generally better for a beach day. Tokyo has much lighter wind (8 km/h) so it will feel calmer and may be preferable if you want calm water or less sand blowing around. If you like a bit of breeze and potentially livelier surf, pick Sydney; if you want gentler conditions, pick Tokyo.\n\nQuick tip: check local surf/rip-current advisories, wear sunscreen, and stay hydrated.",
+            "content": "\ud83d\udccd Location: Tokyo\n\ud83c\udf21\ufe0f Temperature: 24\u00b0C / 75\u00b0F\n\ud83d\udca7 Humidity: 70%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 8 km/h E\n\n\ud83d\udccd Location: Sydney\n\ud83c\udf21\ufe0f Temperature: 26\u00b0C / 79\u00b0F\n\ud83d\udca7 Humidity: 60%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 20 km/h SE\n\nComparison & recommendation: Both cities are sunny, but Sydney is slightly warmer (+2\u00b0C) and less humid, making it generally better for a beach day. Tokyo has much lighter wind (8 km/h) so it will feel calmer and may be preferable if you want calm water or less sand blowing around. If you like a bit of breeze and potentially livelier surf, pick Sydney; if you want gentler conditions, pick Tokyo.\n\nQuick tip: check local surf/rip-current advisories, wear sunscreen, and stay hydrated.",
             "tool_calls": []
           }
         ],
@@ -360,12 +360,25 @@
           "total": 1846
         },
         "cost_usd": 0.002103,
-        "final_response": "📍 Location: Tokyo\n🌡️ Temperature: 24°C / 75°F\n💧 Humidity: 70%\n🌤️ Conditions: Sunny\n💨 Wind: 8 km/h E\n\n📍 Location: Sydney\n🌡️ Temperature: 26°C / 79°F\n💧 Humidity: 60%\n🌤️ Conditions: Sunny\n💨 Wind: 20 km/h SE\n\nComparison & recommendation: Both cities are sunny, but Sydney is slightly warmer (+2°C) and less humid, making it generally better for a beach day. Tokyo has much lighter wind (8 km/h) so it will feel calmer and may be preferable if you want calm water or less sand blowing around. If you like a bit of breeze and potentially livelier surf, pick Sydney; if you want gentler conditions, pick Tokyo.\n\nQuick tip: check local surf/rip-current advisories, wear sunscreen, and stay hydrated.",
+        "final_response": "\ud83d\udccd Location: Tokyo\n\ud83c\udf21\ufe0f Temperature: 24\u00b0C / 75\u00b0F\n\ud83d\udca7 Humidity: 70%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 8 km/h E\n\n\ud83d\udccd Location: Sydney\n\ud83c\udf21\ufe0f Temperature: 26\u00b0C / 79\u00b0F\n\ud83d\udca7 Humidity: 60%\n\ud83c\udf24\ufe0f Conditions: Sunny\n\ud83d\udca8 Wind: 20 km/h SE\n\nComparison & recommendation: Both cities are sunny, but Sydney is slightly warmer (+2\u00b0C) and less humid, making it generally better for a beach day. Tokyo has much lighter wind (8 km/h) so it will feel calmer and may be preferable if you want calm water or less sand blowing around. If you like a bit of breeze and potentially livelier surf, pick Sydney; if you want gentler conditions, pick Tokyo.\n\nQuick tip: check local surf/rip-current advisories, wear sunscreen, and stay hydrated.",
         "tools_called": [
           "compare_weather"
         ],
         "session_context_count": 0
       }
     }
-  ]
+  ],
+  "insights": {
+    "recommendation": {
+      "configuration": "(analysis pending)",
+      "summary": "AI analysis has not been run yet",
+      "reasoning": "Run with --aitest-html to generate AI-powered insights",
+      "alternatives": []
+    },
+    "failures": [],
+    "mcp_feedback": [],
+    "prompt_feedback": [],
+    "skill_feedback": [],
+    "optimizations": []
+  }
 }

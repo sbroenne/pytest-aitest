@@ -4,6 +4,7 @@
     'has_footer': False,
     'has_header': True,
     'sections': list([
+      'section',
       'summary-grid',
       'section',
     ]),
@@ -16,6 +17,7 @@
     'has_footer': False,
     'has_header': True,
     'sections': list([
+      'section',
       'summary-grid',
       'section',
       'section',
@@ -31,6 +33,7 @@
     'has_footer': False,
     'has_header': True,
     'sections': list([
+      'section',
       'summary-grid',
       'section',
       'section',

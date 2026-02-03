@@ -660,6 +660,41 @@ body {
 
 .overlay .overlay-close:hover { background: #f1f5f9; }
 
+/* ==================== Diagram Hover Popup ==================== */
+.diagram-hover-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+    padding: 1.5rem;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.diagram-hover-popup.active {
+    display: block;
+}
+
+.diagram-hover-popup .diagram-hover-content {
+    min-width: 400px;
+    min-height: 300px;
+}
+
+.diagram-hover-popup::before {
+    content: "Hover to view • Click to expand";
+    display: block;
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
 /* ==================== Final Output Box ==================== */
 .final-output {
     margin: 1rem 0;
@@ -794,10 +829,13 @@ body {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-header-cell {
     flex: 1;
+    min-width: 280px;
     padding: 1rem;
     background: #f8fafc;
     border-radius: var(--radius);
@@ -835,6 +873,8 @@ body {
     display: grid;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-diagram-cell {
@@ -843,12 +883,19 @@ body {
     border-radius: var(--radius);
     padding: 1rem;
     overflow: hidden;
+    min-width: 280px;
 }
 
 .sbs-diagram-cell .mermaid-container {
     margin: 0;
     border: none;
     padding: 0.5rem;
+    min-height: 200px;
+}
+
+.sbs-diagram-cell .mermaid svg {
+    min-width: 250px;
+    min-height: 180px;
 }
 
 .sbs-final-response {
@@ -1052,7 +1099,7 @@ body {
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_trip_planning_compare_destinations">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_trip_planning_compare_destinations">
                         <span class="badge passed">passed</span>
                         Plan a trip: get forecasts for two cities and recommend the better one.
                     </span>
@@ -1198,7 +1245,7 @@ Sydney (3-day forecast)
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_packing_advice_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_packing_advice_workflow">
                         <span class="badge failed">failed</span>
                         Check multiple cities and provide packing advice.
                     </span>
@@ -1342,7 +1389,7 @@ Recommendation
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_discovery_then_query_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_discovery_then_query_workflow">
                         <span class="badge passed">passed</span>
                         Discover available cities, then query the warmest one.
                     </span>
@@ -1570,7 +1617,7 @@ Sydney 5-day forecast:
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_comparative_analysis_three_cities">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_comparative_analysis_three_cities">
                         <span class="badge passed">passed</span>
                         Compare weather across three cities and rank them.
                     </span>
@@ -1708,7 +1755,7 @@ If y...</div>
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_error_recovery_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_error_recovery_workflow">
                         <span class="badge passed">passed</span>
                         Handle an invalid city gracefully and provide alternatives.
                     </span>
@@ -1863,7 +1910,7 @@ Would you like a multi-day forecast for Paris or current weather for any of the 
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_project_setup_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestTodoWorkflows::test_project_setup_workflow">
                         <span class="badge passed">passed</span>
                         Create multiple tasks and verify the list.
                     </span>
@@ -2018,7 +2065,7 @@ What would you like to do next?</div>
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_task_lifecycle_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestTodoWorkflows::test_task_lifecycle_workflow">
                         <span class="badge passed">passed</span>
                         Full task lifecycle: create, complete, verify.
                     </span>
@@ -2162,7 +2209,7 @@ What would you like to do next?</div>
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_priority_management_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestTodoWorkflows::test_priority_management_workflow">
                         <span class="badge passed">passed</span>
                         Create tasks with different priorities and query by priority.
                     </span>
@@ -2324,7 +2371,7 @@ Which one to do first: Start with &#34;Fix critical bug&#34; (cb11d1ed). It has 
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_batch_completion_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestTodoWorkflows::test_batch_completion_workflow">
                         <span class="badge passed">passed</span>
                         Add tasks, complete multiple, then show remaining.
                     </span>
@@ -2507,7 +2554,7 @@ Which one to do first: Start with &#34;Fix critical bug&#34; (cb11d1ed). It has 
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_multi_list_organization">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestTodoWorkflows::test_multi_list_organization">
                         <span class="badge passed">passed</span>
                         Organize tasks across multiple lists.
                     </span>
@@ -2691,7 +2738,7 @@ If you want, I can set priorities, add deadlines, or mark any of these as comple
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_ambiguous_request_clarification">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestAdvancedPatterns::test_ambiguous_request_clarification">
                         <span class="badge passed">passed</span>
                         Handle ambiguous requests intelligently.
                     </span>
@@ -2848,7 +2895,7 @@ Quick summary: mild temperatures across these locations (mid-teens °C), partly 
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_conditional_logic_workflow">
+                    <span class="test-name" title="tests/integration/test_basic_usage.py::TestAdvancedPatterns::test_conditional_logic_workflow">
                         <span class="badge passed">passed</span>
                         Execute conditional logic based on current state.
                     </span>
@@ -3004,6 +3051,16 @@ Quick summary: mild temperatures across these locations (mid-teens °C), partly 
     </div>
 </div>
 
+
+<div class="diagram-hover-popup" id="diagram-hover-popup" 
+     onmouseenter="keepDiagramHover()" 
+     onmouseleave="hideDiagramHover()"
+     onclick="hideOverlay(); document.getElementById('diagram-hover-popup').classList.remove('active'); showDiagram(document.getElementById('hover-mermaid').innerHTML);">
+    <div class="diagram-hover-content">
+        <div class="mermaid" id="hover-mermaid"></div>
+    </div>
+</div>
+
     <script>
 // pytest-aitest Report Scripts
 
@@ -3031,6 +3088,27 @@ function hideOverlay() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') hideOverlay();
 });
+
+// Hover popup for side-by-side diagrams
+let hoverTimeout = null;
+function showDiagramHover(element, mermaidCode) {
+    clearTimeout(hoverTimeout);
+    const popup = document.getElementById('diagram-hover-popup');
+    const content = document.getElementById('hover-mermaid');
+    content.innerHTML = mermaidCode;
+    popup.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideDiagramHover() {
+    hoverTimeout = setTimeout(() => {
+        document.getElementById('diagram-hover-popup').classList.remove('active');
+    }, 100);
+}
+
+function keepDiagramHover() {
+    clearTimeout(hoverTimeout);
+}
 
 // Side-by-side test selector
 function showSideBySideTest(testId) {

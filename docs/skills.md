@@ -1,18 +1,15 @@
 # Agent Skills
 
-Skills are domain-specific knowledge modules that enhance agent capabilities. They follow the [agentskills.io](https://agentskills.io/specification) specification.
+Skills are domain-specific knowledge modules that you can test with agents. They follow the [agentskills.io](https://agentskills.io/specification) specification.
 
 ## Why Skills?
 
-MCP servers and CLIs have two problems nobody talks about:
-
-1. **Design** — Your tool descriptions, parameter names, and error messages are the entire API for LLMs. Getting them right is hard.
-2. **Testing** — Traditional tests can't verify if an LLM can actually understand and use your tools.
-
-**Skills solve the knowledge gap.** They provide:
+Skills solve the knowledge gap. They provide:
 - Domain expertise the LLM needs to use tools effectively
 - Structured guidelines for consistent behavior
 - Reference documents for specific thresholds/rules
+
+**Test whether your skill helps:** Compare agent performance with and without the skill to see if it improves tool usage and response quality.
 
 ## Quick Example
 

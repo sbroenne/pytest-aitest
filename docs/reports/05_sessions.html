@@ -660,6 +660,41 @@ body {
 
 .overlay .overlay-close:hover { background: #f1f5f9; }
 
+/* ==================== Diagram Hover Popup ==================== */
+.diagram-hover-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+    padding: 1.5rem;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.diagram-hover-popup.active {
+    display: block;
+}
+
+.diagram-hover-popup .diagram-hover-content {
+    min-width: 400px;
+    min-height: 300px;
+}
+
+.diagram-hover-popup::before {
+    content: "Hover to view • Click to expand";
+    display: block;
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
 /* ==================== Final Output Box ==================== */
 .final-output {
     margin: 1rem 0;
@@ -794,10 +829,13 @@ body {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-header-cell {
     flex: 1;
+    min-width: 280px;
     padding: 1rem;
     background: #f8fafc;
     border-radius: var(--radius);
@@ -835,6 +873,8 @@ body {
     display: grid;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-diagram-cell {
@@ -843,12 +883,19 @@ body {
     border-radius: var(--radius);
     padding: 1rem;
     overflow: hidden;
+    min-width: 280px;
 }
 
 .sbs-diagram-cell .mermaid-container {
     margin: 0;
     border: none;
     padding: 0.5rem;
+    min-height: 200px;
+}
+
+.sbs-diagram-cell .mermaid svg {
+    min-width: 250px;
+    min-height: 180px;
 }
 
 .sbs-final-response {
@@ -1129,10 +1176,8 @@ body {
                 <tbody>
                     
                     <tr>
-                        <td class="test-name" title="test_01_introduce_context">
-                            
+                        <td class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_01_introduce_context">
                             test_01_introduce_context
-                            
                         </td>
                         
                         <td class="matrix-cell ">
@@ -1150,10 +1195,8 @@ body {
                     </tr>
                     
                     <tr>
-                        <td class="test-name" title="test_02_reference_prior_context">
-                            
+                        <td class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_02_reference_prior_context">
                             test_02_reference_prior_context
-                            
                         </td>
                         
                         <td class="matrix-cell ">
@@ -1171,10 +1214,8 @@ body {
                     </tr>
                     
                     <tr>
-                        <td class="test-name" title="test_03_pure_context_question">
-                            
+                        <td class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_03_pure_context_question">
                             test_03_pure_context_question
-                            
                         </td>
                         
                         <td class="matrix-cell ">
@@ -1192,10 +1233,8 @@ body {
                     </tr>
                     
                     <tr>
-                        <td class="test-name" title="test_04_multi_turn_reasoning">
-                            
+                        <td class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_04_multi_turn_reasoning">
                             test_04_multi_turn_reasoning
-                            
                         </td>
                         
                         <td class="matrix-cell ">
@@ -1213,10 +1252,8 @@ body {
                     </tr>
                     
                     <tr>
-                        <td class="test-name" title="test_05_context_summary">
-                            
+                        <td class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_05_context_summary">
                             test_05_context_summary
-                            
                         </td>
                         
                         <td class="matrix-cell ">
@@ -1234,10 +1271,8 @@ body {
                     </tr>
                     
                     <tr>
-                        <td class="test-name" title="test_session_context_retention">
-                            
-                            Full session workflow: introduce context → referen…
-                            
+                        <td class="test-name" title="tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention">
+                            Full session workflow: introduce context → reference it → ve…
                         </td>
                         
                         <td class="matrix-cell cell-passed">
@@ -1263,10 +1298,8 @@ body {
                     </tr>
                     
                     <tr>
-                        <td class="test-name" title="test_fresh_session_starts_clean">
-                            
+                        <td class="test-name" title="tests/integration/test_sessions.py::TestSessionIsolation::test_fresh_session_starts_clean">
                             test_fresh_session_starts_clean
-                            
                         </td>
                         
                         <td class="matrix-cell ">
@@ -1349,7 +1382,7 @@ body {
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_01_introduce_context">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_01_introduce_context">
                         <span class="badge passed">passed</span>
                         Establish memorable context (Paris trip) and check balances.
                     </span>
@@ -1477,7 +1510,7 @@ Which would you like to do next — set a savings target and timeline, make ...<
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_02_reference_prior_context">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_02_reference_prior_context">
                         <span class="badge passed">passed</span>
                         Reference prior context without repeating it.
                     </span>
@@ -1593,7 +1626,7 @@ Would you like to set a target amount and timeline for your Paris trip so I can 
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_03_pure_context_question">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_03_pure_context_question">
                         <span class="badge passed">passed</span>
                         Ask a question that can ONLY be answered from conversation history.
                     </span>
@@ -1692,7 +1725,7 @@ Would you like to:
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_04_multi_turn_reasoning">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_04_multi_turn_reasoning">
                         <span class="badge passed">passed</span>
                         Complex question requiring both context retention AND tool usage.
                     </span>
@@ -1816,7 +1849,7 @@ Would you like me to:
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_05_context_summary">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestBankingWorkflow::test_05_context_summary">
                         <span class="badge passed">passed</span>
                         Request a summary to verify full conversation history retention.
                     </span>
@@ -1962,7 +1995,7 @@ Notes/observations
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_fresh_session_starts_clean">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestSessionIsolation::test_fresh_session_starts_clean">
                         <span class="badge passed">passed</span>
                         This class should NOT see TestBankingWorkflow&#39;s conversation.
                     </span>
@@ -2068,7 +2101,7 @@ Notes/observations
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_session_context_retention[gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention[gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Full session workflow: introduce context → reference it → verify memory.
                     </span>
@@ -2161,7 +2194,7 @@ Would you like me to set a savings goal (target amount and date), create a recur
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_session_context_retention[gpt-4o-mini]">
+                    <span class="test-name" title="tests/integration/test_sessions.py::TestModelSessionComparison::test_session_context_retention[gpt-4o-mini]">
                         <span class="badge passed">passed</span>
                         Full session workflow: introduce context → reference it → verify memory.
                     </span>
@@ -2262,6 +2295,16 @@ Would you like me to set a savings goal (target amount and date), create a recur
     </div>
 </div>
 
+
+<div class="diagram-hover-popup" id="diagram-hover-popup" 
+     onmouseenter="keepDiagramHover()" 
+     onmouseleave="hideDiagramHover()"
+     onclick="hideOverlay(); document.getElementById('diagram-hover-popup').classList.remove('active'); showDiagram(document.getElementById('hover-mermaid').innerHTML);">
+    <div class="diagram-hover-content">
+        <div class="mermaid" id="hover-mermaid"></div>
+    </div>
+</div>
+
     <script>
 // pytest-aitest Report Scripts
 
@@ -2289,6 +2332,27 @@ function hideOverlay() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') hideOverlay();
 });
+
+// Hover popup for side-by-side diagrams
+let hoverTimeout = null;
+function showDiagramHover(element, mermaidCode) {
+    clearTimeout(hoverTimeout);
+    const popup = document.getElementById('diagram-hover-popup');
+    const content = document.getElementById('hover-mermaid');
+    content.innerHTML = mermaidCode;
+    popup.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideDiagramHover() {
+    hoverTimeout = setTimeout(() => {
+        document.getElementById('diagram-hover-popup').classList.remove('active');
+    }, 100);
+}
+
+function keepDiagramHover() {
+    clearTimeout(hoverTimeout);
+}
 
 // Side-by-side test selector
 function showSideBySideTest(testId) {

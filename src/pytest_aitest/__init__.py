@@ -1,8 +1,6 @@
 """pytest-aitest: Pytest plugin for testing AI agents with MCP and CLI servers."""
 
 # Core types
-# Legacy imports for backwards compatibility
-from pytest_aitest.config import Judge
 from pytest_aitest.core import (
     Agent,
     AgentResult,
@@ -16,8 +14,10 @@ from pytest_aitest.core import (
     ServerStartError,
     Skill,
     SkillError,
+    SkillInfo,
     SkillMetadata,
     ToolCall,
+    ToolInfo,
     Turn,
     Wait,
     load_prompt,
@@ -52,8 +52,10 @@ __all__ = [
     "ServerStartError",
     "Skill",
     "SkillError",
+    "SkillInfo",
     "SkillMetadata",
     "ToolCall",
+    "ToolInfo",
     "Turn",
     "Wait",
     "load_prompt",
@@ -70,8 +72,6 @@ __all__ = [
     "SuiteReport",
     "TestDimensions",
     "TestReport",
-    # Legacy
-    "Judge",
 ]
 
 __version__ = "0.1.0"

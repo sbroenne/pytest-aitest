@@ -660,6 +660,41 @@ body {
 
 .overlay .overlay-close:hover { background: #f1f5f9; }
 
+/* ==================== Diagram Hover Popup ==================== */
+.diagram-hover-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+    padding: 1.5rem;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.diagram-hover-popup.active {
+    display: block;
+}
+
+.diagram-hover-popup .diagram-hover-content {
+    min-width: 400px;
+    min-height: 300px;
+}
+
+.diagram-hover-popup::before {
+    content: "Hover to view • Click to expand";
+    display: block;
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
 /* ==================== Final Output Box ==================== */
 .final-output {
     margin: 1rem 0;
@@ -794,10 +829,13 @@ body {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-header-cell {
     flex: 1;
+    min-width: 280px;
     padding: 1rem;
     background: #f8fafc;
     border-radius: var(--radius);
@@ -835,6 +873,8 @@ body {
     display: grid;
     gap: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
 }
 
 .sbs-diagram-cell {
@@ -843,12 +883,19 @@ body {
     border-radius: var(--radius);
     padding: 1rem;
     overflow: hidden;
+    min-width: 280px;
 }
 
 .sbs-diagram-cell .mermaid-container {
     margin: 0;
     border: none;
     padding: 0.5rem;
+    min-height: 200px;
+}
+
+.sbs-diagram-cell .mermaid svg {
+    min-width: 250px;
+    min-height: 180px;
 }
 
 .sbs-final-response {
@@ -1048,30 +1095,6 @@ body {
                         
                     </td>
                     <td>
-                        <span class="model-name">gpt-4.1</span>
-                        <span class="provider-badge openai">openai</span>
-                    </td>
-                    <td class="pass-rate-cell">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 3rem;">100%</span>
-                            <div class="pass-rate-bar" style="flex: 1;">
-                                <div class="fill" style="width: 100.0%"></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="numeric" style="color: var(--c-pass);">9</td>
-                    <td class="numeric" style="color: var(--c-fail);">0</td>
-                    <td class="numeric">7,300</td>
-                    <td class="numeric">811 tok/✓</td>
-                    <td class="numeric">$0.0210</td>
-                </tr>
-                
-                <tr>
-                    <td class="rank">
-                        <span class="medal">🥈</span>
-                        
-                    </td>
-                    <td>
                         <span class="model-name">gpt-5-mini</span>
                         <span class="provider-badge openai">openai</span>
                     </td>
@@ -1088,6 +1111,30 @@ body {
                     <td class="numeric">15,413</td>
                     <td class="numeric">1,713 tok/✓</td>
                     <td class="numeric">$0.0145</td>
+                </tr>
+                
+                <tr>
+                    <td class="rank">
+                        <span class="medal">🥈</span>
+                        
+                    </td>
+                    <td>
+                        <span class="model-name">gpt-4.1</span>
+                        <span class="provider-badge openai">openai</span>
+                    </td>
+                    <td class="pass-rate-cell">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 3rem;">100%</span>
+                            <div class="pass-rate-bar" style="flex: 1;">
+                                <div class="fill" style="width: 100.0%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="numeric" style="color: var(--c-pass);">9</td>
+                    <td class="numeric" style="color: var(--c-fail);">0</td>
+                    <td class="numeric">7,300</td>
+                    <td class="numeric">811 tok/✓</td>
+                    <td class="numeric">$0.0210</td>
                 </tr>
                 
             </tbody>
@@ -1142,7 +1189,7 @@ body {
                 <thead>
                     <tr>
                         <th style="text-align: left;">
-                            Prompt
+                            System Prompt
                         </th>
                         
                         <th>gpt-4.1</th>
@@ -1155,9 +1202,7 @@ body {
                     
                     <tr>
                         <td class="test-name" title="PROMPT_BRIEF">
-                            
-                            Basic weather - should pass for all combinations.
-                            
+                            PROMPT_BRIEF
                         </td>
                         
                         <td class="matrix-cell cell-passed">
@@ -1184,9 +1229,7 @@ body {
                     
                     <tr>
                         <td class="test-name" title="PROMPT_DETAILED">
-                            
-                            Basic weather - should pass for all combinations.
-                            
+                            PROMPT_DETAILED
                         </td>
                         
                         <td class="matrix-cell cell-passed">
@@ -1213,9 +1256,7 @@ body {
                     
                     <tr>
                         <td class="test-name" title="PROMPT_STRUCTURED">
-                            
-                            Basic weather - should pass for all combinations.
-                            
+                            PROMPT_STRUCTURED
                         </td>
                         
                         <td class="matrix-cell cell-passed">
@@ -1363,18 +1404,18 @@ body {
             <label for="sbs-test-select">Select test to compare:</label>
             <select id="sbs-test-select" onchange="showSideBySideTest(this.value)">
                 
-                <option value="sbs-0">test_weather_query</option>
+                <option value="sbs-0">Basic weather - should pass for all combinations.</option>
                 
-                <option value="sbs-1">test_forecast_interpretation</option>
+                <option value="sbs-1">Forecast with interpretation - tests reasoning.</option>
                 
-                <option value="sbs-2">test_multi_city_comparison</option>
+                <option value="sbs-2">Compare cities - tests tool chaining.</option>
                 
             </select>
         </div>
         
         
         <div id="sbs-0" class="side-by-side-group active">
-            <h3 class="sbs-test-name">test_weather_query</h3>
+            <h3 class="sbs-test-name">Basic weather - should pass for all combinations.</h3>
             
             
             <div class="sbs-header">
@@ -1470,7 +1511,10 @@ body {
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1494,7 +1538,10 @@ body {
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1518,7 +1565,10 @@ body {
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1546,7 +1596,10 @@ Current conditions
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1577,7 +1630,10 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1605,7 +1661,10 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1701,7 +1760,7 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
         </div>
         
         <div id="sbs-1" class="side-by-side-group ">
-            <h3 class="sbs-test-name">test_forecast_interpretation</h3>
+            <h3 class="sbs-test-name">Forecast with interpretation - tests reasoning.</h3>
             
             
             <div class="sbs-header">
@@ -1797,7 +1856,10 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1821,7 +1883,10 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1845,7 +1910,10 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1876,7 +1944,10 @@ Why (current conditions)
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1903,7 +1974,10 @@ Why (current conditions)
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1935,7 +2009,10 @@ Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast sho
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -1990,9 +2067,9 @@ Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast sho
                     
                     <ul class="sbs-tool-list">
                         
-                        <li><span class="tool-name">get_forecast</span></li>
-                        
                         <li><span class="tool-name">get_weather</span></li>
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
                         
                     </ul>
                     
@@ -2012,9 +2089,9 @@ Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast sho
                     
                     <ul class="sbs-tool-list">
                         
-                        <li><span class="tool-name">get_forecast</span></li>
-                        
                         <li><span class="tool-name">get_weather</span></li>
+                        
+                        <li><span class="tool-name">get_forecast</span></li>
                         
                     </ul>
                     
@@ -2034,7 +2111,7 @@ Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast sho
         </div>
         
         <div id="sbs-2" class="side-by-side-group ">
-            <h3 class="sbs-test-name">test_multi_city_comparison</h3>
+            <h3 class="sbs-test-name">Compare cities - tests tool chaining.</h3>
             
             
             <div class="sbs-header">
@@ -2130,7 +2207,10 @@ Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast sho
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -2159,7 +2239,10 @@ Quick comparison:
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -2183,7 +2266,10 @@ Quick comparison:
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -2215,7 +2301,10 @@ Current conditions
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -2247,7 +2336,10 @@ Tokyo, Japan
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -2284,7 +2376,10 @@ Comparison and recommendation:
                 
                 <div class="sbs-diagram-cell">
                     
-                    <div class="mermaid-container" onclick="showDiagram(this.querySelector('.mermaid').innerHTML)">
+                    <div class="mermaid-container" 
+                         onclick="showDiagram(this.querySelector('.mermaid').innerHTML)"
+                         onmouseenter="showDiagramHover(this, this.querySelector('.mermaid').innerHTML)"
+                         onmouseleave="hideDiagramHover()">
                         <div class="mermaid">sequenceDiagram
     participant User
     participant Agent
@@ -2402,7 +2497,7 @@ Summary: Tokyo currently has sunnier and warmer weather, making it more suitable
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_weather_query[PROMPT_BRIEF-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_weather_query[PROMPT_BRIEF-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Basic weather - should pass for all combinations.
                     </span>
@@ -2508,7 +2603,7 @@ Summary: Tokyo currently has sunnier and warmer weather, making it more suitable
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_weather_query[PROMPT_BRIEF-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_weather_query[PROMPT_BRIEF-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Basic weather - should pass for all combinations.
                     </span>
@@ -2614,7 +2709,7 @@ Summary: Tokyo currently has sunnier and warmer weather, making it more suitable
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_weather_query[PROMPT_DETAILED-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_weather_query[PROMPT_DETAILED-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Basic weather - should pass for all combinations.
                     </span>
@@ -2742,7 +2837,7 @@ Current conditions
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_weather_query[PROMPT_DETAILED-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_weather_query[PROMPT_DETAILED-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Basic weather - should pass for all combinations.
                     </span>
@@ -2862,7 +2957,7 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_weather_query[PROMPT_STRUCTURED-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_weather_query[PROMPT_STRUCTURED-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Basic weather - should pass for all combinations.
                     </span>
@@ -2976,7 +3071,7 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_weather_query[PROMPT_STRUCTURED-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_weather_query[PROMPT_STRUCTURED-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Basic weather - should pass for all combinations.
                     </span>
@@ -3090,7 +3185,7 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_forecast_interpretation[PROMPT_BRIEF-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_forecast_interpretation[PROMPT_BRIEF-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Forecast with interpretation - tests reasoning.
                     </span>
@@ -3196,7 +3291,7 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_forecast_interpretation[PROMPT_BRIEF-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_forecast_interpretation[PROMPT_BRIEF-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Forecast with interpretation - tests reasoning.
                     </span>
@@ -3302,7 +3397,7 @@ Advice: With comfortable temperatures and partly cloudy skies, it’s a pleasant
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_forecast_interpretation[PROMPT_DETAILED-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_forecast_interpretation[PROMPT_DETAILED-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Forecast with interpretation - tests reasoning.
                     </span>
@@ -3450,7 +3545,7 @@ Why (current conditions)
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_forecast_interpretation[PROMPT_DETAILED-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_forecast_interpretation[PROMPT_DETAILED-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Forecast with interpretation - tests reasoning.
                     </span>
@@ -3568,7 +3663,7 @@ Practical advice: Even though some days will be sunny or partly cloudy, the incr
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_forecast_interpretation[PROMPT_STRUCTURED-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_forecast_interpretation[PROMPT_STRUCTURED-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Forecast with interpretation - tests reasoning.
                     </span>
@@ -3703,7 +3798,7 @@ Yes — bring an umbrella. It&#39;s raining right now and the 7-day forecast sho
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_forecast_interpretation[PROMPT_STRUCTURED-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_forecast_interpretation[PROMPT_STRUCTURED-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Forecast with interpretation - tests reasoning.
                     </span>
@@ -3819,7 +3914,7 @@ Recommendation: Yes, you should bring an umbrella to London this week, especiall
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_multi_city_comparison[PROMPT_BRIEF-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_multi_city_comparison[PROMPT_BRIEF-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Compare cities - tests tool chaining.
                     </span>
@@ -3943,7 +4038,7 @@ Recommendation:
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_multi_city_comparison[PROMPT_BRIEF-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_multi_city_comparison[PROMPT_BRIEF-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Compare cities - tests tool chaining.
                     </span>
@@ -4049,7 +4144,7 @@ Recommendation:
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_multi_city_comparison[PROMPT_DETAILED-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_multi_city_comparison[PROMPT_DETAILED-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Compare cities - tests tool chaining.
                     </span>
@@ -4203,7 +4298,7 @@ Reasoning about comfort and safety
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_multi_city_comparison[PROMPT_DETAILED-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_multi_city_comparison[PROMPT_DETAILED-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Compare cities - tests tool chaining.
                     </span>
@@ -4347,7 +4442,7 @@ Berlin, Germany
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_multi_city_comparison[PROMPT_STRUCTURED-gpt-5-mini]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_multi_city_comparison[PROMPT_STRUCTURED-gpt-5-mini]">
                         <span class="badge passed">passed</span>
                         Compare cities - tests tool chaining.
                     </span>
@@ -4482,7 +4577,7 @@ Comparison and recommendation:
             
             <div class="test-item" onclick="this.classList.toggle('expanded')">
                 <div class="test-header">
-                    <span class="test-name" title="test_multi_city_comparison[PROMPT_STRUCTURED-gpt-4.1]">
+                    <span class="test-name" title="tests/integration/test_fixture_scenarios.py::TestMatrixFull::test_multi_city_comparison[PROMPT_STRUCTURED-gpt-4.1]">
                         <span class="badge passed">passed</span>
                         Compare cities - tests tool chaining.
                     </span>
@@ -4624,6 +4719,16 @@ Summary: Tokyo currently has sunnier and warmer weather, making it more suitable
     </div>
 </div>
 
+
+<div class="diagram-hover-popup" id="diagram-hover-popup" 
+     onmouseenter="keepDiagramHover()" 
+     onmouseleave="hideDiagramHover()"
+     onclick="hideOverlay(); document.getElementById('diagram-hover-popup').classList.remove('active'); showDiagram(document.getElementById('hover-mermaid').innerHTML);">
+    <div class="diagram-hover-content">
+        <div class="mermaid" id="hover-mermaid"></div>
+    </div>
+</div>
+
     <script>
 // pytest-aitest Report Scripts
 
@@ -4651,6 +4756,27 @@ function hideOverlay() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') hideOverlay();
 });
+
+// Hover popup for side-by-side diagrams
+let hoverTimeout = null;
+function showDiagramHover(element, mermaidCode) {
+    clearTimeout(hoverTimeout);
+    const popup = document.getElementById('diagram-hover-popup');
+    const content = document.getElementById('hover-mermaid');
+    content.innerHTML = mermaidCode;
+    popup.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideDiagramHover() {
+    hoverTimeout = setTimeout(() => {
+        document.getElementById('diagram-hover-popup').classList.remove('active');
+    }, 100);
+}
+
+function keepDiagramHover() {
+    clearTimeout(hoverTimeout);
+}
 
 // Side-by-side test selector
 function showSideBySideTest(testId) {
