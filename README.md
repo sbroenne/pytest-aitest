@@ -133,9 +133,28 @@ pip install pytest-aitest
 
 ### Configure
 
-Authenticate with your LLM providers via environment variables. Each Agent uses one provider, so you can compare different providers by creating different agents.
+Add to `pyproject.toml`:
 
-See **[Configuration](docs/configuration.md)** for setup options and [LiteLLM docs](https://docs.litellm.ai/docs/providers) for 100+ supported providers.
+```toml
+[tool.pytest.ini_options]
+addopts = """
+--aitest-summary-model=azure/gpt-5-mini
+--aitest-html=aitest-reports/report.html
+"""
+```
+
+Set your LLM provider credentials:
+
+```bash
+# Azure (recommended)
+export AZURE_API_BASE=https://your-resource.openai.azure.com/
+az login
+
+# Or OpenAI
+export OPENAI_API_KEY=sk-xxx
+```
+
+See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for 100+ supported providers.
 
 ### Write Tests
 
@@ -158,13 +177,13 @@ async def test_basic_query(aitest_run, my_server):
     assert result.success
 ```
 
-### Run with Reports
-
-Reports require AI analysis. Specify both the output path and a model:
+### Run
 
 ```bash
-pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5-mini
+pytest tests/
 ```
+
+Reports with AI insights are generated automatically based on your `pyproject.toml` config.
 
 ---
 

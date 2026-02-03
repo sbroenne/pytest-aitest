@@ -68,15 +68,23 @@ pytest tests/test_weather.py -v
 
 ## Generating Reports
 
-To generate reports, you **must** specify a model for AI analysis:
+First, configure reporting in `pyproject.toml`:
 
-```bash
-pytest tests/ \
-    --aitest-html=report.html \
-    --aitest-summary-model=azure/gpt-5-mini
+```toml
+[tool.pytest.ini_options]
+addopts = """
+--aitest-summary-model=azure/gpt-5-mini
+--aitest-html=aitest-reports/report.html
+"""
 ```
 
-> **Note:** AI insights are mandatory for report generation. The `--aitest-summary-model` flag is required when using `--aitest-html` or `--aitest-md`.
+Then just run pytest:
+
+```bash
+pytest tests/
+```
+
+AI-powered reports are generated automatically. See [Configuration](../reference/configuration.md) for details.
 
 The report shows:
 

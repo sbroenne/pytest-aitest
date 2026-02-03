@@ -1,6 +1,26 @@
 # Configuration
 
-## Provider Setup
+## Quick Setup (pyproject.toml)
+
+The recommended way to configure pytest-aitest is via `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+addopts = """
+--aitest-summary-model=azure/gpt-5-mini
+--aitest-html=aitest-reports/report.html
+"""
+```
+
+With this configuration, just run:
+
+```bash
+pytest tests/
+```
+
+Reports are generated automatically with AI insights.
+
+## LLM Provider Setup
 
 pytest-aitest uses [LiteLLM](https://docs.litellm.ai/) for LLM access. Configure via environment variables.
 
@@ -20,6 +40,13 @@ export OPENAI_API_KEY=sk-xxx
 ### Other Providers
 
 See [LiteLLM provider docs](https://docs.litellm.ai/docs/providers) for Anthropic, Google, etc.
+
+| Provider | Variable |
+|----------|----------|
+| Azure OpenAI | `AZURE_API_BASE` + `az login` |
+| OpenAI | `OPENAI_API_KEY` |
+| Anthropic | `ANTHROPIC_API_KEY` |
+| Google | `GEMINI_API_KEY` |
 
 ## Provider Configuration
 
@@ -111,35 +138,14 @@ async def test_weather(aitest_run):
     assert result.success
 ```
 
-### skill_factory
+## CLI Override
 
-Create skills from paths:
+You can override pyproject.toml settings via CLI:
 
-```python
-@pytest.fixture
-def weather_skill(skill_factory):
-    return skill_factory("skills/weather-expert")
+```bash
+# Use a different model for this run
+pytest tests/ --aitest-summary-model=azure/gpt-4.1
+
+# Different output path
+pytest tests/ --aitest-html=custom-report.html
 ```
-
-## pyproject.toml
-
-Set defaults once:
-
-```toml
-[tool.pytest.ini_options]
-addopts = """
---aitest-summary-model=azure/gpt-5.1-chat
---aitest-html=aitest-reports/report.html
-"""
-```
-
-## Environment Variables
-
-| Provider | Variable |
-|----------|----------|
-| Azure OpenAI | `AZURE_API_BASE` + `az login` |
-| OpenAI | `OPENAI_API_KEY` |
-| Anthropic | `ANTHROPIC_API_KEY` |
-| Google | `GEMINI_API_KEY` |
-
-See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for complete list.
