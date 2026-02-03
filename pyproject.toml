@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pytest-aitest"
-version = "0.1.0"
+version = "0.2.0"
 description = "Pytest plugin for testing AI agents with MCP and CLI servers"
 readme = "README.md"
 license = { text = "MIT" }
