@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncGenerator, Callable
 from typing import TYPE_CHECKING, Any
 
@@ -15,6 +16,8 @@ from pytest_aitest.plugin import SESSION_MESSAGES_KEY
 
 if TYPE_CHECKING:
     pass
+
+_logger = logging.getLogger(__name__)
 
 
 def _get_session_key(request: pytest.FixtureRequest) -> str | None:
@@ -160,5 +163,5 @@ async def _aitest_auto_cleanup(
     for engine in engines:
         try:
             await engine.shutdown()
-        except Exception:
-            pass  # Best effort cleanup
+        except Exception as e:
+            _logger.warning(f"Engine cleanup failed: {e}")

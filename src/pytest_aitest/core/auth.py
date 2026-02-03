@@ -7,11 +7,14 @@ and the insights generator.
 from __future__ import annotations
 
 import functools
+import logging
 import os
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     pass
+
+_logger = logging.getLogger(__name__)
 
 
 @functools.cache
@@ -37,10 +40,10 @@ def get_azure_ad_token_provider() -> Callable[[], str] | None:
 
         return _get_provider()
     except ImportError:
-        # azure-identity not installed
+        _logger.debug("azure-identity not installed, Azure AD auth unavailable")
         return None
-    except Exception:
-        # Credential not available
+    except Exception as e:
+        _logger.debug(f"Azure AD credential not available: {e}")
         return None
 
 

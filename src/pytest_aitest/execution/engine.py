@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import time
 from typing import TYPE_CHECKING, Any, Callable
@@ -20,6 +21,8 @@ from pytest_aitest.execution.skill_tools import (
     get_skill_tools_schema,
     is_skill_tool,
 )
+
+_logger = logging.getLogger(__name__)
 
 # Drop unsupported params automatically for cross-model compatibility
 # e.g., some Azure models don't support tool_choice
@@ -355,7 +358,8 @@ class AgentEngine:
                 duration_ms = (time.perf_counter() - start_time) * 1000
                 try:
                     arguments = json.loads(tc.function.arguments)
-                except Exception:
+                except Exception as parse_err:
+                    _logger.debug(f"Could not parse arguments for error reporting: {parse_err}")
                     arguments = {}
                 results.append(ToolCall(
                     name=name,

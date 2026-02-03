@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 from pathlib import Path
@@ -24,6 +25,8 @@ from pytest_aitest.core.result import AgentResult, ToolCall, Turn
 from pytest_aitest.reporting.collector import SuiteReport as LegacySuiteReport
 from pytest_aitest.reporting.collector import TestReport as LegacyTestReport
 from pytest_aitest.reporting.generator import ReportGenerator
+
+_logger = logging.getLogger(__name__)
 
 
 def load_config_from_pyproject() -> dict[str, Any]:
@@ -49,7 +52,8 @@ def load_config_from_pyproject() -> dict[str, Any]:
             try:
                 data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
                 return data.get("tool", {}).get("pytest-aitest-report", {})
-            except Exception:
+            except Exception as e:
+                _logger.warning(f"Failed to parse pyproject.toml: {e}")
                 return {}
     return {}
 

@@ -4,29 +4,19 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pytest_aitest.models import (
     AIInsights,
     AnalysisMetadata,
-    Category,
-    Effectiveness,
-    FailureAnalysis,
-    Impact,
-    MCPServerFeedback,
-    OptimizationOpportunity,
-    PromptFeedback,
     Recommendation,
-    Severity,
-    SkillFeedback,
-    Status,
-    ToolFeedback,
 )
 
 if TYPE_CHECKING:
     from pytest_aitest.core.result import SkillInfo, ToolInfo
-    from pytest_aitest.reporting.collector import SuiteReport, TestReport
+    from pytest_aitest.reporting.collector import SuiteReport
 
 
 # Load the analysis prompt template
@@ -35,6 +25,8 @@ _PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "report_analysis.md"
 
 # Import shared auth utility
 from pytest_aitest.core.auth import get_azure_ad_token_provider
+
+_logger = logging.getLogger(__name__)
 
 
 def _load_analysis_prompt() -> str:
@@ -204,8 +196,8 @@ async def generate_insights(
                     cached=True,
                 ),
             )
-        except Exception:
-            pass  # Cache invalid, regenerate
+        except Exception as e:
+            _logger.debug(f"Cache invalid, regenerating insights: {e}")
 
     # Build prompt
     prompt_template = _load_analysis_prompt()
