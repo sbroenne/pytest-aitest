@@ -1,5 +1,17 @@
 # Copilot Instructions for pytest-aitest
 
+## CRITICAL: What We Test
+
+**We do NOT test agents. We USE agents to test:**
+- **MCP Servers** — Can an LLM understand and use these tools?
+- **CLI Tools** — Can an LLM operate this command-line interface?
+- **System Prompts** — Do these instructions produce the desired behavior?
+- **Agent Skills** — Does this domain knowledge improve performance?
+
+**The Agent is the test harness**, not the thing being tested. It bundles an LLM provider with the tools/prompts/skills you want to evaluate.
+
+NEVER say "test agents" or "testing AI agents". Always say "test MCP servers", "test tools", "test prompts", or "test skills".
+
 ## Why This Project Exists
 
 MCP servers and CLIs have two problems nobody talks about:
@@ -117,7 +129,7 @@ system_prompt: |
 
 **Unit tests with mocks are WORTHLESS for this project.**
 
-This is a testing framework for AI agents. The only way to verify it works is to:
+This is a testing framework that uses LLMs to test tools, prompts, and skills. The only way to verify it works is to:
 1. Run **real integration tests** against **real LLM providers**
 2. Use **actual MCP/CLI servers** that perform real operations
 3. Verify the **full pipeline end-to-end**

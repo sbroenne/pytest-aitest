@@ -1,8 +1,8 @@
 # pytest-aitest
 
-**Test AI agents the way they actually fail.**
+**Test your AI interfaces. Get actionable insights.**
 
-pytest-aitest is a pytest plugin for testing MCP servers and CLI tools through the lens of an LLM. You write tests as natural language prompts, and an LLM executes them against your tools.
+A pytest plugin for validating whether language models can understand and operate your MCP servers, tools, prompts, and skills. Generates AI-powered reports that tell you *what to fix*, not just *what failed*.
 
 ## Why?
 
