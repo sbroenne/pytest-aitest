@@ -55,3 +55,4 @@ tests/fixtures/reports/html/
 # OS
 .DS_Store
 Thumbs.db
+site/

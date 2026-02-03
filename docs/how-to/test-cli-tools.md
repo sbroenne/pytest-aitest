@@ -1,8 +1,8 @@
-# CLI Server
+# How to Test CLI Tools
 
 Wrap command-line tools as MCP-like servers for testing CLI-based interfaces.
 
-## Quick Start
+## Basic Setup
 
 ```python
 from pytest_aitest import CLIServer
@@ -79,7 +79,7 @@ CLIServer(
 
 ## Help Discovery
 
-By default, the CLI server runs `{command} --help` at startup and includes the output in the tool description. This helps the LLM understand how to use the CLI.
+By default, the CLI server runs `{command} --help` at startup and includes the output in the tool description:
 
 ```python
 # Help text included automatically (default)
@@ -89,7 +89,7 @@ CLIServer(
     tool_prefix="k8s",
 )
 
-# Custom help flag for CLIs that use -h instead of --help
+# Custom help flag
 CLIServer(
     name="custom-cli",
     command="my-tool",
@@ -97,7 +97,7 @@ CLIServer(
     help_flag="-h",
 )
 
-# Disable help discovery for faster startup
+# Disable help discovery
 CLIServer(
     name="fast-cli",
     command="fast-tool",
@@ -110,10 +110,9 @@ Help text is truncated to 2000 characters to avoid token bloat.
 
 ## Custom Description
 
-For CLIs where auto-discovery doesn't work well, provide a custom description:
+For CLIs where auto-discovery doesn't work well:
 
 ```python
-# Custom description overrides help discovery
 CLIServer(
     name="legacy-cli",
     command="legacy-tool",
@@ -127,8 +126,9 @@ CLIServer(
     - delete <id>: Delete a record
     - export <format>: Export data (json, csv)
     """,
-    discover_help=False,  # Skip help discovery when using custom description
+    discover_help=False,
 )
+```
 
 ## Tool Output Format
 
@@ -142,14 +142,7 @@ Tool results are JSON with structured output:
 }
 ```
 
-This allows the LLM to:
-- Check if the command succeeded (`exit_code == 0`)
-- Parse the output (`stdout`)
-- Handle errors (`stderr`)
-
-## Complete Examples
-
-### Testing Git CLI
+## Complete Example: Testing Git
 
 ```python
 import pytest
@@ -167,6 +160,7 @@ def git_server():
 @pytest.fixture
 def git_agent(git_server):
     return Agent(
+        name="git-assistant",
         provider=Provider(model="azure/gpt-5-mini"),
         cli_servers=[git_server],
         system_prompt="You are a git assistant.",
@@ -186,40 +180,9 @@ async def test_git_log(aitest_run, git_agent):
     
     assert result.success
     assert result.tool_was_called("git_execute")
-    assert "commit" in result.final_response.lower()
 ```
 
-### Testing with Environment Variables
-
-```python
-@pytest.fixture(scope="module")
-def docker_server():
-    return CLIServer(
-        name="docker-cli",
-        command="docker",
-        tool_prefix="docker",
-        env={
-            "DOCKER_HOST": "unix:///var/run/docker.sock",
-            "DOCKER_CONFIG": "/home/user/.docker",
-        },
-    )
-```
-
-### Windows CLI with PowerShell
-
-```python
-@pytest.fixture(scope="module")
-def excel_server():
-    return CLIServer(
-        name="excel-cli",
-        command="excel-cli",
-        tool_prefix="excel",
-        shell="powershell",
-        cwd="C:\\Workbooks",
-    )
-```
-
-### Combining with MCP Servers
+## Combining MCP and CLI Servers
 
 ```python
 @pytest.fixture(scope="module")
@@ -240,6 +203,7 @@ def grep_server():
 @pytest.fixture
 def hybrid_agent(filesystem_server, grep_server):
     return Agent(
+        name="hybrid",
         provider=Provider(model="azure/gpt-5-mini"),
         mcp_servers=[filesystem_server],
         cli_servers=[grep_server],
@@ -248,37 +212,23 @@ def hybrid_agent(filesystem_server, grep_server):
     )
 ```
 
-## Asserting on CLI Results
-
-### Basic Assertions
-
-```python
-@pytest.mark.asyncio
-async def test_cli_workflow(aitest_run, cli_agent):
-    result = await aitest_run(cli_agent, "List all Python files")
-    
-    assert result.success
-    assert result.tool_was_called("ls_execute")
-    assert ".py" in result.final_response
-```
-
 ## Troubleshooting
 
 ### Command Not Found
 
-Ensure the CLI is in the PATH or use the full path:
+Use the full path:
 
 ```python
 CLIServer(
     name="my-cli",
-    command="/usr/local/bin/my-tool",  # Full path
+    command="/usr/local/bin/my-tool",
     tool_prefix="tool",
 )
 ```
 
 ### Help Discovery Fails
 
-If `--help` doesn't work for your CLI, disable it:
+Disable it:
 
 ```python
 CLIServer(
@@ -291,7 +241,7 @@ CLIServer(
 
 ### Working Directory Issues
 
-Use absolute paths for `cwd`:
+Use absolute paths:
 
 ```python
 from pathlib import Path

@@ -57,7 +57,7 @@ The agent runs your prompt, calls tools, and returns results. You assert on what
 | System Prompt | Does this behavior definition produce the results I want? |
 | Agent Skill | Does this domain knowledge help the agent perform? |
 
-See [Core Concepts](docs/concepts.md) for details on each component.
+See [Getting Started](docs/getting-started/index.md) for details on each component.
 
 ---
 
@@ -115,6 +115,7 @@ class TestBankingWorkflow:
         # Remembers context from previous test
         result = await aitest_run(bank_agent, "Transfer $100 to savings")
         assert result.tool_was_called("transfer")
+```
 
 ---
 
@@ -202,14 +203,12 @@ Reports auto-compose based on what you're testing:
 
 ## Documentation
 
-- **[Core Concepts](docs/concepts.md)** — Agents, providers, testing patterns
-- **[Configuration](docs/configuration.md)** — Setup and authentication
-- **[MCP Server](docs/mcp-server.md)** — Testing MCP servers
-- **[CLI Server](docs/cli-server.md)** — Testing CLI tools
-- **[Agent Skills](docs/skills.md)** — Domain knowledge modules ([agentskills.io](https://agentskills.io))
-- **[Assertions](docs/assertions.md)** — Result API and AI judge
-- **[Reporting](docs/reporting.md)** — AI-powered insights
-- **[API Reference](docs/api-reference.md)** — Full API docs
+📚 **[Full Documentation](https://sbroenne.github.io/pytest-aitest/)** (coming soon)
+
+- **[Getting Started](docs/getting-started/index.md)** — Write your first test
+- **[How-To Guides](docs/how-to/index.md)** — Solve specific problems
+- **[Reference](docs/reference/index.md)** — API and configuration
+- **[Explanation](docs/explanation/index.md)** — Design philosophy
 
 ---
 

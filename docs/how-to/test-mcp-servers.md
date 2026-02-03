@@ -1,8 +1,8 @@
-# MCP Server
+# How to Test MCP Servers
 
 Test your Model Context Protocol (MCP) servers by running LLM agents against them.
 
-## Quick Start
+## Basic Setup
 
 ```python
 from pytest_aitest import MCPServer
@@ -60,7 +60,7 @@ MCPServer(
 
 ### Wait.for_tools()
 
-Wait until specific tools are available:
+Wait until specific tools are available (recommended):
 
 ```python
 MCPServer(
@@ -68,8 +68,6 @@ MCPServer(
     wait=Wait.for_tools(["get_weather", "set_reminder"]),
 )
 ```
-
-This is the recommended approach for reliable tests.
 
 ### Wait.for_log()
 
@@ -93,9 +91,7 @@ MCPServer(
 )
 ```
 
-## Complete Examples
-
-### Basic Weather Server
+## Complete Example
 
 ```python
 import pytest
@@ -111,6 +107,7 @@ def weather_server():
 @pytest.fixture
 def weather_agent(weather_server):
     return Agent(
+        name="weather",
         provider=Provider(model="azure/gpt-5-mini"),
         mcp_servers=[weather_server],
         system_prompt="You are a weather assistant.",
@@ -125,7 +122,7 @@ async def test_weather_query(aitest_run, weather_agent):
     assert result.tool_was_called("get_weather")
 ```
 
-### NPX-based Server
+## NPX-based Servers
 
 ```python
 @pytest.fixture(scope="module")
@@ -137,22 +134,7 @@ def filesystem_server():
     )
 ```
 
-### Server with Environment Variables
-
-```python
-@pytest.fixture(scope="module")
-def api_server():
-    return MCPServer(
-        command=["python", "-m", "my_api_server"],
-        env={
-            "API_BASE_URL": "https://api.example.com",
-            "API_KEY": os.environ["MY_API_KEY"],
-        },
-        wait=Wait.for_tools(["query_api"]),
-    )
-```
-
-### Multiple Servers
+## Multiple Servers
 
 ```python
 @pytest.fixture(scope="module")
@@ -172,6 +154,7 @@ def calendar_server():
 @pytest.fixture
 def assistant_agent(weather_server, calendar_server):
     return Agent(
+        name="assistant",
         provider=Provider(model="azure/gpt-5-mini"),
         mcp_servers=[weather_server, calendar_server],
         system_prompt="You can check weather and manage calendar.",
@@ -179,58 +162,19 @@ def assistant_agent(weather_server, calendar_server):
     )
 ```
 
-## Writing an MCP Server for Testing
-
-A minimal MCP server for testing:
+## Environment Variables
 
 ```python
-# my_test_server.py
-import json
-import sys
-
-def main():
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            break
-        
-        request = json.loads(line)
-        method = request.get("method")
-        
-        if method == "initialize":
-            response = {
-                "jsonrpc": "2.0",
-                "id": request["id"],
-                "result": {"protocolVersion": "2024-11-05"}
-            }
-        elif method == "tools/list":
-            response = {
-                "jsonrpc": "2.0",
-                "id": request["id"],
-                "result": {
-                    "tools": [{
-                        "name": "my_tool",
-                        "description": "Does something useful",
-                        "inputSchema": {
-                            "type": "object",
-                            "properties": {"arg": {"type": "string"}},
-                        }
-                    }]
-                }
-            }
-        elif method == "tools/call":
-            response = {
-                "jsonrpc": "2.0",
-                "id": request["id"],
-                "result": {"content": [{"type": "text", "text": "Result"}]}
-            }
-        else:
-            continue
-            
-        print(json.dumps(response), flush=True)
-
-if __name__ == "__main__":
-    main()
+@pytest.fixture(scope="module")
+def api_server():
+    return MCPServer(
+        command=["python", "-m", "my_api_server"],
+        env={
+            "API_BASE_URL": "https://api.example.com",
+            "API_KEY": os.environ["MY_API_KEY"],
+        },
+        wait=Wait.for_tools(["query_api"]),
+    )
 ```
 
 ## Troubleshooting

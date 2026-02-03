@@ -49,6 +49,11 @@ dev = [
 azure = [
     "azure-identity>=1.25",
 ]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+]
 
 [project.scripts]
 pytest-aitest-report = "pytest_aitest.cli:main"

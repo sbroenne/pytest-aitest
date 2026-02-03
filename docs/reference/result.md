@@ -1,8 +1,8 @@
-# Assertions
+# AgentResult
 
-Validate agent behavior using `AgentResult` methods.
+Validate agent behavior using `AgentResult` properties and methods.
 
-## AgentResult Properties
+## Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -87,29 +87,6 @@ assert "error" not in result.final_response.lower()
 assert "failed" not in result.final_response.lower()
 ```
 
-## AI-Powered Assertions (Optional)
-
-For semantic validation of responses, you can use [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert) directly:
-
-```bash
-pip install pytest-llm-assert
-```
-
-```python
-from pytest_llm_assert import LLMAssert
-
-judge = LLMAssert(model="azure/gpt-5-mini")
-
-@pytest.mark.asyncio
-async def test_response_quality(aitest_run, agent):
-    result = await aitest_run(agent, "What's the weather in Paris?")
-    
-    assert result.success
-    assert judge(result.final_response, "mentions weather conditions")
-```
-
-See the [pytest-llm-assert documentation](https://github.com/sbroenne/pytest-llm-assert) for more details.
-
 ## Performance Assertions
 
 ### Execution Time
@@ -160,6 +137,27 @@ if not result.success:
     print(f"Last message: {last_turn.content}")
 ```
 
+## AI-Powered Assertions (Optional)
+
+For semantic validation, use [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert):
+
+```bash
+pip install pytest-llm-assert
+```
+
+```python
+from pytest_llm_assert import LLMAssert
+
+judge = LLMAssert(model="azure/gpt-5-mini")
+
+@pytest.mark.asyncio
+async def test_response_quality(aitest_run, agent):
+    result = await aitest_run(agent, "What's the weather in Paris?")
+    
+    assert result.success
+    assert judge(result.final_response, "mentions weather conditions")
+```
+
 ## Complete Examples
 
 ### Testing Tool Selection
@@ -171,9 +169,8 @@ async def test_correct_tool_selection(aitest_run, agent):
     
     assert result.success
     assert result.tool_was_called("get_weather")
-    assert not result.tool_was_called("get_forecast")  # Shouldn't use forecast
+    assert not result.tool_was_called("get_forecast")
     
-    # Check correct argument
     city = result.tool_call_arg("get_weather", "city")
     assert city.lower() == "paris"
 ```
@@ -185,65 +182,13 @@ async def test_correct_tool_selection(aitest_run, agent):
 async def test_trip_planning(aitest_run, agent):
     result = await aitest_run(
         agent,
-        "Compare weather in Paris and Sydney for my trip"
+        "Compare weather in Paris and Sydney"
     )
     
     assert result.success
-    
-    # Should call weather for both cities
     assert result.tool_call_count("get_weather") >= 2
     
-    # Check both cities mentioned
     response = result.final_response.lower()
     assert "paris" in response
     assert "sydney" in response
 ```
-
-### Testing Error Recovery
-
-```python
-@pytest.mark.asyncio
-async def test_handles_invalid_city(aitest_run, agent):
-    result = await aitest_run(agent, "Weather in Atlantis")
-    
-    # Agent should complete even if tool returns error
-    assert result.success
-    
-    # Should mention the city doesn't exist or isn't found
-    response = result.final_response.lower()
-    assert "not found" in response or "doesn't exist" in response
-```
-
-## Types Reference
-
-### Turn
-
-A single turn in the agent execution:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `role` | `str` | "user", "assistant", or "tool" |
-| `content` | `str` | Message content |
-| `tool_calls` | `list[ToolCall]` | Tool calls made (if any) |
-| `token_usage` | `TokenUsage` | Tokens for this turn |
-
-### ToolCall
-
-A single tool invocation:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `name` | `str` | Tool name |
-| `arguments` | `dict` | Arguments passed |
-| `result` | `str` | Tool response |
-| `duration_ms` | `int` | Execution time |
-
-### TokenUsage
-
-Token consumption metrics:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `prompt_tokens` | `int` | Tokens in prompts |
-| `completion_tokens` | `int` | Tokens in completions |
-| `total_tokens` | `int` | Total tokens used |
