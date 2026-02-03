@@ -68,7 +68,10 @@ def _build_analysis_input(
                 sections.append(f"[{role}] {content}")
                 if turn.tool_calls:
                     for tc in turn.tool_calls:
-                        result = tc.result[:200] + "..." if tc.result and len(tc.result) > 200 else tc.result
+                        if tc.result and len(tc.result) > 200:
+                            result = tc.result[:200] + "..."
+                        else:
+                            result = tc.result
                         sections.append(f"  → {tc.name}({json.dumps(tc.arguments)}) = {result}")
         sections.append("")
 
@@ -235,7 +238,8 @@ async def generate_insights(
 
             # Track usage
             if hasattr(response, "usage") and response.usage:
-                total_tokens = (response.usage.prompt_tokens or 0) + (response.usage.completion_tokens or 0)
+                usage = response.usage
+                total_tokens = (usage.prompt_tokens or 0) + (usage.completion_tokens or 0)
             if hasattr(response, "_hidden_params"):
                 total_cost = response._hidden_params.get("response_cost", 0.0) or 0.0
 
@@ -266,11 +270,13 @@ async def generate_insights(
 
             return insights, metadata
 
-        except litellm.RateLimitError:
+        except litellm.RateLimitError as e:
             if attempt < 2:
                 await asyncio.sleep(2**attempt)
                 continue
-            raise InsightsGenerationError(f"Rate limited after {attempt + 1} attempts")
+            raise InsightsGenerationError(
+                f"Rate limited after {attempt + 1} attempts"
+            ) from e
         except Exception as e:
             if attempt < 2:
                 await asyncio.sleep(1)
@@ -284,4 +290,3 @@ async def generate_insights(
 class InsightsGenerationError(Exception):
     """Raised when AI insights generation fails."""
 
-    pass

@@ -32,7 +32,7 @@ from pytest_aitest.cli import load_suite_report
 from pytest_aitest.reporting.generator import ReportGenerator
 
 if TYPE_CHECKING:
-    from bs4 import Tag
+    pass
 
 # =============================================================================
 # Fixtures

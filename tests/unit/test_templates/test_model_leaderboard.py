@@ -13,12 +13,13 @@ Uses real data from fixtures/reports/02_model_comparison.json
 from __future__ import annotations
 
 import pytest
+
 from tests.unit.test_templates.conftest import (
-    parse_html,
+    extract_flags,
+    extract_model_groups,
     make_flags,
     make_model_ranking,
-    extract_model_groups,
-    extract_flags,
+    parse_html,
 )
 
 

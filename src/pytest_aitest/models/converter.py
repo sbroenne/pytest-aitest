@@ -6,9 +6,10 @@ to the Pydantic models defined by the JSON schema for serialization.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from pytest_aitest.models import AgentResult as PydanticAgentResult
 from pytest_aitest.models import (
     AIInsights,
     Assertion,
@@ -23,7 +24,6 @@ from pytest_aitest.models import (
     TestMetadata,
     TokenUsage,
 )
-from pytest_aitest.models import AgentResult as PydanticAgentResult
 from pytest_aitest.models import SuiteReport as PydanticSuiteReport
 from pytest_aitest.models import TestReport as PydanticTestReport
 from pytest_aitest.models import ToolCall as PydanticToolCall
@@ -178,7 +178,7 @@ def convert_suite_report(
     try:
         timestamp = datetime.fromisoformat(report.timestamp.replace("Z", "+00:00"))
     except (ValueError, AttributeError):
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(UTC)
     
     # Create placeholder insights - will be replaced by AI analysis
     # The placeholder has enough info to be valid but indicates analysis needed

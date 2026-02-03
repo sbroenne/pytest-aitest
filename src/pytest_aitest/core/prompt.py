@@ -50,7 +50,7 @@ class Prompt:
         if not path.exists():
             raise FileNotFoundError(f"Prompt file not found: {path}")
 
-        with open(path, encoding="utf-8") as f:
+        with path.open(encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
 
         if "name" not in data:

@@ -205,17 +205,22 @@ class ReportGenerator:
             for test in report.tests
         )
         
+        # Check if we have real insights (not placeholder)
+        has_real_insights = (
+            report.insights.recommendation.configuration != "(analysis pending)"
+        )
+        
         return {
             # Display flags
             "show_model_leaderboard": len(models) >= 2,
             "show_prompt_comparison": len(prompts) >= 2,
-            "show_comparison_grid": len(models) >= 2 or len(prompts) >= 2,  # Any comparison mode
-            "show_matrix": len(models) >= 2 and len(prompts) >= 2,  # Legacy flag for matrix-specific features
+            "show_comparison_grid": len(models) >= 2 or len(prompts) >= 2,
+            "show_matrix": len(models) >= 2 and len(prompts) >= 2,
             "show_tool_comparison": (len(models) >= 2 or len(prompts) >= 2) and has_tool_calls,
             "show_side_by_side": len(models) >= 2 and len(prompts) >= 2,
             "show_sessions": has_sessions,
             "show_ai_insights": True,  # Always show insights (may be placeholder)
-            "has_real_insights": report.insights.recommendation.configuration != "(analysis pending)",
+            "has_real_insights": has_real_insights,
             "has_failures": report.summary.failed > 0,
             "has_skipped": report.summary.skipped > 0,
             # Counts for header badges
@@ -355,7 +360,7 @@ class ReportGenerator:
         return rankings
     
     def _build_matrix(self, report: Any) -> dict[str, Any]:
-        """Build model × prompt matrix."""
+        """Build model x prompt matrix."""
         dims = report.dimensions
         models = dims.models if dims else []
         prompts = dims.prompts if dims else []
@@ -409,7 +414,7 @@ class ReportGenerator:
                 for model in models:
                     # Find any test with this model/prompt combo
                     cell_test = None
-                    for (m, p, b), t in test_lookup.items():
+                    for (m, p, _b), t in test_lookup.items():
                         if m == model and p == prompt:
                             cell_test = t
                             break
@@ -424,7 +429,7 @@ class ReportGenerator:
                 first_test = None
                 for model in models:
                     cell_test = None
-                    for (m, p, b), t in test_lookup.items():
+                    for (m, _p, b), t in test_lookup.items():
                         if m == model and b == base_test:
                             cell_test = t
                             if not first_test:
@@ -443,7 +448,7 @@ class ReportGenerator:
                 first_test = None
                 for prompt in prompts:
                     cell_test = None
-                    for (m, p, b), t in test_lookup.items():
+                    for (_m, p, b), t in test_lookup.items():
                         if p == prompt and b == base_test:
                             cell_test = t
                             if not first_test:
@@ -480,7 +485,8 @@ class ReportGenerator:
         
         tokens = None
         if test.agent_result and test.agent_result.token_usage:
-            tokens = (test.agent_result.token_usage.prompt or 0) + (test.agent_result.token_usage.completion or 0)
+            usage = test.agent_result.token_usage
+            tokens = (usage.prompt or 0) + (usage.completion or 0)
         
         return {
             "test": test,
@@ -607,10 +613,7 @@ class ReportGenerator:
         for test in report.tests:
             # Extract class name from test name
             parts = test.name.split("::")
-            if len(parts) >= 2:
-                session = parts[-2]  # Class name
-            else:
-                session = "default"
+            session = parts[-2] if len(parts) >= 2 else "default"
             sessions[session].append(test)
         
         # Only include sessions with context continuation

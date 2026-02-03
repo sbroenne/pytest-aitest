@@ -7,9 +7,10 @@ pytest.mark.parametrize and groups results accordingly.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from pytest_aitest.reporting.collector import SuiteReport, TestReport
@@ -51,7 +52,7 @@ class AdaptiveFlags:
     single_prompt_name: str | None = None
 
     @classmethod
-    def from_dimensions(cls, dimensions: "TestDimensions", test_count: int) -> "AdaptiveFlags":
+    def from_dimensions(cls, dimensions: TestDimensions, test_count: int) -> AdaptiveFlags:
         """Create flags from detected dimensions."""
         model_count = len(dimensions.models)
         prompt_count = len(dimensions.prompts)
@@ -251,7 +252,7 @@ class DimensionAggregator:
     """
 
     # Common model patterns (litellm format) - non-greedy to avoid matching prompt names
-    MODEL_PATTERNS = [
+    MODEL_PATTERNS: ClassVar[Sequence[str]] = (
         r"openai/gpt-\d[\w.-]*",  # openai/gpt-4o, openai/gpt-4o-mini
         r"anthropic/claude-\d[\w.-]*",  # anthropic/claude-3-opus
         r"azure/[\w.-]+",
@@ -262,14 +263,14 @@ class DimensionAggregator:
         r"mistral-[\w-]+",
         r"llama\d[\w.-]*",  # llama3, llama3-8b
         r"o\d(?:-mini|-preview)?",  # o1, o1-mini
-    ]
+    )
 
     # Pattern for prompt names (typically SCREAMING_CASE or PascalCase)
-    PROMPT_PATTERNS = [
+    PROMPT_PATTERNS: ClassVar[Sequence[str]] = (
         r"PROMPT_\w+",
         r"[A-Z][a-z]+Prompt",
         r"prompt_v\d+",
-    ]
+    )
 
     def detect_dimensions(self, report: SuiteReport) -> TestDimensions:
         """Detect test dimensions from parametrized test names.

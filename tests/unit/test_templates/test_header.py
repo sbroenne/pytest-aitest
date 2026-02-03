@@ -7,11 +7,11 @@ Uses real data from fixtures.
 from __future__ import annotations
 
 import pytest
+
 from tests.unit.test_templates.conftest import (
-    parse_html,
-    make_flags,
-    load_pydantic_report,
     extract_flags,
+    load_pydantic_report,
+    parse_html,
 )
 
 

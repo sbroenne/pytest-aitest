@@ -8,8 +8,8 @@ import logging
 # when the application hasn't configured logging.
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-# Core types
-from pytest_aitest.core import (
+# Core types  # noqa: E402 - logging must be configured before submodule imports
+from pytest_aitest.core import (  # noqa: E402
     Agent,
     AgentResult,
     AITestError,
@@ -34,10 +34,10 @@ from pytest_aitest.core import (
 )
 
 # Execution
-from pytest_aitest.execution import AgentEngine, RetryConfig, ServerManager
+from pytest_aitest.execution import AgentEngine, RetryConfig, ServerManager  # noqa: E402
 
 # Reporting
-from pytest_aitest.reporting import (
+from pytest_aitest.reporting import (  # noqa: E402
     DimensionAggregator,
     ReportCollector,
     ReportGenerator,
@@ -46,7 +46,7 @@ from pytest_aitest.reporting import (
     TestReport,
 )
 
-__all__ = [
+__all__ = [  # noqa: RUF022 - intentionally grouped by category
     # Core
     "Agent",
     "AgentResult",

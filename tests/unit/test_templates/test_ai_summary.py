@@ -9,7 +9,6 @@ It should:
 
 from __future__ import annotations
 
-import pytest
 from tests.unit.test_templates.conftest import parse_html
 
 

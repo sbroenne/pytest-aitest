@@ -18,7 +18,6 @@ from pytest_aitest.schema import (
     validate_schema_version,
 )
 
-
 # Placeholder insights for test data (required in v3.0)
 PLACEHOLDER_INSIGHTS = {
     "recommendation": {

@@ -44,7 +44,6 @@ if os.environ.get("AZURE_OPENAI_ENDPOINT") and not os.environ.get("AZURE_API_BAS
 
 from pytest_aitest import MCPServer, Wait
 
-
 # =============================================================================
 # Pytest Configuration Hooks
 # =============================================================================

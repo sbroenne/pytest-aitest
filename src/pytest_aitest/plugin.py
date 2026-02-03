@@ -44,8 +44,10 @@ def pytest_addoption(parser: Parser) -> None:
     group.addoption(
         "--aitest-summary-model",
         default=None,
-        help="LiteLLM model for AI analysis. Required when generating reports (--aitest-html, --aitest-md). "
-        "Use a capable model like gpt-4.1 or claude-sonnet-4 for quality insights.",
+        help=(
+            "LiteLLM model for AI analysis. Required when generating reports. "
+            "Use a capable model like gpt-4.1 or claude-sonnet-4 for quality insights."
+        ),
     )
 
     # Report options
@@ -152,10 +154,10 @@ def pytest_collection_modifyitems(
         # Check if test uses any aitest fixtures
         fixturenames = getattr(item, "fixturenames", [])
         aitest_fixtures = {"aitest_run", "agent_factory"}
-        if aitest_fixtures & set(fixturenames):
-            # Add aitest marker if not already present
-            if not any(m.name == "aitest" for m in item.iter_markers()):
-                item.add_marker(pytest.mark.aitest)
+        if (aitest_fixtures & set(fixturenames)) and not any(
+            m.name == "aitest" for m in item.iter_markers()
+        ):
+            item.add_marker(pytest.mark.aitest)
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -264,7 +266,9 @@ def _log_report_path(config: Config, format_name: str, path: Path) -> None:
         terminalreporter.write_line(f"aitest {format_name} report: {path}")
 
 
-def _generate_structured_insights(config: Config, report: SuiteReport, *, required: bool = False) -> Any:
+def _generate_structured_insights(
+    config: Config, report: SuiteReport, *, required: bool = False
+) -> Any:
     """Generate structured AI insights from test results.
 
     Uses the new insights generation system with structured output.

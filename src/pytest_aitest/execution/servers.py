@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import re
@@ -73,11 +74,8 @@ class MCPServerProcess:
         """Stop the MCP server process."""
         if self._reader_task:
             self._reader_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._reader_task
-            except asyncio.CancelledError:
-                # Expected when cancelling the reader task - safe to ignore
-                pass
 
         if self._process:
             self._process.terminate()
@@ -274,7 +272,7 @@ class CLIServerProcess:
                 if len(help_text) > 2000:
                     help_text = help_text[:2000] + "\n... (truncated)"
                 return help_text
-        except (OSError, asyncio.TimeoutError):
+        except (TimeoutError, OSError):
             # Help discovery is optional - if it fails, just skip it
             return None
         return None

@@ -9,10 +9,15 @@ from typing import Any
 
 from ._generated import (
     AgentResult as _AgentResult,
+)
+from ._generated import (
     PytestAitestReport as _PytestAitestReport,
+)
+from ._generated import (
     TestReport as _TestReport,
+)
+from ._generated import (
     ToolCall,
-    Turn,
 )
 
 

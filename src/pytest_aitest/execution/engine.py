@@ -7,7 +7,8 @@ import json
 import logging
 import os
 import time
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 import litellm
 from litellm.exceptions import RateLimitError as LiteLLMRateLimitError

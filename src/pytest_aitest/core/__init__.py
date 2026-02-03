@@ -15,14 +15,12 @@ from pytest_aitest.core.result import AgentResult, SkillInfo, ToolCall, ToolInfo
 from pytest_aitest.core.skill import Skill, SkillError, SkillMetadata, load_skill
 
 __all__ = [
+    "AITestError",
     "Agent",
     "AgentResult",
-    "AITestError",
     "CLIExecution",
     "CLIServer",
     "EngineTimeoutError",
-    "get_azure_ad_token_provider",
-    "get_azure_auth_kwargs",
     "MCPServer",
     "Prompt",
     "Provider",
@@ -35,6 +33,8 @@ __all__ = [
     "ToolInfo",
     "Turn",
     "Wait",
+    "get_azure_ad_token_provider",
+    "get_azure_auth_kwargs",
     "load_prompt",
     "load_prompts",
     "load_skill",

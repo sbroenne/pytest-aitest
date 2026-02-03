@@ -7,11 +7,12 @@ Uses real data from fixtures/reports/03_prompt_comparison.json
 from __future__ import annotations
 
 import pytest
+
 from tests.unit.test_templates.conftest import (
-    parse_html,
-    make_flags,
-    extract_prompt_groups,
     extract_flags,
+    extract_prompt_groups,
+    make_flags,
+    parse_html,
 )
 
 

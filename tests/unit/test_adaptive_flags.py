@@ -6,7 +6,6 @@ ensuring sections appear/disappear correctly.
 
 from __future__ import annotations
 
-import pytest
 from tests.unit.test_templates.conftest import extract_flags, load_pydantic_report
 
 

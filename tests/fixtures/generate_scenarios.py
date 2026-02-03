@@ -22,10 +22,11 @@ Run individual scenarios to generate fixtures:
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
-from pytest_aitest import Prompt, load_prompts
-from pathlib import Path
+from pytest_aitest import load_prompts
 
 pytestmark = [pytest.mark.integration]
 

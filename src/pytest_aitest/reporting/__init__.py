@@ -1,5 +1,17 @@
 """Reporting module - smart result aggregation and report generation."""
 
+# Re-export insight types from models (generated from JSON schema)
+from pytest_aitest.models import (
+    AIInsights,
+    AnalysisMetadata,
+    FailureAnalysis,
+    MCPServerFeedback,
+    OptimizationOpportunity,
+    PromptFeedback,
+    Recommendation,
+    SkillFeedback,
+    ToolFeedback,
+)
 from pytest_aitest.reporting.aggregator import (
     AdaptiveFlags,
     DimensionAggregator,
@@ -21,20 +33,7 @@ from pytest_aitest.reporting.insights import (
     generate_insights,
 )
 
-# Re-export insight types from models (generated from JSON schema)
-from pytest_aitest.models import (
-    AIInsights,
-    AnalysisMetadata,
-    FailureAnalysis,
-    MCPServerFeedback,
-    OptimizationOpportunity,
-    PromptFeedback,
-    Recommendation,
-    SkillFeedback,
-    ToolFeedback,
-)
-
-__all__ = [
+__all__ = [  # noqa: RUF022 - intentionally grouped by category
     # Legacy exports (for backward compatibility)
     "AdaptiveFlags",
     "DimensionAggregator",

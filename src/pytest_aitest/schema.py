@@ -6,7 +6,6 @@ This module provides functions to validate report data against the JSON Schema.
 from __future__ import annotations
 
 import json
-from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
