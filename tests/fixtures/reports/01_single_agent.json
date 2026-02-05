@@ -1,12 +1,12 @@
 {
   "name": "pytest-aitest",
-  "timestamp": "2026-02-05T18:07:34.680406+00:00",
-  "duration_ms": 35193.80310009001,
+  "timestamp": "2026-02-05T20:56:22.691413+00:00",
+  "duration_ms": 9234.85619999974,
   "tests": [
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_simple_weather_query",
       "outcome": "passed",
-      "duration_ms": 9762.0004999917,
+      "duration_ms": 9234.85619999974,
       "agent_result": {
         "turns": [
           {
@@ -25,24 +25,24 @@
                 },
                 "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
                 "error": null,
-                "duration_ms": 4.273600003216416
+                "duration_ms": 2.706699999180273
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Current weather for Paris, France:\n- Temperature: 18 \u00b0C (64 \u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: SW at 12 km/h\n\nWould you like a multi-day forecast or hourly details?",
+            "content": "Here's the current weather for Paris, France:\n\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like an hourly forecast, a multi-day forecast, or weather for another city?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 5570.0670999940485,
+        "duration_ms": 5029.0046000000075,
         "token_usage": {
           "prompt": 698,
-          "completion": 82
+          "completion": 154
         },
-        "cost_usd": 0.0003385,
+        "cost_usd": 0.00048249999999999996,
         "_messages": [
           {
             "role": "system",
@@ -61,7 +61,7 @@
                   "arguments": "{\"city\":\"Paris\"}",
                   "name": "get_weather"
                 },
-                "id": "call_n8vK3UyC5TELwJnkJQUKJl0o",
+                "id": "call_xq5vLGuASpSFhw5YpQEZZiGP",
                 "type": "function"
               }
             ],
@@ -73,12 +73,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_n8vK3UyC5TELwJnkJQUKJl0o",
+            "tool_call_id": "call_xq5vLGuASpSFhw5YpQEZZiGP",
             "content": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}"
           },
           {
             "role": "assistant",
-            "content": "Current weather for Paris, France:\n- Temperature: 18 \u00b0C (64 \u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: SW at 12 km/h\n\nWould you like a multi-day forecast or hourly details?"
+            "content": "Here's the current weather for Paris, France:\n\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like an hourly forecast, a multi-day forecast, or weather for another city?"
           }
         ],
         "session_context_count": 0,
@@ -167,585 +167,10 @@
         "model": "gpt-5-mini"
       },
       "docstring": "Basic weather lookup - should pass."
-    },
-    {
-      "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_forecast_query",
-      "outcome": "passed",
-      "duration_ms": 9373.186300043017,
-      "agent_result": {
-        "turns": [
-          {
-            "role": "user",
-            "content": "Give me a 3-day forecast for Tokyo",
-            "tool_calls": []
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "get_forecast",
-                "arguments": {
-                  "city": "Tokyo",
-                  "days": 3
-                },
-                "result": "[{\"day\": 1, \"city\": \"Tokyo\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"Tokyo\", \"high_celsius\": 27, \"low_celsius\": 19, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"Tokyo\", \"high_celsius\": 28, \"low_celsius\": 20, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}]",
-                "error": null,
-                "duration_ms": 2.784700016491115
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "3-day forecast for Tokyo:\n\n- Day 1 (today): Sunny. High 26\u00b0C, low 18\u00b0C. Precipitation chance 20%.\n- Day 2: Partly cloudy. High 27\u00b0C, low 19\u00b0C. Precipitation chance 30%.\n- Day 3: Cloudy. High 28\u00b0C, low 20\u00b0C. Precipitation chance 40%.\n\nWould you like these temperatures in \u00b0F or an hourly forecast for any of the days?",
-            "tool_calls": []
-          }
-        ],
-        "success": true,
-        "error": null,
-        "duration_ms": 5769.620499981102,
-        "token_usage": {
-          "prompt": 788,
-          "completion": 524
-        },
-        "cost_usd": 0.001245,
-        "_messages": [
-          {
-            "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
-          },
-          {
-            "role": "user",
-            "content": "Give me a 3-day forecast for Tokyo"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"city\":\"Tokyo\",\"days\":3}",
-                  "name": "get_forecast"
-                },
-                "id": "call_croiU1TIyaMyIP1TAbmaaQ8V",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_croiU1TIyaMyIP1TAbmaaQ8V",
-            "content": "[{\"day\": 1, \"city\": \"Tokyo\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"Tokyo\", \"high_celsius\": 27, \"low_celsius\": 19, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"Tokyo\", \"high_celsius\": 28, \"low_celsius\": 20, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}]"
-          },
-          {
-            "role": "assistant",
-            "content": "3-day forecast for Tokyo:\n\n- Day 1 (today): Sunny. High 26\u00b0C, low 18\u00b0C. Precipitation chance 20%.\n- Day 2: Partly cloudy. High 27\u00b0C, low 19\u00b0C. Precipitation chance 30%.\n- Day 3: Cloudy. High 28\u00b0C, low 20\u00b0C. Precipitation chance 40%.\n\nWould you like these temperatures in \u00b0F or an hourly forecast for any of the days?"
-          }
-        ],
-        "session_context_count": 0,
-        "available_tools": [
-          {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
-            "input_schema": {
-              "type": "object",
-              "properties": {}
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city1": {
-                  "type": "string",
-                  "description": "First city to compare"
-                },
-                "city2": {
-                  "type": "string",
-                  "description": "Second city to compare"
-                }
-              },
-              "required": [
-                "city1",
-                "city2"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          }
-        ],
-        "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.",
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "error": null,
-      "assertions": [],
-      "metadata": {
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "docstring": "Multi-day forecast - tests get_forecast tool."
-    },
-    {
-      "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_city_comparison",
-      "outcome": "passed",
-      "duration_ms": 8393.89880001545,
-      "agent_result": {
-        "turns": [
-          {
-            "role": "user",
-            "content": "Which is warmer today, Berlin or Sydney?",
-            "tool_calls": []
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "compare_weather",
-                "arguments": {
-                  "city1": "Berlin",
-                  "city2": "Sydney"
-                },
-                "result": "{\"city1\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"city2\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
-                "error": null,
-                "duration_ms": 3.5994999925605953
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "Sydney is warmer today. \n- Sydney: 26 \u00b0C (79 \u00b0F), sunny, humidity 60%, wind SE 20 km/h. \n- Berlin: 16 \u00b0C (61 \u00b0F), overcast, humidity 72%, wind N 10 km/h.\n\nSydney is about 10 \u00b0C (18 \u00b0F) warmer than Berlin.",
-            "tool_calls": []
-          }
-        ],
-        "success": true,
-        "error": null,
-        "duration_ms": 4811.379300022963,
-        "token_usage": {
-          "prompt": 797,
-          "completion": 306
-        },
-        "cost_usd": 0.00081125,
-        "_messages": [
-          {
-            "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
-          },
-          {
-            "role": "user",
-            "content": "Which is warmer today, Berlin or Sydney?"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"city1\":\"Berlin\",\"city2\":\"Sydney\"}",
-                  "name": "compare_weather"
-                },
-                "id": "call_M82sHlRWffZSEMf7HfqtWN1g",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_M82sHlRWffZSEMf7HfqtWN1g",
-            "content": "{\"city1\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"city2\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}"
-          },
-          {
-            "role": "assistant",
-            "content": "Sydney is warmer today. \n- Sydney: 26 \u00b0C (79 \u00b0F), sunny, humidity 60%, wind SE 20 km/h. \n- Berlin: 16 \u00b0C (61 \u00b0F), overcast, humidity 72%, wind N 10 km/h.\n\nSydney is about 10 \u00b0C (18 \u00b0F) warmer than Berlin."
-          }
-        ],
-        "session_context_count": 0,
-        "available_tools": [
-          {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
-            "input_schema": {
-              "type": "object",
-              "properties": {}
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city1": {
-                  "type": "string",
-                  "description": "First city to compare"
-                },
-                "city2": {
-                  "type": "string",
-                  "description": "Second city to compare"
-                }
-              },
-              "required": [
-                "city1",
-                "city2"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          }
-        ],
-        "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.",
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "error": null,
-      "assertions": [],
-      "metadata": {
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "docstring": "Compare two cities - multiple tool calls."
-    },
-    {
-      "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_expected_failure",
-      "outcome": "passed",
-      "duration_ms": 7664.717500039842,
-      "agent_result": {
-        "turns": [
-          {
-            "role": "user",
-            "content": "Get weather for Paris, Tokyo, London, Berlin, Sydney, and compare them all",
-            "tool_calls": []
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Paris"
-                },
-                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
-                "error": null,
-                "duration_ms": 2.566699986346066
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Tokyo"
-                },
-                "result": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}",
-                "error": null,
-                "duration_ms": 1.1851000017486513
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "London"
-                },
-                "result": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}",
-                "error": null,
-                "duration_ms": 0.818000000435859
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Berlin"
-                },
-                "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
-                "error": null,
-                "duration_ms": 2.009799994993955
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Sydney"
-                },
-                "result": "{\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}",
-                "error": null,
-                "duration_ms": 4.233499988913536
-              }
-            ]
-          }
-        ],
-        "success": true,
-        "error": null,
-        "duration_ms": 3913.3121999911964,
-        "token_usage": {
-          "prompt": 317,
-          "completion": 352
-        },
-        "cost_usd": 0.00078325,
-        "_messages": [
-          {
-            "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
-          },
-          {
-            "role": "user",
-            "content": "Get weather for Paris, Tokyo, London, Berlin, Sydney, and compare them all"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Paris\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_nq2bbAonqS9lW97RWtRbZVsa",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Tokyo\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_y1KvEbF1AkPG41Z9KbhA8T2m",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"London\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_Aqz72DhxcmdudGpzAK9mjGvL",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Berlin\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_EeeKpkJpbhjdkEbQug91QCyn",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Sydney\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_tB2SheuhhjEWIj3Bhy0CMnCt",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_nq2bbAonqS9lW97RWtRbZVsa",
-            "content": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_y1KvEbF1AkPG41Z9KbhA8T2m",
-            "content": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_Aqz72DhxcmdudGpzAK9mjGvL",
-            "content": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_EeeKpkJpbhjdkEbQug91QCyn",
-            "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_tB2SheuhhjEWIj3Bhy0CMnCt",
-            "content": "{\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}"
-          }
-        ],
-        "session_context_count": 0,
-        "available_tools": [
-          {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
-            "input_schema": {
-              "type": "object",
-              "properties": {}
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city1": {
-                  "type": "string",
-                  "description": "First city to compare"
-                },
-                "city2": {
-                  "type": "string",
-                  "description": "Second city to compare"
-                }
-              },
-              "required": [
-                "city1",
-                "city2"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          }
-        ],
-        "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.",
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "error": null,
-      "assertions": [],
-      "metadata": {
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "docstring": "Test that fails due to turn limit - for report variety."
     }
   ],
-  "passed": 4,
+  "passed": 1,
   "failed": 0,
-  "skipped": 0
+  "skipped": 0,
+  "insights": "## \ud83c\udfaf Recommendation\n\n**Deploy: weather-agent (gpt-5-mini, default system prompt)**\n\nAchieves a 100% pass rate on the provided test, used the required tool correctly, and incurred a negligible cost ($0.000482).\n\n**Reasoning:** The single test (tests/fixtures/generate_scenarios.py::TestSingleAgent::test_simple_weather_query) passed with the agent calling the get_weather tool as required and returning a clear, actionable answer (temperature in C/F, humidity, conditions, wind) while offering sensible follow-ups. Cost and latency are minimal (5029ms, $0.000482). No other configurations were tested.\n\n**Alternatives:** None \u2014 only one agent configuration was included in these results.\n\n---\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nTool usage in this test run was limited to a single successful get_weather call. Other tools exist but were not exercised by this test.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 1 | Working well: called with {\"city\":\"Paris\"} and returned full weather fields. |\n| get_forecast | \u26a0\ufe0f | 0 | Unused in test; description is acceptable but could be clearer about default behavior and output structure. |\n| list_cities | \u26a0\ufe0f | 0 | Unused in test; schema empty\u2014caller may be unsure of return format. |\n| compare_weather | \u26a0\ufe0f | 0 | Unused in test; description could clarify which metrics are compared and output format. |\n\nSuggested rewrites (exact text) \u2014 replace current descriptions with the following to improve discoverability and reduce ambiguity:\n\n- get_forecast\n> Get a multi-day weather forecast for a city. Input: {\"city\": \"<city name>\", \"days\": <integer 1-7, optional; default 5>}. Output: an array of daily forecast objects, each with keys: \"date\" (YYYY-MM-DD), \"min_temp_celsius\", \"max_temp_celsius\", \"min_temp_fahrenheit\", \"max_temp_fahrenheit\", \"conditions\", \"humidity\", \"wind_speed_kmh\", \"wind_direction\". If \"days\" is omitted, return 5 days.\n\n- list_cities\n> Return a list of available cities for which the weather service can provide data. Output: {\"cities\": [{\"city\": \"<name>\", \"country\": \"<country>\"}]}. No input fields required.\n\n- compare_weather\n> Compare the current weather between two cities. Input: {\"city1\": \"<name>\", \"city2\": \"<name>\"}. Output: {\"city1\": {...current weather fields...}, \"city2\": {...current weather fields...}, \"differences\": {\"temperature_celsius\": <city1 - city2>, \"humidity\": <city1 - city2>, \"conditions_summary\": \"<short text summary>\"}}. Include both Celsius and Fahrenheit for temperatures.\n\n---\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- Token count: N/A\n- Problem: Effective for the tested scenario \u2014 the assistant obeyed \"Always use tools\" and returned well-formatted weather data. However, adding very small clarifications will standardize responses (units, city-country formatting, and concise responses unless user asks for detail).\n\nSuggested change \u2014 replace the current system prompt with this exact text (adds precise formatting and brevity guidance):\n\n```\nYou are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.\nWhen reporting current weather, always include:\n- City name and country (e.g., \"Paris, France\")\n- Temperature in Celsius and Fahrenheit (e.g., \"18\u00b0C (64\u00b0F)\")\n- Humidity as a percentage\n- Wind speed in km/h and wind direction\nKeep responses concise (aim for <=150 tokens) unless the user asks for more detail. Offer one clear next-step option (e.g., hourly forecast, multi-day forecast, or another city).\n```\n\nReplace the prompt exactly as shown to ensure consistent, compact output with full units and clear follow-ups.\n\n---\n\n## \ud83d\udca1 Optimizations\n\n1. Expand test coverage to exercise all tools (recommended)\n   - Current: The test suite only exercised get_weather (tests/fixtures/generate_scenarios.py::TestSingleAgent::test_simple_weather_query).\n   - Change: Add tests that call get_forecast (several days), list_cities, and compare_weather.\n   - Impact: Verifies tool schemas and helps catch parsing/format issues early.\n\n2. Standardize tool response schemas in the MCP (recommended)\n   - Current: get_weather worked, but other tools lack explicit output examples in their descriptions.\n   - Change: Apply the exact suggested rewrites above so agents and test harnesses have unambiguous expected fields.\n   - Impact: Reduces tool-usage errors and LLM confusion when calling non-trivial tools.\n\n3. Enforce concise responses to lower token usage (suggestion)\n   - Current: Single run used 852 tokens (per-run token use observed).\n   - Change: Use the exact system prompt addition \"Keep responses concise (aim for <=150 tokens) unless the user asks for more detail.\"\n   - Impact: Expected reduction in per-test token consumption and cost; will also make output easier to parse in automated checks.\n\n---\n\nIf you want, I can:\n- Produce example tests to exercise get_forecast, list_cities, and compare_weather (exact test payloads).\n- Run a short checklist of exact assertions the harness should enforce for tool outputs (field presence and types)."
 }

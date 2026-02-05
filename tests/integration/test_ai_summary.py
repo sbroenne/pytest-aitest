@@ -48,11 +48,11 @@ def _make_suite_report(tests: list[TestReport]) -> SuiteReport:
 
 
 class TestAIInsightsGeneration:
-    """Test that AI insights generates proper structured output."""
+    """Test that AI insights generates markdown output."""
 
     @pytest.mark.asyncio
-    async def test_insights_has_recommendation(self):
-        """Insights should include a recommendation."""
+    async def test_insights_returns_markdown_string(self):
+        """Insights should return a markdown string."""
         from pytest_aitest.reporting.insights import generate_insights
 
         tests = [
@@ -69,15 +69,13 @@ class TestAIInsightsGeneration:
             model="azure/gpt-5-mini",
         )
 
-        # Verify we got structured insights
-        assert insights is not None
-        assert insights.recommendation is not None
-        assert insights.recommendation.configuration, "Should have a configuration recommendation"
-        assert insights.recommendation.summary, "Should have a summary"
+        # Insights is now a plain markdown string
+        assert isinstance(insights, str), "Insights should be a string"
+        assert len(insights) > 50, "Insights should have substantial content"
 
     @pytest.mark.asyncio
-    async def test_insights_has_markdown_summary(self):
-        """Insights should include a markdown summary."""
+    async def test_insights_contains_recommendation(self):
+        """Insights markdown should contain recommendation section."""
         from pytest_aitest.reporting.insights import generate_insights
 
         tests = [
@@ -94,12 +92,13 @@ class TestAIInsightsGeneration:
             model="azure/gpt-5-mini",
         )
 
-        # Verify markdown summary
-        assert insights.markdown_summary, "Should have markdown_summary"
-        assert len(insights.markdown_summary) > 50, "Summary should have substantial content"
+        # Check markdown contains expected sections
+        assert isinstance(insights, str)
+        # The prompt asks for "## 🎯 Recommendation" section
+        assert "Recommendation" in insights or "recommendation" in insights.lower()
 
     @pytest.mark.asyncio
-    async def test_insights_with_failures_has_failure_analysis(self):
+    async def test_insights_with_failures(self):
         """Insights should analyze failures when present."""
         from pytest_aitest.reporting.insights import generate_insights
 
@@ -119,11 +118,9 @@ class TestAIInsightsGeneration:
             model="azure/gpt-5-mini",
         )
 
-        # With failures, we expect failure analysis
-        # Note: The AI may or may not include failures depending on input
-        # This is a basic sanity check
-        assert insights is not None
-        assert insights.recommendation is not None
+        # Should be a string with content
+        assert isinstance(insights, str)
+        assert len(insights) > 50
 
     @pytest.mark.asyncio
     async def test_insights_returns_metadata(self):
@@ -141,11 +138,12 @@ class TestAIInsightsGeneration:
             model="azure/gpt-5-mini",
         )
 
-        # Verify metadata
+        # Verify metadata is a dict with expected keys
         assert metadata is not None
-        assert metadata.model == "azure/gpt-5-mini"
-        assert metadata.tokens_used >= 0
-        assert metadata.cost_usd >= 0
+        assert isinstance(metadata, dict)
+        assert metadata["model"] == "azure/gpt-5-mini"
+        assert metadata["tokens_used"] >= 0
+        assert metadata["cost_usd"] >= 0
 
 
 class TestPromptLoading:

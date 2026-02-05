@@ -138,12 +138,10 @@ class ReportGenerator:
         # Build test groups
         test_groups = self._build_test_groups_typed(report, all_agent_ids, agents_by_id)
         
-        # Build AI insights from passed-in insights dict
+        # Build AI insights - insights is a plain markdown string
         insights_data = None
-        if insights and isinstance(insights, dict):
-            markdown_summary = insights.get('markdown_summary')
-            if markdown_summary:
-                insights_data = AIInsightsData(markdown_summary=markdown_summary)
+        if insights and isinstance(insights, str):
+            insights_data = AIInsightsData(markdown_summary=insights)
         
         return ReportContext(
             report=report_meta,
@@ -417,13 +415,17 @@ class ReportGenerator:
             report: Test suite report data
             output_path: Path to write JSON file
             ai_summary: DEPRECATED - use insights parameter instead
-            insights: AIInsights object (if None, placeholder is used)
+            insights: Markdown string with AI analysis
         """
         import json
 
-        
         # Serialize dataclass to dict
         report_dict = serialize_dataclass(report)
+        
+        # Add insights to the JSON output if provided (now a plain string)
+        if insights:
+            report_dict["insights"] = insights
+        
         json_str = json.dumps(report_dict, indent=2, default=str)
         Path(output_path).write_text(json_str, encoding="utf-8")
 

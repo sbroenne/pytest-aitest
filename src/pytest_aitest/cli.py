@@ -74,13 +74,13 @@ def get_config_value(key: str, cli_value: Any, env_var: str) -> Any:
     return config.get(key)
 
 
-def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, Any | None]:
+def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, str | None]:
     """Load SuiteReport from JSON file.
 
     Supports both v2.0 Pydantic schema and legacy formats.
 
     Returns:
-        Tuple of (SuiteReport, ai_summary string, AIInsights object or None)
+        Tuple of (SuiteReport, ai_summary string, insights markdown string)
     """
     data = json.loads(json_path.read_text(encoding="utf-8"))
 
@@ -93,11 +93,11 @@ def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, A
     return _load_legacy_report(data)
 
 
-def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, Any | None]:
+def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, str | None]:
     """Load report from v2.0 schema format (current format with dataclasses).
     
     Returns:
-        Tuple of (LegacySuiteReport, ai_summary string, AIInsights dict)
+        Tuple of (LegacySuiteReport, ai_summary string, insights markdown string)
     """
     # Load the SuiteReport from our current dataclass format
     from pytest_aitest.core.serialization import deserialize_suite_report
@@ -105,9 +105,15 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
     # Deserialize the report from dict format
     suite_report = deserialize_suite_report(data)
     
-    # Get insights if available
-    insights_dict = data.get("insights", {})
-    ai_summary = insights_dict.get("markdown_summary") if insights_dict else None
+    # Get insights - now a plain markdown string
+    insights = data.get("insights")
+    ai_summary = None
+    if insights:
+        if isinstance(insights, str):
+            ai_summary = insights
+        elif isinstance(insights, dict) and insights.get("markdown_summary"):
+            ai_summary = insights.get("markdown_summary")
+            insights = ai_summary  # Extract string from dict
     
     # Convert to LegacySuiteReport for template compatibility
     tests = []
@@ -168,17 +174,27 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
         skipped=suite_report.skipped,
     )
     
-    return report, ai_summary, insights_dict
+    return report, ai_summary, insights
 
 
-def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, None]:
+def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, str | None]:
     """Load report from legacy format (pre-v2.0).
     
     Returns:
-        Tuple of (LegacySuiteReport, ai_summary string, None for insights)
+        Tuple of (LegacySuiteReport, ai_summary string, insights markdown string)
     """
-    # Extract AI summary if present
+    # Extract AI summary if present (old format)
     ai_summary = data.get("ai_summary")
+    
+    # Check for insights - now a plain markdown string
+    insights = data.get("insights")
+    if insights:
+        # Handle both string (new) and dict (old format for backward compat)
+        if isinstance(insights, str):
+            ai_summary = ai_summary or insights
+        elif isinstance(insights, dict) and insights.get("markdown_summary"):
+            ai_summary = ai_summary or insights.get("markdown_summary")
+            insights = insights.get("markdown_summary")  # Extract string from dict
 
     # Deserialize tests
     tests = [_deserialize_test(t) for t in data.get("tests", [])]
@@ -189,12 +205,12 @@ def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | 
         timestamp=data.get("timestamp", ""),
         duration_ms=data.get("duration_ms", 0.0),
         tests=tests,
-        passed=data.get("summary", {}).get("passed", 0),
-        failed=data.get("summary", {}).get("failed", 0),
-        skipped=data.get("summary", {}).get("skipped", 0),
+        passed=data.get("summary", {}).get("passed", data.get("passed", 0)),
+        failed=data.get("summary", {}).get("failed", data.get("failed", 0)),
+        skipped=data.get("summary", {}).get("skipped", data.get("skipped", 0)),
     )
 
-    return report, ai_summary, None
+    return report, ai_summary, insights
 
 
 def _deserialize_test(data: dict[str, Any]) -> LegacyTestReport:

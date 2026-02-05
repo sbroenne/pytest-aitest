@@ -247,10 +247,11 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     generator = ReportGenerator()
 
-    # Generate AI insights (mandatory for HTML reports)
+    # Generate AI insights if HTML report requested OR summary model specified
+    summary_model = config.getoption("--aitest-summary-model")
     insights = None
-    if html_path:
-        insights = _generate_structured_insights(config, suite_report, required=True)
+    if html_path or summary_model:
+        insights = _generate_structured_insights(config, suite_report, required=bool(html_path))
 
     # Always generate JSON report (to default or custom path)
     json_output_path = Path(json_path) if json_path else default_json_path

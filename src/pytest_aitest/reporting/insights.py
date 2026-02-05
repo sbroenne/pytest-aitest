@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 _logger = logging.getLogger(__name__)
 
 # Load the analysis prompt template
-_PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "report_analysis.md"
+_PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "ai_summary.md"
 
 
 def _load_analysis_prompt() -> str:
@@ -25,7 +25,7 @@ def _load_analysis_prompt() -> str:
     if _PROMPT_PATH.exists():
         return _PROMPT_PATH.read_text(encoding="utf-8")
     # Fallback minimal prompt
-    return "Analyze test results and return JSON matching schema: {schema}"
+    return "Analyze these test results and provide actionable feedback in markdown format."
 
 
 def _build_analysis_input(
@@ -136,25 +136,14 @@ def _get_results_hash(suite_report: SuiteReport) -> str:
     return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
-def create_placeholder_insights() -> dict[str, Any]:
+def create_placeholder_insights() -> str:
     """Create placeholder insights for internal use only.
     
     Note: AI analysis is mandatory for report generation, so this
     should only be used internally (e.g., in model converter for 
     backwards compatibility with old fixtures).
     """
-    return {
-        "recommendation": {
-            "configuration": "(no analysis)",
-            "summary": "AI analysis required for reports",
-            "reasoning": "This is a placeholder - reports require AI analysis.",
-        },
-        "failures": [],
-        "mcp_feedback": [],
-        "prompt_feedback": [],
-        "skill_feedback": [],
-        "optimizations": [],
-    }
+    return "*AI analysis pending - run with `--aitest-summary-model` to generate.*"
 
 
 async def generate_insights(
@@ -164,8 +153,8 @@ async def generate_insights(
     prompts: dict[str, str] | None = None,
     model: str = "azure/gpt-5-mini",
     cache_dir: Path | None = None,
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Generate structured AI insights from test results.
+) -> tuple[str, dict[str, Any]]:
+    """Generate AI insights markdown from test results.
 
     Args:
         suite_report: The complete test suite report
@@ -194,7 +183,7 @@ async def generate_insights(
         try:
             cached = json.loads(cache_path.read_text())
             return (
-                cached.get("insights", {}),
+                cached.get("insights", ""),  # Plain markdown string
                 {
                     "model": cached.get("model"),
                     "tokens_used": cached.get("tokens_used"),
@@ -206,21 +195,8 @@ async def generate_insights(
         except Exception:
             _logger.debug("Cache invalid, regenerating insights", exc_info=True)
 
-    # Build prompt
+    # Build prompt - LLM returns markdown directly
     prompt_template = _load_analysis_prompt()
-    # Use plain JSON schema instead of Pydantic
-    schema_json = json.dumps({
-        "type": "object",
-        "properties": {
-            "recommendation": {"type": "object"},
-            "failures": {"type": "array"},
-            "mcp_feedback": {"type": "array"},
-            "prompt_feedback": {"type": "array"},
-            "skill_feedback": {"type": "array"},
-            "optimizations": {"type": "array"},
-        }
-    }, indent=2)
-    prompt = prompt_template.replace("{schema}", schema_json)
 
     # Build analysis input
     analysis_input = _build_analysis_input(
@@ -230,7 +206,7 @@ async def generate_insights(
         prompts=prompts or {},
     )
 
-    full_prompt = f"{prompt}\n\n---\n\n# Test Data\n\n{analysis_input}"
+    full_prompt = f"{prompt_template}\n\n---\n\n# Test Data\n\n{analysis_input}"
 
     # Call LLM with retry
     start_time = time.perf_counter()
@@ -242,11 +218,10 @@ async def generate_insights(
 
     for attempt in range(3):
         try:
-            # Build kwargs for litellm
+            # Build kwargs for litellm - no response_format, LLM returns markdown
             kwargs: dict[str, Any] = {
                 "model": model,
                 "messages": [{"role": "user", "content": full_prompt}],
-                "response_format": {"type": "json_object"},
             }
             
             # Add Azure AD token provider if available
@@ -262,9 +237,8 @@ async def generate_insights(
             if hasattr(response, "_hidden_params"):
                 total_cost = response._hidden_params.get("response_cost", 0.0) or 0.0
 
-            # Parse response as dict
-            content = response.choices[0].message.content
-            insights = json.loads(content)
+            # Get markdown content directly from LLM response
+            markdown_content = response.choices[0].message.content
 
             duration_ms = (time.perf_counter() - start_time) * 1000
             metadata = {
@@ -279,7 +253,7 @@ async def generate_insights(
             if cache_path:
                 cache_path.parent.mkdir(parents=True, exist_ok=True)
                 cache_data = {
-                    "insights": insights,
+                    "insights": markdown_content,  # Plain markdown string
                     "model": model,
                     "tokens_used": total_tokens,
                     "cost_usd": total_cost,
@@ -287,7 +261,8 @@ async def generate_insights(
                 }
                 cache_path.write_text(json.dumps(cache_data))
 
-            return insights, metadata
+            # Return markdown string directly, not dict
+            return markdown_content, metadata
 
         except litellm.RateLimitError as e:
             if attempt < 2:
