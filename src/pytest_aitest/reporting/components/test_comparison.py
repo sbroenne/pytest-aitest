@@ -1,0 +1,206 @@
+"""Test comparison component - side-by-side expanded view for a single test."""
+
+from __future__ import annotations
+
+from markupsafe import Markup
+
+from htpy import Node, code, div, span
+
+from .agent_leaderboard import format_cost
+from .types import AgentData, AssertionData, TestData, TestResultData, ToolCallData
+
+
+def _metric_cell(value: str, label: str) -> Node:
+    """Render a single metric cell."""
+    return div[
+        div(".text-sm.font-medium.text-text-light.tabular-nums")[value],
+        div(".text-xs.text-text-muted")[label],
+    ]
+
+
+def _metrics_row(result: TestResultData) -> Node:
+    """Render the metrics row for a test result."""
+    return div(".grid.grid-cols-4.gap-2.mb-4.p-3.bg-surface-elevated.rounded-material.text-center")[
+        _metric_cell(f"{result.duration_s:.2f}s", "duration"),
+        _metric_cell(str(result.turns), "turns"),
+        _metric_cell(str(result.tool_count), "tools"),
+        _metric_cell(format_cost(result.cost), "cost"),
+    ]
+
+
+def _mermaid_diagram(result: TestResultData) -> Node | None:
+    """Render the sequence diagram section."""
+    if not result.mermaid:
+        return None
+    
+    return div(".mb-4")[
+        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["Sequence"],
+        div(
+            class_="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors",
+            onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);",
+            data_mermaid_code=result.mermaid,
+        )[
+            div(".mermaid.text-xs")[Markup(result.mermaid)],
+        ],
+    ]
+
+
+def _tool_call_item(tc: ToolCallData) -> Node:
+    """Render a single tool call."""
+    bg_class = "bg-green-500/5" if tc.success else "bg-red-500/5"
+    status_class = "text-green-400" if tc.success else "text-red-400"
+    status_icon = "✅" if tc.success else "❌"
+    
+    error_node = None
+    if tc.error:
+        display_error = tc.error[:40] + ("..." if len(tc.error) > 40 else "")
+        error_node = span(".text-xs.text-red-400.truncate", title=tc.error)[display_error]
+    
+    return div(class_=f"flex items-center gap-2 text-sm p-2 rounded {bg_class}")[
+        span(class_=status_class)[status_icon],
+        code(".tool-name")[tc.name],
+        error_node,
+    ]
+
+
+def _tool_calls_section(result: TestResultData) -> Node | None:
+    """Render the tool calls section."""
+    if not result.tool_calls:
+        return None
+    
+    return div(".mb-4")[
+        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["Tool Calls"],
+        div(".space-y-1")[
+            [_tool_call_item(tc) for tc in result.tool_calls]
+        ],
+    ]
+
+
+def _assertion_item(a: AssertionData) -> Node:
+    """Render a single assertion."""
+    bg_class = "bg-green-500/5" if a.passed else "bg-red-500/5"
+    status_class = "text-green-400" if a.passed else "text-red-400"
+    status_icon = "✅" if a.passed else "❌"
+    
+    return div(class_=f"flex items-center gap-2 text-sm p-2 rounded {bg_class}")[
+        span(class_=status_class)[status_icon],
+        code(".text-text-muted")[a.type],
+        span(".text-text")[a.message],
+    ]
+
+
+def _assertions_section(result: TestResultData) -> Node | None:
+    """Render the assertions section."""
+    if not result.assertions:
+        return None
+    
+    return div(".mb-4")[
+        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["✓ Assertions"],
+        div(".space-y-1")[
+            [_assertion_item(a) for a in result.assertions]
+        ],
+    ]
+
+
+def _response_section(result: TestResultData) -> Node | None:
+    """Render the final response section."""
+    if not result.final_response:
+        return None
+    
+    display_response = result.final_response[:500]
+    if len(result.final_response) > 500:
+        display_response += "..."
+    
+    return div(".mb-4")[
+        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["💬 Response"],
+        div(".p-3.bg-surface-elevated.rounded-material.text-sm.text-text")[display_response],
+    ]
+
+
+def _error_section(result: TestResultData) -> Node | None:
+    """Render the error section."""
+    if not result.error:
+        return None
+    
+    return div[
+        div(".text-xs.font-medium.text-red-400.uppercase.tracking-wider.mb-2")["❌ Error"],
+        div(".p-3.bg-red-500/10.border.border-red-500/30.rounded-material.text-sm.text-red-300")[
+            result.error
+        ],
+    ]
+
+
+def _agent_result_column(
+    agent: AgentData,
+    result: TestResultData | None,
+    is_selected: bool,
+) -> Node:
+    """Render a single agent's result column."""
+    hidden_class = "hidden" if not is_selected else ""
+    
+    if result:
+        border_class = "border-l-[3px] border-green-500" if result.passed else "border-l-[3px] border-red-500"
+        status_text = "passed" if result.passed else "failed"
+        status_bg = "bg-green-500/15 text-green-400" if result.passed else "bg-red-500/15 text-red-400"
+    else:
+        border_class = "opacity-50"
+        status_text = None
+        status_bg = None
+    
+    return div(
+        class_=f"comparison-column {hidden_class} {border_class}",
+        data_agent_id=agent.id,
+    )[
+        # Agent name + status header
+        div(".flex.items-center.justify-between.mb-4")[
+            div(".font-medium.text-text-light")[agent.name],
+            span(class_=f"px-2 py-0.5 rounded text-xs font-medium {status_bg}")[status_text] if status_text else None,
+        ],
+        # Content
+        _result_content(result) if result else div(".text-center.text-text-muted.py-8")["No result for this agent"],
+    ]
+
+
+def _result_content(result: TestResultData) -> Node:
+    """Render the full content for a result."""
+    return [
+        _metrics_row(result),
+        _mermaid_diagram(result),
+        _tool_calls_section(result),
+        _assertions_section(result),
+        _response_section(result),
+        _error_section(result),
+    ]
+
+
+def test_comparison(
+    test: TestData,
+    all_agent_ids: list[str],
+    selected_agent_ids: list[str],
+    agents_by_id: dict[str, AgentData],
+) -> Node:
+    """Render the test comparison view.
+    
+    Shows side-by-side results for each agent on a single test.
+    
+    Args:
+        test: Test data with results_by_agent.
+        all_agent_ids: All agent IDs.
+        selected_agent_ids: Currently selected agent IDs.
+        agents_by_id: Mapping of agent ID to agent data.
+    
+    Returns:
+        htpy Node for the comparison grid.
+    """
+    selected_set = set(selected_agent_ids)
+    
+    return div(".comparison-grid.grid.gap-4.p-5")[
+        [
+            _agent_result_column(
+                agents_by_id[agent_id],
+                test.results_by_agent.get(agent_id),
+                agent_id in selected_set,
+            )
+            for agent_id in all_agent_ids
+        ]
+    ]
