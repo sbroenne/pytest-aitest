@@ -105,16 +105,18 @@ class ReportGenerator:
     def _build_report_context(self, report: SuiteReport) -> ReportContext:
         """Build typed ReportContext from SuiteReport."""
         # Build report metadata
+        ts = report.timestamp
+        timestamp_str = ts.isoformat() if isinstance(ts, datetime) else str(ts)
         report_meta = ReportMetadata(
             name=report.name,
-            timestamp=report.timestamp.isoformat() if isinstance(report.timestamp, datetime) else str(report.timestamp),
+            timestamp=timestamp_str,
             passed=report.passed,
             failed=report.failed,
             total=report.total,
             duration_ms=report.duration_ms or 0,
             total_cost_usd=report.total_cost_usd or 0,
             suite_docstring=getattr(report, 'suite_docstring', None),
-            analysis_cost_usd=getattr(report, 'insights', None) and getattr(report.insights, 'cost_usd', None),
+            analysis_cost_usd=getattr(getattr(report, 'insights', None), 'cost_usd', None),
         )
         
         # Build agents
@@ -323,22 +325,27 @@ class ReportGenerator:
                                     ))
                         
                         duration_ms = test.duration_ms or 0
-                        turn_count = len(test.agent_result.turns) if test.agent_result and test.agent_result.turns else 0
+                        has_result = test.agent_result and test.agent_result.turns
+                        turn_count = len(test.agent_result.turns) if has_result else 0
                         tokens = 0
                         if test.agent_result and test.agent_result.token_usage:
-                            tokens = test.agent_result.token_usage.get("prompt", 0) + test.agent_result.token_usage.get("completion", 0)
+                            usage = test.agent_result.token_usage
+                            tokens = usage.get("prompt", 0) + usage.get("completion", 0)
                         
+                        agent_result = test.agent_result
+                        mermaid = generate_mermaid_sequence(agent_result) if agent_result else None
+                        final_resp = agent_result.final_response if agent_result else None
                         results_by_agent[agent_id] = TestResultData(
                             outcome=outcome,
                             passed=outcome == "passed",
                             duration_s=duration_ms / 1000,
                             tokens=tokens,
-                            cost=test.agent_result.cost_usd if test.agent_result else 0,
+                            cost=agent_result.cost_usd if agent_result else 0,
                             tool_calls=tool_calls,
                             tool_count=len(tool_calls),
                             turns=turn_count,
-                            mermaid=generate_mermaid_sequence(test.agent_result) if test.agent_result else None,
-                            final_response=test.agent_result.final_response if test.agent_result else None,
+                            mermaid=mermaid,
+                            final_response=final_resp,
                             error=test.error,
                             assertions=assertions_data,
                         )
@@ -363,8 +370,16 @@ class ReportGenerator:
             # Calculate group-level stats per agent
             agent_stats: dict[str, AgentStats] = {}
             for agent_id in all_agent_ids:
-                passed = sum(1 for t in test_list if t.results_by_agent.get(agent_id) and t.results_by_agent[agent_id].outcome == "passed")
-                failed = sum(1 for t in test_list if t.results_by_agent.get(agent_id) and t.results_by_agent[agent_id].outcome != "passed")
+                passed = sum(
+                    1 for t in test_list 
+                    if t.results_by_agent.get(agent_id) 
+                    and t.results_by_agent[agent_id].outcome == "passed"
+                )
+                failed = sum(
+                    1 for t in test_list 
+                    if t.results_by_agent.get(agent_id) 
+                    and t.results_by_agent[agent_id].outcome != "passed"
+                )
                 agent_stats[agent_id] = AgentStats(passed=passed, failed=failed)
             
             result.append(TestGroupData(
@@ -394,7 +409,6 @@ class ReportGenerator:
         """
         import json
 
-        from pytest_aitest.core.serialization import serialize_dataclass
         
         # Serialize dataclass to dict
         report_dict = serialize_dataclass(report)

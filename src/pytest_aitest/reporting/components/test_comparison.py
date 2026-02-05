@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from markupsafe import Markup
-
 from htpy import Node, code, div, span
+from markupsafe import Markup
 
 from .agent_leaderboard import format_cost
 from .types import AgentData, AssertionData, TestData, TestResultData, ToolCallData
@@ -33,10 +32,14 @@ def _mermaid_diagram(result: TestResultData) -> Node | None:
     if not result.mermaid:
         return None
     
+    diagram_cls = (
+        "p-3 bg-surface-code rounded-material border border-white/5 "
+        "cursor-pointer hover:border-primary/30 transition-colors"
+    )
     return div(".mb-4")[
         div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["Sequence"],
         div(
-            class_="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors",
+            class_=diagram_cls,
             onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);",
             data_mermaid_code=result.mermaid,
         )[
@@ -139,13 +142,26 @@ def _agent_result_column(
     hidden_class = "hidden" if not is_selected else ""
     
     if result:
-        border_class = "border-l-[3px] border-green-500" if result.passed else "border-l-[3px] border-red-500"
+        passed_border = "border-l-[3px] border-green-500"
+        failed_border = "border-l-[3px] border-red-500"
+        border_class = passed_border if result.passed else failed_border
         status_text = "passed" if result.passed else "failed"
-        status_bg = "bg-green-500/15 text-green-400" if result.passed else "bg-red-500/15 text-red-400"
+        passed_bg = "bg-green-500/15 text-green-400"
+        failed_bg = "bg-red-500/15 text-red-400"
+        status_bg = passed_bg if result.passed else failed_bg
     else:
         border_class = "opacity-50"
         status_text = None
         status_bg = None
+    
+    status_span = None
+    if status_text:
+        status_span = span(
+            class_=f"px-2 py-0.5 rounded text-xs font-medium {status_bg}"
+        )[status_text]
+    
+    no_result_div = div(".text-center.text-text-muted.py-8")["No result for this agent"]
+    content = _result_content(result) if result else no_result_div
     
     return div(
         class_=f"comparison-column {hidden_class} {border_class}",
@@ -154,10 +170,10 @@ def _agent_result_column(
         # Agent name + status header
         div(".flex.items-center.justify-between.mb-4")[
             div(".font-medium.text-text-light")[agent.name],
-            span(class_=f"px-2 py-0.5 rounded text-xs font-medium {status_bg}")[status_text] if status_text else None,
+            status_span,
         ],
         # Content
-        _result_content(result) if result else div(".text-center.text-text-muted.py-8")["No result for this agent"],
+        content,
     ]
 
 

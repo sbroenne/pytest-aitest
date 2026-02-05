@@ -6,8 +6,6 @@ import importlib.resources as resources
 import json
 from typing import TYPE_CHECKING
 
-from markupsafe import Markup
-
 from htpy import (
     Node,
     body,
@@ -26,6 +24,7 @@ from htpy import (
     style,
     title,
 )
+from markupsafe import Markup
 
 from .agent_leaderboard import agent_leaderboard, format_cost
 from .agent_selector import agent_selector

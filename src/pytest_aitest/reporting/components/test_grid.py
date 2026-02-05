@@ -44,6 +44,13 @@ def _status_icon(result: TestResultData | None) -> Node:
     return span(class_=status_class)[icon]
 
 
+def _diff_indicator(has_difference: bool) -> Node | None:
+    """Render difference indicator when results vary between agents."""
+    if not has_difference:
+        return None
+    return span(".text-yellow-400", title="Results differ between agents")["⚡"]
+
+
 def _test_metrics(result: TestResultData | None) -> Node | None:
     """Render metrics for a test result."""
     if not result:
@@ -92,7 +99,9 @@ def _test_row(
 ) -> Node:
     """Render a single test row."""
     # Get first result for default display
-    first_result = next(iter(test.results_by_agent.values()), None) if test.results_by_agent else None
+    first_result = None
+    if test.results_by_agent:
+        first_result = next(iter(test.results_by_agent.values()), None)
     
     selected_set = set(selected_agent_ids)
     
@@ -125,7 +134,7 @@ def _test_row(
                 div(".flex.items-center.gap-3.min-w-0.flex-1")[
                     _status_icon(first_result),
                     span(".text-text-light.truncate")[test.display_name],
-                    span(".text-yellow-400", title="Results differ between agents")["⚡"] if test.has_difference else None,
+                    _diff_indicator(test.has_difference),
                 ],
                 _test_metrics(first_result),
             ],
@@ -160,8 +169,12 @@ def _group_header(
                 )
         stats_nodes = stats_list
     
+    header_cls = (
+        "group-header px-5 py-3 bg-surface-elevated border-b border-white/10 "
+        "flex justify-between items-center cursor-pointer"
+    )
     return div(
-        class_="group-header px-5 py-3 bg-surface-elevated border-b border-white/10 flex justify-between items-center cursor-pointer",
+        class_=header_cls,
         onclick="toggleGroup(this.parentElement)",
     )[
         div(".flex.items-center.gap-3")[

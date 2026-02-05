@@ -103,13 +103,16 @@ def _single_agent_card(agent: AgentData) -> Node:
     """Render a single agent summary card."""
     status_class = "text-green-400" if agent.pass_rate == 100 else "text-red-400"
     
+    skill_tag = span(".tag.tag-skill")[f"📚 {agent.skill}"] if agent.skill else None
+    prompt_tag = span(".tag.tag-prompt")[f"📝 {agent.prompt_name}"] if agent.prompt_name else None
+    
     return div(".card.p-5")[
         div(".flex.items-center.justify-between")[
             div[
                 div(".text-lg.font-medium.text-text-light")[agent.name],
                 div(".flex.flex-wrap.gap-1.5.mt-2")[
-                    span(".tag.tag-skill")[f"📚 {agent.skill}"] if agent.skill else None,
-                    span(".tag.tag-prompt")[f"📝 {agent.prompt_name}"] if agent.prompt_name else None,
+                    skill_tag,
+                    prompt_tag,
                 ],
             ],
             div(".text-right")[
