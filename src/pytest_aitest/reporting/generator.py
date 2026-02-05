@@ -95,18 +95,29 @@ class ReportGenerator:
             insights: AIInsights object (if None, placeholder is used)
         """
         # Build typed data structures for htpy components
-        context = self._build_report_context(report)
+        context = self._build_report_context(report, insights=insights)
         
         # Render with htpy - htpy automatically outputs doctype lowercase
         html_node = full_report(context)
         html_str = str(html_node)
         Path(output_path).write_text(html_str, encoding="utf-8")
     
-    def _build_report_context(self, report: SuiteReport) -> ReportContext:
+    def _build_report_context(
+        self, 
+        report: SuiteReport, 
+        *, 
+        insights: Any | None = None,
+    ) -> ReportContext:
         """Build typed ReportContext from SuiteReport."""
         # Build report metadata
         ts = report.timestamp
         timestamp_str = ts.isoformat() if isinstance(ts, datetime) else str(ts)
+        
+        # Get analysis cost from insights dict if available
+        analysis_cost = None
+        if insights and isinstance(insights, dict):
+            analysis_cost = insights.get('cost_usd')
+        
         report_meta = ReportMetadata(
             name=report.name,
             timestamp=timestamp_str,
@@ -116,7 +127,7 @@ class ReportGenerator:
             duration_ms=report.duration_ms or 0,
             total_cost_usd=report.total_cost_usd or 0,
             suite_docstring=getattr(report, 'suite_docstring', None),
-            analysis_cost_usd=getattr(getattr(report, 'insights', None), 'cost_usd', None),
+            analysis_cost_usd=analysis_cost,
         )
         
         # Build agents
@@ -127,11 +138,12 @@ class ReportGenerator:
         # Build test groups
         test_groups = self._build_test_groups_typed(report, all_agent_ids, agents_by_id)
         
-        # Build AI insights
+        # Build AI insights from passed-in insights dict
         insights_data = None
-        insights = getattr(report, 'insights', None)
-        if insights and getattr(insights, 'markdown_summary', None):
-            insights_data = AIInsightsData(markdown_summary=insights.markdown_summary)
+        if insights and isinstance(insights, dict):
+            markdown_summary = insights.get('markdown_summary')
+            if markdown_summary:
+                insights_data = AIInsightsData(markdown_summary=markdown_summary)
         
         return ReportContext(
             report=report_meta,
