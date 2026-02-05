@@ -1,0 +1,117 @@
+{# Test comparison - side-by-side expanded view for a single test #}
+{# Expects: test (with results_by_agent), all_agent_ids, selected_agent_ids #}
+
+<div class="comparison-grid grid gap-4 p-5">
+    {% for agent_id in all_agent_ids %}
+    {% set result = test.results_by_agent.get(agent_id) %}
+    {% set is_selected = agent_id in selected_agent_ids %}
+    <div class="comparison-column {{ 'hidden' if not is_selected else '' }} {{ 'border-l-[3px] border-green-500' if result and result.passed else 'border-l-[3px] border-red-500' if result else 'opacity-50' }}" data-agent-id="{{ agent_id }}">
+        {# Agent name + status #}
+        <div class="flex items-center justify-between mb-4">
+            <div class="font-medium text-text-light">{{ agents_by_id[agent_id].name }}</div>
+            {% if result %}
+            <span class="px-2 py-0.5 rounded text-xs font-medium {{ 'bg-green-500/15 text-green-400' if result.passed else 'bg-red-500/15 text-red-400' }}">
+                {{ 'passed' if result.passed else 'failed' }}
+            </span>
+            {% endif %}
+        </div>
+        
+        {% if result %}
+        {# Metrics row #}
+        <div class="grid grid-cols-4 gap-2 mb-4 p-3 bg-surface-elevated rounded-material text-center">
+            <div>
+                <div class="text-sm font-medium text-text-light tabular-nums">{{ "%.2f"|format(result.duration_s) }}s</div>
+                <div class="text-xs text-text-muted">duration</div>
+            </div>
+            <div>
+                <div class="text-sm font-medium text-text-light tabular-nums">{{ result.turns }}</div>
+                <div class="text-xs text-text-muted">turns</div>
+            </div>
+            <div>
+                <div class="text-sm font-medium text-text-light tabular-nums">{{ result.tool_count }}</div>
+                <div class="text-xs text-text-muted">tools</div>
+            </div>
+            <div>
+                <div class="text-sm font-medium text-text-light tabular-nums">{{ format_cost(result.cost) }}</div>
+                <div class="text-xs text-text-muted">cost</div>
+            </div>
+        </div>
+        
+        {# Sequence diagram #}
+        {% if result.mermaid %}
+        <div class="mb-4">
+            <div class="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">Sequence</div>
+            <div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors"
+                 onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);"
+                 data-mermaid-code="{{ result.mermaid | e }}">
+                <div class="mermaid text-xs">{{ result.mermaid | safe }}</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {# Tool calls #}
+        {% if result.tool_calls %}
+        <div class="mb-4">
+            <div class="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">Tool Calls</div>
+            <div class="space-y-1">
+                {% for tc in result.tool_calls %}
+                <div class="flex items-center gap-2 text-sm p-2 rounded {{ 'bg-green-500/5' if tc.success else 'bg-red-500/5' }}">
+                    <span class="{{ 'text-green-400' if tc.success else 'text-red-400' }}">
+                        {{ '✅' if tc.success else '❌' }}
+                    </span>
+                    <code class="tool-name">{{ tc.name }}</code>
+                    {% if tc.error %}
+                    <span class="text-xs text-red-400 truncate" title="{{ tc.error }}">{{ tc.error[:40] }}{{ '...' if tc.error|length > 40 else '' }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {# Assertions #}
+        {% if result.assertions %}
+        <div class="mb-4">
+            <div class="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">✓ Assertions</div>
+            <div class="space-y-1">
+                {% for a in result.assertions %}
+                <div class="flex items-center gap-2 text-sm p-2 rounded {{ 'bg-green-500/5' if a.passed else 'bg-red-500/5' }}">
+                    <span class="{{ 'text-green-400' if a.passed else 'text-red-400' }}">
+                        {{ '✅' if a.passed else '❌' }}
+                    </span>
+                    <code class="text-text-muted">{{ a.type }}</code>
+                    <span class="text-text">{{ a.message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {# Final response #}
+        {% if result.final_response %}
+        <div class="mb-4">
+            <div class="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">💬 Response</div>
+            <div class="p-3 bg-surface-elevated rounded-material text-sm text-text">
+                {{ result.final_response[:500] }}{{ '...' if result.final_response|length > 500 else '' }}
+            </div>
+        </div>
+        {% endif %}
+        
+        {# Error if failed #}
+        {% if result.error %}
+        <div>
+            <div class="text-xs font-medium text-red-400 uppercase tracking-wider mb-2">❌ Error</div>
+            <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-material text-sm text-red-300">
+                {{ result.error }}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center text-text-muted py-8">
+            No result for this agent
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,83 @@
+{# Agent Leaderboard - ranked table with medals #}
+{# Expects: agents (list sorted by pass_rate desc, cost asc) #}
+
+{% if agents | length > 1 %}
+<div class="card overflow-hidden">
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th class="w-10"></th>
+                <th>Agent</th>
+                <th class="text-center">Tests</th>
+                <th class="text-center">Pass Rate</th>
+                <th class="text-right">Tokens</th>
+                <th class="text-right">Cost</th>
+                <th class="text-right">Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for agent in agents %}
+            <tr class="{{ 'winner-row' if loop.first else '' }}">
+                <td class="text-center text-xl">
+                    {% if loop.index == 1 %}🥇
+                    {% elif loop.index == 2 %}🥈
+                    {% elif loop.index == 3 %}🥉
+                    {% else %}{{ loop.index }}
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="font-medium text-text-light">{{ agent.name }}</div>
+                    <div class="flex flex-wrap gap-1.5 mt-1">
+                        {% if agent.skill %}
+                        <span class="tag tag-skill">📚 {{ agent.skill }}</span>
+                        {% endif %}
+                        {% if agent.prompt_name %}
+                        <span class="tag tag-prompt">📝 {{ agent.prompt_name }}</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="text-center tabular-nums">
+                    <span class="text-green-400">{{ agent.passed }}</span>/<span class="text-text-muted">{{ agent.total }}</span>
+                </td>
+                <td class="text-center">
+                    <span class="{{ 'text-green-400' if agent.pass_rate == 100 else 'text-yellow-400' if agent.pass_rate >= 80 else 'text-red-400' }} font-semibold tabular-nums">
+                        {{ "%.0f"|format(agent.pass_rate) }}%
+                    </span>
+                </td>
+                <td class="text-right tabular-nums text-text-muted">
+                    {{ "{:,}".format(agent.tokens) }}
+                </td>
+                <td class="text-right tabular-nums text-text-muted">
+                    {{ format_cost(agent.cost) }}
+                </td>
+                <td class="text-right tabular-nums text-text-muted">
+                    {{ "%.1f"|format(agent.duration_s) }}s
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% elif agents | length == 1 %}
+<div class="card p-5">
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="text-lg font-medium text-text-light">{{ agents[0].name }}</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+                {% if agents[0].skill %}
+                <span class="tag tag-skill">📚 {{ agents[0].skill }}</span>
+                {% endif %}
+                {% if agents[0].prompt_name %}
+                <span class="tag tag-prompt">📝 {{ agents[0].prompt_name }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="{{ 'text-green-400' if agents[0].pass_rate == 100 else 'text-red-400' }} text-2xl font-semibold tabular-nums">
+                {{ agents[0].passed }}/{{ agents[0].total }}
+            </div>
+            <div class="text-sm text-text-muted">{{ format_cost(agents[0].cost) }} · {{ "{:,}".format(agents[0].tokens) }} tok</div>
+        </div>
+    </div>
+</div>
+{% endif %}

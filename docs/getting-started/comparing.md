@@ -100,18 +100,22 @@ This runs 4 tests:
 
 - You want to test all combinations systematically
 - Looking for interactions (e.g., "this MCP server works with gpt-4.1 but fails with gpt-5-mini")
-- Running a full matrix evaluation
+- Comparing multiple dimensions at once
 
 ## What the Report Shows
 
-The report shows a **Configuration Leaderboard**:
+The report shows an **Agent Leaderboard** (auto-detected when multiple agents are tested):
 
-| Configuration | Pass Rate | Tokens | Cost |
-|---------------|-----------|--------|------|
+| Agent | Pass Rate | Tokens | Cost |
+|-------|-----------|--------|------|
 | gpt-5-mini-brief | 100% | 747 | $0.002 |
 | gpt-4.1-brief | 100% | 560 | $0.008 |
 | gpt-5-mini-detailed | 100% | 1,203 | $0.004 |
 | gpt-4.1-detailed | 100% | 892 | $0.012 |
+
+**Winning agent:** Highest pass rate → lowest cost (tiebreaker).
+
+Use `--aitest-min-pass-rate=N` to disqualify agents below N% (default: all shown).
 
 This helps you answer:
 
@@ -122,9 +126,8 @@ This helps you answer:
 ## Next Steps
 
 - [Multi-Turn Sessions](sessions.md) — Test conversations with context
-- [Full Matrix Testing](matrix.md) — Compare MCP servers, models, and prompts
+- [A/B Testing Servers](ab-testing-servers.md) — Compare server implementations
 
 > 📁 **Real Examples:**
-> - [test_model_benchmark.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_model_benchmark.py) — Model comparison
-> - [test_prompt_arena.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_prompt_arena.py) — Prompt comparison
-> - [test_matrix.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_matrix.py) — Full model × prompt matrix
+> - [test_basic_usage.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_basic_usage.py) — Single agent workflows
+> - [test_dimension_detection.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_dimension_detection.py) — Multi-dimension comparison

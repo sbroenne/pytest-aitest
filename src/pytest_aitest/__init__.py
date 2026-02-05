@@ -31,6 +31,7 @@ from pytest_aitest.core import (  # noqa: E402
     load_prompt,
     load_prompts,
     load_skill,
+    load_system_prompts,
 )
 
 # Execution
@@ -38,15 +39,13 @@ from pytest_aitest.execution import AgentEngine, RetryConfig, ServerManager  # n
 
 # Reporting
 from pytest_aitest.reporting import (  # noqa: E402
-    DimensionAggregator,
     ReportCollector,
     ReportGenerator,
     SuiteReport,
-    TestDimensions,
     TestReport,
 )
 
-__all__ = [  # noqa: RUF022 - intentionally grouped by category
+__all__ = [  # noqa: RUF022
     # Core
     "Agent",
     "AgentResult",
@@ -68,17 +67,16 @@ __all__ = [  # noqa: RUF022 - intentionally grouped by category
     "Wait",
     "load_prompt",
     "load_prompts",
+    "load_system_prompts",
     "load_skill",
     # Execution
     "AgentEngine",
     "RetryConfig",
     "ServerManager",
     # Reporting
-    "DimensionAggregator",
     "ReportCollector",
     "ReportGenerator",
     "SuiteReport",
-    "TestDimensions",
     "TestReport",
 ]
 

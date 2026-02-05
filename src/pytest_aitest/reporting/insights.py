@@ -9,11 +9,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pytest_aitest.core.auth import get_azure_ad_token_provider
-from pytest_aitest.models import (
-    AIInsights,
-    AnalysisMetadata,
-    Recommendation,
-)
 
 if TYPE_CHECKING:
     from pytest_aitest.core.result import SkillInfo, ToolInfo
@@ -53,6 +48,13 @@ def _build_analysis_input(
             sections.append(f"- Error: {test.error}")
         if test.agent_result:
             ar = test.agent_result
+            # Include agent identity for this specific test
+            if ar.agent_name:
+                sections.append(f"- Agent: {ar.agent_name}")
+            if ar.model:
+                sections.append(f"- Model: {ar.model}")
+            if ar.skill_info:
+                sections.append(f"- Skill: {ar.skill_info.name}")
             sections.append(f"- Duration: {ar.duration_ms:.0f}ms")
             # token_usage is a dict with 'prompt', 'completion' keys
             total_tokens = ar.token_usage.get("prompt", 0) + ar.token_usage.get("completion", 0)
@@ -60,6 +62,12 @@ def _build_analysis_input(
             sections.append(f"- Cost: ${ar.cost_usd:.6f}")
             if ar.tool_names_called:
                 sections.append(f"- Tools called: {', '.join(ar.tool_names_called)}")
+            # Include system prompt excerpt if present
+            if ar.effective_system_prompt:
+                prompt_excerpt = ar.effective_system_prompt[:300]
+                if len(ar.effective_system_prompt) > 300:
+                    prompt_excerpt += "..."
+                sections.append(f"- System prompt: {prompt_excerpt}")
             # Include conversation
             sections.append("\n**Conversation:**")
             for turn in ar.turns:
@@ -128,25 +136,25 @@ def _get_results_hash(suite_report: SuiteReport) -> str:
     return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
-def create_placeholder_insights() -> AIInsights:
+def create_placeholder_insights() -> dict[str, Any]:
     """Create placeholder insights for internal use only.
     
     Note: AI analysis is mandatory for report generation, so this
     should only be used internally (e.g., in model converter for 
     backwards compatibility with old fixtures).
     """
-    return AIInsights(
-        recommendation=Recommendation(
-            configuration="(no analysis)",
-            summary="AI analysis required for reports",
-            reasoning="This is a placeholder - reports require AI analysis.",
-        ),
-        failures=[],
-        mcp_feedback=[],
-        prompt_feedback=[],
-        skill_feedback=[],
-        optimizations=[],
-    )
+    return {
+        "recommendation": {
+            "configuration": "(no analysis)",
+            "summary": "AI analysis required for reports",
+            "reasoning": "This is a placeholder - reports require AI analysis.",
+        },
+        "failures": [],
+        "mcp_feedback": [],
+        "prompt_feedback": [],
+        "skill_feedback": [],
+        "optimizations": [],
+    }
 
 
 async def generate_insights(
@@ -156,7 +164,7 @@ async def generate_insights(
     prompts: dict[str, str] | None = None,
     model: str = "azure/gpt-5-mini",
     cache_dir: Path | None = None,
-) -> tuple[AIInsights, AnalysisMetadata]:
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Generate structured AI insights from test results.
 
     Args:
@@ -186,21 +194,32 @@ async def generate_insights(
         try:
             cached = json.loads(cache_path.read_text())
             return (
-                AIInsights.model_validate(cached["insights"]),
-                AnalysisMetadata(
-                    model=cached.get("model"),
-                    tokens_used=cached.get("tokens_used"),
-                    cost_usd=cached.get("cost_usd"),
-                    duration_ms=cached.get("duration_ms"),
-                    cached=True,
-                ),
+                cached.get("insights", {}),
+                {
+                    "model": cached.get("model"),
+                    "tokens_used": cached.get("tokens_used"),
+                    "cost_usd": cached.get("cost_usd"),
+                    "duration_ms": cached.get("duration_ms"),
+                    "cached": True,
+                },
             )
         except Exception:
             _logger.debug("Cache invalid, regenerating insights", exc_info=True)
 
     # Build prompt
     prompt_template = _load_analysis_prompt()
-    schema_json = json.dumps(AIInsights.model_json_schema(), indent=2)
+    # Use plain JSON schema instead of Pydantic
+    schema_json = json.dumps({
+        "type": "object",
+        "properties": {
+            "recommendation": {"type": "object"},
+            "failures": {"type": "array"},
+            "mcp_feedback": {"type": "array"},
+            "prompt_feedback": {"type": "array"},
+            "skill_feedback": {"type": "array"},
+            "optimizations": {"type": "array"},
+        }
+    }, indent=2)
     prompt = prompt_template.replace("{schema}", schema_json)
 
     # Build analysis input
@@ -243,24 +262,24 @@ async def generate_insights(
             if hasattr(response, "_hidden_params"):
                 total_cost = response._hidden_params.get("response_cost", 0.0) or 0.0
 
-            # Parse response
+            # Parse response as dict
             content = response.choices[0].message.content
-            insights = AIInsights.model_validate_json(content)
+            insights = json.loads(content)
 
             duration_ms = (time.perf_counter() - start_time) * 1000
-            metadata = AnalysisMetadata(
-                model=model,
-                tokens_used=total_tokens,
-                cost_usd=total_cost,
-                duration_ms=duration_ms,
-                cached=False,
-            )
+            metadata = {
+                "model": model,
+                "tokens_used": total_tokens,
+                "cost_usd": total_cost,
+                "duration_ms": duration_ms,
+                "cached": False,
+            }
 
             # Save to cache
             if cache_path:
                 cache_path.parent.mkdir(parents=True, exist_ok=True)
                 cache_data = {
-                    "insights": insights.model_dump(),
+                    "insights": insights,
                     "model": model,
                     "tokens_used": total_tokens,
                     "cost_usd": total_cost,

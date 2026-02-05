@@ -143,10 +143,11 @@ The skill content is prepended to the system prompt, giving the LLM domain knowl
 
 ## Rate Limiting & Retries
 
-The engine handles transient failures:
+LiteLLM handles transient failures automatically via its built-in `num_retries` parameter:
 
-- **429 Too Many Requests**: Exponential backoff with jitter
-- **Connection errors**: Retry with configurable limits
-- **Timeout**: Configurable per-request timeout
+- **429 Too Many Requests**: Automatic retry with backoff
+- **Connection errors**: Automatic retry
+- **API errors**: Automatic retry for transient failures
 
-See [Configuration](../reference/configuration.md) for retry settings.
+By default, pytest-aitest uses 3 retries. This is handled internally by LiteLLM using [tenacity](https://tenacity.readthedocs.io/).
+

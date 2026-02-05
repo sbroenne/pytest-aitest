@@ -63,12 +63,6 @@ def pytest_addoption(parser: Parser) -> None:
         default=None,
         help="Generate JSON report to given path (e.g., results.json)",
     )
-    group.addoption(
-        "--aitest-md",
-        metavar="PATH",
-        default=None,
-        help="Generate Markdown report to given path (e.g., report.md)",
-    )
 
 
 def pytest_configure(config: Config) -> None:
@@ -193,8 +187,28 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     if func is not None and func.__doc__:
         docstring = func.__doc__
 
-    # Extract model and prompt from parametrized test node ID
+    # Build metadata from agent_result (source of truth) with fallback to parsing
     metadata = _extract_metadata_from_nodeid(item.nodeid)
+    
+    # Override with actual values from agent_result if available
+    if agent_result:
+        if agent_result.agent_name:
+            metadata["agent_name"] = agent_result.agent_name
+        if agent_result.model:
+            metadata["model"] = agent_result.model
+        if agent_result.skill_info:
+            metadata["skill"] = agent_result.skill_info.name
+
+    # Extract assertions from agent_result
+    assertions = []
+    if agent_result and hasattr(agent_result, 'assertions') and agent_result.assertions:
+        for a in agent_result.assertions:
+            assertions.append({
+                "type": a.type,
+                "passed": a.passed,
+                "message": a.message,
+                "details": a.details,
+            })
 
     # Create test report
     test_report = TestReport(
@@ -203,6 +217,7 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         duration_ms=report.duration * 1000,
         agent_result=agent_result,
         error=str(report.longrepr) if report.failed else None,
+        assertions=assertions,
         docstring=docstring,
         metadata=metadata,
     )
@@ -220,7 +235,6 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     html_path = config.getoption("--aitest-html")
     json_path = config.getoption("--aitest-json")
-    md_path = config.getoption("--aitest-md")
 
     # Default paths - JSON is always generated
     default_dir = Path("aitest-reports")
@@ -233,9 +247,9 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     generator = ReportGenerator()
 
-    # Generate AI insights (mandatory for HTML and MD reports)
+    # Generate AI insights (mandatory for HTML reports)
     insights = None
-    if html_path or md_path:
+    if html_path:
         insights = _generate_structured_insights(config, suite_report, required=True)
 
     # Always generate JSON report (to default or custom path)
@@ -250,13 +264,6 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         generator.generate_html(suite_report, path, insights=insights)
         _log_report_path(config, "HTML", path)
-
-    # Generate Markdown report
-    if md_path:
-        path = Path(md_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_markdown(suite_report, path, insights=insights)
-        _log_report_path(config, "Markdown", path)
 
 
 def _log_report_path(config: Config, format_name: str, path: Path) -> None:
@@ -345,9 +352,13 @@ def _generate_structured_insights(
             "terminalreporter"
         )
         if terminalreporter:
-            tokens_str = f"{metadata.tokens_used:,}" if metadata.tokens_used else "N/A"
-            cost_str = f"${metadata.cost_usd:.4f}" if metadata.cost_usd else "N/A"
-            cached_str = " (cached)" if metadata.cached else ""
+            tokens_used = metadata.get("tokens_used") if isinstance(metadata, dict) else metadata.tokens_used
+            cost_usd = metadata.get("cost_usd") if isinstance(metadata, dict) else metadata.cost_usd
+            cached = metadata.get("cached") if isinstance(metadata, dict) else metadata.cached
+            
+            tokens_str = f"{tokens_used:,}" if tokens_used else "N/A"
+            cost_str = f"${cost_usd:.4f}" if cost_usd else "N/A"
+            cached_str = " (cached)" if cached else ""
             terminalreporter.write_line(
                 f"\nAI Insights generated{cached_str}: {tokens_str} tokens, {cost_str}"
             )
@@ -368,137 +379,6 @@ def _generate_structured_insights(
         )
         if terminalreporter:
             terminalreporter.write_line(f"Warning: AI insights generation failed: {e}")
-        return None
-
-
-def _generate_ai_summary(config: Config, report: SuiteReport) -> str | None:
-    """Generate AI-powered summary of test results.
-
-    Uses the structured AI summary prompt from prompts/ai_summary.md.
-    Auto-detects single-model vs multi-model evaluation context.
-
-    Authentication is handled by LiteLLM via standard environment variables:
-    - Azure: AZURE_API_BASE + `az login` (Entra ID)
-    - OpenAI: OPENAI_API_KEY
-    - Anthropic: ANTHROPIC_API_KEY
-
-    Returns the summary text or None if generation fails.
-    """
-    try:
-        import litellm
-
-        from pytest_aitest.prompts import get_ai_summary_prompt
-
-        # Require dedicated summary model - no fallback
-        model = config.getoption("--aitest-summary-model")
-        if not model:
-            terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
-                "terminalreporter"
-            )
-            if terminalreporter:
-                terminalreporter.write_line(
-                    "\nAI Summary: Skipped - --aitest-summary-model not specified."
-                    "\nUse a capable model like azure/gpt-4.1 or openai/gpt-4o.",
-                    yellow=True,
-                )
-            return None
-
-        # Load the system prompt
-        system_prompt = get_ai_summary_prompt()
-
-        # Detect evaluation context using populated metadata
-        detected_models = report.models_used
-        is_multi_model = len(detected_models) > 1
-        context_hint = (
-            "**Context: Multi-Model Comparison** - Compare the MODELS and recommend which to use."
-            if is_multi_model
-            else "**Context: Single-Model Evaluation** - Assess the model's fitness for this task."
-        )
-
-        # Build test results summary using human-readable names (docstrings)
-        # Include model info from metadata
-        test_lines = []
-        for t in report.tests:
-            line = f"- {t.display_name}: {t.outcome}"
-            if t.model:
-                line = f"- [{t.model}] {t.display_name}: {t.outcome}"
-            if t.error:
-                line += f" ({t.error[:100]})"
-            test_lines.append(line)
-        test_summary = "\n".join(test_lines)
-
-        # Build per-model breakdown for multi-model scenarios
-        model_breakdown = ""
-        if is_multi_model and report.tests:
-            from collections import defaultdict
-
-            model_stats: dict[str, dict[str, int | float]] = defaultdict(
-                lambda: {"passed": 0, "failed": 0, "tokens": 0, "cost": 0.0}
-            )
-            for t in report.tests:
-                if t.model:
-                    model_stats[t.model]["passed" if t.outcome == "passed" else "failed"] += 1
-                    model_stats[t.model]["tokens"] += t.tokens_used or 0
-                    if t.agent_result:
-                        model_stats[t.model]["cost"] += t.agent_result.cost_usd
-
-            lines = ["**Per-Model Breakdown:**"]
-            for m, stats in sorted(model_stats.items()):
-                total = stats["passed"] + stats["failed"]
-                rate = (stats["passed"] / total * 100) if total > 0 else 0
-                cost_str = f"${stats['cost']:.4f}" if stats["cost"] > 0 else "N/A"
-                lines.append(
-                    f"- **{m}**: {rate:.0f}% pass ({stats['passed']}/{total}), "
-                    f"{stats['tokens']:,} tokens, {cost_str}"
-                )
-            model_breakdown = "\n".join(lines)
-
-        models_info = f"Models tested: {', '.join(detected_models)}" if detected_models else ""
-        prompts_info = (
-            f"Prompts tested: {', '.join(report.prompts_used)}" if report.prompts_used else ""
-        )
-        files_info = f"Test files: {', '.join(report.test_files)}" if report.test_files else ""
-
-        user_content = f"""{context_hint}
-
-**Test Suite:** {report.name}
-**Pass Rate:** {report.pass_rate:.1f}% ({report.passed}/{report.total} tests passed)
-**Duration:** {report.duration_ms / 1000:.1f}s total
-**Tokens Used:** {report.total_tokens:,} tokens
-**Tool Calls:** {report.tool_call_count} total
-{models_info}
-{prompts_info}
-{files_info}
-{model_breakdown}
-
-**Test Results:**
-{test_summary}
-"""
-
-        # Build proper system/user messages
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ]
-
-        # Set up Azure Entra ID auth if needed
-        from pytest_aitest.core.auth import get_azure_auth_kwargs
-
-        kwargs = get_azure_auth_kwargs(model)
-
-        response = litellm.completion(
-            model=model,
-            messages=messages,
-            **kwargs,
-        )
-
-        return response.choices[0].message.content or ""  # type: ignore[union-attr]
-    except Exception as e:
-        terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
-            "terminalreporter"
-        )
-        if terminalreporter:
-            terminalreporter.write_line(f"Warning: AI summary generation failed: {e}")
         return None
 
 

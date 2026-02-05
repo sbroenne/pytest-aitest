@@ -178,7 +178,7 @@ Description is clear and well-targeted.
 
 ## Next Steps
 
-- [Full Matrix Testing](matrix.md) — Combine servers, models, and prompts
+- [Comparing Configurations](comparing.md) — More comparison patterns
 - [Generate Reports](../how-to/generate-reports.md) — Get AI insights on your comparison
 
 > 📁 **Real Example:** [test_ab_servers.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_ab_servers.py) — Server version comparison and tool description impact testing

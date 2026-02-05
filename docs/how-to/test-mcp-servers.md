@@ -2,36 +2,49 @@
 
 Test your Model Context Protocol (MCP) servers by running LLM agents against them.
 
-## Basic Setup
+## How It Works
+
+pytest-aitest uses the [official MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) to connect to MCP servers:
+
+1. **Connects** to the server (local subprocess or remote endpoint)
+2. **Discovers tools** via MCP protocol
+3. **Routes tool calls** from the LLM to the server
+4. **Returns results** back to the LLM
+
+All three MCP transports are supported:
+
+| Transport | Use Case |
+|-----------|----------|
+| **stdio** | Local subprocess (default) |
+| **SSE** | Remote HTTP server (Server-Sent Events) |
+| **Streamable HTTP** | Remote HTTP server (bidirectional) |
+
+## Local Servers (Subprocess)
+
+The most common pattern — start an MCP server as a subprocess:
 
 ```python
-from pytest_aitest import MCPServer
+import pytest
+from pytest_aitest import MCPServer, Wait
 
 @pytest.fixture(scope="module")
 def weather_server():
     return MCPServer(
         command=["python", "-m", "my_weather_mcp"],
+        wait=Wait.for_tools(["get_weather"]),
     )
 ```
 
-## How It Works
-
-MCP servers expose tools via the Model Context Protocol. pytest-aitest:
-
-1. **Starts the server** as a subprocess
-2. **Discovers tools** via MCP protocol
-3. **Routes tool calls** from the LLM to the server
-4. **Returns results** back to the LLM
-
-## Configuration Options
+### Configuration Options
 
 ```python
 MCPServer(
     command=["python", "-m", "server"],  # Command to start server (required)
-    args=["--debug"],                     # Additional arguments (optional)
-    env={"API_KEY": "xxx"},               # Environment variables (optional)
-    cwd="/path/to/server",                # Working directory (optional)
-    wait=Wait.for_tools(["tool1"]),       # Wait condition (optional)
+    args=["--debug"],                     # Additional arguments
+    env={"API_KEY": "xxx"},               # Environment variables
+    cwd="/path/to/server",                # Working directory
+    wait=Wait.for_tools(["tool1"]),       # Wait condition
+    name="my-server",                     # Name for reports (auto-derived if omitted)
 )
 ```
 
@@ -39,57 +52,129 @@ MCPServer(
 |--------|-------------|---------|
 | `command` | Command to start the MCP server | Required |
 | `args` | Additional command-line arguments | `[]` |
-| `env` | Environment variables | `{}` |
+| `env` | Environment variables (supports `${VAR}` expansion) | `{}` |
 | `cwd` | Working directory | Current directory |
 | `wait` | Wait condition for server startup | `Wait.ready()` |
+| `name` | Server name for reports | Derived from command |
 
-## Wait Strategies
+### Wait Strategies
 
 Control how pytest-aitest waits for the server to be ready.
 
-### Wait.ready()
-
-Wait briefly for the process to start (default):
+**Wait.ready()** — Wait briefly for the process to start (default):
 
 ```python
-MCPServer(
-    command=["python", "-m", "server"],
-    wait=Wait.ready(),  # Default: quick startup
-)
+wait=Wait.ready()
 ```
 
-### Wait.for_tools()
-
-Wait until specific tools are available (recommended):
+**Wait.for_tools()** — Wait until specific tools are available (recommended):
 
 ```python
-MCPServer(
-    command=["python", "-m", "server"],
-    wait=Wait.for_tools(["get_weather", "set_reminder"]),
-)
+wait=Wait.for_tools(["get_weather", "set_reminder"])
 ```
 
-### Wait.for_log()
-
-Wait for a specific log pattern (regex):
+**Wait.for_log()** — Wait for a specific log pattern (regex):
 
 ```python
-MCPServer(
-    command=["python", "-m", "server"],
-    wait=Wait.for_log(r"Server started on port \d+"),
-)
+wait=Wait.for_log(r"Server started on port \d+")
 ```
-
-### Custom Timeout
 
 All wait strategies accept a timeout:
 
 ```python
+wait=Wait.for_tools(["tool1"], timeout_ms=60000)  # 60 seconds
+```
+
+### NPX-based Servers
+
+```python
+@pytest.fixture(scope="module")
+def filesystem_server():
+    return MCPServer(
+        command=["npx", "-y", "@modelcontextprotocol/server-filesystem"],
+        args=["/tmp/workspace"],
+        wait=Wait.for_tools(["read_file", "write_file"]),
+    )
+```
+
+### Environment Variables
+
+```python
+import os
+
+@pytest.fixture(scope="module")
+def api_server():
+    return MCPServer(
+        command=["python", "-m", "my_api_server"],
+        env={
+            "API_BASE_URL": "https://api.example.com",
+            "API_KEY": os.environ["MY_API_KEY"],
+        },
+    )
+```
+
+## Remote Servers (SSE / HTTP)
+
+Connect to MCP servers running remotely via **SSE** or **Streamable HTTP** transports:
+
+```python
+from pytest_aitest import MCPServer, MCPTransport
+
+@pytest.fixture(scope="module")
+def remote_server():
+    return MCPServer(
+        url="http://localhost:8080/sse",
+        name="my-remote-server",
+    )
+```
+
+### Transports
+
+**SSE (Server-Sent Events)** — Default for remote servers:
+
+```python
 MCPServer(
-    command=["python", "-m", "server"],
-    wait=Wait.for_tools(["tool1"], timeout_ms=60000),  # 60 seconds
+    url="http://localhost:8080/sse",
+    transport=MCPTransport.SSE,  # Auto-detected if omitted
 )
 ```
+
+**Streamable HTTP** — Newer bidirectional protocol:
+
+```python
+MCPServer(
+    url="https://api.example.com/mcp",
+    transport=MCPTransport.STREAMABLE_HTTP,
+)
+```
+
+### Authentication
+
+Pass headers for authentication:
+
+```python
+@pytest.fixture(scope="module")
+def authenticated_server():
+    return MCPServer(
+        url="https://api.example.com/mcp",
+        headers={
+            "Authorization": "Bearer ${API_TOKEN}",  # Env var expansion
+            "X-Custom-Header": "value",
+        },
+    )
+```
+
+### Configuration Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `url` | Server endpoint URL | Required |
+| `transport` | `MCPTransport.SSE` or `MCPTransport.STREAMABLE_HTTP` | Auto-detected |
+| `headers` | HTTP headers (supports `${VAR}` expansion) | `{}` |
+| `name` | Server name for reports | Derived from URL |
+
+!!! note "Local vs Remote"
+    `MCPServer` accepts either `command` (local subprocess) or `url` (remote endpoint), not both.
 
 ## Complete Example
 
@@ -122,19 +207,9 @@ async def test_weather_query(aitest_run, weather_agent):
     assert result.tool_was_called("get_weather")
 ```
 
-## NPX-based Servers
-
-```python
-@pytest.fixture(scope="module")
-def filesystem_server():
-    return MCPServer(
-        command=["npx", "-y", "@modelcontextprotocol/server-filesystem"],
-        args=["/tmp/workspace"],
-        wait=Wait.for_tools(["read_file", "write_file", "list_directory"]),
-    )
-```
-
 ## Multiple Servers
+
+Combine multiple MCP servers in a single agent:
 
 ```python
 @pytest.fixture(scope="module")
@@ -162,20 +237,46 @@ def assistant_agent(weather_server, calendar_server):
     )
 ```
 
-## Environment Variables
+## Advanced Features
+
+### Filtering Tools
+
+Use `allowed_tools` on the Agent to limit which tools are exposed to the LLM. This reduces token usage and focuses the agent.
 
 ```python
-@pytest.fixture(scope="module")
-def api_server():
-    return MCPServer(
-        command=["python", "-m", "my_api_server"],
-        env={
-            "API_BASE_URL": "https://api.example.com",
-            "API_KEY": os.environ["MY_API_KEY"],
-        },
-        wait=Wait.for_tools(["query_api"]),
+@pytest.fixture
+def balance_agent(banking_server):
+    # banking_server has 16 tools, but this test only needs 2
+    return Agent(
+        name="balance-checker",
+        provider=Provider(model="azure/gpt-5-mini"),
+        mcp_servers=[banking_server],
+        allowed_tools=["get_balance", "get_all_balances"],
+        system_prompt="You check account balances.",
     )
 ```
+
+### MCP Prompts and Resources
+
+The MCP protocol also supports **prompts** (reusable templates) and **resources** (exposed data). Enable discovery with:
+
+```python
+MCPServer(
+    command=["python", "-m", "my_server"],
+    discover_prompts=True,   # Enable prompts/list
+    discover_resources=True,  # Enable resources/list
+)
+```
+
+When enabled, the agent gets virtual tools:
+
+| Feature | Virtual Tools |
+|---------|---------------|
+| Prompts | `list_mcp_prompts`, `get_mcp_prompt` |
+| Resources | `list_mcp_resources`, `read_mcp_resource` |
+
+!!! tip "Most MCP servers only use tools"
+    Prompts and resources are less common. Only enable discovery if your server uses them — it adds startup latency and token overhead.
 
 ## Troubleshooting
 
@@ -209,17 +310,19 @@ MCPServer(
 )
 ```
 
-### Environment Variables Not Set
+### Remote Connection Failed
 
-Pass them explicitly:
+Verify the server is running and the URL is correct:
+
+```bash
+curl http://localhost:8080/sse
+```
+
+For authenticated endpoints, check that environment variables are set:
 
 ```python
 MCPServer(
-    command=["python", "-m", "server"],
-    env={
-        "PATH": os.environ["PATH"],
-        "HOME": os.environ["HOME"],
-        "MY_VAR": "value",
-    },
+    url="https://api.example.com/mcp",
+    headers={"Authorization": "Bearer ${API_TOKEN}"},  # Requires API_TOKEN env var
 )
 ```

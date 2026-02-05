@@ -40,13 +40,13 @@ def generate_html(json_path: Path, output_dir: Path) -> Path:
     Returns:
         Path to generated HTML file
     """
-    # Load the fixture
-    report, ai_summary = load_suite_report(json_path)
+    # Load the fixture (returns 3-tuple: report, ai_summary, insights)
+    report, ai_summary, insights = load_suite_report(json_path)
     
     # Generate HTML
     output_path = output_dir / f"{json_path.stem}.html"
     generator = ReportGenerator()
-    generator.generate_html(report, output_path, ai_summary=ai_summary)
+    generator.generate_html(report, output_path, insights=insights)
     
     return output_path
 
@@ -63,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--fixture", "-f",
         type=str,
-        help="Generate specific fixture (e.g., '01' for 01_basic_usage.json)"
+        help="Generate specific fixture (e.g., '01' for 01_single_agent.json)"
     )
     parser.add_argument(
         "--output", "-d",

@@ -35,6 +35,54 @@ description: Guidelines for interpreting weather data
 For clothing recommendations, use the reference document.
 ```
 
+## Skill References
+
+References are documents the agent can look up **on demand** rather than having them always in context. When a skill has a `references/` directory, two virtual tools are automatically injected:
+
+| Tool | Description |
+|------|-------------|
+| `list_skill_references` | Lists available reference documents |
+| `read_skill_reference` | Reads a specific document by filename |
+
+### Example Reference Document
+
+```markdown title="references/clothing-guide.md"
+# Clothing Guide by Temperature
+
+## Freezing (Below 0°C)
+- Heavy winter coat, insulated
+- Thermal layers underneath
+- Hat, gloves, scarf essential
+- Waterproof boots
+
+## Cold (0-10°C)
+- Warm jacket or coat
+- Sweater or fleece layer
+- Light gloves optional
+...
+```
+
+### How the Agent Uses References
+
+When you tell the skill to "use the reference document for clothing recommendations", the agent will:
+
+1. Call `list_skill_references()` → sees `clothing-guide.md`
+2. Call `read_skill_reference(filename="clothing-guide.md")` → gets the content
+3. Use that content to formulate a detailed response
+
+This keeps your base prompt lean while providing detailed information when needed.
+
+### When to Use References vs Instructions
+
+| Use Instructions (SKILL.md) | Use References |
+|-----------------------------|----------------|
+| Core decision logic | Detailed lookup tables |
+| Always-needed context | Supplementary details |
+| Short, critical rules | Long documentation |
+| < 500 tokens | > 500 tokens per doc |
+
+**Example**: Put temperature interpretation rules in SKILL.md, but detailed clothing recommendations in `references/clothing-guide.md`.
+
 ## Using a Skill
 
 ```python

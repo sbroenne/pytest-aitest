@@ -1,4 +1,4 @@
-"""Model benchmark tests - compare multiple LLMs.
+"""Model benchmark tests - compare multiple LLMs and skills.
 
 Use @pytest.mark.parametrize to run the same test across multiple models.
 The report auto-detects this and shows a model comparison table.
@@ -8,13 +8,26 @@ Run with: pytest tests/integration/test_model_benchmark.py -v --aitest-html=repo
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
-from pytest_aitest import Agent, Provider
+from pytest_aitest import Agent, Provider, Skill
 
-from .conftest import BENCHMARK_MODELS, DEFAULT_RPM, DEFAULT_TPM, WEATHER_PROMPT
+from .conftest import DEFAULT_RPM, DEFAULT_TPM, WEATHER_PROMPT
 
 pytestmark = [pytest.mark.integration, pytest.mark.benchmark]
+
+# Load weather expert skill
+SKILLS_DIR = Path(__file__).parent / "skills"
+WEATHER_SKILL = Skill.from_path(SKILLS_DIR / "weather-expert")
+
+# Agent configurations: (model, skill, name_suffix)
+AGENT_CONFIGS = [
+    ("gpt-5-mini", None, "gpt-5-mini"),
+    ("gpt-4.1-mini", None, "gpt-4.1-mini"),
+    ("gpt-5-mini", WEATHER_SKILL, "gpt-5-mini+skill"),
+]
 
 
 class TestModelBenchmark:
@@ -24,17 +37,19 @@ class TestModelBenchmark:
     - Pass rate per model
     - Token usage per model
     - Cost per model
+    - Skill effectiveness
     """
 
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    @pytest.mark.parametrize("model,skill,agent_name", AGENT_CONFIGS)
     @pytest.mark.asyncio
-    async def test_simple_weather_query(self, aitest_run, weather_server, model):
+    async def test_simple_weather_query(self, aitest_run, weather_server, model, skill, agent_name):
         """Basic weather lookup - all models should pass this."""
         agent = Agent(
-            name=f"weather-simple-{model}",
+            name=agent_name,
             provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
             system_prompt=WEATHER_PROMPT,
+            skill=skill,
             max_turns=5,
         )
 
@@ -43,15 +58,16 @@ class TestModelBenchmark:
         assert result.success
         assert result.tool_was_called("get_weather")
 
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    @pytest.mark.parametrize("model,skill,agent_name", AGENT_CONFIGS)
     @pytest.mark.asyncio
-    async def test_multi_city_comparison(self, aitest_run, weather_server, model):
+    async def test_multi_city_comparison(self, aitest_run, weather_server, model, skill, agent_name):
         """Compare weather in two cities - tests reasoning."""
         agent = Agent(
-            name=f"weather-compare-{model}",
+            name=agent_name,
             provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
             system_prompt=WEATHER_PROMPT,
+            skill=skill,
             max_turns=5,
         )
 
@@ -63,15 +79,16 @@ class TestModelBenchmark:
         # Response should answer the question
         assert "tokyo" in result.final_response.lower()
 
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    @pytest.mark.parametrize("model,skill,agent_name", AGENT_CONFIGS)
     @pytest.mark.asyncio
-    async def test_forecast_interpretation(self, aitest_run, weather_server, model):
+    async def test_forecast_interpretation(self, aitest_run, weather_server, model, skill, agent_name):
         """Forecast + interpretation - tests comprehension."""
         agent = Agent(
-            name=f"weather-forecast-{model}",
+            name=agent_name,
             provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
             system_prompt=WEATHER_PROMPT,
+            skill=skill,
             max_turns=5,
         )
 

@@ -1,4 +1,4 @@
-# How to Generate Reports
+![1770303380587](image/generate-reports/1770303380587.png)![1770305952113](image/generate-reports/1770305952113.png)# How to Generate Reports
 
 Generate HTML, JSON, and Markdown reports with AI-powered insights.
 
@@ -9,7 +9,7 @@ Configure once in `pyproject.toml`:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-summary-model=azure/gpt-5.1-chat
+--aitest-summary-model=azure/gpt-5.2-chat
 --aitest-html=aitest-reports/report.html
 """
 ```
@@ -36,21 +36,15 @@ You can also use CLI flags directly:
 ```bash
 # Run tests with AI-powered HTML report
 pytest tests/ \
-    --aitest-summary-model=azure/gpt-5.1-chat \
+    --aitest-summary-model=azure/gpt-5.2-chat \
     --aitest-html=report.html
 
-# Multiple formats
-pytest tests/ \
-    --aitest-summary-model=azure/gpt-5.1-chat \
-    --aitest-html=report.html \
-    --aitest-md=report.md
 ```
 
 | Option | Description |
 |--------|-------------|
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
-| `--aitest-md=PATH` | Generate Markdown report |
 | `--aitest-summary-model=MODEL` | Model for AI insights (**required**) |
 
 ## Report Regeneration
@@ -61,12 +55,13 @@ Regenerate reports from saved JSON without re-running tests:
 # Regenerate HTML from saved JSON
 pytest-aitest-report aitest-reports/results.json \
     --html report.html \
-    --summary-model azure/gpt-5.1-chat
+    --summary-model azure/gpt-5.2-chat
 
-# Use a different model for fresh analysis
+# Force regeneration with a different model
 pytest-aitest-report results.json \
     --html report.html \
-    --summary-model azure/gpt-4.1
+    --summary-model azure/gpt-4.1 \
+    --regenerate
 ```
 
 This is useful for:
@@ -75,29 +70,50 @@ This is useful for:
 - Generating different formats from one test run
 - Experimenting with different AI summary models
 
-## Adaptive Reports
+## Agent Leaderboard
 
-Reports auto-detect test dimensions and adapt:
+When you test multiple agents, the report shows an **Agent Leaderboard** ranking all configurations:
 
-| Test Pattern | Report Shows |
-|--------------|--------------|
-| No parametrize | Test list |
-| `@parametrize("model", ...)` | Model comparison table |
-| `@parametrize("prompt", ...)` | Prompt comparison table |
-| Both | 2D matrix grid |
+| Agent | Pass Rate | Cost |
+|-------|-----------|------|
+| ✓ gpt-4.1 (detailed) | 100% | $0.15 |
+| ✓ gpt-5-mini (detailed) | 97% | $0.03 |
+| ✗ gpt-5-mini (concise) | 82% | $0.02 |
 
-### Mode Detection
+**Winning Agent = Highest pass rate → Lowest cost (tiebreaker)**
 
+Use `--aitest-min-pass-rate=N` to disqualify agents below N%:
+
+```bash
+pytest tests/ --aitest-min-pass-rate=95
 ```
-Single Model + Single Prompt     → Basic Mode (test list only)
-Multiple Models + Single Prompt  → Model Comparison Mode
-Single Model + Multiple Prompts  → Prompt Comparison Mode  
-Multiple Models + Multiple Prompts → Matrix Mode
+
+### Dimension Detection
+
+The AI detects *what varies* between agents to focus its analysis:
+
+| What Varies | AI Analysis Focuses On |
+|-------------|------------------------|
+| Model | Which model works best |
+| System Prompt | Which instructions work best |
+| Skill | Whether domain knowledge helps |
+| Server | Which implementation is more reliable |
+
+**Winning = Highest pass rate → Lowest cost (tiebreaker)**
+
+### Threshold Filtering
+
+Disqualify agents below a minimum pass rate:
+
+```bash
+pytest tests/ --aitest-min-pass-rate=95
 ```
+
+Agents below threshold are grayed out but still shown for reference.
 
 ### Leaderboard Ranking
 
-When comparing models or prompts, rankings are based on:
+When comparing Agents, rankings are based on:
 
 1. **Pass rate** (primary) — higher is better
 2. **Efficiency** (secondary) — passes per 1K tokens
@@ -105,14 +121,7 @@ When comparing models or prompts, rankings are based on:
 
 ## AI Insights
 
-The AI analysis includes:
-
-- **🎯 Recommendation** — Which configuration to deploy and why
-- **❌ Failure Analysis** — Root cause + suggested fix for each failure
-- **🔧 MCP Tool Feedback** — How to improve tool descriptions
-- **📝 System Prompt Feedback** — Prompt improvements
-- **📚 Agent Skill Feedback** — Skill restructuring suggestions
-- **⚡ Optimizations** — Reduce turns/tokens
+Reports include AI-powered analysis with actionable recommendations. For a detailed explanation of each insight section, see [AI-Powered Reports](../explanation/ai-reports.md).
 
 ### Recommended Models
 
@@ -120,7 +129,7 @@ Use the **most capable model you can afford** for quality analysis:
 
 | Provider | Recommended Models |
 |----------|-------------------|
-| Azure OpenAI | `azure/gpt-5.1-chat` (best), `azure/gpt-4.1` |
+| Azure OpenAI | `azure/gpt-5.2-chat` (best), `azure/gpt-4.1` |
 | OpenAI | `openai/gpt-4.1`, `openai/gpt-4o` |
 | Anthropic | `anthropic/claude-opus-4`, `anthropic/claude-sonnet-4` |
 
@@ -129,61 +138,33 @@ Use the **most capable model you can afford** for quality analysis:
     The summary model analyzes your test results and generates actionable feedback.
     Use your most capable model here—this is a one-time cost per test run.
 
-## HTML Report Contents
+## Report Structure
 
-### Summary Dashboard
-
-- Total/passed/failed counts
-- Success rate
-- Total tokens and cost
-
-### Session Grouping
-
-Tests using sessions are visually grouped:
-
-- Session container with collapsible test list
-- Summary stats: Duration, tokens, cost, tool calls
-- Flow visualization showing message count between tests
-
-### Model/Prompt Comparison
-
-- Side-by-side metrics
-- Success rates per configuration
-- Token usage comparison
-
-### Detailed Test Results
-
-- Each test with pass/fail status
-- Tool calls made
-- Token usage and execution time
+For details on the HTML report layout including header, leaderboard, and test details, see [Report Structure](../explanation/report-structure.md).
 
 ## JSON Report Structure
 
 ```json
 {
+  "schema_version": "3.0",
+  "mode": "model_comparison",
   "summary": {
     "total": 10,
     "passed": 8,
     "failed": 2,
-    "success_rate": 0.8
+    "pass_rate": 80.0
   },
   "dimensions": {
     "models": ["gpt-5-mini", "gpt-4.1"],
     "prompts": ["concise", "detailed"]
   },
-  "tests": [
-    {
-      "name": "test_weather",
-      "parameters": {
-        "model": "gpt-5-mini",
-        "prompt": "concise"
-      },
-      "passed": true,
-      "duration_ms": 2500,
-      "tokens": 450,
-      "tool_calls": ["get_weather"]
-    }
-  ]
+  "insights": {
+    "markdown_summary": "## 🎯 Recommendation\n\n...",
+    "recommendation": {...},
+    "failures": [...],
+    "mcp_feedback": [...]
+  },
+  "tests": [...]
 }
 ```
 
@@ -196,8 +177,7 @@ Tests using sessions are visually grouped:
     pytest tests/ \
       --aitest-html=reports/report.html \
       --aitest-json=reports/report.json \
-      --aitest-md=reports/report.md \
-      --aitest-summary-model=azure/gpt-5.1-chat
+      --aitest-summary-model=azure/gpt-5.2-chat
 
 - name: Upload reports
   uses: actions/upload-artifact@v4

@@ -59,6 +59,25 @@ class AgentEngine:
         self._available_tools: list[ToolInfo] = []
         self._skill_info: SkillInfo | None = None
         self._effective_system_prompt: str = ""
+        
+        # Agent identity
+        self._agent_name = self._compute_agent_name()
+        self._model = self._compute_model()
+    
+    def _compute_agent_name(self) -> str:
+        """Compute agent name (explicit or synthesized from model+skill)."""
+        if self.agent.name:
+            return self.agent.name
+        # Synthesize: model + skill
+        model = self.agent.provider.model.split("/")[-1]  # Remove provider prefix
+        if self.agent.skill:
+            return f"{model}+{self.agent.skill.name}"
+        return model
+    
+    def _compute_model(self) -> str:
+        """Get model name (with provider prefix stripped for display)."""
+        model = self.agent.provider.model
+        return model.split("/")[-1] if "/" in model else model
 
     async def initialize(self) -> None:
         """Start servers and collect available tools."""
@@ -218,6 +237,8 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                agent_name=self._agent_name,
+                model=self._model,
             )
         except RateLimitError as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -233,6 +254,8 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                agent_name=self._agent_name,
+                model=self._model,
             )
         except Exception as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -248,6 +271,8 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                agent_name=self._agent_name,
+                model=self._model,
             )
 
         duration_ms = (time.perf_counter() - start_time) * 1000
@@ -262,6 +287,8 @@ class AgentEngine:
             available_tools=self._available_tools,
             skill_info=self._skill_info,
             effective_system_prompt=self._effective_system_prompt,
+            agent_name=self._agent_name,
+            model=self._model,
         )
 
     def _build_system_prompt(self) -> str | None:

@@ -120,16 +120,16 @@ filterwarnings = [
 # This demonstrates the recommended setup - configure once in pyproject.toml.
 # LLM auth is handled by LiteLLM via env vars (AZURE_API_BASE, OPENAI_API_KEY, etc.)
 addopts = """
---aitest-summary-model=azure/gpt-5.1-chat
+--aitest-summary-model=azure/gpt-5.2-chat
 --aitest-html=aitest-reports/report.html
 """
 markers = [
     "integration: marks tests as integration tests (require LLM credentials)",
     "aitest: AI agent tests",
     "basic: basic usage tests (weather and todo)",
-    "benchmark: model benchmark tests (compare LLMs)",
-    "arena: prompt arena tests (compare prompts)",
-    "matrix: matrix tests (model × prompt grid)",
+    "model: tests with multiple models",
+    "sysprompt: tests with multiple system prompts",
+    "skill: tests with skills",
     "abtest: A/B server comparison tests",
     "cli: CLI server tests",
 ]
@@ -137,5 +137,7 @@ markers = [
 # UV/PEP 735 dependency groups (for uv sync)
 [dependency-groups]
 dev = [
+    "playwright>=1.58.0",
     "pytest-aitest[dev,test,azure,docs]",
+    "pytest-playwright>=0.7.2",
 ]

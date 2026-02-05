@@ -8,12 +8,20 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from pytest_aitest.reporting.collector import SuiteReport, TestReport
+
+
+@dataclass(slots=True)
+class TestDimensions:
+    """Detected test dimensions (models and prompts used in the test suite)."""
+    
+    models: list[str]
+    prompts: list[str]
 
 
 class ReportMode(Enum):
@@ -74,30 +82,7 @@ class AdaptiveFlags:
         )
 
 
-@dataclass
-class TestDimensions:
-    """Detected dimensions from parametrized tests.
 
-    Parses test node IDs like "test_weather[gpt-4o-PROMPT_V1]" to extract:
-    - Base test name (test_weather)
-    - Model variations (gpt-4o, claude-3-haiku)
-    - Prompt variations (PROMPT_V1, PROMPT_V2)
-    """
-
-    mode: ReportMode
-    models: list[str] = field(default_factory=list)
-    prompts: list[str] = field(default_factory=list)
-    base_tests: list[str] = field(default_factory=list)
-
-    @property
-    def is_comparison(self) -> bool:
-        """True if this involves model or prompt comparison."""
-        return self.mode != ReportMode.SIMPLE
-
-    @property
-    def is_matrix(self) -> bool:
-        """True if this is a 2D model x prompt matrix."""
-        return self.mode == ReportMode.MATRIX
 
 
 @dataclass
@@ -272,52 +257,7 @@ class DimensionAggregator:
         r"prompt_v\d+",
     )
 
-    def detect_dimensions(self, report: SuiteReport) -> TestDimensions:
-        """Detect test dimensions from parametrized test names.
 
-        Parses test node IDs to find model and prompt variations.
-        """
-        models: set[str] = set()
-        prompts: set[str] = set()
-        base_tests: set[str] = set()
-
-        for test in report.tests:
-            # Extract base test name and parameters
-            base_name, params = self._parse_node_id(test.name)
-            base_tests.add(base_name)
-
-            # Check for model and prompt in parameter string
-            if params:
-                params_str = params[0]
-                model = self._extract_model_from_params(params_str)
-                if model:
-                    models.add(model)
-                prompt = self._extract_prompt_from_params(params_str)
-                if prompt:
-                    prompts.add(prompt)
-
-            # Also check metadata
-            if test.metadata.get("model"):
-                models.add(test.metadata["model"])
-            if test.metadata.get("prompt"):
-                prompts.add(test.metadata["prompt"])
-
-        # Determine mode
-        if models and prompts:
-            mode = ReportMode.MATRIX
-        elif models:
-            mode = ReportMode.MODEL_COMPARISON
-        elif prompts:
-            mode = ReportMode.PROMPT_COMPARISON
-        else:
-            mode = ReportMode.SIMPLE
-
-        return TestDimensions(
-            mode=mode,
-            models=sorted(models),
-            prompts=sorted(prompts),
-            base_tests=sorted(base_tests),
-        )
 
     def _parse_node_id(self, node_id: str) -> tuple[str, list[str]]:
         """Parse pytest node ID into base name and parameters.
@@ -356,6 +296,42 @@ class DimensionAggregator:
         if match:
             return match.group(0)
         return None
+
+    def detect_dimensions(self, report: SuiteReport) -> TestDimensions:
+        """Detect unique models and prompts used in the test suite.
+        
+        Extracts from test metadata and node IDs to build a complete
+        picture of what dimensions are being compared.
+        
+        Returns:
+            TestDimensions with unique models and prompts.
+        """
+        models: set[str] = set()
+        prompts: set[str] = set()
+        
+        for test in report.tests:
+            # Extract model
+            model = test.metadata.get("model")
+            if not model:
+                _, params = self._parse_node_id(test.name)
+                if params:
+                    model = self._extract_model_from_params(params[0])
+            if model:
+                models.add(model)
+            
+            # Extract prompt
+            prompt = test.metadata.get("prompt")
+            if not prompt:
+                _, params = self._parse_node_id(test.name)
+                if params:
+                    prompt = self._extract_prompt_from_params(params[0])
+            if prompt:
+                prompts.add(prompt)
+        
+        return TestDimensions(
+            models=sorted(models),
+            prompts=sorted(prompts),
+        )
 
     def group_by_model(self, report: SuiteReport) -> list[GroupedResult]:
         """Group test results by model.

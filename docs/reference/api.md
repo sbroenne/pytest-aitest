@@ -53,9 +53,14 @@ Auto-generated API documentation from source code.
       show_source: false
       heading_level: 3
 
-## Prompt Types
+## Prompt Functions
 
-::: pytest_aitest.core.prompt.Prompt
+::: pytest_aitest.core.prompt.load_system_prompts
+    options:
+      show_source: false
+      heading_level: 3
+
+::: pytest_aitest.core.prompt.load_system_prompt
     options:
       show_source: false
       heading_level: 3

@@ -134,7 +134,7 @@ The report shows each session as a complete flow with all turns visualized.
 
 ## Next Steps
 
-- [Full Matrix Testing](matrix.md) — Compare MCP servers, models, and prompts
+- [Comparing Configurations](comparing.md) — Pattern for parametrized tests
 - [Generate Reports](../how-to/generate-reports.md) — Understand report output
 
 > 📁 **Real Example:** [test_sessions.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_sessions.py) — Banking workflow with session continuity

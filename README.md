@@ -5,11 +5,9 @@
 [![CI](https://github.com/sbroenne/pytest-aitest/actions/workflows/ci.yml/badge.svg)](https://github.com/sbroenne/pytest-aitest/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Test your AI interfaces. Get actionable insights.**
+# Test your AI interfaces. Get actionable AI-powered insights.
 
-A pytest plugin for validating whether language models can understand and operate your MCP servers, tools, prompts, and skills. Generates AI-powered reports that tell you *what to fix*, not just *what failed*.
-
----
+A pytest plugin for validating whether language models can understand and operate your MCP servers, tools, prompts, and skills. Generates AI-powered insights & reports that tell you *what to fix*, not just *what failed*.
 
 ## The Problem
 
@@ -23,8 +21,6 @@ Your MCP server passes all unit tests. Then an LLM tries to use it and:
 **Why?** Because you tested the code, not the AI interface.
 
 For LLMs, your API isn't functions and types — it's **tool descriptions, system prompts, skills, and schemas**. These are what the LLM actually sees. Traditional tests can't validate them.
-
----
 
 ## The Solution
 
@@ -61,31 +57,37 @@ The agent runs your prompt, calls tools, and returns results. You assert on what
 
 See [Getting Started](docs/getting-started/index.md) for details on each component.
 
----
-
 ## What Makes This Different
 
 ### AI-Powered Reports
 
-Reports don't just show pass/fail. They tell you **what to do**:
+Reports don't just show pass/fail — they tell you **what to do**. Here's actual output from a test run:
 
-```
-🎯 RECOMMENDATION
-Deploy: gpt-5-mini-concise
-100% pass rate at lowest cost ($0.006)
+> # pytest-aitest
+>
+> ✅ **2 passed** · ⏱️ 16.8s · 💰 $0.001
+>
+> ## 🎯 Recommendation
+>
+> **Deploy `gpt-5-mini / default`**
+>
+> Deploy the existing configuration as-is; it achieves a 100% pass rate on the tested scenarios with correct tool usage.
+>
+> ## 🔧 Tool Improvements
+>
+> | Tool | Status | Issue |
+> |------|--------|-------|
+> | `get_balance` | ✅ working | None |
+> | `get_budgets` | ✅ working | None |
+> | `get_all_balances` | ➖ unused | Not exercised by any test cases |
+>
+> <details>
+> <summary>💡 Suggested description for <code>get_all_balances</code></summary>
+>
+> `Get balances for all accounts at once. Use when the user asks for an overview of all accounts or total balance.`
+> </details>
 
-❌ FAILURE ANALYSIS  
-test_forecast[budget-agent]
-Problem: Agent called get_weather instead of get_forecast
-Root cause: Tool descriptions don't clarify when to use each
-Suggested fix: "Use get_forecast for future weather (tomorrow, next week)"
-
-🔧 MCP TOOL FEEDBACK
-⚠️ get_forecast — Never used (0 calls across 12 tests)
-Current: "Gets forecast data"
-Suggested: "Get multi-day weather predictions. Use for questions about
-            future weather. For current conditions, use get_weather."
-```
+*Generates both Markdown (for GitHub PRs) and [interactive HTML reports](https://sbroenne.github.io/pytest-aitest/demo/hero-report.html) with sequence diagrams.*
 
 ### Compare Configurations
 
@@ -119,8 +121,6 @@ class TestBankingWorkflow:
         assert result.tool_was_called("transfer")
 ```
 
----
-
 ## Quick Start
 
 ### Install
@@ -141,7 +141,7 @@ Add to `pyproject.toml`:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-summary-model=azure/gpt-5.1-chat
+--aitest-summary-model=azure/gpt-5.2-chat
 --aitest-html=aitest-reports/report.html
 """
 ```
@@ -188,42 +188,39 @@ pytest tests/
 
 Reports with AI insights are generated automatically based on your `pyproject.toml` config.
 
----
-
 ## Features at a Glance
 
 | Feature | Description |
 |---------|-------------|
 | **MCP Server Testing** | Real models against real tool interfaces |
 | **CLI Server Testing** | Test CLIs as if they were MCP servers |
-| **Model Comparison** | `@parametrize("model", ...)` with leaderboard |
-| **Prompt Comparison** | Compare system prompts head-to-head |
-| **Agent Skill Testing** | Validate domain knowledge modules ([agentskills.io](https://agentskills.io)) |
+| **Agent Comparison** | Compare any combination of Model, Prompt, Skill, Server |
+| **Agent Leaderboard** | Ranked by pass rate → cost |
+| **Threshold Filtering** | Disqualify agents below minimum pass rate |
 | **Multi-Turn Sessions** | `@pytest.mark.session` for conversations |
 | **AI Judge** | Semantic assertions via [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert) |
 | **AI-Powered Reports** | Actionable insights, not just metrics |
 
----
+## How Comparison Works
 
-## Report Modes
+An **Agent** is a configuration: Model + System Prompt + Skill + Server(s).
 
-Reports auto-compose based on what you're testing:
+pytest-aitest auto-detects what varies between agents:
 
-| Pattern | Report Shows |
-|---------|--------------|
-| No `@parametrize` | Test list with tool usage |
-| `@parametrize("model", ...)` | Model leaderboard + comparison |
-| `@parametrize("prompt", ...)` | Prompt effectiveness analysis |
-| Both | Full matrix grid |
-| **Always** | 🎯 Recommendation, ❌ Failures, 🔧 Tool Feedback |
+| What Varies | Report Shows |
+|-------------|--------------|
+| Only Model | Model Comparison + Leaderboard |
+| Only Prompt | Prompt Comparison + Leaderboard |
+| Only Skill | Skill Comparison + Leaderboard |
+| Only Server | Server A/B Comparison |
+| Model + Prompt | Model × Prompt Matrix |
+| Multiple | Agent Leaderboard (all dimensions) |
 
-<p align="center">
-  <img src="docs/images/report-example.png" alt="pytest-aitest HTML Report" width="800">
-</p>
+**Winning Agent:** Highest pass rate → Lowest cost (tiebreaker)
 
-**[→ View example reports](docs/reports/)**
+Use `--aitest-min-pass-rate=95` to disqualify agents below 95%.
 
----
+**[→ See the complete example guide](docs/how-to/complete-example.md)**
 
 ## Documentation
 
@@ -234,8 +231,6 @@ Reports auto-compose based on what you're testing:
 - **[Reference](docs/reference/index.md)** — API and configuration
 - **[Explanation](docs/explanation/index.md)** — Design philosophy
 
----
-
 ## Why pytest?
 
 This is a **pytest plugin**, not a standalone tool.
@@ -245,16 +240,12 @@ This is a **pytest plugin**, not a standalone tool.
 - Combine with other pytest plugins
 - No new syntax to learn
 
----
-
 ## Who This Is For
 
 - **MCP server authors** — Validate tool descriptions work
 - **Agent builders** — Compare models and prompts
 - **Teams shipping AI systems** — Catch LLM-facing regressions
 - **Anyone with tools LLMs operate** — Test the actual interface
-
----
 
 ## Requirements
 

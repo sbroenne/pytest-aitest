@@ -48,6 +48,10 @@ test_results/
 aitest-reports/
 tests/fixtures/reports/html/
 
+# Node.js (Tailwind build)
+node_modules/
+src/pytest_aitest/templates/node_modules/
+
 # Environment
 .env
 .env.local

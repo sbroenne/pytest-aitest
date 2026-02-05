@@ -74,45 +74,51 @@ def get_config_value(key: str, cli_value: Any, env_var: str) -> Any:
     return config.get(key)
 
 
-def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None]:
+def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, Any | None]:
     """Load SuiteReport from JSON file.
 
     Supports both v2.0 Pydantic schema and legacy formats.
 
     Returns:
-        Tuple of (SuiteReport, ai_summary or None)
+        Tuple of (SuiteReport, ai_summary string, AIInsights object or None)
     """
     data = json.loads(json_path.read_text(encoding="utf-8"))
 
-    # Check for v2.0 schema
+    # Check for v2.0+ schema (current is 3.0)
     schema_version = data.get("schema_version")
-    if schema_version == "2.0":
+    if schema_version and schema_version >= "2.0":
         return _load_v2_report(data)
     
     # Fall back to legacy format
     return _load_legacy_report(data)
 
 
-def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None]:
-    """Load report from v2.0 Pydantic schema format."""
-    from pytest_aitest.models import SuiteReport as PydanticReport
+def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, Any | None]:
+    """Load report from v2.0 schema format (current format with dataclasses).
     
-    # Validate and parse with Pydantic
-    pydantic_report = PydanticReport.model_validate(data)
+    Returns:
+        Tuple of (LegacySuiteReport, ai_summary string, AIInsights dict)
+    """
+    # Load the SuiteReport from our current dataclass format
+    from pytest_aitest.core.serialization import deserialize_suite_report
     
-    # Extract AI summary
-    ai_summary = pydantic_report.ai_summary
+    # Deserialize the report from dict format
+    suite_report = deserialize_suite_report(data)
     
-    # Convert Pydantic models back to legacy dataclasses for compatibility
-    # with the existing HTML template rendering
+    # Get insights if available
+    insights_dict = data.get("insights", {})
+    ai_summary = insights_dict.get("markdown_summary") if insights_dict else None
+    
+    # Convert to LegacySuiteReport for template compatibility
     tests = []
-    for t in pydantic_report.tests:
+    for test_report in suite_report.tests:
+        # Create agent result from dict if present
         agent_result = None
-        if t.agent_result:
-            ar = t.agent_result
+        if test_report.agent_result:
+            ar = test_report.agent_result
             turns = [
                 Turn(
-                    role=turn.role.value,
+                    role=turn.role,
                     content=turn.content,
                     tool_calls=[
                         ToolCall(
@@ -132,50 +138,45 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
                 success=ar.success,
                 error=ar.error,
                 duration_ms=ar.duration_ms,
-                token_usage={
-                    "prompt": ar.token_usage.prompt or 0,
-                    "completion": ar.token_usage.completion or 0,
-                },
+                token_usage=ar.token_usage,
                 cost_usd=ar.cost_usd,
-                session_context_count=ar.session_context_count or 0,
+                session_context_count=ar.session_context_count,
             )
         
-        metadata = {}
-        if t.metadata:
-            if t.metadata.model:
-                metadata["model"] = t.metadata.model
-            if t.metadata.prompt:
-                metadata["prompt"] = t.metadata.prompt
+        # Use metadata from test_report (already contains model from serialized data)
+        metadata = dict(test_report.metadata) if test_report.metadata else {}
         
         tests.append(LegacyTestReport(
-            name=t.name,
-            outcome=t.outcome.value,
-            duration_ms=t.duration_ms,
+            name=test_report.name,
+            outcome=test_report.outcome,
+            duration_ms=test_report.duration_ms,
             agent_result=agent_result,
-            error=t.error,
-            assertions=[
-                {"type": a.type, "passed": a.passed, "message": a.message, "details": a.details}
-                for a in (t.assertions or [])
-            ],
+            error=test_report.error,
+            assertions=test_report.assertions or [],
             metadata=metadata,
-            docstring=t.docstring,
+            docstring=test_report.docstring,
         ))
     
+    # Build the legacy report
     report = LegacySuiteReport(
-        name=pydantic_report.name,
-        timestamp=pydantic_report.timestamp.isoformat(),
-        duration_ms=pydantic_report.duration_ms,
+        name=suite_report.name,
+        timestamp=suite_report.timestamp,
+        duration_ms=suite_report.duration_ms,
         tests=tests,
-        passed=pydantic_report.summary.passed,
-        failed=pydantic_report.summary.failed,
-        skipped=pydantic_report.summary.skipped,
+        passed=suite_report.passed,
+        failed=suite_report.failed,
+        skipped=suite_report.skipped,
     )
     
-    return report, ai_summary
+    return report, ai_summary, insights_dict
 
 
-def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None]:
-    """Load report from legacy format (pre-v2.0)."""
+def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, None]:
+    """Load report from legacy format (pre-v2.0).
+    
+    Returns:
+        Tuple of (LegacySuiteReport, ai_summary string, None for insights)
+    """
     # Extract AI summary if present
     ai_summary = data.get("ai_summary")
 
@@ -193,7 +194,7 @@ def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | 
         skipped=data.get("summary", {}).get("skipped", 0),
     )
 
-    return report, ai_summary
+    return report, ai_summary, None
 
 
 def _deserialize_test(data: dict[str, Any]) -> LegacyTestReport:
@@ -253,68 +254,37 @@ def _deserialize_tool_call(data: dict[str, Any]) -> ToolCall:
 def generate_ai_summary(report: LegacySuiteReport, model: str) -> str:
     """Generate AI summary for the report.
 
+    NOTE: This is a legacy wrapper. The new approach uses structured AIInsights.
+    This function generates a markdown summary for backward compatibility with
+    CLI regeneration.
+
     Args:
         report: The suite report to summarize
         model: LiteLLM model string (e.g., azure/gpt-4.1)
 
     Returns:
-        Generated summary text
+        Generated summary text (markdown)
     """
-    import litellm
+    import asyncio
 
-    from pytest_aitest.prompts import get_ai_summary_prompt
+    from pytest_aitest.reporting.insights import generate_insights
 
-    # Load the system prompt
-    system_prompt = get_ai_summary_prompt()
+    # Convert legacy report to minimal format for insights
+    # Note: We don't have full tool/skill info in CLI context
+    async def _run():
+        insights, _metadata = await generate_insights(
+            suite_report=report,
+            tool_info=[],
+            skill_info=[],
+            prompts={},
+            model=model,
+        )
+        return insights
 
-    # Detect evaluation context
-    detected_models = report.models_used
-    is_multi_model = len(detected_models) > 1
-    context_hint = (
-        "**Context: Multi-Model Comparison** - Compare the MODELS and recommend which to use."
-        if is_multi_model
-        else "**Context: Single-Model Evaluation** - Assess the model's fitness for this task."
-    )
-
-    # Build test results summary
-    test_lines = []
-    for t in report.tests:
-        line = f"- {t.display_name}: {t.outcome}"
-        if t.model:
-            line = f"- [{t.model}] {t.display_name}: {t.outcome}"
-        if t.error:
-            line += f" ({t.error[:100]})"
-        test_lines.append(line)
-    test_summary = "\n".join(test_lines)
-
-    # Create user message
-    user_message = f"""
-{context_hint}
-
-## Test Suite Results
-- **Total Tests**: {report.total}
-- **Passed**: {report.passed}
-- **Failed**: {report.failed}
-- **Pass Rate**: {report.pass_rate:.1f}%
-{f"- **Models Tested**: {', '.join(detected_models)}" if detected_models else ""}
-
-## Individual Test Results
-{test_summary}
-
-Please provide a concise analysis following the template in your instructions.
-"""
-
-    # Call LLM
-    response = litellm.completion(
-        model=model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message},
-        ],
-        temperature=0.3,
-    )
-
-    return response.choices[0].message.content or ""  # type: ignore[union-attr]
+    insights = asyncio.run(_run())
+    
+    # Return the markdown_summary if available
+    return insights.markdown_summary if insights.markdown_summary else ""
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -337,12 +307,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Generate HTML report to given path",
     )
 
-    parser.add_argument(
-        "--md",
-        metavar="PATH",
-        type=Path,
-        help="Generate Markdown report to given path",
-    )
+
 
     parser.add_argument(
         "--summary",
@@ -367,8 +332,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: JSON file not found: {args.json_file}", file=sys.stderr)
         return 1
 
-    if not args.html and not args.md:
-        print("Error: At least one output format required (--html or --md)", file=sys.stderr)
+    if not args.html:
+        print("Error: --html is required to generate HTML report", file=sys.stderr)
         return 1
 
     if args.summary and not summary_model:
@@ -384,17 +349,21 @@ def main(argv: list[str] | None = None) -> int:
 
     # Load report from JSON
     try:
-        report, existing_summary = load_suite_report(args.json_file)
+        report, existing_summary, existing_insights = load_suite_report(args.json_file)
     except (json.JSONDecodeError, KeyError) as e:
         print(f"Error: Failed to parse JSON file: {e}", file=sys.stderr)
         return 1
 
     # Generate AI summary if requested
     ai_summary = existing_summary
+    insights = existing_insights
     if args.summary:
         print(f"Generating AI summary with {summary_model}...")
         try:
             ai_summary = generate_ai_summary(report, summary_model)
+            # For new reports generated via CLI, create insights from summary
+            # Create insights dict if we have ai_summary
+            insights = {"markdown_summary": ai_summary} if ai_summary else None
             print("AI summary generated successfully.")
         except Exception as e:
             print(f"Warning: Failed to generate AI summary: {e}", file=sys.stderr)
@@ -405,13 +374,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.html:
         args.html.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_html(report, args.html, ai_summary=ai_summary)
+        generator.generate_html(report, args.html, insights=insights)
         print(f"HTML report: {args.html}")
-
-    if args.md:
-        args.md.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_markdown(report, args.md, ai_summary=ai_summary)
-        print(f"Markdown report: {args.md}")
 
     return 0
 

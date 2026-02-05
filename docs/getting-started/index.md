@@ -71,7 +71,7 @@ First, configure reporting in `pyproject.toml`:
 ```toml
 [tool.pytest.ini_options]
 addopts = """
---aitest-summary-model=azure/gpt-5.1-chat
+--aitest-summary-model=azure/gpt-5.2-chat
 --aitest-html=aitest-reports/report.html
 """
 ```

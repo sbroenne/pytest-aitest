@@ -67,7 +67,7 @@ def pytest_configure(config: pytest.Config) -> None:
 DEFAULT_MODEL = "gpt-5-mini"
 
 # Models for benchmark comparison (cheap vs capable)
-BENCHMARK_MODELS = ["gpt-5-mini", "gpt-5.1-chat"]
+BENCHMARK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"]
 
 # Rate limits for Azure deployments
 DEFAULT_RPM = 10
@@ -152,4 +152,26 @@ def keyvalue_server():
             "pytest_aitest.testing.mcp_server",
         ],
         wait=Wait.for_tools(["get", "set", "list_keys"]),
+    )
+
+
+@pytest.fixture(scope="module")
+def banking_server():
+    """Banking MCP server - realistic banking scenario.
+    
+    Provides:
+    - 2 accounts: checking ($1,500), savings ($3,000)
+    - Tools: get_balance, get_all_balances, transfer, deposit, withdraw, get_transactions
+    """
+    return MCPServer(
+        command=[
+            sys.executable,
+            "-u",
+            "-m",
+            "pytest_aitest.testing.banking_mcp",
+        ],
+        wait=Wait.for_tools([
+            "get_balance", "get_all_balances", "transfer",
+            "deposit", "withdraw", "get_transactions",
+        ]),
     )

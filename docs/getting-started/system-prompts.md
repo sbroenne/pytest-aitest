@@ -6,7 +6,6 @@ System prompts define agent behavior. Test different prompts to find what works.
 
 ```python
 agent = Agent(
-    name="concise-assistant",
     provider=Provider(model="azure/gpt-5-mini"),
     mcp_servers=[weather_server],
     system_prompt="You are a weather assistant. Be concise and direct.",
@@ -37,35 +36,50 @@ The system prompt affects both the *quality* of responses and the *cost* (longer
 
 You can use both together. The skill content is prepended to the system prompt.
 
+## Loading System Prompts from Files
+
+Store prompts as plain `.md` files for easier management:
+
+```
+prompts/
+├── concise.md      # "Be brief. One sentence max."
+├── detailed.md     # "Explain your reasoning step by step."
+└── structured.md   # "Use bullet points for clarity."
+```
+
+Load them with `load_system_prompts()`:
+
+```python
+from pathlib import Path
+from pytest_aitest import load_system_prompts
+
+# Returns dict[str, str]: {"concise": "Be brief...", "detailed": "Explain..."}
+PROMPTS = load_system_prompts(Path("prompts/"))
+```
+
 ## Comparing Prompts
 
 Test different prompts to find what works best:
 
 ```python
-PROMPTS = {
-    "brief": "Be concise. One sentence max.",
-    "detailed": "Explain your reasoning step by step.",
-    "structured": "Use bullet points for clarity.",
-}
+from pathlib import Path
+from pytest_aitest import Agent, Provider, load_system_prompts
 
-AGENTS = [
-    Agent(
-        name=f"prompt-{name}",
+PROMPTS = load_system_prompts(Path("prompts/"))
+
+@pytest.mark.parametrize("name,system_prompt", PROMPTS.items())
+@pytest.mark.asyncio
+async def test_weather_query(aitest_run, weather_server, name, system_prompt):
+    agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),
         mcp_servers=[weather_server],
-        system_prompt=prompt,
+        system_prompt=system_prompt,
     )
-    for name, prompt in PROMPTS.items()
-]
-
-@pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-@pytest.mark.asyncio
-async def test_weather_query(aitest_run, agent):
     result = await aitest_run(agent, "What's the weather in Paris?")
     assert result.success
 ```
 
-The report shows which prompt performs best for your use case.
+The report auto-detects that system prompts vary and shows a comparison.
 
 ## Next Steps
 

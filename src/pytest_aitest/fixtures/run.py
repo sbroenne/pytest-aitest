@@ -141,8 +141,9 @@ def aitest_run(
 
         # Store result for reporting
         results.append(result)
-        # Store the most recent result for the plugin to pick up
+        # Store the most recent result and agent for the plugin to pick up
         request.node._aitest_result = result  # type: ignore[attr-defined]
+        request.node._aitest_agent = agent  # type: ignore[attr-defined]
 
         return result
 
