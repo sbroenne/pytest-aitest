@@ -1,4 +1,4 @@
-![1770303380587](image/generate-reports/1770303380587.png)![1770305952113](image/generate-reports/1770305952113.png)# How to Generate Reports
+# How to Generate Reports
 
 Generate HTML, JSON, and Markdown reports with AI-powered insights.
 
@@ -170,18 +170,57 @@ For details on the HTML report layout including header, leaderboard, and test de
 
 ## CI/CD Integration
 
+### JUnit XML for CI Pipelines
+
+pytest includes built-in JUnit XML output that works with all CI systems. Use it alongside aitest reports:
+
+```bash
+pytest tests/ \
+    --junitxml=results.xml \
+    --aitest-html=report.html \
+    --aitest-summary-model=azure/gpt-5.2-chat
+```
+
+| Format | Purpose | Consumers |
+|--------|---------|----------|
+| `--junitxml` | Pass/fail tracking, test history | GitHub Actions, Azure Pipelines, Jenkins |
+| `--aitest-html` | AI insights, tool analysis | Human review |
+| `--aitest-json` | Raw data for custom tooling | Scripts, dashboards |
+
+### GitHub Actions Example
+
 ```yaml
 # .github/workflows/test.yml
 - name: Run agent tests
   run: |
     pytest tests/ \
+      --junitxml=reports/results.xml \
       --aitest-html=reports/report.html \
       --aitest-json=reports/report.json \
       --aitest-summary-model=azure/gpt-5.2-chat
 
-- name: Upload reports
+- name: Upload test results
   uses: actions/upload-artifact@v4
+  if: always()
   with:
     name: test-reports
     path: reports/
+
+- name: Publish JUnit results
+  uses: dorny/test-reporter@v1
+  if: always()
+  with:
+    name: Test Results
+    path: reports/results.xml
+    reporter: java-junit
+```
+
+### Azure Pipelines Example
+
+```yaml
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'reports/results.xml'
+  condition: always()
 ```
