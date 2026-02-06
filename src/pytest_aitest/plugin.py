@@ -324,12 +324,6 @@ def _add_junit_properties(
         props.append(("aitest.model", display_model))
         if agent.system_prompt_name:
             props.append(("aitest.prompt", agent.system_prompt_name))
-    else:
-        # Fallback to agent_result fields (for backward compat with tests)
-        if hasattr(agent_result, "agent_name") and agent_result.agent_name:
-            props.append(("aitest.agent.name", agent_result.agent_name))
-        if hasattr(agent_result, "model") and agent_result.model:
-            props.append(("aitest.model", agent_result.model))
 
     # Skill
     if agent_result.skill_info:
@@ -564,11 +558,9 @@ def _generate_structured_insights(
             "terminalreporter"
         )
         if terminalreporter:
-            tokens_used = (
-                metadata.get("tokens_used") if isinstance(metadata, dict) else metadata.tokens_used
-            )
-            cost_usd = metadata.get("cost_usd") if isinstance(metadata, dict) else metadata.cost_usd
-            cached = metadata.get("cached") if isinstance(metadata, dict) else metadata.cached
+            tokens_used = metadata.get("tokens_used")
+            cost_usd = metadata.get("cost_usd")
+            cached = metadata.get("cached")
 
             tokens_str = f"{tokens_used:,}" if tokens_used else "N/A"
             cost_str = f"${cost_usd:.4f}" if cost_usd else "N/A"
@@ -580,15 +572,9 @@ def _generate_structured_insights(
         # Return dict with both summary and metadata
         return {
             "markdown_summary": markdown_summary,
-            "cost_usd": metadata.get("cost_usd")
-            if isinstance(metadata, dict)
-            else getattr(metadata, "cost_usd", None),
-            "tokens_used": metadata.get("tokens_used")
-            if isinstance(metadata, dict)
-            else getattr(metadata, "tokens_used", None),
-            "cached": metadata.get("cached")
-            if isinstance(metadata, dict)
-            else getattr(metadata, "cached", False),
+            "cost_usd": metadata.get("cost_usd"),
+            "tokens_used": metadata.get("tokens_used"),
+            "cached": metadata.get("cached", False),
         }
 
     except pytest.UsageError:

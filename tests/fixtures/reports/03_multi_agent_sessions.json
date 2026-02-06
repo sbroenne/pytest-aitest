@@ -239,11 +239,10 @@
           "details": "The content explicitly states the checking account balance as $1,500.00."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "First turn: check account balance."
+      "docstring": "First turn: check account balance.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_check_balance[gpt-4.1-mini]",
@@ -481,11 +480,10 @@
           "details": "The content explicitly states the checking account balance as $1,500.00."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "First turn: check account balance."
+      "docstring": "First turn: check account balance.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_transfer_funds[gpt-5-mini]",
@@ -757,11 +755,10 @@
           "details": "Text explicitly states a $100.00 transfer from checking to savings and shows updated balances for both accounts."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "Second turn: transfer money."
+      "docstring": "Second turn: transfer money.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_transfer_funds[gpt-4.1-mini]",
@@ -1033,11 +1030,10 @@
           "details": "The content explicitly states a successful transfer of $100.00 from checking to savings and provides updated balances for both accounts."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "Second turn: transfer money."
+      "docstring": "Second turn: transfer money.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_verify_transfer[gpt-5-mini]",
@@ -1337,11 +1333,10 @@
           "details": "The content lists balances for multiple accounts (Checking and Savings) and a combined total, satisfying the criterion."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "Third turn: verify the transfer."
+      "docstring": "Third turn: verify the transfer.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_verify_transfer[gpt-4.1-mini]",
@@ -1641,11 +1636,10 @@
           "details": "Content lists balances for multiple accounts (Checking and Savings) and gives a total balance."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "Third turn: verify the transfer."
+      "docstring": "Third turn: verify the transfer.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     }
   ],
   "passed": 6,

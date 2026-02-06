@@ -170,11 +170,10 @@
           "details": "Content explicitly states current conditions (Rainy), temperature, humidity, and wind for London, UK, which satisfies describing the current weather conditions."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "Basic weather query - all agents should pass."
+      "docstring": "Basic weather query - all agents should pass.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_simple_weather[gpt-4.1-mini]",
@@ -343,11 +342,10 @@
           "details": "The content gives current weather conditions (location, precipitation type, temperature in \u00b0C and \u00b0F, humidity, wind direction and speed), so it meets the criterion."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "Basic weather query - all agents should pass."
+      "docstring": "Basic weather query - all agents should pass.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_forecast[gpt-5-mini]",
@@ -517,11 +515,10 @@
           "details": "The content gives five consecutive days for New York with a daily condition label, high/low temperatures, and precipitation chance for each day (minor inconsistency on Day 5\u2019s 'Clear' with 60% precipitation noted)."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "Forecast query - tests tool selection."
+      "docstring": "Forecast query - tests tool selection.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_forecast[gpt-4.1-mini]",
@@ -691,11 +688,10 @@
           "details": "The content lists five days with daily conditions (weather description, high/low temps, and precipitation chance for each day), satisfying the criterion."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "Forecast query - tests tool selection."
+      "docstring": "Forecast query - tests tool selection.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_comparison[gpt-5-mini]",
@@ -865,11 +861,10 @@
           "details": "The content explicitly compares current weather and states a recommendation (Tokyo is generally the better pick) with reasons (sunny, warmer, lighter wind), notes a humidity caveat, and gives practical tips\u2014fulfilling the criterion."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "City comparison - multi-step reasoning."
+      "docstring": "City comparison - multi-step reasoning.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_comparison[gpt-4.1-mini]",
@@ -1060,11 +1055,10 @@
           "details": "The content compares weather details for Paris and Tokyo and explicitly recommends Tokyo for a picnic, citing sunny conditions and warmer temperature, while noting both are pleasant."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "City comparison - multi-step reasoning."
+      "docstring": "City comparison - multi-step reasoning.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     }
   ],
   "passed": 6,

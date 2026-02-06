@@ -175,7 +175,7 @@ class TestDeserializeTest:
             "name": "test_example",
             "outcome": "passed",
             "duration_ms": 100.0,
-            "metadata": {"model": "gpt-4"},
+            "model": "gpt-4",
         }
         test = _deserialize_test(data)
 
@@ -190,7 +190,6 @@ class TestDeserializeTest:
             "name": "test_weather",
             "outcome": "passed",
             "duration_ms": 5000.0,
-            "metadata": {},
             "agent_result": {
                 "success": True,
                 "error": None,
@@ -211,7 +210,6 @@ class TestDeserializeTest:
             "name": "test_example",
             "outcome": "passed",
             "duration_ms": 100.0,
-            "metadata": {},
             "docstring": "Test that the example works correctly.",
         }
         test = _deserialize_test(data)
@@ -229,9 +227,9 @@ class TestLoadSuiteReport:
             "duration_ms": 1000.0,
             "summary": {"passed": 2, "failed": 1, "skipped": 0},
             "tests": [
-                {"name": "test_a", "outcome": "passed", "duration_ms": 100.0, "metadata": {}},
-                {"name": "test_b", "outcome": "passed", "duration_ms": 200.0, "metadata": {}},
-                {"name": "test_c", "outcome": "failed", "duration_ms": 300.0, "metadata": {}},
+                {"name": "test_a", "outcome": "passed", "duration_ms": 100.0},
+                {"name": "test_b", "outcome": "passed", "duration_ms": 200.0},
+                {"name": "test_c", "outcome": "failed", "duration_ms": 300.0},
             ],
         }
         json_path = tmp_path / "results.json"
@@ -294,11 +292,9 @@ class TestMainCLI:
                     "name": "test_a",
                     "outcome": "passed",
                     "duration_ms": 100.0,
-                    "metadata": {
-                        "agent_id": "test-agent",
-                        "agent_name": "test-agent",
-                        "model": "test-model",
-                    },
+                    "agent_id": "test-agent",
+                    "agent_name": "test-agent",
+                    "model": "test-model",
                 }
             ],
         }

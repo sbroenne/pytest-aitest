@@ -152,16 +152,6 @@ def _get_results_hash(suite_report: SuiteReport) -> str:
     return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
-def create_placeholder_insights() -> str:
-    """Create placeholder insights for internal use only.
-
-    Note: AI analysis is mandatory for report generation, so this
-    should only be used internally (e.g., in model converter for
-    backwards compatibility with old fixtures).
-    """
-    return "*AI analysis pending - run with `--aitest-summary-model` to generate.*"
-
-
 async def generate_insights(
     suite_report: SuiteReport,
     tool_info: list[ToolInfo] | None = None,

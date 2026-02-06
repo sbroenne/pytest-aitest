@@ -9,7 +9,6 @@ from pytest_aitest.reporting.generator import (
 )
 from pytest_aitest.reporting.insights import (
     InsightsGenerationError,
-    create_placeholder_insights,
     generate_insights,
 )
 
@@ -24,7 +23,6 @@ __all__ = [
     "generate_session_mermaid",
     "get_provider",
     # Insights generation
-    "create_placeholder_insights",
     "generate_insights",
     "InsightsGenerationError",
 ]

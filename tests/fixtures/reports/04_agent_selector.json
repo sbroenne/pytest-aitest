@@ -170,11 +170,10 @@
           "details": "The content explicitly gives the current temperature (16\u00b0C / 61\u00b0F) and current conditions (Overcast) for Berlin."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "Basic weather query - all agents should pass."
+      "docstring": "Basic weather query - all agents should pass.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestAgentSelector::test_weather_query[gpt-4.1-mini]",
@@ -343,11 +342,10 @@
           "details": "The content states the current temperature (16\u00b0C / 61\u00b0F) and describes conditions in Berlin (overcast), plus humidity and wind details."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "Basic weather query - all agents should pass."
+      "docstring": "Basic weather query - all agents should pass.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestAgentSelector::test_weather_query[gpt-5-mini+skill]",
@@ -550,12 +548,11 @@
           "details": "The content explicitly states the current temperature (16\u00b0C / 61\u00b0F) and current conditions in Berlin (overcast, humidity 72%, light north wind ~10 km/h), satisfying the criterion."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini+skill",
-        "skill": "weather-expert"
-      },
-      "docstring": "Basic weather query - all agents should pass."
+      "docstring": "Basic weather query - all agents should pass.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini+skill",
+      "model": "gpt-5-mini",
+      "skill_name": "weather-expert"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestAgentSelector::test_multi_city[gpt-5-mini]",
@@ -768,11 +765,10 @@
           "details": "The content explicitly mentions Rome, Madrid, and Athens and refers to providing a general climate/typical-weather comparison for those cities (not live/current)."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini"
-      },
-      "docstring": "Multiple cities - tests differentiation between agents."
+      "docstring": "Multiple cities - tests differentiation between agents.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestAgentSelector::test_multi_city[gpt-4.1-mini]",
@@ -985,11 +981,10 @@
           "details": "The content explicitly mentions Rome, Madrid, and Athens (stating it does not have data for those cities)."
         }
       ],
-      "metadata": {
-        "model": "gpt-4.1-mini",
-        "agent_name": "gpt-4.1-mini"
-      },
-      "docstring": "Multiple cities - tests differentiation between agents."
+      "docstring": "Multiple cities - tests differentiation between agents.",
+      "agent_id": "",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestAgentSelector::test_multi_city[gpt-5-mini+skill]",
@@ -1273,12 +1268,11 @@
           "details": "The text explicitly names Rome, Madrid, and Athens, states live weather for them isn\u2019t available, and discusses proxies or providing general climate/climatology\u2014so it does mention weather for those cities."
         }
       ],
-      "metadata": {
-        "model": "gpt-5-mini",
-        "agent_name": "gpt-5-mini+skill",
-        "skill": "weather-expert"
-      },
-      "docstring": "Multiple cities - tests differentiation between agents."
+      "docstring": "Multiple cities - tests differentiation between agents.",
+      "agent_id": "",
+      "agent_name": "gpt-5-mini+skill",
+      "model": "gpt-5-mini",
+      "skill_name": "weather-expert"
     }
   ],
   "passed": 6,

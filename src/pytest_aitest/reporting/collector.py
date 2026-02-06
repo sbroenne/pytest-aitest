@@ -21,8 +21,12 @@ class TestReport:
         agent_result: Optional AgentResult from aitest_run
         error: Error message if test failed
         assertions: List of assertion results
-        metadata: Additional test metadata (model, prompt, etc.)
         docstring: Test function's docstring (first line) for human-readable description
+        agent_id: Agent UUID (from Agent.id)
+        agent_name: Display name for the agent
+        model: LLM model name (without provider prefix)
+        system_prompt_name: Label for the system prompt variant
+        skill_name: Name of the skill used
     """
 
     name: str
@@ -33,7 +37,7 @@ class TestReport:
     assertions: list[dict[str, Any]] = field(default_factory=list)
     docstring: str | None = None
 
-    # Agent identity (populated by plugin from Agent object, or from JSON)
+    # Agent identity (populated by plugin from Agent object)
     agent_id: str = ""
     agent_name: str = ""
     model: str = ""

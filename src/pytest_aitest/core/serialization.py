@@ -23,40 +23,6 @@ def serialize_dataclass(obj: Any) -> Any:
         return obj
 
 
-class DictWithAttrAccess(dict):
-    """Dict that allows attribute access to keys for backward compatibility."""
-
-    def __getattr__(self, key: str) -> Any:
-        try:
-            return self[key]
-        except KeyError as err:
-            raise AttributeError(
-                f"'{type(self).__name__}' object has no attribute '{key}'"
-            ) from err
-
-    def __setattr__(self, key: str, value: Any) -> None:
-        self[key] = value
-
-
-def to_dict_with_attr(obj: Any) -> Any:
-    """Convert dataclass to dict with attribute access support."""
-    if is_dataclass(obj) and not isinstance(obj, type):
-        data = asdict(obj)  # type: ignore[arg-type]
-        result = DictWithAttrAccess()
-        for k, v in data.items():
-            result[k] = to_dict_with_attr(v)
-        return result
-    elif isinstance(obj, (list, tuple)):
-        return [to_dict_with_attr(item) for item in obj]
-    elif isinstance(obj, dict):
-        result = DictWithAttrAccess()
-        for k, v in obj.items():
-            result[k] = to_dict_with_attr(v)
-        return result
-    else:
-        return obj
-
-
 def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
     """Deserialize a SuiteReport from a dict (from JSON).
 
@@ -108,13 +74,12 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
                 session_context_count=ar_data.get("session_context_count", 0),
             )
 
-        # Read identity from typed fields, falling back to metadata for old JSON
-        metadata = test_data.get("metadata", {})
-        agent_id = test_data.get("agent_id") or metadata.get("agent_id", "")
-        agent_name = test_data.get("agent_name") or metadata.get("agent_name", "")
-        model = test_data.get("model") or metadata.get("model", "")
-        system_prompt_name = test_data.get("system_prompt_name") or metadata.get("prompt")
-        skill_name = test_data.get("skill_name") or metadata.get("skill")
+        # Read identity from typed fields
+        agent_id = test_data.get("agent_id", "")
+        agent_name = test_data.get("agent_name", "")
+        model = test_data.get("model", "")
+        system_prompt_name = test_data.get("system_prompt_name")
+        skill_name = test_data.get("skill_name")
 
         # Reconstruct test report
         test_report = TestReport(

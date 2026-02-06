@@ -170,11 +170,10 @@
           "details": "The content explicitly states temperature as 18\u00b0C and also provides 64\u00b0F."
         }
       ],
-      "metadata": {
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "docstring": "Basic weather lookup - should pass."
+      "docstring": "Basic weather lookup - should pass.",
+      "agent_id": "",
+      "agent_name": "weather-agent",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_forecast_query",
@@ -344,11 +343,10 @@
           "details": "The content gives a 3-day forecast for Tokyo with temperatures, conditions, and precipitation chances for each day, satisfying the requirement for multiple-day weather information."
         }
       ],
-      "metadata": {
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "docstring": "Multi-day forecast - tests get_forecast tool."
+      "docstring": "Multi-day forecast - tests get_forecast tool.",
+      "agent_id": "",
+      "agent_name": "weather-agent",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_city_comparison",
@@ -518,11 +516,10 @@
           "details": "Provides both cities' temperatures (26\u00b0C vs 16\u00b0C) and explicitly states the temperature difference (~10\u00b0C / 18\u00b0F)."
         }
       ],
-      "metadata": {
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "docstring": "Compare two cities - multiple tool calls."
+      "docstring": "Compare two cities - multiple tool calls.",
+      "agent_id": "",
+      "agent_name": "weather-agent",
+      "model": "gpt-5-mini"
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_expected_failure",
@@ -763,11 +760,10 @@
       },
       "error": "      AssertionError: Agent exceeded turn limit - unable to process request for 5 cities (max_turns=1)\n      assert False",
       "assertions": [],
-      "metadata": {
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
-      },
-      "docstring": "Test that fails due to turn limit - for report variety."
+      "docstring": "Test that fails due to turn limit - for report variety.",
+      "agent_id": "",
+      "agent_name": "weather-agent",
+      "model": "gpt-5-mini"
     }
   ],
   "passed": 3,

@@ -133,18 +133,13 @@ def _load_legacy_report(
     Returns:
         Tuple of (LegacySuiteReport, ai_summary string, insights markdown string)
     """
-    # Extract AI summary if present (old format)
+    # Extract AI summary if present
     ai_summary = data.get("ai_summary")
 
-    # Check for insights - now a plain markdown string
+    # Check for insights - a plain markdown string
     insights = data.get("insights")
-    if insights:
-        # Handle both string (new) and dict (old format for backward compat)
-        if isinstance(insights, str):
-            ai_summary = ai_summary or insights
-        elif isinstance(insights, dict) and insights.get("markdown_summary"):
-            ai_summary = ai_summary or insights.get("markdown_summary")
-            insights = insights.get("markdown_summary")  # Extract string from dict
+    if insights and isinstance(insights, str):
+        ai_summary = ai_summary or insights
 
     # Deserialize tests
     tests = [_deserialize_test(t) for t in data.get("tests", [])]
@@ -169,13 +164,12 @@ def _deserialize_test(data: dict[str, Any]) -> LegacyTestReport:
     if "agent_result" in data:
         agent_result = _deserialize_agent_result(data["agent_result"])
 
-    # Read identity from typed fields, falling back to metadata for old JSON
-    metadata = data.get("metadata", {})
-    agent_id = data.get("agent_id") or metadata.get("agent_id", "")
-    agent_name = data.get("agent_name") or metadata.get("agent_name", "")
-    model = data.get("model") or metadata.get("model", "")
-    system_prompt_name = data.get("system_prompt_name") or metadata.get("prompt")
-    skill_name = data.get("skill_name") or metadata.get("skill")
+    # Read identity from typed fields
+    agent_id = data.get("agent_id", "")
+    agent_name = data.get("agent_name", "")
+    model = data.get("model", "")
+    system_prompt_name = data.get("system_prompt_name")
+    skill_name = data.get("skill_name")
 
     return LegacyTestReport(
         name=data.get("name", ""),
