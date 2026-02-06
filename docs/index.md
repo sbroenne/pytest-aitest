@@ -68,7 +68,7 @@ async def test_weather_query(aitest_run):
 ## Installation
 
 ```bash
-pip install pytest-aitest
+uv add pytest-aitest
 ```
 
 ## Documentation

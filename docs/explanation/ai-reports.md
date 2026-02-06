@@ -203,7 +203,7 @@ Currently, the prompt is embedded in the package. To customize:
 
 1. Fork the repository
 2. Edit `src/pytest_aitest/prompts/ai_summary.md`
-3. Install your fork: `pip install -e /path/to/fork`
+3. Install your fork: `uv pip install -e /path/to/fork`
 
 !!! note "Future: Custom Prompt Support"
     A future release will add `--aitest-analysis-prompt` to specify a custom prompt file.
