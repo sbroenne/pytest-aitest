@@ -1,14 +1,11 @@
 """Hero test suite for README showcase.
 
-A SINGLE cohesive banking scenario demonstrating ALL pytest-aitest capabilities:
+A cohesive banking scenario demonstrating ALL pytest-aitest capabilities:
 
-1. Basic Tool Usage - Check account balances, view transactions
-2. Multi-Tool Workflows - Transfer and verify, analyze transactions
-3. Session Continuity - Multi-turn financial planning conversation
-4. Model Comparison - Compare models on complex financial tasks
-5. Prompt Comparison - Compare advisory styles (concise vs detailed vs friendly)
-6. Skill Integration - Financial advisor skill enhancement
-7. Error Handling - Graceful recovery from invalid operations
+1. Model Comparison - Core tests run across ALL benchmark models (fair leaderboard)
+2. Multi-Turn Sessions - Context continuity across conversation turns
+3. Prompt Comparison - Compare advisory styles (concise vs detailed vs friendly)
+4. Skill Integration - Financial advisor skill enhancement
 
 Output: docs/demo/hero-report.html
 Command: pytest tests/showcase/ -v --aitest-html=docs/demo/hero-report.html
@@ -39,11 +36,14 @@ DEFAULT_MAX_TURNS = 8
 # Load prompts for system prompt comparison
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 
-# Banking system prompt
-BANKING_PROMPT_BASE = (
+# Banking system prompt — used for ALL core tests (same prompt = fair comparison)
+BANKING_PROMPT = (
     "You are a personal finance assistant helping users manage their bank accounts. "
     "You have access to tools for checking balances, making transfers, deposits, "
-    "withdrawals, and viewing transaction history."
+    "withdrawals, and viewing transaction history. "
+    "Always use your tools to look up real data before answering. "
+    "If an operation fails, explain why and suggest alternatives. "
+    "If a request is ambiguous, ask for clarification."
 )
 
 # =============================================================================
@@ -84,20 +84,25 @@ def financial_advisor_skill():
 
 
 # =============================================================================
-# 1. Basic Tool Usage - Single tool operations
+# 1. Core Tests - ALL models run ALL of these (fair leaderboard)
 # =============================================================================
 
 
-class TestBasicOperations:
-    """Basic single-tool operations demonstrating core functionality."""
+class TestCoreOperations:
+    """Core banking tests — parametrized across all benchmark models.
+
+    Every model runs the same tests with the same prompt, so the
+    leaderboard comparison is fair.
+    """
 
     @pytest.mark.asyncio
-    async def test_check_single_balance(self, aitest_run, banking_server):
-        """Check balance of one account - simplest possible test."""
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    async def test_check_single_balance(self, aitest_run, banking_server, model):
+        """Check balance of one account."""
         agent = Agent(
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -107,12 +112,13 @@ class TestBasicOperations:
         assert result.tool_was_called("get_balance")
 
     @pytest.mark.asyncio
-    async def test_view_all_balances(self, aitest_run, banking_server):
-        """View all account balances - demonstrates multi-account overview."""
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    async def test_view_all_balances(self, aitest_run, banking_server, model):
+        """View all account balances."""
         agent = Agent(
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -121,22 +127,14 @@ class TestBasicOperations:
         assert result.success
         assert result.tool_was_called("get_all_balances")
 
-
-# =============================================================================
-# 2. Multi-Tool Workflows - Complex operations requiring multiple tools
-# =============================================================================
-
-
-class TestMultiToolWorkflows:
-    """Complex workflows requiring coordination of multiple tools."""
-
     @pytest.mark.asyncio
-    async def test_transfer_and_verify(self, aitest_run, llm_assert, banking_server):
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    async def test_transfer_and_verify(self, aitest_run, llm_assert, banking_server, model):
         """Transfer money and verify the result with balance check."""
         agent = Agent(
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -151,12 +149,13 @@ class TestMultiToolWorkflows:
         assert llm_assert(result.final_response, "shows updated balances after transfer")
 
     @pytest.mark.asyncio
-    async def test_transaction_analysis(self, aitest_run, llm_assert, banking_server):
-        """Get transaction history and provide analysis."""
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    async def test_transaction_analysis(self, aitest_run, llm_assert, banking_server, model):
+        """Get transaction history and summarize spending."""
         agent = Agent(
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -168,9 +167,56 @@ class TestMultiToolWorkflows:
         assert result.success
         assert result.tool_was_called("get_transactions")
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    async def test_financial_advice(self, aitest_run, llm_assert, banking_server, model):
+        """Provide financial advice based on account data."""
+        agent = Agent(
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
+
+        result = await aitest_run(
+            agent,
+            "I have some money in checking. Should I move some to savings? "
+            "Check my balances and give me a recommendation.",
+        )
+
+        assert result.success
+        assert len(result.all_tool_calls) >= 1
+        assert llm_assert(
+            result.final_response,
+            "provides recommendation based on account balances",
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
+    async def test_insufficient_funds(self, aitest_run, llm_assert, banking_server, model):
+        """Handle insufficient funds gracefully."""
+        agent = Agent(
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
+
+        result = await aitest_run(
+            agent,
+            "Transfer $50,000 from my checking to savings.",
+        )
+
+        assert result.success
+        assert len(result.all_tool_calls) >= 1
+        assert llm_assert(
+            result.final_response,
+            "explains insufficient funds or suggests an alternative",
+        )
+
 
 # =============================================================================
-# 3. Session Continuity - Multi-turn conversation with context retention
+# 2. Session Continuity - Multi-turn conversation (single model)
 # =============================================================================
 
 
@@ -191,7 +237,7 @@ class TestSavingsPlanningSession:
             name="savings-01",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -212,7 +258,7 @@ class TestSavingsPlanningSession:
             name="savings-02",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -231,7 +277,7 @@ class TestSavingsPlanningSession:
             name="savings-03",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -245,42 +291,7 @@ class TestSavingsPlanningSession:
 
 
 # =============================================================================
-# 4. Model Comparison - Compare different LLMs on same task
-# =============================================================================
-
-
-class TestModelComparison:
-    """Compare how different models handle financial tasks."""
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_financial_advice_quality(
-        self, aitest_run, llm_assert, banking_server, model: str
-    ):
-        """Compare models on providing financial advice."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
-        result = await aitest_run(
-            agent,
-            "I have some money in checking. Should I move some to savings? "
-            "Check my balances and give me a recommendation.",
-        )
-
-        assert result.success
-        assert len(result.all_tool_calls) >= 1, f"Model {model} should use tools"
-        assert llm_assert(
-            result.final_response,
-            "provides recommendation based on account balances",
-        )
-
-
-# =============================================================================
-# 5. Prompt Comparison - Compare different system prompts
+# 3. Prompt Comparison - Same model, different system prompts
 # =============================================================================
 
 
@@ -296,7 +307,10 @@ ADVISOR_PROMPTS = _load_advisor_prompts()
 
 @pytest.mark.skipif(len(ADVISOR_PROMPTS) == 0, reason="No prompts found")
 class TestPromptComparison:
-    """Compare how different prompt styles affect responses."""
+    """Compare how different prompt styles affect responses.
+
+    Same model, same test — only the system prompt varies.
+    """
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("prompt_name,system_prompt", ADVISOR_PROMPTS.items())
@@ -322,7 +336,7 @@ class TestPromptComparison:
 
 
 # =============================================================================
-# 6. Skill Integration - Test with domain knowledge
+# 4. Skill Integration - Test with domain knowledge
 # =============================================================================
 
 
@@ -340,7 +354,7 @@ class TestSkillEnhancement:
         agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE,
+            system_prompt=BANKING_PROMPT,
             skill=financial_advisor_skill,
             max_turns=DEFAULT_MAX_TURNS,
         )
@@ -355,58 +369,4 @@ class TestSkillEnhancement:
         assert llm_assert(
             result.final_response,
             "provides financial advice about savings or emergency funds",
-        )
-
-
-# =============================================================================
-# 7. Error Handling - Graceful recovery from invalid operations
-# =============================================================================
-
-
-class TestErrorHandling:
-    """Test graceful handling of edge cases and errors."""
-
-    @pytest.mark.asyncio
-    async def test_insufficient_funds_recovery(self, aitest_run, llm_assert, banking_server):
-        """Agent should handle insufficient funds gracefully."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE
-            + " If an operation fails, explain why and suggest alternatives.",
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
-        result = await aitest_run(
-            agent,
-            "Transfer $50,000 from my checking to savings.",
-        )
-
-        assert result.success
-        assert result.tool_was_called("transfer") or result.tool_was_called("get_balance")
-        assert llm_assert(
-            result.final_response,
-            "explains insufficient funds or suggests an alternative",
-        )
-
-    @pytest.mark.asyncio
-    async def test_ambiguous_request_clarification(self, aitest_run, llm_assert, banking_server):
-        """Agent should ask for clarification on ambiguous requests."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE
-            + " Ask for clarification when requests are ambiguous.",
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
-        result = await aitest_run(
-            agent,
-            "Move some money around.",
-        )
-
-        assert result.success
-        assert llm_assert(
-            result.final_response,
-            "asks for clarification OR explains what information is needed",
         )
