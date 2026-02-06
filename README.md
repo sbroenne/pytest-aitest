@@ -38,9 +38,9 @@ If the test fails, your tool descriptions need work — not your code.
 
 ## AI-Powered Reports
 
-AI analyzes your results and tells you **what to fix**: which model to deploy, how to improve tool descriptions, where to cut costs. [See a sample report →](https://sbroenne.github.io/pytest-aitest/demo/hero-report.html)
+AI analyzes your results and tells you **what to fix**: which model to deploy, how to improve tool descriptions, where to cut costs. [See a sample report →](https://sbroenne.github.io/pytest-aitest/reports/05_hero.html)
 
-> **Deploy: gpt-4.1-mini** — Achieves 100% pass rate at ~55–70% lower cost. Strengthen `compare_weather` description to encourage single-call logic instead of multiple `get_weather` calls. Estimated impact: ~15–25% cost reduction.
+> **Deploy: gpt-5-mini** — Highest pass rate at ~4–6x lower cost than gpt-4.1. gpt-4.1 disqualified due to failed core transfer test and session-planning failure.
 
 ## Quick Start
 
