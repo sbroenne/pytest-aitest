@@ -125,15 +125,15 @@ Test servers across multiple models to find interactions:
 
 ```python
 MODELS = ["gpt-5-mini", "gpt-4.1"]
-SERVERS = [weather_v1, weather_v2]
+SERVERS = {"v1": weather_v1, "v2": weather_v2}
 
 AGENTS = [
     Agent(
-        name=f"{server.name}-{model}",
+        name=f"{server_name}-{model}",
         provider=Provider(model=f"azure/{model}"),
         mcp_servers=[server],
     )
-    for server in SERVERS
+    for server_name, server in SERVERS.items()
     for model in MODELS
 ]
 

@@ -173,6 +173,8 @@ Stateful banking service for multi-turn session testing.
 | `get_balance` | Get balance for one account |
 | `get_all_balances` | Get balances for all accounts |
 | `transfer` | Move money between accounts |
+| `deposit` | Deposit money into an account |
+| `withdraw` | Withdraw money from an account |
 | `get_transactions` | View transaction history |
 
 ### Initial State
@@ -248,7 +250,7 @@ print(result.value["total_formatted"])  # "$4,500.00"
 
 ```python
 from dataclasses import dataclass
-from pytest_aitest.testing.store import ToolResult
+from pytest_aitest.testing.types import ToolResult
 
 @dataclass
 class MyStore:

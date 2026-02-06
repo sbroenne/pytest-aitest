@@ -10,7 +10,7 @@ Validate agent behavior using `AgentResult` properties and methods.
 | `final_response` | `str` | The agent's final text response |
 | `turns` | `list[Turn]` | All execution turns |
 | `duration_ms` | `float` | Total execution time |
-| `token_usage` | `dict[str, int]` | Prompt/completion/total tokens |
+| `token_usage` | `dict[str, int]` | Prompt and completion token counts |
 | `cost_usd` | `float` | Estimated cost in USD |
 | `error` | `str \| None` | Error message if failed |
 

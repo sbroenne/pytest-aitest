@@ -40,7 +40,7 @@ The Agent is the **test harness** that bundles an LLM with the configuration you
 | Component | Required | Example |
 |-----------|----------|---------|
 | Provider | ✓ | `Provider(model="azure/gpt-5-mini")` |
-| MCP Servers | ✓ | `MCPServer(command=["python", "server.py"])` |
+| MCP Servers | Optional | `MCPServer(command=["python", "server.py"])` |
 | System Prompt | Optional | `"Be concise and direct."` |
 | Skill | Optional | `Skill.from_path("skills/weather")` |
 

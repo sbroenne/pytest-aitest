@@ -27,7 +27,6 @@ For LLMs, your API isn't functions and types — it's **tool descriptions, syste
 Write tests as natural language prompts. An **Agent** is your test harness — it combines an LLM provider, MCP servers, and optional configuration:
 
 ```python
-@pytest.mark.asyncio
 async def test_weather_comparison(aitest_run, weather_server):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),   # LLM provider
@@ -86,7 +85,6 @@ Use pytest parametrize to find what works best:
 
 ```python
 @pytest.mark.parametrize("model", ["gpt-5-mini", "gpt-4.1"])
-@pytest.mark.asyncio
 async def test_tool_usage(aitest_run, weather_server, model):
     agent = Agent(provider=Provider(model=f"azure/{model}"), ...)
     result = await aitest_run(agent, "What's the weather in Paris?")
@@ -118,9 +116,6 @@ class TestBankingWorkflow:
 
 ```bash
 uv add pytest-aitest
-# or
-pip install pytest-aitest
-
 ```
 
 ### Configure
@@ -159,7 +154,6 @@ from pytest_aitest import Agent, Provider, MCPServer
 def my_server():
     return MCPServer(command=["python", "-m", "my_mcp_server"])
 
-@pytest.mark.asyncio
 async def test_basic_query(aitest_run, my_server):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),

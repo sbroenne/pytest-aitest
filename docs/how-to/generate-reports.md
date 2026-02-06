@@ -99,8 +99,7 @@ The AI detects *what varies* between agents to focus its analysis:
 When comparing Agents, rankings are based on:
 
 1. **Pass rate** (primary) — higher is better
-2. **Efficiency** (secondary) — passes per 1K tokens
-3. **Total cost** (tiebreaker) — lower is better
+2. **Total cost** (tiebreaker) — lower is better
 
 ## AI Insights
 
