@@ -119,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nOpening {len(generated)} file(s) in browser...")
         for html_path in generated:
             if sys.platform == "win32":
-                subprocess.run(["start", str(html_path)], shell=True)
+                subprocess.run(["start", str(html_path)])
             elif sys.platform == "darwin":
                 subprocess.run(["open", str(html_path)])
             else:

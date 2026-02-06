@@ -26,7 +26,7 @@ def build_css(watch: bool = False) -> None:
     cmd = ["npm", "run", script]
     
     print(f"Running: {' '.join(cmd)} in {TEMPLATES_DIR}")
-    result = subprocess.run(cmd, cwd=TEMPLATES_DIR, shell=True)
+    result = subprocess.run(cmd, cwd=TEMPLATES_DIR)
     
     if result.returncode == 0 and not watch:
         size = OUTPUT_CSS.stat().st_size
