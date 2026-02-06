@@ -21,5 +21,15 @@ repos:
         types: [python]
         pass_filenames: false
 
+  # Docs: MkDocs build (via uv)
+  - repo: local
+    hooks:
+      - id: mkdocs-build
+        name: "Docs Build"
+        entry: uv run mkdocs build --strict
+        language: system
+        files: ^(docs/|mkdocs\.yml|src/pytest_aitest/)
+        pass_filenames: false
+
 # Note: CodeQL ❌ runs on GitHub Actions (not pre-commit)
 # See: .github/workflows/codeql.yml

@@ -143,7 +143,7 @@ if not result.success:
 For semantic validation, use [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert):
 
 ```bash
-pip install pytest-llm-assert
+uv add pytest-llm-assert
 ```
 
 ```python

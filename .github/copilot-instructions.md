@@ -17,6 +17,17 @@
 
 Always say "system prompt" when referring to agent instructions. Never abbreviate to just "prompt".
 
+## CRITICAL: Use uv, Not pip
+
+**This project uses `uv` exclusively. Never use pip.**
+
+- Install packages: `uv add <package>` (not `pip install`)
+- Run commands: `uv run <command>` (not direct invocation)
+- Install editable: `uv pip install -e .` (not `pip install -e`)
+- Sync deps: `uv sync` (not `pip install -r requirements.txt`)
+
+In documentation, always show `uv add` instead of `pip install`.
+
 ## CRITICAL: What We Test
 
 **We do NOT test agents. We USE agents to test:**
