@@ -198,6 +198,8 @@ pytest-aitest automatically enriches JUnit XML with agent metadata as `<property
     <property name="aitest.model" value="gpt-5-mini"/>
     <property name="aitest.skill" value="weather-expert"/>
     <property name="aitest.prompt" value="concise"/>
+    <property name="aitest.servers" value="weather_mcp,calendar_mcp"/>
+    <property name="aitest.allowed_tools" value="get_forecast,get_weather"/>
     <property name="aitest.tokens.input" value="1250"/>
     <property name="aitest.tokens.output" value="89"/>
     <property name="aitest.cost_usd" value="0.000425"/>
@@ -214,6 +216,8 @@ pytest-aitest automatically enriches JUnit XML with agent metadata as `<property
 | `aitest.model` | LLM model used |
 | `aitest.skill` | Skill name (if used) |
 | `aitest.prompt` | System prompt name (if parametrized) |
+| `aitest.servers` | Comma-separated list of MCP server names |
+| `aitest.allowed_tools` | Tool filter from Agent (if specified) |
 | `aitest.tokens.input` | Input tokens consumed |
 | `aitest.tokens.output` | Output tokens generated |
 | `aitest.cost_usd` | Estimated cost in USD |

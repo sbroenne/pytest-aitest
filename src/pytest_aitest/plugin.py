@@ -320,13 +320,15 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     collector.add_test(test_report)
 
     # Enrich JUnit XML with agent metadata (user_properties → <property> elements)
-    _add_junit_properties(report, agent_result, metadata)
+    agent = getattr(item, "_aitest_agent", None)
+    _add_junit_properties(report, agent_result, metadata, agent)
 
 
 def _add_junit_properties(
     report: PytestTestReport,
     agent_result: Any,
     metadata: dict[str, str],
+    agent: Any | None = None,
 ) -> None:
     """Add agent metadata to pytest report for JUnit XML output.
 
@@ -361,6 +363,23 @@ def _add_junit_properties(
     # System prompt name (from metadata, if available)
     if metadata.get("prompt"):
         props.append(("aitest.prompt", metadata["prompt"]))
+
+    # MCP servers (from agent config)
+    if agent and agent.mcp_servers:
+        server_names = []
+        for server in agent.mcp_servers:
+            # Use server.name if available, otherwise derive from command
+            name = getattr(server, "name", None)
+            if not name and hasattr(server, "command") and server.command:
+                name = server.command[-1].split("/")[-1].split(".")[0]
+            if name:
+                server_names.append(name)
+        if server_names:
+            props.append(("aitest.servers", ",".join(server_names)))
+
+    # Allowed tools filter (from agent config)
+    if agent and agent.allowed_tools:
+        props.append(("aitest.allowed_tools", ",".join(sorted(agent.allowed_tools))))
 
     # Token usage
     if agent_result.token_usage:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from pytest_aitest.core.agent import Agent, MCPServer, Provider, Wait
 from pytest_aitest.core.result import AgentResult, SkillInfo, ToolCall, Turn
 from pytest_aitest.plugin import _add_junit_properties
 
@@ -198,4 +199,76 @@ class TestAddJunitProperties:
         assert props["aitest.cost_usd"] == "0.001250"
         assert props["aitest.turns"] == "1"
         assert props["aitest.tools.called"] == "get_weather"
+        assert props["aitest.success"] == "true"
+
+    def test_mcp_servers(self) -> None:
+        """Test MCP server names are added from agent config."""
+        report = MockReport()
+        result = AgentResult(turns=[], success=True)
+        agent = Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[
+                MCPServer(
+                    command=["python", "-m", "weather_mcp"],
+                    wait=Wait.for_tools(["get_weather"]),
+                ),
+                MCPServer(
+                    command=["python", "-m", "calendar_mcp"],
+                    wait=Wait.for_tools(["create_event"]),
+                ),
+            ],
+        )
+
+        _add_junit_properties(report, result, {}, agent)
+
+        props = dict(report.user_properties)
+        assert props["aitest.servers"] == "weather_mcp,calendar_mcp"
+
+    def test_allowed_tools(self) -> None:
+        """Test allowed_tools filter is added from agent config."""
+        report = MockReport()
+        result = AgentResult(turns=[], success=True)
+        agent = Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            allowed_tools=["get_weather", "get_forecast"],
+        )
+
+        _add_junit_properties(report, result, {}, agent)
+
+        props = dict(report.user_properties)
+        assert props["aitest.allowed_tools"] == "get_forecast,get_weather"
+
+    def test_full_example_with_agent(self) -> None:
+        """Test complete example with agent config included."""
+        report = MockReport()
+        result = AgentResult(
+            turns=[
+                Turn(
+                    role="assistant",
+                    content="Weather in Paris: 18°C",
+                    tool_calls=[ToolCall(name="get_weather", arguments={"city": "Paris"})],
+                ),
+            ],
+            success=True,
+            agent_name="weather-agent",
+            model="gpt-5-mini",
+            skill_info=SkillInfo(name="weather-expert", description="", instruction_content=""),
+            token_usage={"prompt_tokens": 500, "completion_tokens": 50, "total_tokens": 550},
+            cost_usd=0.00125,
+        )
+        agent = Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[
+                MCPServer(command=["python", "-m", "weather_mcp"], wait=Wait.ready()),
+            ],
+            allowed_tools=["get_weather", "get_forecast"],
+        )
+
+        _add_junit_properties(report, result, {"prompt": "detailed"}, agent)
+
+        props = dict(report.user_properties)
+        assert props["aitest.agent.name"] == "weather-agent"
+        assert props["aitest.model"] == "gpt-5-mini"
+        assert props["aitest.servers"] == "weather_mcp"
+        assert props["aitest.allowed_tools"] == "get_forecast,get_weather"
         assert props["aitest.success"] == "true"
