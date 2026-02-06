@@ -1,283 +1,264 @@
-# LLM Interface Testing
+# pytest-aitest
 
 [![PyPI version](https://img.shields.io/pypi/v/pytest-aitest)](https://pypi.org/project/pytest-aitest/)
 [![Python versions](https://img.shields.io/pypi/pyversions/pytest-aitest)](https://pypi.org/project/pytest-aitest/)
 [![CI](https://github.com/sbroenne/pytest-aitest/actions/workflows/ci.yml/badge.svg)](https://github.com/sbroenne/pytest-aitest/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### Agent Contract Testing for MCP Servers and Tools
+# Test your AI interfaces. Get actionable AI-powered insights.
 
-**Behavioural testing for LLM-operated systems.**
+A pytest plugin for validating whether language models can understand and operate your MCP servers, tools, prompts, and skills. Generates AI-powered insights & reports that tell you *what to fix*, not just *what failed*.
 
-A pytest plugin for validating whether language models can actually understand and operate your interfaces: MCP servers, agents, prompts, and tools.
+## The Problem
 
-It tests the *LLM-facing contract* — not just the underlying code.
+Your MCP server passes all unit tests. Then an LLM tries to use it and:
 
----
-
-## What Problem This Solves
-
-Traditional tests validate deterministic code paths.  
-LLM-driven systems fail differently.
-
-Your implementation can be correct, fully tested, and deployed — and still fail because the model:
-
-- Chooses the wrong tool
-- Supplies incorrect parameters
+- Picks the wrong tool
+- Passes garbage parameters
 - Can't recover from errors
-- Changes behaviour after a prompt or model update
+- Ignores your system prompt instructions
 
-These failures don't show up in unit tests, and manual testing doesn't scale.
+**Why?** Because you tested the code, not the AI interface.
 
-**The root cause:**  
-Your real API is no longer just functions and endpoints.  
-It is the **LLM-facing interface** — descriptions, schemas, prompts, and error semantics.
+For LLMs, your API isn't functions and types — it's **tool descriptions, system prompts, skills, and schemas**. These are what the LLM actually sees. Traditional tests can't validate them.
 
----
+## The Solution
 
-## Core Idea
-
-### Your test is the prompt.
-
-Instead of scripting expected tool calls, you write what a user would say.
-
-The model decides:
-- Whether to act
-- Which tool to use
-- How to supply parameters
-- How to respond
-
-Your test asserts on the *observed behaviour*.
+Write tests as natural language prompts. An **Agent** is your test harness — it combines an LLM provider, MCP servers, and optional configuration:
 
 ```python
 @pytest.mark.asyncio
-async def test_trip_planning(aitest_run, weather_agent_factory):
-    """User asks for trip advice → LLM should compare forecasts."""
-    agent = weather_agent_factory("gpt-5-mini", max_turns=10)
+async def test_weather_comparison(aitest_run, weather_server):
+    agent = Agent(
+        provider=Provider(model="azure/gpt-5-mini"),   # LLM provider
+        mcp_servers=[weather_server],                  # MCP servers with tools
+        system_prompt="Be concise.",                   # System Prompt (optional)
+        skill=weather_skill,                           # Agent Skill (optional)
+    )
 
-    # The test IS the prompt
     result = await aitest_run(
         agent,
-        "I'm planning a trip and can't decide between Paris and Sydney. "
-        "Get me a 3-day forecast for both and recommend which has better "
-        "weather for sightseeing. I prefer sunny weather.",
+        "Compare weather in Paris and Tokyo. Which is better for a picnic?",
     )
 
-    assert result.success
-    assert result.tool_call_count("get_forecast") >= 2  # Called for both cities
-    assert "paris" in result.final_response.lower()
-    assert "sydney" in result.final_response.lower()
-```
-
-No mocking. No forced tool calls.  
-The model infers everything from the interface you expose.
-
----
-
-## Features
-
-### Test MCP Servers
-
-Run real models against real interfaces:
-
-- Tool discovery and selection
-- Parameter inference
-- Multi-step workflows
-- Error handling and recovery
-
-```python
-@pytest.fixture(scope="module")
-def weather_server():
-    return MCPServer(
-        command=[sys.executable, "-m", "my_weather_mcp"],
-        wait=Wait.for_tools(["get_weather", "get_forecast"]),
-    )
-```
-
-### Benchmark Models
-
-Compare models using native pytest parametrize:
-
-```python
-@pytest.mark.parametrize("model", ["gpt-5-mini", "gpt-4.1"])
-@pytest.mark.asyncio
-async def test_tool_selection(aitest_run, weather_server, model):
-    agent = Agent(
-        provider=Provider(model=f"azure/{model}"),
-        mcp_servers=[weather_server],
-        system_prompt="You are a helpful weather assistant.",
-        max_turns=5,
-    )
-    result = await aitest_run(agent, "What's the weather in Paris?")
     assert result.success
     assert result.tool_was_called("get_weather")
 ```
 
-Reports show pass rate, token usage, and cost per model.
+The agent runs your prompt, calls tools, and returns results. You assert on what happened. If the test fails, your tool descriptions need work — not your code.
 
-### Prompt Arena
+**What you're testing:**
 
-Compare system prompts head-to-head:
+| Component | Question It Answers |
+|-----------|---------------------|
+| MCP Server | Can an LLM understand and use my tools? |
+| System Prompt | Does this behavior definition produce the results I want? |
+| Agent Skill | Does this domain knowledge help the agent perform? |
+
+See [Getting Started](docs/getting-started/index.md) for details on each component.
+
+## What Makes This Different
+
+### AI-Powered Reports
+
+Reports don't just show pass/fail — they tell you **what to do**. Here's actual output analyzing 2 LLM models:
+
+> ## 🎯 Recommendation
+>
+> **Deploy: gpt-4.1-mini** (default prompt)
+>
+> Achieves **100% pass rate at ~55–70% lower cost** than gpt-5-mini, with equal tool correctness and acceptable response quality.
+>
+> - **Simple weather:** $0.000297 (vs $0.000342 — 13% cheaper)
+> - **Forecast:** $0.000575 (vs $0.001508 — 62% cheaper)  
+> - **Comparison:** $0.000501 (vs $0.001785 — 72% cheaper)
+>
+> ## 🔧 MCP Tool Feedback
+>
+> | Tool | Status | Calls | Issue |
+> |------|--------|-------|-------|
+> | `get_weather` | ✅ | 6 | Working well |
+> | `get_forecast` | ✅ | 2 | Working well |
+> | `compare_weather` | ✅ | 1 | Consider strengthening description |
+> | `list_cities` | ⚠️ | 0 | Not exercised |
+>
+> **Suggested improvement for `compare_weather`:**
+> > Compare current weather between two cities and return per-city conditions plus computed differences (temperature, humidity deltas). Use instead of calling `get_weather` twice.
+>
+> ## 💡 Optimizations
+>
+> **Cost reduction opportunity:** Strengthen `compare_weather` description to encourage single-call logic instead of multiple `get_weather` calls. **Estimated impact: ~15–25% cost reduction** on comparison queries.
+
+*Generates [interactive HTML reports](https://sbroenne.github.io/pytest-aitest/docs/reports/02_multi_agent.html) with agent leaderboards, comparison tables, and sequence diagrams.*
+
+### Compare Configurations
+
+Use pytest parametrize to find what works best:
 
 ```python
-PROMPTS = load_prompts(Path("tests/integration/prompts/"))
-
-@pytest.mark.parametrize("prompt", PROMPTS, ids=lambda p: p.name)
+@pytest.mark.parametrize("model", ["gpt-5-mini", "gpt-4.1"])
 @pytest.mark.asyncio
-async def test_prompt_effectiveness(aitest_run, weather_server, prompt):
-    agent = Agent(
-        provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
-        system_prompt=prompt.system_prompt,
-        max_turns=5,
-    )
+async def test_tool_usage(aitest_run, weather_server, model):
+    agent = Agent(provider=Provider(model=f"azure/{model}"), ...)
     result = await aitest_run(agent, "What's the weather in Paris?")
     assert result.success
 ```
 
-### Matrix Testing
+Reports show which model/prompt/Agent Skill combination performs best.
 
-Test every model × prompt combination:
+### Multi-Turn Sessions
+
+Test conversations that build on context:
 
 ```python
-@pytest.mark.parametrize("model", ["gpt-5-mini", "gpt-4.1"])
-@pytest.mark.parametrize("prompt", PROMPTS, ids=lambda p: p.name)
-@pytest.mark.asyncio
-async def test_matrix(aitest_run, weather_server, model, prompt):
-    # Full grid: surface brittle pairings
-    ...
+@pytest.mark.session("banking-flow")
+class TestBankingWorkflow:
+    async def test_check_balance(self, aitest_run, bank_agent):
+        result = await aitest_run(bank_agent, "What's my balance?")
+        assert result.success
+
+    async def test_transfer(self, aitest_run, bank_agent):
+        # Remembers context from previous test
+        result = await aitest_run(bank_agent, "Transfer $100 to savings")
+        assert result.tool_was_called("transfer")
 ```
 
-### AI Judge
+## Quick Start
 
-Semantic assertions using LLM evaluation — validate response quality, not just tool usage:
+### Install
+
+```bash
+uv add pytest-aitest
+# or
+pip install pytest-aitest
+
+# For Azure OpenAI with Entra ID authentication
+pip install pytest-aitest[azure]
+```
+
+### Configure
+
+Add to `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+addopts = """
+--aitest-summary-model=azure/gpt-5.2-chat
+--aitest-html=aitest-reports/report.html
+"""
+```
+
+Set your LLM provider credentials:
+
+```bash
+# Azure (recommended)
+export AZURE_API_BASE=https://your-resource.openai.azure.com/
+az login
+
+# Or OpenAI
+export OPENAI_API_KEY=sk-xxx
+```
+
+See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for 100+ supported providers.
+
+### Write Tests
 
 ```python
+# test_my_mcp_server.py
+import pytest
+from pytest_aitest import Agent, Provider, MCPServer
+
+@pytest.fixture
+def my_server():
+    return MCPServer(command=["python", "-m", "my_mcp_server"])
+
 @pytest.mark.asyncio
-async def test_recommendation_quality(aitest_run, weather_agent_factory, judge):
-    agent = weather_agent_factory("gpt-5-mini", max_turns=10)
-
-    result = await aitest_run(
-        agent,
-        "Compare weather in Paris and Sydney. Which is better for sightseeing?",
+async def test_basic_query(aitest_run, my_server):
+    agent = Agent(
+        provider=Provider(model="azure/gpt-5-mini"),
+        mcp_servers=[my_server],
     )
-
+    result = await aitest_run(agent, "Do something useful")
     assert result.success
-    assert judge(result.final_response, """
-        - Mentions weather for both Paris and Sydney
-        - Makes a recommendation for one city
-        - Provides reasoning based on weather data
-    """)
 ```
 
-Uses [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert) under the hood.
+### Run
 
-### CLI Server
-
-Test command-line tools as if they were MCP servers:
-
-```python
-@pytest.fixture(scope="module")
-def git_server():
-    return CLIServer(
-        name="git",
-        command="git",
-        tool_prefix="git",
-    )
+```bash
+pytest tests/
 ```
 
-Help is discovered automatically — CLIServer runs `--help` at startup and includes the output in the tool description. Customize with `help_flag="-h"` for different CLIs, or provide a `description` directly for full control.
+Reports with AI insights are generated automatically based on your `pyproject.toml` config.
 
-See [CLI Server Guide](docs/cli-server.md) for shell selection, help discovery, and assertions.
+## Features at a Glance
 
----
+| Feature | Description |
+|---------|-------------|
+| **MCP Server Testing** | Real models against real tool interfaces |
+| **CLI Server Testing** | Test CLIs as if they were MCP servers |
+| **Agent Comparison** | Compare any combination of Model, Prompt, Skill, Server |
+| **Agent Leaderboard** | Ranked by pass rate → cost |
+| **Threshold Filtering** | Disqualify agents below minimum pass rate |
+| **Multi-Turn Sessions** | `@pytest.mark.session` for conversations |
+| **AI Judge** | Semantic assertions via [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert) |
+| **AI-Powered Reports** | Actionable insights, not just metrics |
+
+## How Comparison Works
+
+An **Agent** is a configuration: Model + System Prompt + Skill + Server(s).
+
+pytest-aitest auto-detects what varies between agents:
+
+| What Varies | Report Shows |
+|-------------|--------------|
+| Only Model | Model Comparison + Leaderboard |
+| Only Prompt | Prompt Comparison + Leaderboard |
+| Only Skill | Skill Comparison + Leaderboard |
+| Only Server | Server A/B Comparison |
+| Model + Prompt | Model × Prompt Matrix |
+| Multiple | Agent Leaderboard (all dimensions) |
+
+**Winning Agent:** Highest pass rate → Lowest cost (tiebreaker)
+
+Use `--aitest-min-pass-rate=95` to disqualify agents below 95%.
+
+**[→ See the complete example guide](docs/how-to/complete-example.md)**
+
+## Documentation
+
+📚 **[Full Documentation](https://sbroenne.github.io/pytest-aitest/)** (coming soon)
+
+- **[Getting Started](docs/getting-started/index.md)** — Write your first test
+- **[How-To Guides](docs/how-to/index.md)** — Solve specific problems
+- **[Reference](docs/reference/index.md)** — API and configuration
+- **[Explanation](docs/explanation/index.md)** — Design philosophy
 
 ## Why pytest?
 
 This is a **pytest plugin**, not a standalone tool.
 
-- Use existing fixtures, markers, and parametrize
-- Works with your CI/CD pipeline
-- No new syntax to learn
+- Use existing fixtures, markers, parametrize
+- Works with CI/CD pipelines  
 - Combine with other pytest plugins
-
----
-
-## What This Is Not
-
-- A replacement for unit tests
-- A mock-based simulator
-- A guarantee of perfect model behaviour
-
-This tool complements traditional testing by covering LLM behaviour, which conventional tests cannot observe.
-
----
+- No new syntax to learn
 
 ## Who This Is For
 
-- MCP server authors
-- Agent and tool builders
-- Teams exposing APIs to LLMs
-- Anyone shipping systems where models operate tools autonomously
-
----
-
-## Installation
-
-```bash
-# Using uv (recommended)
-uv add pytest-aitest
-
-# Using pip
-pip install pytest-aitest
-```
-
-## Setup
-
-Works out of the box with cloud identity:
-
-```bash
-# Azure (Entra ID)
-export AZURE_API_BASE=https://your-resource.openai.azure.com/
-az login
-
-# OpenAI
-export OPENAI_API_KEY=sk-...
-```
-
-Supports 100+ providers via [LiteLLM](https://docs.litellm.ai/docs/providers).
-
----
-
-## Documentation
-
-- **[Configuration](docs/configuration.md)** — Providers, agents, fixtures
-- **[CLI Server](docs/cli-server.md)** — Test CLI tools with help discovery
-- **[MCP Server](docs/mcp-server.md)** — MCP server configuration and wait strategies
-- **[Assertions](docs/assertions.md)** — AgentResult API and AI judge patterns
-- **[Reporting](docs/reporting.md)** — HTML reports and AI summaries
-- **[API Reference](docs/api-reference.md)** — Full API documentation
-- **[Design](docs/DESIGN.md)** — Architecture and design decisions
-
----
-
-## Coming Soon
-
-- **Multi-turn Conversations** — `continue_from()` for stateful sessions
-- **Prompt Templates** — YAML-based prompt management
-
----
-
-## Related
-
-- **[pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert)** — Semantic assertions for pytest
-- **[Contributing](CONTRIBUTING.md)** — Development setup and guidelines
+- **MCP server authors** — Validate tool descriptions work
+- **Agent builders** — Compare models and prompts
+- **Teams shipping AI systems** — Catch LLM-facing regressions
+- **Anyone with tools LLMs operate** — Test the actual interface
 
 ## Requirements
 
 - Python 3.11+
 - pytest 9.0+
 - An LLM provider (Azure, OpenAI, Anthropic, etc.)
+
+## Related
+
+- **[pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert)** — Semantic assertions
+- **[Contributing](CONTRIBUTING.md)** — Development setup
 
 ## License
 

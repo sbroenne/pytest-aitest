@@ -8,15 +8,16 @@ from pytest_aitest.core.agent import (
     Provider,
     Wait,
 )
+from pytest_aitest.core.auth import get_azure_ad_token_provider, get_azure_auth_kwargs
 from pytest_aitest.core.errors import AITestError, EngineTimeoutError, ServerStartError
-from pytest_aitest.core.prompt import Prompt, load_prompt, load_prompts
-from pytest_aitest.core.result import AgentResult, ToolCall, Turn
+from pytest_aitest.core.prompt import Prompt, load_prompt, load_prompts, load_system_prompts
+from pytest_aitest.core.result import AgentResult, SkillInfo, ToolCall, ToolInfo, Turn
 from pytest_aitest.core.skill import Skill, SkillError, SkillMetadata, load_skill
 
 __all__ = [
+    "AITestError",
     "Agent",
     "AgentResult",
-    "AITestError",
     "CLIExecution",
     "CLIServer",
     "EngineTimeoutError",
@@ -26,11 +27,16 @@ __all__ = [
     "ServerStartError",
     "Skill",
     "SkillError",
+    "SkillInfo",
     "SkillMetadata",
     "ToolCall",
+    "ToolInfo",
     "Turn",
     "Wait",
+    "get_azure_ad_token_provider",
+    "get_azure_auth_kwargs",
     "load_prompt",
     "load_prompts",
     "load_skill",
+    "load_system_prompts",
 ]

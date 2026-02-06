@@ -118,8 +118,9 @@ class CLIServer:
     Wraps a single CLI command (like `git`, `docker`, `echo`) and exposes it
     as a tool the LLM can call with arbitrary arguments.
 
-    By default, runs `command --help` to discover available subcommands and
-    include them in the tool description.
+    By default, help discovery is DISABLED. The LLM must run `command --help`
+    itself to discover available subcommands. This tests that your skill/prompt
+    properly instructs the LLM to discover CLI capabilities.
 
     Example:
         CLIServer(
@@ -129,19 +130,18 @@ class CLIServer:
             shell="bash",           # Shell to use (default: auto-detect)
         )
 
-        # Custom help flag for CLIs that don't use --help
+        # Enable auto-discovery (pre-populates tool description with help output)
         CLIServer(
-            name="custom-cli",
+            name="my-cli",
             command="my-tool",
-            help_flag="-h",         # Use -h instead of --help
+            discover_help=True,     # Runs --help and includes in tool description
         )
 
-        # Custom description instead of help discovery
+        # Custom description instead of discovery
         CLIServer(
             name="legacy-cli",
             command="old-tool",
             description="Manages legacy data. Use: list, get <id>, delete <id>",
-            discover_help=False,
         )
 
     The generated tool accepts an `args` parameter:
@@ -155,8 +155,8 @@ class CLIServer:
     shell: str | None = None  # auto-detect: bash on Unix, powershell on Windows
     cwd: str | None = None
     env: dict[str, str] = field(default_factory=dict)
-    discover_help: bool = True  # Run help to get tool description (default: on)
-    help_flag: str = "--help"  # Flag to get help text (default: --help)
+    discover_help: bool = False  # LLM must discover help itself (tests skill instructions)
+    help_flag: str = "--help"  # Flag to get help text (when discover_help=True)
     description: str | None = None  # Custom description (overrides help discovery)
 
     def __post_init__(self) -> None:
@@ -185,24 +185,46 @@ class CLIExecution:
 class Agent:
     """AI agent configuration combining provider and servers.
 
+    The Agent is the unit of comparison in pytest-aitest. Give each agent
+    a meaningful name for identification in reports.
+
     Example:
         Agent(
-            provider=Provider(model="openai/gpt-4o"),
-            mcp_servers=[filesystem_server],
-            system_prompt="You are a helpful assistant.",
+            name="weather-fast",
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[weather_server],
+            system_prompt="Be concise.",
         )
 
     With a skill:
-        skill = Skill.from_path("skills/my-skill")
+        skill = Skill.from_path("skills/weather-expert")
         Agent(
-            provider=Provider(model="openai/gpt-4o"),
-            skill=skill,  # Skill instructions prepended to system_prompt
+            name="weather-expert",
+            provider=Provider(model="azure/gpt-4.1"),
+            mcp_servers=[weather_server],
+            skill=skill,  # Skill content prepended to system_prompt
+        )
+
+    Comparing agents:
+        agents = [agent_fast, agent_smart, agent_expert]
+
+        @pytest.mark.parametrize("agent", agents, ids=lambda a: a.name)
+        async def test_query(aitest_run, agent):
+            result = await aitest_run(agent, "What's the weather?")
+
+    Filtering tools:
+        Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[excel_server],
+            allowed_tools=["read_cell", "write_cell"],  # Only expose these tools
         )
     """
 
     provider: Provider
+    name: str | None = None
     mcp_servers: list[MCPServer] = field(default_factory=list)
     cli_servers: list[CLIServer] = field(default_factory=list)
     system_prompt: str | None = None
     max_turns: int = 10
     skill: Skill | None = None
+    allowed_tools: list[str] | None = None  # Filter to specific tools (None = all)

@@ -1,268 +1,168 @@
-"""Integration tests for AI summary generation.
+"""Integration tests for AI insights generation.
 
-These tests verify that the AI summary feature generates proper structured output
-following the prompt from prompts/ai_summary.md.
+These tests verify that the AI insights feature generates proper structured output
+using the report_analysis prompt.
 
 Run with: pytest tests/integration/test_ai_summary.py -v
 """
 
 from __future__ import annotations
 
-import os
-import re
-from typing import TYPE_CHECKING, Any
-
 import pytest
 
-if TYPE_CHECKING:
-    from litellm.types.utils import ModelResponse
+from pytest_aitest.reporting.collector import SuiteReport, TestReport
 
 pytestmark = [pytest.mark.integration]
 
 
-def _get_api_base() -> str | None:
-    """Get API base from LiteLLM standard env var."""
-    return os.environ.get("AZURE_API_BASE")
+def _make_test_report(
+    name: str,
+    outcome: str = "passed",
+    model: str | None = None,
+    duration_ms: float = 1000.0,
+) -> TestReport:
+    """Create a test report for testing."""
+    metadata = {}
+    if model:
+        metadata["model"] = model
+    return TestReport(
+        name=name,
+        outcome=outcome,
+        duration_ms=duration_ms,
+        metadata=metadata if metadata else None,
+    )
 
 
-def _get_azure_auth_kwargs() -> dict:
-    """Get Azure Entra ID auth kwargs for LiteLLM.
+def _make_suite_report(tests: list[TestReport]) -> SuiteReport:
+    """Create a suite report for testing."""
+    passed = sum(1 for t in tests if t.outcome == "passed")
+    failed = sum(1 for t in tests if t.outcome == "failed")
+    return SuiteReport(
+        name="test-suite",
+        timestamp="2026-01-01T00:00:00Z",
+        duration_ms=sum(t.duration_ms for t in tests),
+        tests=tests,
+        passed=passed,
+        failed=failed,
+    )
 
-    Returns empty dict if Azure auth is not available (falls back to API key).
-    """
-    try:
-        from litellm.secret_managers.get_azure_ad_token_provider import (
-            get_azure_ad_token_provider,
+
+class TestAIInsightsGeneration:
+    """Test that AI insights generates markdown output."""
+
+    @pytest.mark.asyncio
+    async def test_insights_returns_markdown_string(self):
+        """Insights should return a markdown string."""
+        from pytest_aitest.reporting.insights import generate_insights
+
+        tests = [
+            _make_test_report("test_weather", "passed", model="gpt-5-mini"),
+            _make_test_report("test_forecast", "passed", model="gpt-5-mini"),
+        ]
+        suite = _make_suite_report(tests)
+
+        insights, metadata = await generate_insights(
+            suite_report=suite,
+            tool_info=[],
+            skill_info=[],
+            prompts={},
+            model="azure/gpt-5-mini",
         )
 
-        return {"azure_ad_token_provider": get_azure_ad_token_provider()}
-    except ImportError:
-        # Azure identity not installed, fall back to API key auth
-        return {}
+        # Insights is now a plain markdown string
+        assert isinstance(insights, str), "Insights should be a string"
+        assert len(insights) > 50, "Insights should have substantial content"
+
+    @pytest.mark.asyncio
+    async def test_insights_contains_recommendation(self):
+        """Insights markdown should contain recommendation section."""
+        from pytest_aitest.reporting.insights import generate_insights
+
+        tests = [
+            _make_test_report("test_a", "passed", model="gpt-5-mini"),
+            _make_test_report("test_b", "failed", model="gpt-5-mini"),
+        ]
+        suite = _make_suite_report(tests)
+
+        insights, metadata = await generate_insights(
+            suite_report=suite,
+            tool_info=[],
+            skill_info=[],
+            prompts={},
+            model="azure/gpt-5-mini",
+        )
+
+        # Check markdown contains expected sections
+        assert isinstance(insights, str)
+        # The prompt asks for "## 🎯 Recommendation" section
+        assert "Recommendation" in insights or "recommendation" in insights.lower()
+
+    @pytest.mark.asyncio
+    async def test_insights_with_failures(self):
+        """Insights should analyze failures when present."""
+        from pytest_aitest.reporting.insights import generate_insights
+
+        tests = [
+            _make_test_report("test_passing", "passed", model="gpt-5-mini"),
+            _make_test_report("test_failing", "failed", model="gpt-5-mini"),
+        ]
+        suite = _make_suite_report(tests)
+        # Add error to failing test
+        suite.tests[1].error = "AssertionError: Expected result not found"
+
+        insights, metadata = await generate_insights(
+            suite_report=suite,
+            tool_info=[],
+            skill_info=[],
+            prompts={},
+            model="azure/gpt-5-mini",
+        )
+
+        # Should be a string with content
+        assert isinstance(insights, str)
+        assert len(insights) > 50
+
+    @pytest.mark.asyncio
+    async def test_insights_returns_metadata(self):
+        """Insights should return analysis metadata."""
+        from pytest_aitest.reporting.insights import generate_insights
+
+        tests = [_make_test_report("test_one", "passed", model="gpt-5-mini")]
+        suite = _make_suite_report(tests)
+
+        insights, metadata = await generate_insights(
+            suite_report=suite,
+            tool_info=[],
+            skill_info=[],
+            prompts={},
+            model="azure/gpt-5-mini",
+        )
+
+        # Verify metadata is a dict with expected keys
+        assert metadata is not None
+        assert isinstance(metadata, dict)
+        assert metadata["model"] == "azure/gpt-5-mini"
+        assert metadata["tokens_used"] >= 0
+        assert metadata["cost_usd"] >= 0
 
 
-def _get_response_content(response: ModelResponse | Any) -> str:
-    """Extract content from LiteLLM response, handling type union."""
-    # litellm types ModelResponse.choices as list[Choices | StreamingChoices]
-    # but completion() without stream=True always returns Choices with .message
-    return response.choices[0].message.content or ""  # type: ignore[union-attr]
+class TestPromptLoading:
+    """Test that the prompt loads correctly."""
 
-
-class TestAISummaryGeneration:
-    """Test that AI summary generates proper structured output."""
-
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
-    def test_single_model_summary_has_required_sections(self):
-        """Single-model summary should have Verdict, Capabilities, Limitations, etc."""
-        import litellm
-
+    def test_report_analysis_prompt_loads(self):
+        """The AI summary prompt should load successfully."""
         from pytest_aitest.prompts import get_ai_summary_prompt
 
-        model = "azure/gpt-5-mini"
-        system_prompt = get_ai_summary_prompt()
+        prompt = get_ai_summary_prompt()
+        assert prompt, "Prompt should not be empty"
+        assert "pytest-aitest" in prompt.lower() or "analysis" in prompt.lower()
+        assert len(prompt) > 100, "Prompt should have substantial content"
 
-        user_content = """**Context: Single-Model Evaluation** - Assess if the agent is fit for purpose.
-
-**Test Suite:** test-suite
-**Pass Rate:** 66.7% (2/3 tests passed)
-**Duration:** 15.0s total
-**Tokens Used:** 1,900 tokens
-**Tool Calls:** 4 total
-
-**Test Results:**
-- test_weather_lookup: passed
-- test_forecast: passed
-- test_compare_cities: failed (AssertionError: Expected comparison)
-"""
-
-        kwargs = _get_azure_auth_kwargs()
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ]
-
-        # LiteLLM reads AZURE_API_BASE from environment automatically
-        response = litellm.completion(
-            model=model,
-            messages=messages,
-            **kwargs,
-        )
-
-        summary = _get_response_content(response)
-
-        # Verify required sections for single-model evaluation
-        assert "Verdict" in summary, f"Missing 'Verdict' section in summary:\n{summary}"
-        assert any(
-            phrase in summary for phrase in ["Fit for Purpose", "Partially Fit", "Not Fit"]
-        ), f"Missing verdict status in summary:\n{summary}"
-
-        # Should have key sections (case-insensitive check)
-        summary_lower = summary.lower()
-        assert "capabilities" in summary_lower, f"Missing 'Capabilities' section:\n{summary}"
-        assert "limitations" in summary_lower or "limitation" in summary_lower, (
-            f"Missing 'Limitations' section:\n{summary}"
-        )
-        assert "recommendations" in summary_lower or "recommendation" in summary_lower, (
-            f"Missing 'Recommendations' section:\n{summary}"
-        )
-
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
-    def test_multi_model_summary_has_comparison(self):
-        """Multi-model summary should compare models and recommend one."""
-        import litellm
-
+    def test_prompt_is_cached(self):
+        """Prompt should be cached after first load."""
         from pytest_aitest.prompts import get_ai_summary_prompt
 
-        model = "azure/gpt-5-mini"
-        system_prompt = get_ai_summary_prompt()
-
-        user_content = """**Context: Multi-Model Comparison** - Compare the models and recommend which to use.
-
-**Test Suite:** model-comparison
-**Pass Rate:** 75.0% (3/4 tests passed)
-**Duration:** 29.0s total
-**Tokens Used:** 2,400 tokens
-**Tool Calls:** 6 total
-Models tested: gpt-5-mini, gpt-4.1
-
-**Per-Model Breakdown:**
-- gpt-4.1: 100% (2/2), 700 tokens
-- gpt-5-mini: 50% (1/2), 1,700 tokens
-
-**Test Results:**
-- test_weather[gpt-5-mini]: passed
-- test_weather[gpt-4.1]: passed
-- test_complex[gpt-5-mini]: failed (Timeout)
-- test_complex[gpt-4.1]: passed
-"""
-
-        kwargs = _get_azure_auth_kwargs()
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ]
-
-        # LiteLLM reads AZURE_API_BASE from environment automatically
-        response = litellm.completion(
-            model=model,
-            messages=messages,
-            **kwargs,
-        )
-
-        summary = _get_response_content(response)
-
-        # Verify it's a multi-model comparison
-        assert "Verdict" in summary, f"Missing 'Verdict' section:\n{summary}"
-
-        # Should recommend a specific model
-        assert any(model_name in summary for model_name in ["gpt-5-mini", "gpt-4.1"]), (
-            f"Should mention model names:\n{summary}"
-        )
-
-        # Should have trade-offs or comparison language
-        summary_lower = summary.lower()
-        assert any(
-            phrase in summary_lower
-            for phrase in [
-                "trade-off",
-                "tradeoff",
-                "accurate",
-                "cost-effective",
-                "recommend",
-                "use",
-            ]
-        ), f"Missing comparison/trade-off language:\n{summary}"
-
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
-    def test_summary_under_300_words(self):
-        """Summary should be concise (prompt says under 200, allow up to 300)."""
-        import litellm
-
-        from pytest_aitest.prompts import get_ai_summary_prompt
-
-        model = "azure/gpt-5-mini"
-        system_prompt = get_ai_summary_prompt()
-
-        user_content = """**Context: Single-Model Evaluation** - Assess if the agent is fit for purpose.
-
-**Test Suite:** simple-test
-**Pass Rate:** 100.0% (1/1 tests passed)
-**Duration:** 5.0s total
-**Tokens Used:** 500 tokens
-**Tool Calls:** 1 total
-
-**Test Results:**
-- test_simple: passed
-"""
-
-        kwargs = _get_azure_auth_kwargs()
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ]
-
-        # LiteLLM reads AZURE_API_BASE from environment automatically
-        response = litellm.completion(
-            model=model,
-            messages=messages,
-            **kwargs,
-        )
-
-        summary = _get_response_content(response)
-
-        # Count words (rough estimate)
-        word_count = len(summary.split())
-
-        # Allow some flexibility (300 words) since models may not precisely follow limits
-        assert word_count < 300, f"Summary too long ({word_count} words):\n{summary}"
-
-    @pytest.mark.skipif(not _get_api_base(), reason="AZURE_API_BASE not set")
-    def test_summary_no_tables(self):
-        """Summary should NOT contain tables (per prompt rules)."""
-        import litellm
-
-        from pytest_aitest.prompts import get_ai_summary_prompt
-
-        model = "azure/gpt-5-mini"
-        system_prompt = get_ai_summary_prompt()
-
-        user_content = """**Context: Multi-Model Comparison** - Compare the models and recommend which to use.
-
-**Test Suite:** benchmark
-**Pass Rate:** 75.0% (3/4 tests passed)
-**Duration:** 20.0s total
-**Tokens Used:** 2,000 tokens
-**Tool Calls:** 6 total
-Models tested: model-a, model-b
-
-**Test Results:**
-- test_1[model-a]: passed
-- test_1[model-b]: passed
-- test_2[model-a]: failed (error)
-- test_2[model-b]: passed
-"""
-
-        kwargs = _get_azure_auth_kwargs()
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ]
-
-        # LiteLLM reads AZURE_API_BASE from environment automatically
-        response = litellm.completion(
-            model=model,
-            messages=messages,
-            **kwargs,
-        )
-
-        summary = _get_response_content(response)
-
-        # Check for markdown table syntax (| col1 | col2 |)
-        table_pattern = r"\|.*\|.*\|"
-        has_table = bool(re.search(table_pattern, summary))
-
-        assert not has_table, f"Summary contains table (violates prompt rules):\n{summary}"
+        prompt1 = get_ai_summary_prompt()
+        prompt2 = get_ai_summary_prompt()
+        # Same object due to caching
+        assert prompt1 is prompt2

@@ -45,8 +45,13 @@ htmlcov/
 
 # Test outputs
 test_results/
-*.html
-*.json
+aitest-reports/
+tests/fixtures/reports/html/
+
+# Node.js (Tailwind build)
+node_modules/
+src/pytest_aitest/templates/node_modules/
+package-lock.json
 
 # Environment
 .env
@@ -55,3 +60,4 @@ test_results/
 # OS
 .DS_Store
 Thumbs.db
+site/

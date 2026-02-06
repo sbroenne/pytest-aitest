@@ -1,9 +1,15 @@
 """pytest-aitest: Pytest plugin for testing AI agents with MCP and CLI servers."""
 
-# Core types
-# Legacy imports for backwards compatibility
-from pytest_aitest.config import Judge
-from pytest_aitest.core import (
+import logging
+
+# Configure library logging per Python best practices:
+# https://docs.python.org/3/howto/logging.html#configuring-logging-for-a-library
+# Libraries should add NullHandler to prevent "No handler found" warnings
+# when the application hasn't configured logging.
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+# Core types  # noqa: E402 - logging must be configured before submodule imports
+from pytest_aitest.core import (  # noqa: E402
     Agent,
     AgentResult,
     AITestError,
@@ -16,29 +22,30 @@ from pytest_aitest.core import (
     ServerStartError,
     Skill,
     SkillError,
+    SkillInfo,
     SkillMetadata,
     ToolCall,
+    ToolInfo,
     Turn,
     Wait,
     load_prompt,
     load_prompts,
     load_skill,
+    load_system_prompts,
 )
 
 # Execution
-from pytest_aitest.execution import AgentEngine, RetryConfig, ServerManager
+from pytest_aitest.execution import AgentEngine, RetryConfig, ServerManager  # noqa: E402
 
 # Reporting
-from pytest_aitest.reporting import (
-    DimensionAggregator,
+from pytest_aitest.reporting import (  # noqa: E402
     ReportCollector,
     ReportGenerator,
     SuiteReport,
-    TestDimensions,
     TestReport,
 )
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     # Core
     "Agent",
     "AgentResult",
@@ -52,26 +59,25 @@ __all__ = [
     "ServerStartError",
     "Skill",
     "SkillError",
+    "SkillInfo",
     "SkillMetadata",
     "ToolCall",
+    "ToolInfo",
     "Turn",
     "Wait",
     "load_prompt",
     "load_prompts",
+    "load_system_prompts",
     "load_skill",
     # Execution
     "AgentEngine",
     "RetryConfig",
     "ServerManager",
     # Reporting
-    "DimensionAggregator",
     "ReportCollector",
     "ReportGenerator",
     "SuiteReport",
-    "TestDimensions",
     "TestReport",
-    # Legacy
-    "Judge",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

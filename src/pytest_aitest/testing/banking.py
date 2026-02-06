@@ -475,3 +475,5 @@ class BankingService:
                     value=None,
                     error=f"Unknown tool: {name}",
                 )
+        # Unreachable: match is exhaustive, but satisfies static analyzers
+        return ToolResult(success=False, value=None, error=f"Unhandled tool: {name}")

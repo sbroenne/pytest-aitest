@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -21,6 +22,93 @@ if TYPE_CHECKING:
 
 # Key for storing report collector in config
 COLLECTOR_KEY = pytest.StashKey[ReportCollector]()
+# Key for storing session messages for @pytest.mark.session
+SESSION_MESSAGES_KEY = pytest.StashKey[dict[str, list[dict[str, Any]]]]()
+# Export for use in fixtures
+__all__ = ["COLLECTOR_KEY", "SESSION_MESSAGES_KEY"]
+
+
+class _RecordingLLMAssert:
+    """Wrapper that records LLM assertions for report rendering."""
+
+    def __init__(self, inner: Any, store: list[dict[str, Any]]) -> None:
+        self._inner = inner
+        self._store = store
+
+    def __call__(self, content: str, criterion: str) -> Any:
+        result = self._inner(content, criterion)
+        self._store.append(
+            {
+                "type": "llm",
+                "passed": bool(result),
+                "message": result.criterion,
+                "details": result.reasoning,
+            }
+        )
+        return result
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_pyfunc_call(pyfuncitem: Item) -> Any:
+    """Wrap llm_assert fixture values before test function execution."""
+    funcargs = getattr(pyfuncitem, "funcargs", {})
+    llm_assert = funcargs.get("llm_assert")
+    if llm_assert is not None and not isinstance(llm_assert, _RecordingLLMAssert):
+        store = getattr(pyfuncitem, "_aitest_assertions", None)
+        if store is None:
+            store = []
+            pyfuncitem._aitest_assertions = store  # type: ignore[attr-defined]
+
+        pyfuncitem.funcargs["llm_assert"] = _RecordingLLMAssert(llm_assert, store)  # type: ignore[index]
+
+    yield
+
+
+def _get_timestamped_path(
+    base_name: str, test_name: str | None = None, default_dir: Path | None = None
+) -> Path:
+    """Generate timestamped filename for unique report names.
+
+    Args:
+        base_name: Base filename with extension (e.g., 'results.json', 'report.html')
+        test_name: Name of the test/suite to include in filename
+        default_dir: Directory to store the file (default: 'aitest-reports')
+
+    Returns:
+        Path with format: {dir}/{prefix}_{test_name}_{ISO8601-timestamp}.{ext}
+    """
+    if default_dir is None:
+        default_dir = Path("aitest-reports")
+
+    # Use ISO8601 timestamp: YYYY-MM-DDTHH-MM-SS (seconds precision, : replaced with -)
+    timestamp = datetime.now().isoformat(timespec="seconds").replace(":", "-")
+
+    # Sanitize test name (remove paths, lowercase, replace spaces/special chars)
+    if test_name:
+        # Remove file extensions and paths
+        safe_name = (
+            test_name.split("/")[-1].split(".")[0].lower().replace(" ", "-").replace("_", "-")
+        )
+    else:
+        safe_name = None
+
+    # Split filename and extension
+    if "." in base_name:
+        name_part, ext = base_name.rsplit(".", 1)
+        if safe_name:
+            filename = f"{name_part}_{safe_name}_{timestamp}.{ext}"
+        else:
+            filename = f"{name_part}_{timestamp}.{ext}"
+    else:
+        if safe_name:
+            filename = f"{base_name}_{safe_name}_{timestamp}"
+        else:
+            filename = f"{base_name}_{timestamp}"
+
+    return default_dir / filename
 
 
 def pytest_addoption(parser: Parser) -> None:
@@ -36,19 +124,14 @@ def pytest_addoption(parser: Parser) -> None:
     """
     group = parser.getgroup("aitest", "AI agent testing")
 
-    # Model selection for agents
-    group.addoption(
-        "--aitest-model",
-        default="openai/gpt-4o-mini",
-        help="Default LiteLLM model for agents (default: openai/gpt-4o-mini)",
-    )
-
-    # Model selection for AI summary (use a more capable model)
+    # Model selection for AI summary (use the most capable model you can afford)
     group.addoption(
         "--aitest-summary-model",
         default=None,
-        help="LiteLLM model for AI summary generation. Required when using --aitest-summary. "
-        "Use a capable model like gpt-4.1 or claude-sonnet-4 for quality analysis.",
+        help=(
+            "LiteLLM model for AI analysis. Required when generating reports. "
+            "Use the most capable model you can afford (e.g., gpt-5.1-chat, claude-opus-4)."
+        ),
     )
 
     # Report options
@@ -64,34 +147,6 @@ def pytest_addoption(parser: Parser) -> None:
         default=None,
         help="Generate JSON report to given path (e.g., results.json)",
     )
-    group.addoption(
-        "--aitest-md",
-        metavar="PATH",
-        default=None,
-        help="Generate Markdown report to given path (e.g., report.md)",
-    )
-    group.addoption(
-        "--aitest-summary",
-        action="store_true",
-        default=False,
-        help="Include AI-powered analysis in HTML report",
-    )
-
-    # Rate limit options
-    group.addoption(
-        "--aitest-rpm",
-        type=int,
-        default=None,
-        metavar="N",
-        help="Default requests per minute limit for LLM calls (enables LiteLLM rate limiting)",
-    )
-    group.addoption(
-        "--aitest-tpm",
-        type=int,
-        default=None,
-        metavar="N",
-        help="Default tokens per minute limit for LLM calls (enables LiteLLM rate limiting)",
-    )
 
 
 def pytest_configure(config: Config) -> None:
@@ -105,9 +160,16 @@ def pytest_configure(config: Config) -> None:
         "markers",
         "aitest_skip_report: Exclude this test from AI test reports",
     )
+    config.addinivalue_line(
+        "markers",
+        "session(name): Mark tests as part of a named session for multi-turn conversations. "
+        "Tests with the same session name share conversation history automatically.",
+    )
 
     # Always initialize report collector - JSON is always generated
     config.stash[COLLECTOR_KEY] = ReportCollector()
+    # Initialize session message storage
+    config.stash[SESSION_MESSAGES_KEY] = {}
 
 
 def _extract_metadata_from_nodeid(nodeid: str) -> dict[str, Any]:
@@ -169,11 +231,11 @@ def pytest_collection_modifyitems(
     for item in items:
         # Check if test uses any aitest fixtures
         fixturenames = getattr(item, "fixturenames", [])
-        aitest_fixtures = {"aitest_run", "judge", "agent_factory"}
-        if aitest_fixtures & set(fixturenames):
-            # Add aitest marker if not already present
-            if not any(m.name == "aitest" for m in item.iter_markers()):
-                item.add_marker(pytest.mark.aitest)
+        aitest_fixtures = {"aitest_run", "agent_factory"}
+        if (aitest_fixtures & set(fixturenames)) and not any(
+            m.name == "aitest" for m in item.iter_markers()
+        ):
+            item.add_marker(pytest.mark.aitest)
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -198,14 +260,50 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     # Get agent result if available
     agent_result = getattr(item, "_aitest_result", None)
 
+    # Only collect tests that actually used aitest (have an agent result)
+    # This prevents unit tests from triggering AI analysis for reports
+    if agent_result is None:
+        return
+
     # Get test function docstring if available
     docstring = None
     func = getattr(item, "function", None)
     if func is not None and func.__doc__:
         docstring = func.__doc__
 
-    # Extract model and prompt from parametrized test node ID
+    # Build metadata from agent_result (source of truth) with fallback to parsing
     metadata = _extract_metadata_from_nodeid(item.nodeid)
+
+    # Override with actual values from agent_result if available
+    if agent_result:
+        if agent_result.agent_name:
+            metadata["agent_name"] = agent_result.agent_name
+        if agent_result.model:
+            metadata["model"] = agent_result.model
+        if agent_result.skill_info:
+            metadata["skill"] = agent_result.skill_info.name
+
+    # Extract assertions recorded by the llm_assert fixture
+    assertions = getattr(item, "_aitest_assertions", [])
+
+    # Capture error message - extract just the assertion error, not the whole traceback
+    error_msg = None
+    if report.failed:
+        error_text = str(report.longrepr)
+
+        # Try to extract just the AssertionError line (starts with "E       ")
+        error_lines = error_text.split("\n")
+        assertion_lines = [line for line in error_lines if line.strip().startswith("E ")]
+
+        if assertion_lines:
+            # Found assertion lines - use those (without the "E       " prefix)
+            error_msg = "\n".join(line.strip()[2:] for line in assertion_lines)
+        else:
+            # Fallback: truncate full traceback
+            if len(error_text) > 300:
+                error_msg = error_text[:300] + "\n... (see full traceback in test output)"
+            else:
+                error_msg = error_text
 
     # Create test report
     test_report = TestReport(
@@ -213,12 +311,108 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         outcome=report.outcome,
         duration_ms=report.duration * 1000,
         agent_result=agent_result,
-        error=str(report.longrepr) if report.failed else None,
+        error=error_msg,
+        assertions=assertions,
         docstring=docstring,
         metadata=metadata,
     )
 
     collector.add_test(test_report)
+
+    # Enrich JUnit XML with agent metadata (user_properties → <property> elements)
+    agent = getattr(item, "_aitest_agent", None)
+    _add_junit_properties(report, agent_result, metadata, agent)
+
+
+def _add_junit_properties(
+    report: PytestTestReport,
+    agent_result: Any,
+    metadata: dict[str, str],
+    agent: Any | None = None,
+) -> None:
+    """Add agent metadata to pytest report for JUnit XML output.
+
+    Properties are added to report.user_properties which pytest writes
+    as <property> elements in JUnit XML output.
+
+    Example output:
+        <testcase name="test_weather">
+          <properties>
+            <property name="aitest.agent.name" value="weather-agent"/>
+            <property name="aitest.model" value="gpt-5-mini"/>
+            <property name="aitest.skill" value="weather-expert"/>
+            <property name="aitest.tools.called" value="get_weather,get_forecast"/>
+          </properties>
+        </testcase>
+    """
+    if not hasattr(report, "user_properties"):
+        return
+
+    props = []
+
+    # Agent identity
+    if agent_result.agent_name:
+        props.append(("aitest.agent.name", agent_result.agent_name))
+    if agent_result.model:
+        props.append(("aitest.model", agent_result.model))
+
+    # Skill
+    if agent_result.skill_info:
+        props.append(("aitest.skill", agent_result.skill_info.name))
+
+    # System prompt name (from metadata, if available)
+    if metadata.get("prompt"):
+        props.append(("aitest.prompt", metadata["prompt"]))
+
+    # MCP servers (from agent config)
+    if agent and agent.mcp_servers:
+        server_names = []
+        for server in agent.mcp_servers:
+            # Use server.name if available, otherwise derive from command
+            name = getattr(server, "name", None)
+            if not name and hasattr(server, "command") and server.command:
+                name = server.command[-1].split("/")[-1].split(".")[0]
+            if name:
+                server_names.append(name)
+        if server_names:
+            props.append(("aitest.servers", ",".join(server_names)))
+
+    # Allowed tools filter (from agent config)
+    if agent and agent.allowed_tools:
+        props.append(("aitest.allowed_tools", ",".join(sorted(agent.allowed_tools))))
+
+    # Token usage
+    if agent_result.token_usage:
+        if "prompt_tokens" in agent_result.token_usage:
+            props.append(("aitest.tokens.input", str(agent_result.token_usage["prompt_tokens"])))
+        if "completion_tokens" in agent_result.token_usage:
+            props.append(
+                ("aitest.tokens.output", str(agent_result.token_usage["completion_tokens"]))
+            )
+        if "total_tokens" in agent_result.token_usage:
+            props.append(("aitest.tokens.total", str(agent_result.token_usage["total_tokens"])))
+
+    # Cost
+    if agent_result.cost_usd > 0:
+        props.append(("aitest.cost_usd", f"{agent_result.cost_usd:.6f}"))
+
+    # Turns
+    if agent_result.turns:
+        props.append(("aitest.turns", str(len(agent_result.turns))))
+
+    # Tools called (unique, comma-separated)
+    tools_called = set()
+    for turn in agent_result.turns:
+        for tc in turn.tool_calls:
+            tools_called.add(tc.name)
+    if tools_called:
+        props.append(("aitest.tools.called", ",".join(sorted(tools_called))))
+
+    # Success/failure
+    props.append(("aitest.success", str(agent_result.success).lower()))
+
+    # Add all properties to report
+    report.user_properties.extend(props)
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
@@ -231,43 +425,61 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     html_path = config.getoption("--aitest-html")
     json_path = config.getoption("--aitest-json")
-    md_path = config.getoption("--aitest-md")
 
-    # Default paths - JSON is always generated
+    # Extract suite docstring from first test's parent class/module
+    suite_docstring = None
+    if session.items:
+        first_item = session.items[0]
+        # Try to get docstring from test class first
+        if hasattr(first_item, "parent") and first_item.parent:
+            parent = first_item.parent
+            # Check if parent is a class
+            parent_obj = getattr(parent, "obj", None)
+            if parent_obj and hasattr(parent_obj, "__doc__"):
+                suite_docstring = parent_obj.__doc__
+                if suite_docstring:
+                    # Get first line only
+                    suite_docstring = suite_docstring.strip().split("\n")[0].strip()
+
+    # Build suite report first (to get the test name for default filenames)
     default_dir = Path("aitest-reports")
-    default_json_path = default_dir / "results.json"
-
-    # Build suite report
     suite_report = collector.build_suite_report(
         name=session.name or "pytest-aitest",
+        suite_docstring=suite_docstring,
+    )
+
+    # Generate default paths with test name included
+    default_json_path = _get_timestamped_path(
+        "results.json", test_name=suite_report.name, default_dir=default_dir
+    )
+    default_html_path = _get_timestamped_path(
+        "report.html", test_name=suite_report.name, default_dir=default_dir
     )
 
     generator = ReportGenerator()
 
-    # Generate AI summary if requested (for HTML and MD reports)
-    ai_summary = None
-    if (html_path or md_path) and config.getoption("--aitest-summary"):
-        ai_summary = _generate_ai_summary(config, suite_report)
+    # Generate AI insights if HTML report requested OR summary model specified
+    summary_model = config.getoption("--aitest-summary-model")
+    insights = None
+    if html_path or summary_model:
+        insights = _generate_structured_insights(config, suite_report, required=bool(html_path))
 
     # Always generate JSON report (to default or custom path)
     json_output_path = Path(json_path) if json_path else default_json_path
     json_output_path.parent.mkdir(parents=True, exist_ok=True)
-    generator.generate_json(suite_report, json_output_path, ai_summary=ai_summary)
+    generator.generate_json(suite_report, json_output_path, insights=insights)
     _log_report_path(config, "JSON", json_output_path)
 
-    # Generate HTML report if requested
-    if html_path:
-        path = Path(html_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_html(suite_report, path, ai_summary=ai_summary)
-        _log_report_path(config, "HTML", path)
+    # Generate HTML report (use default timestamped name if not specified)
+    html_output_path = Path(html_path) if html_path else default_html_path
+    html_output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Generate Markdown report
-    if md_path:
-        path = Path(md_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_markdown(suite_report, path, ai_summary=ai_summary)
-        _log_report_path(config, "Markdown", path)
+    # Generate AI insights if HTML requested (even if using default path)
+    if insights is None:
+        insights = _generate_structured_insights(config, suite_report, required=True)
+
+    generator.generate_html(suite_report, html_output_path, insights=insights)
+    _log_report_path(config, "HTML", html_output_path)
 
 
 def _log_report_path(config: Config, format_name: str, path: Path) -> None:
@@ -277,143 +489,126 @@ def _log_report_path(config: Config, format_name: str, path: Path) -> None:
         terminalreporter.write_line(f"aitest {format_name} report: {path}")
 
 
-def _generate_ai_summary(config: Config, report: SuiteReport) -> str | None:
-    """Generate AI-powered summary of test results.
+def _generate_structured_insights(
+    config: Config, report: SuiteReport, *, required: bool = False
+) -> Any:
+    """Generate structured AI insights from test results.
 
-    Uses the structured AI summary prompt from prompts/ai_summary.md.
-    Auto-detects single-model vs multi-model evaluation context.
+    Uses the new insights generation system with structured output.
 
-    Authentication is handled by LiteLLM via standard environment variables:
-    - Azure: AZURE_API_BASE + `az login` (Entra ID)
-    - OpenAI: OPENAI_API_KEY
-    - Anthropic: ANTHROPIC_API_KEY
+    Args:
+        config: pytest config
+        report: Suite report with test results
+        required: If True, raise error when model not configured (for report generation)
 
-    Returns the summary text or None if generation fails.
+    Returns:
+        AIInsights object or None if generation fails/skipped.
+
+    Raises:
+        pytest.UsageError: If required=True and model not configured.
     """
-    import os
+    import asyncio
 
     try:
-        import litellm
-
-        from pytest_aitest.prompts import get_ai_summary_prompt
+        from pytest_aitest.reporting.insights import generate_insights
 
         # Require dedicated summary model - no fallback
         model = config.getoption("--aitest-summary-model")
         if not model:
-            terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
-                "terminalreporter"
-            )
-            if terminalreporter:
-                terminalreporter.write_line(
-                    "\nAI Summary: Skipped - --aitest-summary-model not specified."
-                    "\nUse a capable model like azure/gpt-4.1 or openai/gpt-4o.",
-                    yellow=True,
+            if required:
+                raise pytest.UsageError(
+                    "AI analysis is required for report generation.\n"
+                    "Please specify --aitest-summary-model with a capable model.\n"
+                    "Example: --aitest-summary-model=azure/gpt-4.1\n"
+                    "         --aitest-summary-model=openai/gpt-4o"
                 )
             return None
 
-        # Load the system prompt
-        system_prompt = get_ai_summary_prompt()
+        # Collect tool info and skill info from test results
+        tool_info: list[Any] = []
+        skill_info: list[Any] = []
+        prompts: dict[str, str] = {}
 
-        # Detect evaluation context using populated metadata
-        detected_models = report.models_used
-        is_multi_model = len(detected_models) > 1
-        context_hint = (
-            "**Context: Multi-Model Comparison** - Compare the MODELS and recommend which to use."
-            if is_multi_model
-            else "**Context: Single-Model Evaluation** - Assess the model's fitness for this task."
-        )
+        for test in report.tests:
+            if test.agent_result:
+                # Collect tools (deduplicate by name)
+                seen_tools = {t.name for t in tool_info}
+                for t in getattr(test.agent_result, "available_tools", []) or []:
+                    if t.name not in seen_tools:
+                        tool_info.append(t)
+                        seen_tools.add(t.name)
 
-        # Build test results summary using human-readable names (docstrings)
-        # Include model info from metadata
-        test_lines = []
-        for t in report.tests:
-            line = f"- {t.display_name}: {t.outcome}"
-            if t.model:
-                line = f"- [{t.model}] {t.display_name}: {t.outcome}"
-            if t.error:
-                line += f" ({t.error[:100]})"
-            test_lines.append(line)
-        test_summary = "\n".join(test_lines)
+                # Collect skills (deduplicate by name)
+                skill = getattr(test.agent_result, "skill_info", None)
+                if skill and skill.name not in {s.name for s in skill_info}:
+                    skill_info.append(skill)
 
-        # Build per-model breakdown for multi-model scenarios
-        model_breakdown = ""
-        if is_multi_model and report.tests:
-            from collections import defaultdict
+                # Collect effective system prompts as prompt variants
+                effective_prompt = getattr(test.agent_result, "effective_system_prompt", "")
+                if effective_prompt and test.metadata:
+                    prompt_name = test.metadata.get("prompt", "default")
+                    if prompt_name not in prompts:
+                        prompts[prompt_name] = effective_prompt
 
-            model_stats: dict[str, dict[str, int | float]] = defaultdict(
-                lambda: {"passed": 0, "failed": 0, "tokens": 0, "cost": 0.0}
+        # Generate insights using async function
+        async def _run() -> tuple[Any, Any]:
+            return await generate_insights(
+                suite_report=report,
+                tool_info=tool_info,
+                skill_info=skill_info,
+                prompts=prompts,
+                model=model,
             )
-            for t in report.tests:
-                if t.model:
-                    model_stats[t.model]["passed" if t.outcome == "passed" else "failed"] += 1
-                    model_stats[t.model]["tokens"] += t.tokens_used or 0
-                    if t.agent_result:
-                        model_stats[t.model]["cost"] += t.agent_result.cost_usd
 
-            lines = ["**Per-Model Breakdown:**"]
-            for m, stats in sorted(model_stats.items()):
-                total = stats["passed"] + stats["failed"]
-                rate = (stats["passed"] / total * 100) if total > 0 else 0
-                cost_str = f"${stats['cost']:.4f}" if stats["cost"] > 0 else "N/A"
-                lines.append(
-                    f"- **{m}**: {rate:.0f}% pass ({stats['passed']}/{total}), "
-                    f"{stats['tokens']:,} tokens, {cost_str}"
-                )
-            model_breakdown = "\n".join(lines)
+        # Use asyncio.run() instead of deprecated get_event_loop().run_until_complete()
+        markdown_summary, metadata = asyncio.run(_run())
 
-        models_info = f"Models tested: {', '.join(detected_models)}" if detected_models else ""
-        prompts_info = (
-            f"Prompts tested: {', '.join(report.prompts_used)}" if report.prompts_used else ""
-        )
-        files_info = f"Test files: {', '.join(report.test_files)}" if report.test_files else ""
-
-        user_content = f"""{context_hint}
-
-**Test Suite:** {report.name}
-**Pass Rate:** {report.pass_rate:.1f}% ({report.passed}/{report.total} tests passed)
-**Duration:** {report.duration_ms / 1000:.1f}s total
-**Tokens Used:** {report.total_tokens:,} tokens
-**Tool Calls:** {report.tool_call_count} total
-{models_info}
-{prompts_info}
-{files_info}
-{model_breakdown}
-
-**Test Results:**
-{test_summary}
-"""
-
-        # Build proper system/user messages
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ]
-
-        # Set up Azure Entra ID auth if needed (no API key in env)
-        kwargs: dict = {}
-        if model.startswith("azure/") and not os.environ.get("AZURE_API_KEY"):
-            try:
-                from litellm.secret_managers.get_azure_ad_token_provider import (
-                    get_azure_ad_token_provider,
-                )
-
-                kwargs["azure_ad_token_provider"] = get_azure_ad_token_provider()
-            except (ImportError, Exception):
-                pass  # Fall through to let litellm handle auth
-
-        response = litellm.completion(
-            model=model,
-            messages=messages,
-            **kwargs,
-        )
-
-        return response.choices[0].message.content or ""  # type: ignore[union-attr]
-    except Exception as e:
+        # Log generation stats
         terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
             "terminalreporter"
         )
         if terminalreporter:
-            terminalreporter.write_line(f"Warning: AI summary generation failed: {e}")
+            tokens_used = (
+                metadata.get("tokens_used") if isinstance(metadata, dict) else metadata.tokens_used
+            )
+            cost_usd = metadata.get("cost_usd") if isinstance(metadata, dict) else metadata.cost_usd
+            cached = metadata.get("cached") if isinstance(metadata, dict) else metadata.cached
+
+            tokens_str = f"{tokens_used:,}" if tokens_used else "N/A"
+            cost_str = f"${cost_usd:.4f}" if cost_usd else "N/A"
+            cached_str = " (cached)" if cached else ""
+            terminalreporter.write_line(
+                f"\nAI Insights generated{cached_str}: {tokens_str} tokens, {cost_str}"
+            )
+
+        # Return dict with both summary and metadata
+        return {
+            "markdown_summary": markdown_summary,
+            "cost_usd": metadata.get("cost_usd")
+            if isinstance(metadata, dict)
+            else getattr(metadata, "cost_usd", None),
+            "tokens_used": metadata.get("tokens_used")
+            if isinstance(metadata, dict)
+            else getattr(metadata, "tokens_used", None),
+            "cached": metadata.get("cached")
+            if isinstance(metadata, dict)
+            else getattr(metadata, "cached", False),
+        }
+
+    except pytest.UsageError:
+        # Re-raise configuration errors
+        raise
+    except Exception as e:
+        if required:
+            raise pytest.UsageError(
+                f"AI analysis failed (required for report generation): {e}\n"
+                "Check your model configuration and credentials."
+            ) from e
+        terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
+            "terminalreporter"
+        )
+        if terminalreporter:
+            terminalreporter.write_line(f"Warning: AI insights generation failed: {e}")
         return None
 
 

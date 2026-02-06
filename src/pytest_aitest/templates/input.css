@@ -1,0 +1,305 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   pytest-aitest Report Styles - Matches mkdocs-material slate
+   ============================================================ */
+
+@layer base {
+  body {
+    @apply bg-surface text-text font-sans leading-relaxed;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-text-light font-medium tracking-tight;
+  }
+
+  a {
+    @apply text-primary hover:text-accent transition-colors;
+  }
+}
+
+@layer components {
+  /* ==================== Report Header ==================== */
+  /* Matches mkdocs-material header bar style */
+  .report-header {
+    @apply bg-primary text-white rounded-material p-6 mb-6 shadow-material;
+  }
+
+  .report-header h1 {
+    @apply text-2xl font-medium mb-1 tracking-tight;
+  }
+
+  /* ==================== Status Badges ==================== */
+  .status-passed {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full 
+           bg-green-500/15 text-green-400 font-medium text-sm
+           border border-green-500/30;
+  }
+  
+  .status-failed {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full 
+           bg-red-500/15 text-red-400 font-medium text-sm
+           border border-red-500/30;
+  }
+
+  /* ==================== Cards ==================== */
+  /* Material-style elevated surfaces */
+  .card {
+    @apply bg-surface-card rounded-material shadow-material 
+           border border-white/5;
+  }
+
+  .card-header {
+    @apply px-5 py-4 border-b border-white/10 font-medium text-text-light;
+  }
+
+  .card-body {
+    @apply p-5;
+  }
+
+  /* ==================== Sections ==================== */
+  .section {
+    @apply mb-10;
+  }
+
+  .section-title {
+    @apply text-lg font-medium mb-5 flex items-center gap-3 text-text-light;
+  }
+
+  /* ==================== Metrics ==================== */
+  .metric {
+    @apply flex flex-col;
+  }
+
+  .metric-value {
+    @apply text-xl font-semibold text-text-light tabular-nums;
+  }
+
+  .metric-label {
+    @apply text-xs uppercase tracking-wider text-text-muted mt-0.5;
+  }
+
+  /* ==================== Test Cards ==================== */
+  .test-card {
+    @apply card mb-3 overflow-hidden;
+  }
+
+  .test-header {
+    @apply px-5 py-4 flex items-center justify-between cursor-pointer 
+           hover:bg-white/[0.03] transition-colors duration-150;
+  }
+
+  .test-passed {
+    @apply border-l-[3px] border-green-500;
+  }
+
+  .test-failed {
+    @apply border-l-[3px] border-red-500;
+  }
+
+  /* ==================== Badges ==================== */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-material 
+           text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply bg-primary/15 text-primary-300 border border-primary/30;
+  }
+
+  .badge-secondary {
+    @apply bg-white/5 text-text-muted border border-white/10;
+  }
+
+  .context-badge {
+    @apply badge bg-white/10 text-text border border-white/10;
+  }
+
+  /* ==================== Code & Tool Calls ==================== */
+  .code-block {
+    @apply bg-surface-code font-mono text-sm p-4 rounded-material 
+           overflow-x-auto border border-white/5;
+  }
+
+  .tool-call {
+    @apply bg-surface-elevated rounded-material p-4 mb-3 
+           border border-white/5;
+  }
+
+  .tool-name {
+    @apply font-mono text-accent font-medium;
+  }
+
+  /* ==================== AI Insights ==================== */
+  .ai-insights {
+    @apply card mb-10 overflow-hidden;
+  }
+
+  .ai-insights-header {
+    @apply px-5 py-4 border-b border-white/10 font-medium
+           bg-gradient-to-r from-purple-500/10 via-primary/10 to-transparent
+           flex items-center gap-3 text-text-light;
+  }
+
+  /* ==================== Tables ==================== */
+  .leaderboard-table {
+    @apply w-full text-sm;
+  }
+
+  .leaderboard-table th {
+    @apply px-5 py-3 text-left font-medium text-text-muted uppercase text-xs
+           tracking-wider bg-surface-elevated border-b border-white/10;
+  }
+
+  .leaderboard-table td {
+    @apply px-5 py-4 border-b border-white/5 text-text;
+  }
+
+  .leaderboard-table tbody tr {
+    @apply transition-colors duration-150;
+  }
+
+  .leaderboard-table tbody tr:hover {
+    @apply bg-white/[0.02];
+  }
+
+  .winner-row {
+    @apply bg-green-500/5;
+  }
+
+  /* ==================== Markdown Content ==================== */
+  /* Matches mkdocs-material prose styling */
+  .markdown-content {
+    @apply prose prose-invert prose-sm max-w-none;
+    /* Override prose colors to match material */
+    --tw-prose-body: theme(colors.text.DEFAULT);
+    --tw-prose-headings: theme(colors.text.light);
+    --tw-prose-links: theme(colors.primary.DEFAULT);
+    --tw-prose-bold: theme(colors.text.light);
+    --tw-prose-code: theme(colors.accent.DEFAULT);
+  }
+
+  .markdown-content h2 {
+    @apply text-lg font-medium text-text-light mt-8 mb-4 pb-2 
+           border-b border-white/10;
+  }
+
+  .markdown-content h3 {
+    @apply text-base font-medium text-text-light mt-6 mb-3;
+  }
+
+  .markdown-content p {
+    @apply text-text leading-relaxed;
+  }
+
+  .markdown-content ul {
+    @apply list-disc pl-5 space-y-1.5 text-text;
+  }
+
+  .markdown-content li {
+    @apply text-text;
+  }
+
+  .markdown-content li::marker {
+    @apply text-text-muted;
+  }
+
+  .markdown-content code {
+    @apply bg-surface-code px-1.5 py-0.5 rounded text-accent 
+           font-mono text-[0.85em] border border-white/5;
+  }
+
+  .markdown-content pre {
+    @apply bg-surface-code rounded-material p-4 overflow-x-auto 
+           border border-white/5;
+  }
+
+  .markdown-content pre code {
+    @apply bg-transparent p-0 border-0 text-text;
+  }
+
+  .markdown-content strong {
+    @apply text-text-light font-semibold;
+  }
+
+  .markdown-content a {
+    @apply text-primary hover:text-accent underline decoration-primary/30
+           hover:decoration-accent/50 transition-colors;
+  }
+
+  .markdown-content blockquote {
+    @apply border-l-4 border-primary/50 pl-4 italic text-text-muted;
+  }
+
+  /* ==================== Agent Selector ==================== */
+  .agent-chip {
+    @apply cursor-pointer px-3 py-2 rounded-material border border-white/10 
+           bg-surface-card hover:border-primary/50 transition-all;
+  }
+  .agent-chip.selected {
+    @apply border-primary bg-primary/10;
+  }
+  .chip-content {
+    @apply flex items-center gap-2;
+  }
+  .chip-status {
+    @apply font-semibold tabular-nums;
+  }
+  .chip-name {
+    @apply text-text-light;
+  }
+
+  .agent-card {
+    @apply p-4 rounded-material bg-surface-elevated border border-white/10;
+  }
+  .agent-card.winner {
+    @apply border-yellow-500/30 bg-yellow-500/5;
+  }
+
+  /* ==================== Tags ==================== */
+  .tag {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+  }
+  .tag-skill {
+    @apply bg-purple-500/15 text-purple-300 border border-purple-500/30;
+  }
+  .tag-prompt {
+    @apply bg-blue-500/15 text-blue-300 border border-blue-500/30;
+  }
+  .tag-default {
+    @apply bg-white/5 text-text-muted border border-white/10;
+  }
+
+  /* ==================== Filter Buttons ==================== */
+  .filter-btn {
+    @apply px-3 py-1.5 rounded text-sm text-text-muted border border-white/10
+           bg-surface-card hover:border-white/20 transition-colors;
+  }
+  .filter-btn.active {
+    @apply border-primary bg-primary/20 text-text-light;
+  }
+
+  /* ==================== Expandable Sections ==================== */
+  .expandable-content {
+    @apply overflow-hidden transition-all duration-200 ease-out;
+  }
+
+  /* ==================== Utility Classes ==================== */
+  .text-pass {
+    @apply text-green-400;
+  }
+
+  .text-fail {
+    @apply text-red-400;
+  }
+
+  .bg-pass {
+    @apply bg-green-500/10;
+  }
+
+  .bg-fail {
+    @apply bg-red-500/10;
+  }
+}

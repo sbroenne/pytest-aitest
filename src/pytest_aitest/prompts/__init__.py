@@ -11,12 +11,12 @@ from importlib import resources
 
 @functools.cache
 def get_ai_summary_prompt() -> str:
-    """Load the AI summary system prompt.
+    """Load the AI summary prompt for insights generation.
 
     The prompt is cached after first load.
 
     Returns:
-        The system prompt text for AI summary generation.
+        The system prompt text for structured insights generation.
     """
     package = __package__ or __name__
     prompt_file = resources.files(package) / "ai_summary.md"

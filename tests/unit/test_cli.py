@@ -17,8 +17,8 @@ from pytest_aitest.cli import (
     load_suite_report,
     main,
 )
+from pytest_aitest.core.result import AgentResult, ToolCall, Turn
 from pytest_aitest.reporting.collector import TestReport
-from pytest_aitest.result import AgentResult, ToolCall, Turn
 
 
 class TestConfigLoading:
@@ -237,7 +237,7 @@ class TestLoadSuiteReport:
         json_path = tmp_path / "results.json"
         json_path.write_text(json.dumps(json_data))
 
-        report, ai_summary = load_suite_report(json_path)
+        report, ai_summary, _insights = load_suite_report(json_path)
 
         assert report.name == "test-suite"
         assert report.passed == 2
@@ -257,7 +257,7 @@ class TestLoadSuiteReport:
         json_path = tmp_path / "results.json"
         json_path.write_text(json.dumps(json_data))
 
-        report, ai_summary = load_suite_report(json_path)
+        report, ai_summary, _insights = load_suite_report(json_path)
 
         assert ai_summary == "All tests passed successfully."
 
@@ -302,61 +302,3 @@ class TestMainCLI:
         assert result == 0
         assert html_path.exists()
         assert "test-suite" in html_path.read_text(encoding="utf-8")
-
-    def test_generate_markdown(self, tmp_path: Path) -> None:
-        json_data = {
-            "name": "test-suite",
-            "timestamp": "2026-01-31T12:00:00Z",
-            "duration_ms": 100.0,
-            "summary": {"passed": 1, "failed": 0, "skipped": 0},
-            "tests": [
-                {"name": "test_a", "outcome": "passed", "duration_ms": 100.0, "metadata": {}}
-            ],
-        }
-        json_path = tmp_path / "results.json"
-        json_path.write_text(json.dumps(json_data), encoding="utf-8")
-        md_path = tmp_path / "report.md"
-
-        result = main([str(json_path), "--md", str(md_path)])
-
-        assert result == 0
-        assert md_path.exists()
-        assert "# test-suite" in md_path.read_text(encoding="utf-8")
-
-    def test_generate_both_formats(self, tmp_path: Path) -> None:
-        json_data = {
-            "name": "test-suite",
-            "timestamp": "2026-01-31T12:00:00Z",
-            "duration_ms": 100.0,
-            "summary": {"passed": 1, "failed": 0, "skipped": 0},
-            "tests": [],
-        }
-        json_path = tmp_path / "results.json"
-        json_path.write_text(json.dumps(json_data), encoding="utf-8")
-        html_path = tmp_path / "report.html"
-        md_path = tmp_path / "report.md"
-
-        result = main([str(json_path), "--html", str(html_path), "--md", str(md_path)])
-
-        assert result == 0
-        assert html_path.exists()
-        assert md_path.exists()
-
-    def test_preserves_existing_ai_summary(self, tmp_path: Path) -> None:
-        json_data = {
-            "name": "test-suite",
-            "timestamp": "2026-01-31T12:00:00Z",
-            "duration_ms": 100.0,
-            "summary": {"passed": 1, "failed": 0, "skipped": 0},
-            "tests": [],
-            "ai_summary": "Existing summary from test run.",
-        }
-        json_path = tmp_path / "results.json"
-        json_path.write_text(json.dumps(json_data), encoding="utf-8")
-        md_path = tmp_path / "report.md"
-
-        result = main([str(json_path), "--md", str(md_path)])
-
-        assert result == 0
-        content = md_path.read_text(encoding="utf-8")
-        assert "Existing summary from test run." in content

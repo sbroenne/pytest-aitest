@@ -7,12 +7,21 @@ pytest.mark.parametrize and groups results accordingly.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from collections.abc import Sequence
+from dataclasses import dataclass
 from enum import Enum, auto
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from pytest_aitest.reporting.collector import SuiteReport, TestReport
+
+
+@dataclass(slots=True)
+class TestDimensions:
+    """Detected test dimensions (models and prompts used in the test suite)."""
+
+    models: list[str]
+    prompts: list[str]
 
 
 class ReportMode(Enum):
@@ -36,6 +45,8 @@ class AdaptiveFlags:
     show_prompt_comparison: bool = False
     show_matrix: bool = False
     show_test_overview: bool = True
+    show_tool_comparison: bool = False
+    show_side_by_side: bool = False
 
     # Counts for display
     model_count: int = 0
@@ -49,7 +60,7 @@ class AdaptiveFlags:
     single_prompt_name: str | None = None
 
     @classmethod
-    def from_dimensions(cls, dimensions: "TestDimensions", test_count: int) -> "AdaptiveFlags":
+    def from_dimensions(cls, dimensions: TestDimensions, test_count: int) -> AdaptiveFlags:
         """Create flags from detected dimensions."""
         model_count = len(dimensions.models)
         prompt_count = len(dimensions.prompts)
@@ -59,6 +70,8 @@ class AdaptiveFlags:
             show_prompt_comparison=prompt_count > 1,
             show_matrix=model_count > 1 and prompt_count > 1,
             show_test_overview=test_count > 1,
+            show_tool_comparison=False,  # Set later by get_adaptive_flags
+            show_side_by_side=False,  # Set later by get_adaptive_flags
             model_count=model_count,
             prompt_count=prompt_count,
             test_count=test_count,
@@ -67,32 +80,6 @@ class AdaptiveFlags:
             single_prompt_mode=prompt_count <= 1,
             single_prompt_name=dimensions.prompts[0] if prompt_count == 1 else None,
         )
-
-
-@dataclass
-class TestDimensions:
-    """Detected dimensions from parametrized tests.
-
-    Parses test node IDs like "test_weather[gpt-4o-PROMPT_V1]" to extract:
-    - Base test name (test_weather)
-    - Model variations (gpt-4o, claude-3-haiku)
-    - Prompt variations (PROMPT_V1, PROMPT_V2)
-    """
-
-    mode: ReportMode
-    models: list[str] = field(default_factory=list)
-    prompts: list[str] = field(default_factory=list)
-    base_tests: list[str] = field(default_factory=list)
-
-    @property
-    def is_comparison(self) -> bool:
-        """True if this involves model or prompt comparison."""
-        return self.mode != ReportMode.SIMPLE
-
-    @property
-    def is_matrix(self) -> bool:
-        """True if this is a 2D model x prompt matrix."""
-        return self.mode == ReportMode.MATRIX
 
 
 @dataclass
@@ -247,7 +234,7 @@ class DimensionAggregator:
     """
 
     # Common model patterns (litellm format) - non-greedy to avoid matching prompt names
-    MODEL_PATTERNS = [
+    MODEL_PATTERNS: ClassVar[Sequence[str]] = (
         r"openai/gpt-\d[\w.-]*",  # openai/gpt-4o, openai/gpt-4o-mini
         r"anthropic/claude-\d[\w.-]*",  # anthropic/claude-3-opus
         r"azure/[\w.-]+",
@@ -258,61 +245,14 @@ class DimensionAggregator:
         r"mistral-[\w-]+",
         r"llama\d[\w.-]*",  # llama3, llama3-8b
         r"o\d(?:-mini|-preview)?",  # o1, o1-mini
-    ]
+    )
 
     # Pattern for prompt names (typically SCREAMING_CASE or PascalCase)
-    PROMPT_PATTERNS = [
+    PROMPT_PATTERNS: ClassVar[Sequence[str]] = (
         r"PROMPT_\w+",
         r"[A-Z][a-z]+Prompt",
         r"prompt_v\d+",
-    ]
-
-    def detect_dimensions(self, report: SuiteReport) -> TestDimensions:
-        """Detect test dimensions from parametrized test names.
-
-        Parses test node IDs to find model and prompt variations.
-        """
-        models: set[str] = set()
-        prompts: set[str] = set()
-        base_tests: set[str] = set()
-
-        for test in report.tests:
-            # Extract base test name and parameters
-            base_name, params = self._parse_node_id(test.name)
-            base_tests.add(base_name)
-
-            # Check for model and prompt in parameter string
-            if params:
-                params_str = params[0]
-                model = self._extract_model_from_params(params_str)
-                if model:
-                    models.add(model)
-                prompt = self._extract_prompt_from_params(params_str)
-                if prompt:
-                    prompts.add(prompt)
-
-            # Also check metadata
-            if test.metadata.get("model"):
-                models.add(test.metadata["model"])
-            if test.metadata.get("prompt"):
-                prompts.add(test.metadata["prompt"])
-
-        # Determine mode
-        if models and prompts:
-            mode = ReportMode.MATRIX
-        elif models:
-            mode = ReportMode.MODEL_COMPARISON
-        elif prompts:
-            mode = ReportMode.PROMPT_COMPARISON
-        else:
-            mode = ReportMode.SIMPLE
-
-        return TestDimensions(
-            mode=mode,
-            models=sorted(models),
-            prompts=sorted(prompts),
-            base_tests=sorted(base_tests),
-        )
+    )
 
     def _parse_node_id(self, node_id: str) -> tuple[str, list[str]]:
         """Parse pytest node ID into base name and parameters.
@@ -351,6 +291,42 @@ class DimensionAggregator:
         if match:
             return match.group(0)
         return None
+
+    def detect_dimensions(self, report: SuiteReport) -> TestDimensions:
+        """Detect unique models and prompts used in the test suite.
+
+        Extracts from test metadata and node IDs to build a complete
+        picture of what dimensions are being compared.
+
+        Returns:
+            TestDimensions with unique models and prompts.
+        """
+        models: set[str] = set()
+        prompts: set[str] = set()
+
+        for test in report.tests:
+            # Extract model
+            model = test.metadata.get("model")
+            if not model:
+                _, params = self._parse_node_id(test.name)
+                if params:
+                    model = self._extract_model_from_params(params[0])
+            if model:
+                models.add(model)
+
+            # Extract prompt
+            prompt = test.metadata.get("prompt")
+            if not prompt:
+                _, params = self._parse_node_id(test.name)
+                if params:
+                    prompt = self._extract_prompt_from_params(params[0])
+            if prompt:
+                prompts.add(prompt)
+
+        return TestDimensions(
+            models=sorted(models),
+            prompts=sorted(prompts),
+        )
 
     def group_by_model(self, report: SuiteReport) -> list[GroupedResult]:
         """Group test results by model.
@@ -545,4 +521,171 @@ class DimensionAggregator:
     def get_adaptive_flags(self, report: SuiteReport) -> AdaptiveFlags:
         """Create adaptive flags for template rendering."""
         dimensions = self.detect_dimensions(report)
-        return AdaptiveFlags.from_dimensions(dimensions, len(report.tests))
+        flags = AdaptiveFlags.from_dimensions(dimensions, len(report.tests))
+
+        # Add new comparison flags
+        flags.show_tool_comparison = (
+            flags.model_count > 1 or flags.prompt_count > 1
+        ) and self._has_tool_calls(report)
+        flags.show_side_by_side = flags.model_count > 1 or flags.prompt_count > 1
+
+        return flags
+
+    def _has_tool_calls(self, report: SuiteReport) -> bool:
+        """Check if any test has tool calls."""
+        return any(t.agent_result and t.agent_result.all_tool_calls for t in report.tests)
+
+    def _get_model_for_test(self, test: TestReport) -> str | None:
+        """Extract model name from test metadata or node ID."""
+        model = test.metadata.get("model")
+        if not model:
+            _, params = self._parse_node_id(test.name)
+            if params:
+                model = self._extract_model_from_params(params[0])
+        return model
+
+    def _get_prompt_for_test(self, test: TestReport) -> str | None:
+        """Extract prompt name from test metadata or node ID."""
+        prompt = test.metadata.get("prompt")
+        if not prompt:
+            _, params = self._parse_node_id(test.name)
+            if params:
+                prompt = self._extract_prompt_from_params(params[0])
+        return prompt
+
+    def build_tool_comparison(self, report: SuiteReport) -> dict | None:
+        """Build tool usage comparison across models or prompts.
+
+        Returns a dict with:
+        - columns: list of column names (models or prompts)
+        - tools: list of {name, counts, total} for each tool
+        - column_totals: list of total calls per column
+        - grand_total: total calls across all
+        """
+        dimensions = self.detect_dimensions(report)
+
+        # Determine columns (prefer models if available, otherwise prompts)
+        if len(dimensions.models) > 1:
+            columns = dimensions.models
+            get_column = self._get_model_for_test
+        elif len(dimensions.prompts) > 1:
+            columns = dimensions.prompts
+            get_column = self._get_prompt_for_test
+        else:
+            return None  # No comparison possible
+
+        # Collect tool calls per column
+        tool_counts: dict[str, dict[str, int]] = {}  # tool_name -> column -> count
+
+        for test in report.tests:
+            if not test.agent_result:
+                continue
+            column = get_column(test)
+            if not column:
+                continue
+
+            for tc in test.agent_result.all_tool_calls:
+                if tc.name not in tool_counts:
+                    tool_counts[tc.name] = {c: 0 for c in columns}
+                if column in tool_counts[tc.name]:
+                    tool_counts[tc.name][column] += 1
+
+        if not tool_counts:
+            return None
+
+        # Build result structure
+        tools = []
+        for tool_name in sorted(tool_counts.keys()):
+            counts = [tool_counts[tool_name].get(c, 0) for c in columns]
+            tools.append(
+                {
+                    "name": tool_name,
+                    "counts": counts,
+                    "total": sum(counts),
+                }
+            )
+
+        column_totals = [sum(tool_counts[t].get(c, 0) for t in tool_counts) for c in columns]
+
+        return {
+            "columns": columns,
+            "tools": tools,
+            "column_totals": column_totals,
+            "grand_total": sum(column_totals),
+        }
+
+    def build_side_by_side(self, report: SuiteReport) -> list[dict] | None:
+        """Build side-by-side comparison data for tests across variants.
+
+        Returns list of test groups, each with:
+        - test_name: base test name
+        - variants: list of {name, passed, duration_ms, total_tokens, tool_calls, agent_result}
+        - has_tool_calls: bool
+        """
+        dimensions = self.detect_dimensions(report)
+
+        # Need multiple models or prompts for comparison
+        if len(dimensions.models) <= 1 and len(dimensions.prompts) <= 1:
+            return None
+
+        # Group by base test name
+        test_groups: dict[str, list[TestReport]] = {}
+
+        for test in report.tests:
+            base_name, _ = self._parse_node_id(test.name)
+            if base_name not in test_groups:
+                test_groups[base_name] = []
+            test_groups[base_name].append(test)
+
+        # Only include tests with multiple variants
+        result = []
+        for base_name, tests in test_groups.items():
+            if len(tests) <= 1:
+                continue
+
+            # Build variant info
+            variants = []
+            has_tool_calls = False
+
+            for test in tests:
+                # Determine variant name (model or prompt or both)
+                parts = []
+                model = self._get_model_for_test(test)
+                prompt = self._get_prompt_for_test(test)
+                if model:
+                    parts.append(model)
+                if prompt:
+                    parts.append(prompt)
+                variant_name = " / ".join(parts) if parts else test.name
+
+                # Calculate metrics
+                total_tokens = 0
+                tool_calls = 0
+                if test.agent_result is not None:
+                    total_tokens = test.agent_result.token_usage.get(
+                        "prompt", 0
+                    ) + test.agent_result.token_usage.get("completion", 0)
+                    tool_calls = len(test.agent_result.all_tool_calls)
+                    if tool_calls > 0:
+                        has_tool_calls = True
+
+                variants.append(
+                    {
+                        "name": variant_name,
+                        "passed": test.outcome == "passed",
+                        "duration_ms": test.duration_ms,
+                        "total_tokens": total_tokens,
+                        "tool_calls": tool_calls,
+                        "agent_result": test.agent_result,
+                    }
+                )
+
+            result.append(
+                {
+                    "test_name": base_name,
+                    "variants": variants,
+                    "has_tool_calls": has_tool_calls,
+                }
+            )
+
+        return result if result else None

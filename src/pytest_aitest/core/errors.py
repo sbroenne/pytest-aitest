@@ -6,8 +6,6 @@ from __future__ import annotations
 class AITestError(Exception):
     """Base exception for pytest-aitest errors."""
 
-    pass
-
 
 class ServerStartError(AITestError):
     """Error starting an MCP or CLI server."""

@@ -14,10 +14,9 @@ import pytest
 
 from pytest_aitest import Agent, Provider, load_prompts
 
-pytestmark = [pytest.mark.integration, pytest.mark.matrix]
+from .conftest import BENCHMARK_MODELS, DEFAULT_RPM, DEFAULT_TPM
 
-# Models to test
-MODELS = ["gpt-5-mini", "gpt-4.1"]
+pytestmark = [pytest.mark.integration, pytest.mark.matrix]
 
 # Load prompts from YAML files
 PROMPTS_DIR = Path(__file__).parent / "prompts"
@@ -33,13 +32,14 @@ class TestMatrixComparison:
     - Cells = pass/fail + metrics
     """
 
-    @pytest.mark.parametrize("model", MODELS)
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
     @pytest.mark.parametrize("prompt", PROMPTS, ids=lambda p: p.name)
     @pytest.mark.asyncio
     async def test_weather_matrix(self, aitest_run, weather_server, model, prompt):
         """Weather query across all model/prompt combinations."""
         agent = Agent(
-            provider=Provider(model=f"azure/{model}"),
+            name=f"matrix-{model}-{prompt.name}",
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
             system_prompt=prompt.system_prompt,
             max_turns=5,
@@ -50,13 +50,14 @@ class TestMatrixComparison:
         assert result.success
         assert result.tool_was_called("get_weather")
 
-    @pytest.mark.parametrize("model", MODELS)
+    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
     @pytest.mark.parametrize("prompt", PROMPTS, ids=lambda p: p.name)
     @pytest.mark.asyncio
     async def test_comparison_matrix(self, aitest_run, weather_server, model, prompt):
         """City comparison across all model/prompt combinations."""
         agent = Agent(
-            provider=Provider(model=f"azure/{model}"),
+            name=f"matrix-compare-{model}-{prompt.name}",
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
             system_prompt=prompt.system_prompt,
             max_turns=5,

@@ -14,10 +14,62 @@ class ToolCall:
     arguments: dict[str, Any]
     result: str | None = None
     error: str | None = None
+    duration_ms: float | None = None
 
     def __repr__(self) -> str:
         status = "error" if self.error else "ok"
-        return f"ToolCall({self.name}, {status})"
+        timing = f", {self.duration_ms:.1f}ms" if self.duration_ms else ""
+        return f"ToolCall({self.name}, {status}{timing})"
+
+
+@dataclass(slots=True)
+class ToolInfo:
+    """Metadata about an MCP tool for AI analysis.
+
+    Captures the tool's description and schema as exposed to the LLM,
+    enabling the AI to analyze whether tool descriptions are clear and
+    suggest improvements.
+    """
+
+    name: str
+    description: str
+    input_schema: dict[str, Any]
+    server_name: str
+
+    def __repr__(self) -> str:
+        return f"ToolInfo({self.name} from {self.server_name})"
+
+
+@dataclass(slots=True)
+class SkillInfo:
+    """Metadata about a skill for AI analysis.
+
+    Captures the skill's instruction content and references,
+    enabling the AI to analyze skill effectiveness and suggest improvements.
+    """
+
+    name: str
+    description: str
+    instruction_content: str
+    reference_names: list[str] = field(default_factory=list)
+
+    def __repr__(self) -> str:
+        refs = f", {len(self.reference_names)} refs" if self.reference_names else ""
+        return f"SkillInfo({self.name}{refs})"
+
+
+@dataclass(slots=True)
+class Assertion:
+    """A single assertion result from a test."""
+
+    type: str  # "semantic", "condition", etc.
+    passed: bool
+    message: str
+    details: str | None = None
+
+    def __repr__(self) -> str:
+        status = "✓" if self.passed else "✗"
+        return f"Assertion({status} {self.message})"
 
 
 @dataclass(slots=True)
@@ -60,6 +112,16 @@ class AgentResult:
     cost_usd: float = 0.0
     _messages: list[dict[str, Any]] = field(default_factory=list)
     session_context_count: int = 0  # Number of prior messages passed in
+    assertions: list[Assertion] = field(default_factory=list)  # Assertion results
+
+    # Phase 2: Collection for AI analysis
+    available_tools: list[ToolInfo] = field(default_factory=list)
+    skill_info: SkillInfo | None = None
+    effective_system_prompt: str = ""
+
+    # Agent identity (captured from Agent at execution time)
+    agent_name: str = ""  # Agent.name or synthesized from model+skill
+    model: str = ""  # Agent.provider.model (without provider prefix)
 
     @property
     def messages(self) -> list[dict[str, Any]]:

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pytest-aitest"
-version = "0.1.0"
+version = "0.2.0"
 description = "Pytest plugin for testing AI agents with MCP and CLI servers"
 readme = "README.md"
 license = { text = "MIT" }
@@ -28,25 +28,38 @@ classifiers = [
 dependencies = [
     "pytest>=9.0",
     "litellm>=1.81",
-    "mcp>=1.0.0",
+    "mcp>=1.26",
     "pydantic>=2.0",
     "jinja2>=3.1",
-    "markdown>=3.5",
-    "pytest-llm-assert>=0.2.0",
+    "markdown>=3.10",
+    "htpy>=25.12.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=9.0",
-    "pytest-cov>=6.0",
-    "pytest-asyncio>=0.24",
+    "pytest-cov>=7.0",
+    "pytest-asyncio>=1.3",
+    "pytest-llm-assert>=0.2",
     "python-dotenv>=1.2",
     "ruff>=0.14",
     "pyright>=1.1.408",
     "pre-commit>=4.5",
+    "datamodel-code-generator>=0.25",
+    "jsonschema>=4.0",
+    "typeguard>=4.4",
+]
+test = [
+    "beautifulsoup4>=4.14",
+    "lxml>=6.0",
+    "syrupy>=5.1",
 ]
 azure = [
     "azure-identity>=1.25",
+]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.7",
+    "mkdocstrings[python]>=0.24",
 ]
 
 [project.scripts]
@@ -100,22 +113,32 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 asyncio_mode = "auto"
-# pytest-aitest configuration.
-# LLM auth is handled by LiteLLM via standard env vars (AZURE_API_BASE, OPENAI_API_KEY, etc.)
-# Rate limits match Azure gpt-5-mini deployment: 10 RPM, 10K TPM
-# Note: --aitest-summary requires LLM credentials, use explicitly when needed
+# Suppress third-party deprecation warnings we can't fix
+filterwarnings = [
+    "ignore:enable_cleanup_closed:DeprecationWarning:aiohttp",
+]
+# pytest-aitest configuration for this project's own tests.
+# This demonstrates the recommended setup - configure once in pyproject.toml.
+# LLM auth is handled by LiteLLM via env vars (AZURE_API_BASE, OPENAI_API_KEY, etc.)
 addopts = """
---aitest-model=azure/gpt-5-mini
---aitest-summary-model=azure/gpt-5.1-chat
+--aitest-summary-model=azure/gpt-5.2-chat
 --aitest-html=aitest-reports/report.html
---aitest-rpm=10
---aitest-tpm=10000
 """
 markers = [
     "integration: marks tests as integration tests (require LLM credentials)",
     "aitest: AI agent tests",
     "basic: basic usage tests (weather and todo)",
-    "benchmark: model benchmark tests (compare LLMs)",
-    "arena: prompt arena tests (compare prompts)",
-    "matrix: matrix tests (model × prompt grid)",
+    "model: tests with multiple models",
+    "sysprompt: tests with multiple system prompts",
+    "skill: tests with skills",
+    "abtest: A/B server comparison tests",
+    "cli: CLI server tests",
+]
+
+# UV/PEP 735 dependency groups (for uv sync)
+[dependency-groups]
+dev = [
+    "playwright>=1.58.0",
+    "pytest-aitest[dev,test,azure,docs]",
+    "pytest-playwright>=0.7.2",
 ]

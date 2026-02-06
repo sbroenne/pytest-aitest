@@ -57,6 +57,6 @@ def todo_server():
 
 See [conftest.py](../tests/integration/conftest.py) for fixture patterns:
 
-- `weather_server` / `todo_server` — Test MCP servers
-- `weather_agent_factory` / `todo_agent_factory` — Create agents
-- Azure token handling and temperature quirks
+- `weather_server` / `todo_server` — Test MCP servers  
+- `DEFAULT_MODEL`, `DEFAULT_RPM`, `DEFAULT_TPM`, `DEFAULT_MAX_TURNS` — Constants for agent creation
+- Azure token handling

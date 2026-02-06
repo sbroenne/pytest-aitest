@@ -3,17 +3,19 @@
 from __future__ import annotations
 
 import asyncio
-import functools
 import json
+import logging
 import os
 import time
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 import litellm
 from litellm.exceptions import RateLimitError as LiteLLMRateLimitError
 
+from pytest_aitest.core.auth import get_azure_ad_token_provider
 from pytest_aitest.core.errors import EngineTimeoutError, RateLimitError
-from pytest_aitest.core.result import AgentResult, ToolCall, Turn
+from pytest_aitest.core.result import AgentResult, SkillInfo, ToolCall, ToolInfo, Turn
 from pytest_aitest.execution.retry import RetryConfig, with_retry
 from pytest_aitest.execution.skill_tools import (
     execute_skill_tool,
@@ -21,34 +23,15 @@ from pytest_aitest.execution.skill_tools import (
     is_skill_tool,
 )
 
+_logger = logging.getLogger(__name__)
+
+# Drop unsupported params automatically for cross-model compatibility
+# e.g., some Azure models don't support tool_choice
+litellm.drop_params = True
+
 if TYPE_CHECKING:
     from pytest_aitest.core.agent import Agent
     from pytest_aitest.execution.servers import ServerManager
-
-
-@functools.cache
-def _get_azure_ad_token_provider() -> Callable[[], str] | None:
-    """Get Azure AD token provider for Entra ID authentication.
-
-    Uses LiteLLM's built-in helper which leverages DefaultAzureCredential.
-    Cached at module level to avoid recreating credentials on each call.
-    - Azure CLI credentials (az login)
-    - Managed Identity
-    - Environment variables (AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, ...)
-    - Visual Studio Code credentials
-    """
-    try:
-        from litellm.secret_managers.get_azure_ad_token_provider import (
-            get_azure_ad_token_provider,
-        )
-
-        return get_azure_ad_token_provider()
-    except ImportError:
-        # azure-identity not installed
-        return None
-    except Exception:
-        # Credential not available
-        return None
 
 
 class AgentEngine:
@@ -72,21 +55,79 @@ class AgentEngine:
         self.retry_config = retry_config or RetryConfig()
         self._tools: list[dict[str, Any]] = []
         self._azure_ad_token_provider: Callable[[], str] | None = None
+        # Phase 2: Collection for AI analysis
+        self._available_tools: list[ToolInfo] = []
+        self._skill_info: SkillInfo | None = None
+        self._effective_system_prompt: str = ""
+
+        # Agent identity
+        self._agent_name = self._compute_agent_name()
+        self._model = self._compute_model()
+
+    def _compute_agent_name(self) -> str:
+        """Compute agent name (explicit or synthesized from model+skill)."""
+        if self.agent.name:
+            return self.agent.name
+        # Synthesize: model + skill
+        model = self.agent.provider.model.split("/")[-1]  # Remove provider prefix
+        if self.agent.skill:
+            return f"{model}+{self.agent.skill.name}"
+        return model
+
+    def _compute_model(self) -> str:
+        """Get model name (with provider prefix stripped for display)."""
+        model = self.agent.provider.model
+        return model.split("/")[-1] if "/" in model else model
 
     async def initialize(self) -> None:
         """Start servers and collect available tools."""
         await self.server_manager.start_all()
         self._tools = await self.server_manager.get_tools_schema()
 
+        # Collect ToolInfo for AI analysis
+        self._available_tools = self.server_manager.get_tools_info()
+
+        # Filter tools if allowed_tools is specified
+        if self.agent.allowed_tools:
+            allowed = set(self.agent.allowed_tools)
+            self._tools = [t for t in self._tools if t.get("function", {}).get("name") in allowed]
+            self._available_tools = [t for t in self._available_tools if t.name in allowed]
+
         # Add skill reference tools if skill has references
         if self.agent.skill and self.agent.skill.has_references:
             skill_tools = get_skill_tools_schema(self.agent.skill)
             self._tools.extend(skill_tools)
+            # Also track skill tools as ToolInfo
+            for tool_schema in skill_tools:
+                func = tool_schema["function"]
+                self._available_tools.append(
+                    ToolInfo(
+                        name=func["name"],
+                        description=func.get("description", ""),
+                        input_schema=func.get("parameters", {}),
+                        server_name="skill",
+                    )
+                )
+
+        # Filter tools if allowed_tools is specified
+        if self.agent.allowed_tools is not None:
+            allowed = set(self.agent.allowed_tools)
+            self._tools = [t for t in self._tools if t["function"]["name"] in allowed]
+            self._available_tools = [t for t in self._available_tools if t.name in allowed]
+
+        # Build SkillInfo for AI analysis
+        if self.agent.skill:
+            self._skill_info = SkillInfo(
+                name=self.agent.skill.name,
+                description=self.agent.skill.metadata.description,
+                instruction_content=self.agent.skill.content,
+                reference_names=list(self.agent.skill.references.keys()),
+            )
 
         # Auto-configure Azure Entra ID when using Azure model without API key
         provider = self.agent.provider
         if provider.model.startswith("azure/") and not os.environ.get("AZURE_API_KEY"):
-            self._azure_ad_token_provider = _get_azure_ad_token_provider()
+            self._azure_ad_token_provider = get_azure_ad_token_provider()
 
     async def shutdown(self) -> None:
         """Stop all servers."""
@@ -121,6 +162,10 @@ class AgentEngine:
 
         # Build system prompt: skill content (if any) + agent's system prompt
         system_prompt = self._build_system_prompt()
+
+        # Store effective system prompt for AI analysis (only on first run)
+        if not self._effective_system_prompt and system_prompt:
+            self._effective_system_prompt = system_prompt
 
         # Track session context for reporting
         session_context_count = len(messages) if messages else 0
@@ -201,6 +246,11 @@ class AgentEngine:
                 cost_usd=total_cost,
                 _messages=conversation,
                 session_context_count=session_context_count,
+                available_tools=self._available_tools,
+                skill_info=self._skill_info,
+                effective_system_prompt=self._effective_system_prompt,
+                agent_name=self._agent_name,
+                model=self._model,
             )
         except RateLimitError as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -213,6 +263,11 @@ class AgentEngine:
                 cost_usd=total_cost,
                 _messages=conversation,
                 session_context_count=session_context_count,
+                available_tools=self._available_tools,
+                skill_info=self._skill_info,
+                effective_system_prompt=self._effective_system_prompt,
+                agent_name=self._agent_name,
+                model=self._model,
             )
         except Exception as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -225,6 +280,11 @@ class AgentEngine:
                 cost_usd=total_cost,
                 _messages=conversation,
                 session_context_count=session_context_count,
+                available_tools=self._available_tools,
+                skill_info=self._skill_info,
+                effective_system_prompt=self._effective_system_prompt,
+                agent_name=self._agent_name,
+                model=self._model,
             )
 
         duration_ms = (time.perf_counter() - start_time) * 1000
@@ -236,6 +296,11 @@ class AgentEngine:
             cost_usd=total_cost,
             _messages=conversation,
             session_context_count=session_context_count,
+            available_tools=self._available_tools,
+            skill_info=self._skill_info,
+            effective_system_prompt=self._effective_system_prompt,
+            agent_name=self._agent_name,
+            model=self._model,
         )
 
     def _build_system_prompt(self) -> str | None:
@@ -298,9 +363,24 @@ class AgentEngine:
             raise RateLimitError(retry_after) from e
 
     async def _execute_tool_calls(self, tool_calls: list[Any]) -> list[ToolCall]:
-        """Execute tool calls and return results."""
+        """Execute tool calls and return results with timing."""
         results = []
         for tc in tool_calls:
+            start_time = time.perf_counter()
+
+            # Validate tool call structure
+            if not hasattr(tc, "function") or tc.function is None:
+                _logger.warning("Malformed tool call: missing function attribute")
+                results.append(
+                    ToolCall(
+                        name="unknown",
+                        arguments={},
+                        error="Malformed tool call: missing function",
+                        duration_ms=(time.perf_counter() - start_time) * 1000,
+                    )
+                )
+                continue
+
             name = tc.function.name
             try:
                 arguments = json.loads(tc.function.arguments)
@@ -311,15 +391,38 @@ class AgentEngine:
                 else:
                     result = await self.server_manager.call_tool(name, arguments)
 
-                results.append(ToolCall(name=name, arguments=arguments, result=result))
-            except json.JSONDecodeError as e:
+                duration_ms = (time.perf_counter() - start_time) * 1000
                 results.append(
-                    ToolCall(name=name, arguments={}, error=f"Invalid JSON arguments: {e}")
+                    ToolCall(
+                        name=name,
+                        arguments=arguments,
+                        result=result,
+                        duration_ms=duration_ms,
+                    )
+                )
+            except json.JSONDecodeError as e:
+                duration_ms = (time.perf_counter() - start_time) * 1000
+                results.append(
+                    ToolCall(
+                        name=name,
+                        arguments={},
+                        error=f"Invalid JSON arguments: {e}",
+                        duration_ms=duration_ms,
+                    )
                 )
             except Exception as e:
+                duration_ms = (time.perf_counter() - start_time) * 1000
                 try:
                     arguments = json.loads(tc.function.arguments)
                 except Exception:
+                    _logger.debug("Could not parse arguments for error reporting", exc_info=True)
                     arguments = {}
-                results.append(ToolCall(name=name, arguments=arguments, error=str(e)))
+                results.append(
+                    ToolCall(
+                        name=name,
+                        arguments=arguments,
+                        error=str(e),
+                        duration_ms=duration_ms,
+                    )
+                )
         return results

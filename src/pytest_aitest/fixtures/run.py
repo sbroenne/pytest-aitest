@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncGenerator, Callable
 from typing import TYPE_CHECKING, Any
 
@@ -11,9 +12,37 @@ from pytest_aitest.core.agent import Agent
 from pytest_aitest.core.result import AgentResult
 from pytest_aitest.execution.engine import AgentEngine
 from pytest_aitest.execution.servers import ServerManager
+from pytest_aitest.plugin import SESSION_MESSAGES_KEY
 
 if TYPE_CHECKING:
     pass
+
+_logger = logging.getLogger(__name__)
+
+
+def _get_session_key(request: pytest.FixtureRequest) -> str | None:
+    """Get session key from @pytest.mark.session marker.
+
+    The key includes parametrize params for isolation, so tests with different
+    parameters get isolated sessions.
+
+    Returns:
+        Session key string or None if no session marker present.
+    """
+    marker = request.node.get_closest_marker("session")
+    if not marker:
+        return None
+
+    if not marker.args:
+        raise ValueError("@pytest.mark.session requires a session name argument")
+
+    session_name = marker.args[0]
+
+    # Include parametrize params for isolation
+    params = getattr(request.node, "callspec", None)
+    if params and params.id:
+        return f"{session_name}[{params.id}]"
+    return session_name
 
 
 @pytest.fixture
@@ -42,9 +71,25 @@ def aitest_run(
             )
             result = await aitest_run(agent, "Hello!")
             assert result.success
+
+    Session continuity with @pytest.mark.session:
+
+        @pytest.mark.session("weather_session")
+        async def test_ask_weather(aitest_run):
+            result = await aitest_run(agent, "What's the weather in Paris?")
+            assert result.success
+
+        @pytest.mark.session("weather_session")
+        async def test_followup_question(aitest_run):
+            # Messages from previous test are automatically injected
+            result = await aitest_run(agent, "What about tomorrow?")
+            assert result.success
     """
     engines: list[AgentEngine] = []
     results: list[AgentResult] = []
+
+    # Get session key for this test (if @pytest.mark.session is present)
+    session_key = _get_session_key(request)
 
     async def run_agent(
         agent: Agent,
@@ -64,10 +109,18 @@ def aitest_run(
             messages: Optional prior conversation messages for session continuity.
                      Pass result.messages from a previous test to continue the
                      conversation instead of starting fresh.
+                     If using @pytest.mark.session and messages is not provided,
+                     messages from the previous test in the session are used automatically.
 
         Returns:
             AgentResult with conversation history and tool calls
         """
+        # Auto-inject session messages if not explicitly provided
+        effective_messages = messages
+        if effective_messages is None and session_key:
+            session_storage = request.config.stash.get(SESSION_MESSAGES_KEY, {})
+            effective_messages = session_storage.get(session_key)
+
         server_manager = ServerManager(
             mcp_servers=agent.mcp_servers,
             cli_servers=agent.cli_servers,
@@ -77,13 +130,20 @@ def aitest_run(
 
         await engine.initialize()
         result = await engine.run(
-            prompt, max_turns=max_turns, timeout_ms=timeout_ms, messages=messages
+            prompt, max_turns=max_turns, timeout_ms=timeout_ms, messages=effective_messages
         )
+
+        # Auto-save messages for next test in session
+        if session_key:
+            session_storage = request.config.stash.get(SESSION_MESSAGES_KEY, {})
+            session_storage[session_key] = result.messages
+            request.config.stash[SESSION_MESSAGES_KEY] = session_storage
 
         # Store result for reporting
         results.append(result)
-        # Store the most recent result for the plugin to pick up
+        # Store the most recent result and agent for the plugin to pick up
         request.node._aitest_result = result  # type: ignore[attr-defined]
+        request.node._aitest_agent = agent  # type: ignore[attr-defined]
 
         return result
 
@@ -105,4 +165,4 @@ async def _aitest_auto_cleanup(
         try:
             await engine.shutdown()
         except Exception:
-            pass  # Best effort cleanup
+            _logger.warning("Engine cleanup failed", exc_info=True)

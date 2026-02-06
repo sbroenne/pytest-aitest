@@ -5,10 +5,9 @@ from __future__ import annotations
 import os
 from unittest.mock import patch
 
-from pytest_aitest.config import (
+from pytest_aitest.core.agent import (
     Agent,
     CLIServer,
-    Judge,
     MCPServer,
     Provider,
     Wait,
@@ -96,7 +95,7 @@ class TestCLIServer:
         assert server.shell is None  # Auto-detect
         assert server.cwd is None
         assert server.env == {}
-        assert server.discover_help is True
+        assert server.discover_help is False  # LLM must discover help itself
 
     def test_with_cwd(self) -> None:
         server = CLIServer(
@@ -134,18 +133,6 @@ class TestCLIServer:
                 env={"API_KEY": "${SECRET}"},
             )
             assert server.env["API_KEY"] == "value123"
-
-
-class TestJudge:
-    """Tests for Judge configuration."""
-
-    def test_defaults(self) -> None:
-        judge = Judge()
-        assert judge.model == "openai/gpt-4o-mini"
-
-    def test_custom_model(self) -> None:
-        judge = Judge(model="anthropic/claude-3-haiku")
-        assert judge.model == "anthropic/claude-3-haiku"
 
 
 class TestAgent:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -99,6 +99,7 @@ class SuiteReport:
     passed: int = 0
     failed: int = 0
     skipped: int = 0
+    suite_docstring: str | None = None
 
     @property
     def total(self) -> int:
@@ -223,7 +224,7 @@ class ReportCollector:
         """Add a test result."""
         self.tests.append(test)
 
-    def build_suite_report(self, name: str) -> SuiteReport:
+    def build_suite_report(self, name: str, suite_docstring: str | None = None) -> SuiteReport:
         """Build final suite report from collected tests."""
         passed = sum(1 for t in self.tests if t.outcome == "passed")
         failed = sum(1 for t in self.tests if t.outcome == "failed")
@@ -232,10 +233,11 @@ class ReportCollector:
 
         return SuiteReport(
             name=name,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now().isoformat(),
             duration_ms=total_duration,
             tests=self.tests,
             passed=passed,
             failed=failed,
             skipped=skipped,
+            suite_docstring=suite_docstring,
         )

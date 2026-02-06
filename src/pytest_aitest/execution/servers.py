@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import re
@@ -73,11 +74,8 @@ class MCPServerProcess:
         """Stop the MCP server process."""
         if self._reader_task:
             self._reader_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._reader_task
-            except asyncio.CancelledError:
-                # Expected when cancelling the reader task - safe to ignore
-                pass
 
         if self._process:
             self._process.terminate()
@@ -162,7 +160,7 @@ class MCPServerProcess:
         if params:
             request["params"] = params
 
-        future: asyncio.Future[Any] = asyncio.get_event_loop().create_future()
+        future: asyncio.Future[Any] = asyncio.get_running_loop().create_future()
         self._pending_requests[request_id] = future
 
         data = json.dumps(request) + "\n"
@@ -274,7 +272,7 @@ class CLIServerProcess:
                 if len(help_text) > 2000:
                     help_text = help_text[:2000] + "\n... (truncated)"
                 return help_text
-        except (OSError, asyncio.TimeoutError):
+        except (TimeoutError, OSError):
             # Help discovery is optional - if it fails, just skip it
             return None
         return None
@@ -482,6 +480,48 @@ class ServerManager:
                 )
 
         return tools
+
+    def get_tools_info(self) -> list:
+        """Get ToolInfo for all tools across all servers.
+
+        Returns:
+            List of ToolInfo objects with metadata for AI analysis.
+        """
+        from pytest_aitest.core.result import ToolInfo
+
+        tools_info = []
+
+        # MCP server tools
+        for server in self._mcp_servers:
+            server_name = getattr(server.config, "name", None) or server.config.command[-1]
+            for name, tool_def in server.get_tools().items():
+                tools_info.append(
+                    ToolInfo(
+                        name=name,
+                        description=tool_def.get("description", ""),
+                        input_schema=tool_def.get(
+                            "inputSchema", {"type": "object", "properties": {}}
+                        ),
+                        server_name=server_name,
+                    )
+                )
+
+        # CLI server tools
+        for server in self._cli_servers:
+            server_name = getattr(server.config, "name", None) or server.config.command[0]
+            for name, tool_def in server.get_tools().items():
+                tools_info.append(
+                    ToolInfo(
+                        name=name,
+                        description=tool_def.get("description", ""),
+                        input_schema=tool_def.get(
+                            "inputSchema", {"type": "object", "properties": {}}
+                        ),
+                        server_name=server_name,
+                    )
+                )
+
+        return tools_info
 
     async def call_tool(self, name: str, arguments: dict[str, Any]) -> str:
         """Call a tool by name."""

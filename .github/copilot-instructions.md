@@ -1,66 +1,269 @@
 # Copilot Instructions for pytest-aitest
 
+## CRITICAL: No Backward Compatibility
+
+**NO LEGACY CODE. NO FALLBACKS. CLEAN CODE ONLY.**
+
+- Never add backward compatibility code
+- Never add fallback logic for "old" formats
+- Never synthesize data that should be explicit
+- If something is missing, it's an error - not a fallback opportunity
+- Remove legacy code, don't maintain it
+
+## CRITICAL: Terminology
+
+- **System Prompt** = Instructions given to the agent (what configures agent behavior)
+- **Prompt** = What you tell the agent to execute (the test query / user message)
+
+Always say "system prompt" when referring to agent instructions. Never abbreviate to just "prompt".
+
+## CRITICAL: What We Test
+
+**We do NOT test agents. We USE agents to test:**
+- **MCP Servers** — Can an LLM understand and use these tools?
+- **CLI Tools** — Can an LLM operate this command-line interface?
+- **System Prompts** — Do these instructions produce the desired behavior?
+- **Agent Skills** — Does this domain knowledge improve performance?
+
+**The Agent is the test harness**, not the thing being tested. It bundles an LLM provider with the tools/prompts/skills you want to evaluate.
+
+NEVER say "test agents" or "testing AI agents". Always say "test MCP servers", "test tools", "test prompts", or "test skills".
+
 ## Why This Project Exists
 
-MCP servers and CLIs have two problems nobody talks about:
+Your MCP server passes all unit tests. Then an LLM tries to use it and:
 
-1. **Design** — Your tool descriptions, parameter names, and error messages are the entire API for LLMs. Getting them right is hard.
-2. **Testing** — Traditional tests can't verify if an LLM can actually understand and use your tools.
+- Picks the wrong tool
+- Passes garbage parameters
+- Can't recover from errors
+- Ignores your system prompt instructions
 
-- **Bad tool description?** The LLM picks the wrong tool.
-- **Confusing parameter name?** The LLM passes garbage.
-- **Unhelpful error message?** The LLM can't recover.
+**Why?** Because you tested the code, not the AI interface.
 
-**The key insight: your test is a prompt.** You write what a user would say ("What's the weather in Paris?"), and the LLM figures out how to use your tools. If it can't, your tool descriptions need work.
+For LLMs, your API isn't functions and types — it's **tool descriptions, system prompts, skills, and schemas**. These are what the LLM actually sees. Traditional tests can't validate them.
+
+**The key insight: your test is a prompt.** You write what a user would say ("What's the weather in Paris?"), and the LLM figures out how to use your tools. If it can't, your AI interface needs work.
+
+## CRITICAL: HTML Report Development Workflow
+
+**MANDATORY STEPS AFTER EVERY CODE CHANGE:**
+
+1. **RUN VISUAL TESTS** (non-negotiable)
+   ```bash
+   uv run pytest tests/visual/ -q
+   ```
+   - All 44 tests MUST PASS
+   - Tests verify HTML rendering in actual browser
+   - Do NOT proceed if any test fails
+
+2. **VERIFY TEST ASSERTIONS** (non-negotiable)
+   - Understand what each test checks for
+   - Mentally verify the code change addresses the test requirement
+   - Do NOT assume tests passing means feature works correctly
+
+3. **REGENERATE ALL REPORTS** (non-negotiable)
+   ```bash
+   uv run python scripts/generate_fixture_html.py
+   ```
+   - Generates 4 fixture reports in docs/reports/
+   - Do NOT skip this step
+
+4. **VERIFY CHANGES IN ACTUAL HTML** (non-negotiable)
+   ```bash
+   Select-String -Path "docs\reports\01_single_agent.html" -Pattern "YOUR_SEARCH_TERM"
+   ```
+   - Search for the specific change (e.g., "Single agent tests", "✓ Assertions", "whitespace-pre-wrap")
+   - Confirm change is present in generated HTML
+   - Do NOT proceed without this verification
+
+5. **OPEN IN BROWSER** (when feasible)
+   - Visually inspect the HTML report
+   - Verify feature works as intended
+   - Catch CSS/layout issues that grep won't find
+
+**IF CHANGE DOESN'T APPEAR IN HTML:**
+- Check if test fixture JSON has the data (examine .json file)
+- Check if generator.py is reading it (add print statements if needed)
+- Check if template component is receiving it (inspect types)
+- Check if component is rendering it (check htpy code)
+- Verify HTML output contains the CSS/classes
+- Regenerate reports again
+- Search HTML again with broader patterns
+
+**WHAT NOT TO DO:**
+- ❌ Assume tests passing means feature works
+- ❌ Skip visual tests
+- ❌ Skip report regeneration  
+- ❌ Assume old code won't still generate old output
+- ❌ Proceed without searching HTML for the change
+- ❌ Modify fixture JSONs directly - regenerate via pytest
+- ❌ Commit without verifying in browser
+
+## Technology Stack & Code Style
+
+### Language & Runtime
+- **Python 3.11+** - Use modern syntax (match statements, `|` union types, Self)
+- **Fully async** - All agent execution is async (`async def`, `await`)
+- **Type hints everywhere** - All public APIs have type annotations
+- **`from __future__ import annotations`** - Always at top of every module
+
+### Core Dependencies
+| Package | Purpose | Pattern |
+|---------|---------|---------|
+| `litellm` | LLM abstraction | Handles all provider APIs (Azure, OpenAI, Anthropic) |
+| `mcp` | MCP protocol | Server process management, tool discovery |
+| `pydantic` | Validation | Config validation (used sparingly) |
+| `pytest` | Test framework | Plugin system, fixtures, markers |
+| `jinja2` | Templates | HTML report generation |
+
+### Data Modeling
+- **Use `@dataclass(slots=True)`** for all data objects
+- **Use `frozen=True`** for immutable config (Wait, Provider)
+- **Use `TypedDict`** for template data contracts (see `data_contracts.py`)
+- **No Pydantic models** for core types - just dataclasses
+
+```python
+# Good - immutable config with slots
+@dataclass(slots=True, frozen=True)
+class Wait:
+    strategy: WaitStrategy
+    timeout_ms: int = 30000
+
+# Good - mutable data with slots
+@dataclass(slots=True)
+class AgentResult:
+    turns: list[Turn]
+    success: bool
+```
+
+### Async Patterns
+- **pytest-asyncio auto mode** - Tests are async by default (no `@pytest.mark.asyncio`)
+- **Use `asyncio.TaskGroup`** for parallel operations (Python 3.11+)
+- **Context managers** - Use `async with` for server lifecycle
+
+```python
+# Tests are async by default (asyncio_mode = "auto" in pyproject.toml)
+async def test_weather(aitest_run, weather_server):
+    result = await aitest_run(agent, "What's the weather?")
+    assert result.success
+```
+
+### Build & Quality Tools
+| Tool | Config | Purpose |
+|------|--------|---------|
+| `uv` | `pyproject.toml` | Package management, virtual envs |
+| `hatch` | `pyproject.toml` | Build backend |
+| `ruff` | `pyproject.toml` | Linting + formatting (replaces black, isort, flake8) |
+| `pyright` | `pyproject.toml` | Type checking (basic mode) |
+| `pre-commit` | `.pre-commit-config.yaml` | Git hooks |
+
+### Commands
+```bash
+# Run lints
+uv run ruff check src tests
+
+# Fix lint issues
+uv run ruff check --fix src tests
+
+# Format code
+uv run ruff format src tests
+
+# Type check
+uv run pyright src
+
+# Run unit tests (fast, no LLM)
+uv run pytest tests/unit -v
+
+# Run integration tests (slow, uses LLM)
+uv run pytest tests/integration -v
+```
+
+### Import Conventions
+- Group imports: stdlib → third-party → local
+- Use `TYPE_CHECKING` block for type-only imports
+- Import from package root when possible (`from pytest_aitest import Agent`)
+
+```python
+from __future__ import annotations
+
+import asyncio
+from typing import TYPE_CHECKING, Any
+
+import litellm
+from mcp import ClientSession
+
+from pytest_aitest.core.result import AgentResult
+
+if TYPE_CHECKING:
+    from pytest_aitest.core.agent import Agent
+```
 
 ## What We're Building
 
-**pytest-aitest** is a pytest plugin for testing MCP servers and CLIs. You write tests as natural language prompts, and an LLM executes them against your tools.
+**pytest-aitest** is a pytest plugin for testing MCP servers and CLIs. You write tests as natural language prompts, and an LLM executes them against your tools. Reports tell you **what to fix**, not just **what failed**.
 
 ### Core Features
 
-1. **Base Testing**: Define test agents with prompts, run tests against MCP/CLI tool servers
-   - Agent = Provider (LLM) + System Prompt + MCP/CLI Servers
+1. **Base Testing**: Define test agents, run tests against MCP/CLI tool servers
+   - Agent = Provider (LLM) + System Prompt + MCP/CLI Servers + optional Skill
    - Use `aitest_run` fixture to execute agent and verify tool usage
    - Assert on `result.success`, `result.tool_was_called("tool_name")`, `result.final_response`
 
-2. **Benchmark Mode** (Model Comparison): Evaluate multiple LLMs against each other
-   - Use `@pytest.mark.parametrize("model", ["gpt-5-mini", "gpt-4.1"])` 
-   - Report auto-detects and shows model comparison table
-   - See which model works best for your agent
+2. **Agent Leaderboard**: When you test multiple agents, the report shows a leaderboard
+   - 1 agent → Just results
+   - Multiple agents → Agent Leaderboard (always)
+   - AI detects what varies (Model, Prompt, Skill, Server) to focus its analysis
 
-3. **Arena Mode** (Prompt Comparison): Compare multiple prompts with same model
-   - Define prompts in YAML files, load with `load_prompts(Path("prompts/"))`
-   - Use `@pytest.mark.parametrize("prompt", PROMPTS, ids=lambda p: p.name)`
-   - Report shows prompt comparison table
+3. **Winning Criteria**: Highest pass rate → Lowest cost (tiebreaker)
+   - Use `--aitest-min-pass-rate=N` to disqualify agents below N%
 
-4. **Matrix Mode**: Full model × prompt grid comparison
-   - Combine both parametrize decorators for full matrix
-   - Report auto-detects and shows 2D comparison grid
+4. **Multi-Turn Sessions**: Test conversations that build on context
+   - Use `@pytest.mark.session("session-name")` on test class
+   - Tests share agent state within the session
+   - Reports track session flow and context continuity
 
-### Adaptive Reporting
+5. **Skill Testing**: Validate agent domain knowledge
+   - Load skills from markdown files with `Skill.from_path()`
+   - Skills inject structured knowledge into agent context
+   - Reports analyze skill effectiveness and suggest improvements
 
-Reports **auto-compose** based on detected test dimensions:
-- **Simple mode**: Just test list (no parametrize)
-- **Model comparison**: Summary + Model table + Test list
-- **Prompt comparison**: Summary + Prompt table + Test list  
-- **Matrix mode**: Summary + 2D Grid + Model table + Prompt table + Test list
+### AI-Powered Reports (KEY DIFFERENTIATOR)
+
+Reports are **insights-first**, not metrics-first. AI analysis is **mandatory** when generating reports.
+
+Reports include:
+- **🎯 Recommendation**: Deploy recommendation with cost/performance analysis
+- **❌ Failure Analysis**: Root cause + suggested fix for each failure
+- **🔧 MCP Tool Feedback**: Improve tool descriptions, with copy button
+- **📝 Prompt Feedback**: System prompt improvements
+- **📚 Skill Feedback**: Skill restructuring suggestions
+- **⚡ Optimizations**: Reduce turns/tokens
+
+```bash
+# Run tests with AI-powered report (mandatory --aitest-summary-model)
+pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5.2-chat
+
+# Regenerate report with new AI insights from existing JSON (no re-run)
+pytest-aitest-report results.json --html=report.html --regenerate --summary-model=azure/gpt-5-mini
+```
 
 ### Key Types
 
 ```python
-from pytest_aitest import Agent, Provider, MCPServer, Prompt, load_prompts
+from pytest_aitest import Agent, Provider, MCPServer, Skill, load_system_prompts
 
 # Define an agent (auth via AZURE_API_BASE env var)
 agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
     mcp_servers=[my_server],
     system_prompt="You are helpful...",
+    skill=Skill.from_path("skills/weather-expert"),  # Optional domain knowledge
     max_turns=10,
 )
 
-# Load YAML prompts
-prompts = load_prompts(Path("prompts/"))
+# Load system prompts from .md files - returns dict[str, str]
+prompts = load_system_prompts(Path("prompts/"))
+# {"concise": "Be brief...", "detailed": "Explain..."}
 
 # Run test
 result = await aitest_run(agent, "Do something with tools")
@@ -68,22 +271,47 @@ assert result.success
 assert result.tool_was_called("my_tool")
 ```
 
-### YAML Prompt Format
+### Multi-Turn Sessions
 
-```yaml
-name: PROMPT_EFFICIENT
-version: "1.0"
-description: Efficient task completion
-system_prompt: |
-  You are a helpful assistant.
-  Complete tasks efficiently with minimal steps.
+```python
+@pytest.mark.session("banking-flow")
+class TestBankingWorkflow:
+    async def test_check_balance(self, aitest_run, bank_agent):
+        result = await aitest_run(bank_agent, "What's my balance?")
+        assert result.success
+
+    async def test_transfer(self, aitest_run, bank_agent):
+        # Shares context with previous test
+        result = await aitest_run(bank_agent, "Transfer $100 to savings")
+        assert result.tool_was_called("transfer")
+```
+
+### System Prompts
+
+System prompts are plain `.md` files. No YAML, no classes.
+
+```python
+# Load from directory - returns dict[str, str]
+prompts = load_system_prompts(Path("prompts/"))
+# {"concise": "Be brief...", "detailed": "Explain..."}
+
+# Use with pytest parametrize
+@pytest.mark.parametrize("prompt_name,system_prompt", prompts.items())
+async def test_with_prompt(aitest_run, weather_server, prompt_name, system_prompt):
+    agent = Agent(
+        provider=Provider(model="azure/gpt-5-mini"),
+        mcp_servers=[weather_server],
+        system_prompt=system_prompt,
+    )
+    result = await aitest_run(agent, "What's the weather?")
+    assert result.success
 ```
 
 ## CRITICAL: Testing Philosophy
 
 **Unit tests with mocks are WORTHLESS for this project.**
 
-This is a testing framework for AI agents. The only way to verify it works is to:
+This is a testing framework that uses LLMs to test tools, prompts, and skills. The only way to verify it works is to:
 1. Run **real integration tests** against **real LLM providers**
 2. Use **actual MCP/CLI servers** that perform real operations
 3. Verify the **full pipeline end-to-end**
@@ -101,6 +329,35 @@ This is a testing framework for AI agents. The only way to verify it works is to
 - Verify actual tool calls happen and produce expected results
 - Accept that integration tests take 5-30+ seconds per test
 
+## CRITICAL: Efficient Test Execution
+
+**Integration tests are EXPENSIVE. Never re-run passing tests unnecessarily.**
+
+### pytest caching commands:
+```bash
+# Run ONLY tests that failed last time (MOST COMMON)
+pytest --lf tests/integration/
+
+# Run failed tests first, then the rest
+pytest --ff tests/integration/
+
+# Check what's in the cache (see last failures)
+pytest --cache-show
+
+# Clear the cache (fresh start)
+pytest --cache-clear
+
+# Run specific failing test(s) only
+pytest tests/integration/test_foo.py::TestClass::test_name -v
+```
+
+### Rules for the AI assistant:
+1. **NEVER run all integration tests** unless explicitly asked
+2. **After fixing a test, run ONLY that specific test**
+3. **Use `--lf` to re-run only failed tests**
+4. **Check `--cache-show` to see current failure state before running**
+5. **Quote the specific test paths when running individual tests**
+
 ## Azure Configuration
 
 **Endpoint**: `https://stbrnner1.cognitiveservices.azure.com/`
@@ -108,11 +365,11 @@ This is a testing framework for AI agents. The only way to verify it works is to
 **Account**: `stbrnner1`
 
 **Authentication**: Entra ID (automatic via `az login`). No API keys needed!
-The engine uses `litellm.secret_managers.get_azure_ad_token_provider()` internally.
+The engine uses `core.auth.get_azure_ad_token_provider()` internally (shared module).
 
 Available models (checked 2026-02-01):
 - `gpt-5-mini` - CHEAPEST, use for most tests
-- `gpt-5.1-chat` - More capable
+- `gpt-5.2-chat` - More capable
 - `gpt-4.1` - Most capable
 
 Check for updates:
@@ -129,24 +386,38 @@ az cognitiveservices account deployment list \
 src/pytest_aitest/
 ├── core/                  # Core types
 │   ├── agent.py           # Agent, Provider, MCPServer, CLIServer, Wait
-│   ├── prompt.py          # Prompt, load_prompts() for YAML
-│   ├── result.py          # AgentResult, Turn, ToolCall
+│   ├── auth.py            # Shared Azure AD auth (get_azure_ad_token_provider)
+│   ├── prompt.py          # load_system_prompts() for .md files (returns dict[str, str])
+│   ├── result.py          # AgentResult, Turn, ToolCall, ToolInfo, SkillInfo
+│   ├── skill.py           # Skill, load from markdown
 │   └── errors.py          # AITestError, ServerStartError, etc.
 ├── execution/             # Runtime
-│   ├── engine.py          # AgentEngine (LLM loop + tool dispatch)
+│   ├── engine.py          # AgentEngine (LLM loop + tool dispatch, uses LiteLLM num_retries)
 │   ├── servers.py         # Server process management
-│   └── retry.py           # Rate limit retry logic
+│   └── skill_tools.py     # Skill injection into agent
 ├── fixtures/              # Pytest fixtures
 │   ├── run.py             # aitest_run fixture
-│   ├── judge.py           # LLM judge integration
-│   └── factories.py       # agent_factory, provider_factory
-├── reporting/             # Smart reports
-│   ├── collector.py       # Collects test results
+│   └── factories.py       # skill_factory (Skills only - agents created inline)
+├── reporting/             # AI-powered reports
+│   ├── collector.py       # Collects test results + ToolInfo + SkillInfo
 │   ├── aggregator.py      # Detects dimensions, groups results
-│   ├── generator.py       # Generates HTML/JSON
-│   └── renderers/         # Composable report sections
+│   ├── data_contracts.py  # TypedDicts for template data shapes
+│   ├── data_builders.py   # Transforms raw data → contract structures
+│   ├── generator.py       # Generates HTML with AI insights
+│   └── insights.py        # AI analysis engine (mandatory)
+├── templates/             # Jinja2 templates for HTML reports
+│   ├── report.html        # Main report template
+│   ├── input.css          # Source CSS (Tailwind input)
+│   ├── tailwind.config.js # Tailwind CSS configuration
+│   └── partials/          # Component templates
+│       ├── tailwind.css   # Built CSS (generated - do not edit)
+│       ├── scripts.js     # JS (Mermaid, copy buttons, filtering)
+│       ├── agent_leaderboard.html  # Agent ranking table
+│       ├── agent_selector.html     # Agent comparison toggles
+│       ├── test_grid.html          # Test results grid
+│       ├── test_comparison.html    # Side-by-side agent comparison
+│       └── overlay.html            # Fullscreen expanded view
 └── testing/               # Test harnesses
-    ├── types.py           # ToolResult dataclass
     ├── weather.py         # WeatherStore for demos
     ├── weather_mcp.py     # Weather MCP server
     ├── todo.py            # TodoStore for CRUD tests
@@ -156,10 +427,246 @@ src/pytest_aitest/
 
 tests/
 ├── integration/           # REAL LLM tests (the only tests that matter)
-│   ├── test_agent_integration.py  # Base functionality
-│   ├── test_benchmark.py          # Model comparison
-│   ├── test_arena.py              # Prompt comparison  
-│   ├── test_matrix.py             # Model × Prompt
-│   └── prompts/                   # YAML prompt files
+│   ├── conftest.py        # Constants + server fixtures (agents created inline)
+│   ├── test_basic_usage.py        # Base functionality
+│   ├── test_dimension_detection.py # Proves auto-detection works (all permutations)
+│   ├── test_skills.py             # Skill testing
+│   ├── test_skill_improvement.py  # Skill before/after comparisons
+│   ├── test_sessions.py           # Multi-turn sessions
+│   ├── test_ai_summary.py         # AI insights generation
+│   ├── test_ab_servers.py         # Server A/B testing
+│   ├── test_cli_server.py         # CLI server testing
+│   ├── prompts/                   # Plain .md system prompt files
+│   └── skills/                    # Test skills
 └── unit/                  # Pure logic only (no mocking LLMs)
 ```
+
+## Test Configuration (conftest.py)
+
+Integration tests use centralized constants from `tests/integration/conftest.py`:
+
+```python
+# Models
+DEFAULT_MODEL = "gpt-5-mini"           # Cheapest, use for most tests
+BENCHMARK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"]  # For model comparison
+
+# Rate limits (Azure deployments)
+DEFAULT_RPM = 10
+DEFAULT_TPM = 10000
+
+# Turn limits
+DEFAULT_MAX_TURNS = 5
+
+# Server fixtures: weather_server, todo_server, banking_server
+# Agents are created INLINE in each test using these constants
+```
+
+**Pattern for writing tests:**
+```python
+from pytest_aitest import Agent, Provider
+from .conftest import DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM, DEFAULT_MAX_TURNS
+
+async def test_weather(aitest_run, weather_server):
+    agent = Agent(
+        provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+        mcp_servers=[weather_server],
+        system_prompt="You are a weather assistant.",
+        max_turns=DEFAULT_MAX_TURNS,
+    )
+    result = await aitest_run(agent, "What's the weather in Paris?")
+    assert result.success
+```
+
+## Semantic Assertions with llm_assert
+
+Use the `llm_assert` fixture from `pytest-llm-assert` for AI-powered assertions:
+
+```python
+async def test_response_quality(aitest_run, weather_server, llm_assert):
+    agent = Agent(...)
+    result = await aitest_run(agent, "Compare Paris and London weather")
+    
+    # Semantic assertion - AI evaluates if condition is met
+    assert llm_assert(result.final_response, "compares temperatures of both cities")
+```
+
+## CRITICAL: Report Development
+
+### Report Generation Architecture
+
+The report pipeline flows:  
+**Test Execution → Collector → Aggregator → AI Insights → Generator → HTML/JSON**
+
+```
+src/pytest_aitest/reporting/
+├── collector.py       # Collects TestReport during pytest run → SuiteReport
+├── aggregator.py      # Detects dimensions (model/prompt/skill), groups tests
+├── insights.py        # AI analysis engine (mandatory) → AIInsights
+├── data_contracts.py  # TypedDicts defining template data shapes
+├── data_builders.py   # Transforms raw data → contract-compliant structures
+└── generator.py       # Renders Jinja2 templates → HTML/JSON
+```
+
+### Data Contracts (IMPORTANT)
+
+Every template partial has a **typed data contract** in `data_contracts.py`. This is the explicit interface between Python and Jinja2:
+
+| Contract | Used By | Purpose |
+|----------|---------|---------|
+| `AgentData` | `agent_leaderboard.html`, `agent_selector.html` | Agent metrics: pass_rate, cost, tokens, is_winner |
+| `TestResultData` | `test_comparison.html`, `test_grid.html` | Per-agent test result: tool_calls, mermaid, outcome |
+| `TestData` | `test_grid.html` | Test with `results_by_agent` dict |
+| `TestGroupData` | `test_grid.html` | Session or standalone group containing tests |
+| `ReportContext` | `report.html` | Full template context with all data + helper functions |
+
+**Pattern**: When modifying templates, always check `data_contracts.py` for the expected shape. When adding template fields, add them to the contract first.
+
+### Template Structure
+
+```
+src/pytest_aitest/templates/
+├── report.html              # Main template - includes partials
+├── tailwind.config.js       # Tailwind CSS configuration
+├── input.css                # Source CSS (processed by Tailwind)
+└── partials/
+    ├── tailwind.css         # Built CSS (DO NOT EDIT - generated)
+    ├── scripts.js           # JS: Mermaid, copy buttons, expand/collapse, agent filtering
+    ├── agent_leaderboard.html   # Ranked agent table with medals (🥇🥈🥉)
+    ├── agent_selector.html      # Toggle chips for agent comparison
+    ├── test_grid.html           # Session-grouped test list
+    ├── test_comparison.html     # Side-by-side agent results per test
+    └── overlay.html             # Fullscreen overlay for expanded views
+```
+
+### CSS Development with Tailwind
+
+The project uses Tailwind CSS. **Never edit `partials/tailwind.css` directly.**
+
+```bash
+# Build CSS after editing input.css or Tailwind classes in templates
+npx tailwindcss -i ./src/pytest_aitest/templates/input.css \
+                -o ./src/pytest_aitest/templates/partials/tailwind.css \
+                -c ./src/pytest_aitest/templates/tailwind.config.js
+
+# Or use the build script
+uv run python scripts/build_css.py
+```
+
+### Report Sources
+
+1. **Integration tests demonstrate capabilities** - Each test file shows a feature:
+   - `test_basic_usage.py` → Basic tool usage
+   - `test_model_benchmark.py` → Model comparison leaderboard
+   - `test_prompt_arena.py` → System prompt comparison
+   - `test_matrix.py` → Model × System Prompt grid
+   - `test_skills.py` → Skills integration
+   - `test_sessions.py` → Multi-turn sessions
+   - `test_cli_server.py` → CLI server testing
+
+2. **Showcase tests for hero report** - Located in `tests/showcase/`:
+   - `test_hero.py` → Curated tests for README showcase
+   - Demonstrates ALL capabilities in a single cohesive report
+   - Output: `docs/demo/hero-report.html` (committed to repo)
+
+3. **Report config is in pyproject.toml**:
+   ```toml
+   addopts = """
+   --aitest-summary-model=azure/gpt-5.2-chat
+   --aitest-html=aitest-reports/report.html
+   """
+   ```
+
+### Generate Reports
+
+```bash
+# Integration tests (development)
+pytest tests/integration/ -v
+
+# Hero report for README showcase
+pytest tests/showcase/ -v --aitest-html=docs/demo/hero-report.html
+```
+
+### Manual Testing Workflow (Pre-PR)
+
+**Integration tests use real LLM calls and are expensive. Run manually before PRs.**
+
+```bash
+# 1. Run unit tests first (fast, free)
+uv run pytest tests/unit/ -v
+
+# 2. Run ONE integration test to verify changes
+uv run pytest tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_trip_planning_compare_destinations -v
+
+# 3. Run failed tests only (if any)
+uv run pytest --lf tests/integration/ -v
+
+# 4. Generate hero report (before major releases)
+uv run pytest tests/showcase/ -v --aitest-html=docs/demo/hero-report.html
+```
+
+## CRITICAL: Template/Report Changes - NEVER Re-run Tests
+
+**For template, CSS, JS, or report generation changes:**
+
+```bash
+# CORRECT - Regenerate HTML from existing JSON (instant, no LLM cost)
+uv run pytest-aitest-report aitest-reports/results.json --html aitest-reports/test.html
+
+# WRONG - Never re-run tests just to see template changes!
+# uv run pytest tests/showcase/ ...  ← DON'T DO THIS
+```
+
+**When to re-run tests:**
+- Test code itself changed
+- Agent/tool/engine functionality changed
+- Need fresh data with different models/prompts
+
+**When to regenerate from JSON:**
+- Template changes (HTML, CSS, JS)
+- Report generator code changes
+- Layout/styling experiments
+- Data contract changes (if backward compatible)
+
+**Workflow for template development:**
+1. Edit templates in `src/pytest_aitest/templates/`
+2. If using new Tailwind classes, rebuild CSS first
+3. Regenerate report from existing JSON:
+   ```bash
+   uv run pytest-aitest-report aitest-reports/results.json --html aitest-reports/test.html
+   ```
+4. Open the HTML file in browser
+5. Repeat steps 1-4 until satisfied
+
+This workflow is **instant and free** - no LLM calls, no API costs.
+
+### Key Files for Report Development
+
+| File | When to Modify |
+|------|----------------|
+| `reporting/data_contracts.py` | Adding new data fields for templates |
+| `reporting/data_builders.py` | Transforming raw data to contract shapes |
+| `reporting/generator.py` | Changing how context is built for templates |
+| `templates/report.html` | Main page layout, partial includes |
+| `templates/partials/*.html` | Individual UI components |
+| `templates/partials/scripts.js` | Interactivity, Mermaid diagrams |
+| `templates/input.css` | Base styles, custom CSS (then rebuild Tailwind) |
+| `cli.py` | CLI commands for report regeneration |
+
+### Report Design Principles
+
+- **Material Design** - Match mkdocs-material indigo theme
+- **Roboto fonts** - Via Google Fonts
+- **Test details expanded by default** - Users want to see results immediately
+- **Human-readable test names** - Use docstrings or humanize function names
+- **Assertions visible** - Show tool_was_called, semantic assertions
+- **Mermaid diagrams readable** - Use neutral theme with good contrast
+- **AI insights prominent** - Verdict section at top with clear recommendation
+- **Contract-first development** - Define TypedDict before touching templates
+
+### Markdown Style Guidelines
+
+- **No horizontal rules (`---`)** - Headings provide sufficient visual separation
+- Use `##` headings for major sections, `###` for subsections
+- Horizontal rules inside code blocks are fine (e.g., YAML frontmatter examples)
+
+

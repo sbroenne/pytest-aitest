@@ -16,6 +16,8 @@ import pytest
 
 from pytest_aitest import Agent, Provider, load_prompts
 
+from .conftest import DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM
+
 pytestmark = [pytest.mark.integration, pytest.mark.arena]
 
 # Load prompts from YAML files
@@ -37,7 +39,8 @@ class TestPromptArena:
     async def test_weather_query(self, aitest_run, weather_server, prompt):
         """Same query, different prompts - which responds best?"""
         agent = Agent(
-            provider=Provider(model="azure/gpt-5-mini"),
+            name=f"arena-weather-{prompt.name}",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
             system_prompt=prompt.system_prompt,
             max_turns=5,
@@ -53,7 +56,8 @@ class TestPromptArena:
     async def test_multi_step_task(self, aitest_run, weather_server, prompt):
         """Multi-step task - prompts may differ in efficiency."""
         agent = Agent(
-            provider=Provider(model="azure/gpt-5-mini"),
+            name=f"arena-multistep-{prompt.name}",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[weather_server],
             system_prompt=prompt.system_prompt,
             max_turns=8,
