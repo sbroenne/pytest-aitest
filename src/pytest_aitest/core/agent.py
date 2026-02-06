@@ -118,8 +118,9 @@ class CLIServer:
     Wraps a single CLI command (like `git`, `docker`, `echo`) and exposes it
     as a tool the LLM can call with arbitrary arguments.
 
-    By default, runs `command --help` to discover available subcommands and
-    include them in the tool description.
+    By default, help discovery is DISABLED. The LLM must run `command --help`
+    itself to discover available subcommands. This tests that your skill/prompt
+    properly instructs the LLM to discover CLI capabilities.
 
     Example:
         CLIServer(
@@ -129,19 +130,18 @@ class CLIServer:
             shell="bash",           # Shell to use (default: auto-detect)
         )
 
-        # Custom help flag for CLIs that don't use --help
+        # Enable auto-discovery (pre-populates tool description with help output)
         CLIServer(
-            name="custom-cli",
+            name="my-cli",
             command="my-tool",
-            help_flag="-h",         # Use -h instead of --help
+            discover_help=True,     # Runs --help and includes in tool description
         )
 
-        # Custom description instead of help discovery
+        # Custom description instead of discovery
         CLIServer(
             name="legacy-cli",
             command="old-tool",
             description="Manages legacy data. Use: list, get <id>, delete <id>",
-            discover_help=False,
         )
 
     The generated tool accepts an `args` parameter:
@@ -155,8 +155,8 @@ class CLIServer:
     shell: str | None = None  # auto-detect: bash on Unix, powershell on Windows
     cwd: str | None = None
     env: dict[str, str] = field(default_factory=dict)
-    discover_help: bool = True  # Run help to get tool description (default: on)
-    help_flag: str = "--help"  # Flag to get help text (default: --help)
+    discover_help: bool = False  # LLM must discover help itself (tests skill instructions)
+    help_flag: str = "--help"  # Flag to get help text (when discover_help=True)
     description: str | None = None  # Custom description (overrides help discovery)
 
     def __post_init__(self) -> None:

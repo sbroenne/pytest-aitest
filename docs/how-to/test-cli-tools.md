@@ -21,8 +21,11 @@ def git_server():
 The CLI server wraps any command-line tool and exposes it as a single tool that accepts arguments:
 
 1. **Creates a tool**: `{tool_prefix}_execute` that accepts an `args` parameter
-2. **Discovers usage**: Runs `--help` automatically to include in tool description
+2. **LLM discovers usage**: The LLM must run `--help` itself to discover CLI capabilities
 3. **Returns structured output**: JSON with `exit_code`, `stdout`, `stderr`
+
+!!! note "Why no auto-discovery?"
+    By default, help discovery is disabled. This tests that your skill/prompt properly instructs the LLM to discover CLI capabilities itself. Set `discover_help=True` to pre-populate the tool description.
 
 ```python
 # The LLM calls the tool like this:
@@ -40,7 +43,7 @@ CLIServer(
     shell="bash",               # Shell to use (optional)
     cwd="/path/to/repo",        # Working directory (optional)
     env={"KEY": "value"},       # Environment variables (optional)
-    discover_help=True,         # Run help flag for description (default: True)
+    discover_help=False,        # Default: LLM must discover CLI usage itself
     help_flag="--help",         # Flag to get help text (default: --help)
     description=None,           # Custom description (overrides help discovery)
 )
@@ -54,8 +57,8 @@ CLIServer(
 | `shell` | Shell to run commands in | Auto-detect |
 | `cwd` | Working directory | Current directory |
 | `env` | Environment variables | `{}` |
-| `discover_help` | Run help flag for tool description | `True` |
-| `help_flag` | Flag to get help text | `--help` |
+| `discover_help` | Run help flag for tool description | `False` |
+| `help_flag` | Flag to get help text (when `discover_help=True`) | `--help` |
 | `description` | Custom tool description | `None` |
 
 ## Shell Selection
@@ -79,30 +82,31 @@ CLIServer(
 
 ## Help Discovery
 
-By default, the CLI server runs `{command} --help` at startup and includes the output in the tool description:
+By default, help discovery is **disabled** (`discover_help=False`). This tests whether your skill or system prompt properly instructs the LLM to discover CLI capabilities itself by running `--help`.
 
 ```python
-# Help text included automatically (default)
+# Default: LLM must discover help itself
 CLIServer(
     name="kubectl",
     command="kubectl",
     tool_prefix="k8s",
 )
 
-# Custom help flag
+# Enable auto-discovery (pre-populates tool description with --help output)
+CLIServer(
+    name="kubectl",
+    command="kubectl",
+    tool_prefix="k8s",
+    discover_help=True,
+)
+
+# Auto-discovery with custom help flag
 CLIServer(
     name="custom-cli",
     command="my-tool",
     tool_prefix="tool",
+    discover_help=True,
     help_flag="-h",
-)
-
-# Disable help discovery
-CLIServer(
-    name="fast-cli",
-    command="fast-tool",
-    tool_prefix="fast",
-    discover_help=False,
 )
 ```
 
@@ -110,7 +114,7 @@ Help text is truncated to 2000 characters to avoid token bloat.
 
 ## Custom Description
 
-For CLIs where auto-discovery doesn't work well:
+When help discovery is disabled (the default), you can provide a custom description:
 
 ```python
 CLIServer(
@@ -126,7 +130,6 @@ CLIServer(
     - delete <id>: Delete a record
     - export <format>: Export data (json, csv)
     """,
-    discover_help=False,
 )
 ```
 
@@ -228,14 +231,22 @@ CLIServer(
 
 ### Help Discovery Fails
 
-Disable it:
+If you've enabled `discover_help=True` and it fails, either use a custom description or leave discovery disabled and let the LLM discover help itself:
 
 ```python
+# Option 1: Provide custom description
 CLIServer(
     name="my-cli",
     command="my-tool",
     tool_prefix="tool",
-    discover_help=False,
+    description="Tool for managing resources. Run --help for usage.",
+)
+
+# Option 2: Let LLM discover (default behavior)
+CLIServer(
+    name="my-cli",
+    command="my-tool",
+    tool_prefix="tool",
 )
 ```
 
