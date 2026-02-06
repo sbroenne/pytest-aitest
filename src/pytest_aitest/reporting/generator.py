@@ -85,6 +85,7 @@ class ReportGenerator:
         *,
         ai_summary: str | None = None,  # DEPRECATED
         insights: Any | None = None,
+        min_pass_rate: int | None = None,
     ) -> None:
         """Generate HTML report from test results and AI insights.
 
@@ -93,9 +94,10 @@ class ReportGenerator:
             output_path: Path to write HTML file
             ai_summary: DEPRECATED - use insights parameter instead
             insights: AIInsights object (if None, placeholder is used)
+            min_pass_rate: Minimum pass rate threshold for disqualifying agents
         """
         # Build typed data structures for htpy components
-        context = self._build_report_context(report, insights=insights)
+        context = self._build_report_context(report, insights=insights, min_pass_rate=min_pass_rate)
 
         # Render with htpy - htpy automatically outputs doctype lowercase
         html_node = full_report(context)
@@ -107,6 +109,7 @@ class ReportGenerator:
         report: SuiteReport,
         *,
         insights: Any | None = None,
+        min_pass_rate: int | None = None,
     ) -> ReportContext:
         """Build typed ReportContext from SuiteReport."""
         # Build report metadata
@@ -155,7 +158,7 @@ class ReportGenerator:
         )
 
         # Build agents
-        agents, agents_by_id = self._build_agents(report)
+        agents, agents_by_id = self._build_agents(report, min_pass_rate=min_pass_rate)
         all_agent_ids = [a.id for a in agents]
         selected_agent_ids = [a.id for a in agents[:2]]
 
@@ -184,7 +187,9 @@ class ReportGenerator:
             insights=insights_data,
         )
 
-    def _build_agents(self, report: SuiteReport) -> tuple[list[AgentData], dict[str, AgentData]]:
+    def _build_agents(
+        self, report: SuiteReport, *, min_pass_rate: int | None = None
+    ) -> tuple[list[AgentData], dict[str, AgentData]]:
         """Build agent data from test results."""
         from collections import defaultdict
 
@@ -242,6 +247,9 @@ class ReportGenerator:
             passed = stats["passed"]
             pass_rate = (passed / total * 100) if total > 0 else 0
 
+            # Mark as disqualified if below minimum pass rate threshold
+            disqualified = min_pass_rate is not None and pass_rate < min_pass_rate
+
             agents.append(
                 AgentData(
                     id=agent_id,
@@ -255,28 +263,32 @@ class ReportGenerator:
                     cost=stats["cost"],
                     tokens=stats["tokens"],
                     duration_s=stats["duration_ms"] / 1000,
+                    disqualified=disqualified,
                 )
             )
 
-        # Sort by pass rate (desc), then cost (asc)
-        agents.sort(key=lambda a: (-a.pass_rate, a.cost))
+        # Sort: qualified agents first (by pass rate desc, cost asc),
+        # then disqualified agents (by pass rate desc, cost asc)
+        agents.sort(key=lambda a: (a.disqualified, -a.pass_rate, a.cost))
 
-        # Mark winner
-        if agents:
-            agents[0] = AgentData(
-                id=agents[0].id,
-                name=agents[0].name,
-                skill=agents[0].skill,
-                prompt_name=agents[0].prompt_name,
-                passed=agents[0].passed,
-                failed=agents[0].failed,
-                total=agents[0].total,
-                pass_rate=agents[0].pass_rate,
-                cost=agents[0].cost,
-                tokens=agents[0].tokens,
-                duration_s=agents[0].duration_s,
-                is_winner=True,
-            )
+        # Mark winner (first non-disqualified agent)
+        for i, agent in enumerate(agents):
+            if not agent.disqualified:
+                agents[i] = AgentData(
+                    id=agent.id,
+                    name=agent.name,
+                    skill=agent.skill,
+                    prompt_name=agent.prompt_name,
+                    passed=agent.passed,
+                    failed=agent.failed,
+                    total=agent.total,
+                    pass_rate=agent.pass_rate,
+                    cost=agent.cost,
+                    tokens=agent.tokens,
+                    duration_s=agent.duration_s,
+                    is_winner=True,
+                )
+                break
 
         agents_by_id = {a.id: a for a in agents}
         return agents, agents_by_id

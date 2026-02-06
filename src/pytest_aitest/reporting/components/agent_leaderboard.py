@@ -46,14 +46,28 @@ def _agent_tags(agent: AgentData) -> Node:
 
 def _leaderboard_row(agent: AgentData, rank: int) -> Node:
     """Render a single leaderboard row."""
-    row_class = "winner-row" if rank == 1 else ""
+    if agent.disqualified:
+        row_class = "opacity-50"
+    elif agent.is_winner:
+        row_class = "winner-row"
+    else:
+        row_class = ""
+
+    rank_display = "⛔" if agent.disqualified else _medal(rank)
 
     return tr(class_=row_class)[
-        # Rank medal
-        td(".text-center.text-xl")[_medal(rank)],
+        # Rank medal or disqualified icon
+        td(".text-center.text-xl")[rank_display],
         # Agent name + tags
         td[
-            div(".font-medium.text-text-light")[agent.name],
+            div(".font-medium.text-text-light")[
+                span(class_="line-through" if agent.disqualified else "")[agent.name],
+                (
+                    span(".ml-2.text-xs.text-red-400")["below threshold"]
+                    if agent.disqualified
+                    else None
+                ),
+            ],
             _agent_tags(agent),
         ],
         # Tests passed/total

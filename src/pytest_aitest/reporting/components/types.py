@@ -26,6 +26,7 @@ class AgentData:
     skill: str | None = None
     prompt_name: str | None = None
     is_winner: bool = False
+    disqualified: bool = False
 
 
 @dataclass(slots=True)

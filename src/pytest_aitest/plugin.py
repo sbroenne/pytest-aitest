@@ -147,6 +147,17 @@ def pytest_addoption(parser: Parser) -> None:
         default=None,
         help="Generate JSON report to given path (e.g., results.json)",
     )
+    group.addoption(
+        "--aitest-min-pass-rate",
+        metavar="N",
+        type=int,
+        default=None,
+        help=(
+            "Minimum pass rate threshold (0-100). If the overall pass rate falls below "
+            "this percentage, the test session exits with failure. "
+            "Example: --aitest-min-pass-rate=80"
+        ),
+    )
 
 
 def pytest_configure(config: Config) -> None:
@@ -416,7 +427,7 @@ def _add_junit_properties(
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
-    """Generate reports at end of test session."""
+    """Generate reports and enforce minimum pass rate at end of test session."""
     config = session.config
     collector = config.stash.get(COLLECTOR_KEY, None)
 
@@ -425,6 +436,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     html_path = config.getoption("--aitest-html")
     json_path = config.getoption("--aitest-json")
+    min_pass_rate: int | None = config.getoption("--aitest-min-pass-rate")
 
     # Extract suite docstring from first test's parent class/module
     suite_docstring = None
@@ -478,8 +490,31 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     if insights is None:
         insights = _generate_structured_insights(config, suite_report, required=True)
 
-    generator.generate_html(suite_report, html_output_path, insights=insights)
+    generator.generate_html(
+        suite_report, html_output_path, insights=insights, min_pass_rate=min_pass_rate
+    )
     _log_report_path(config, "HTML", html_output_path)
+
+    # Enforce minimum pass rate threshold
+    if min_pass_rate is not None:
+        actual_rate = suite_report.pass_rate
+        terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
+            "terminalreporter"
+        )
+        if actual_rate < min_pass_rate:
+            if terminalreporter:
+                terminalreporter.write_line(
+                    f"\naitest: FAILED - pass rate {actual_rate:.1f}% "
+                    f"is below minimum threshold {min_pass_rate}% "
+                    f"({suite_report.passed}/{suite_report.total} passed)",
+                    red=True,
+                    bold=True,
+                )
+            session.exitstatus = pytest.ExitCode.TESTS_FAILED
+        elif terminalreporter:
+            terminalreporter.write_line(
+                f"\naitest: pass rate {actual_rate:.1f}% meets minimum threshold {min_pass_rate}%",
+            )
 
 
 def _log_report_path(config: Config, format_name: str, path: Path) -> None:
@@ -558,6 +593,7 @@ def _generate_structured_insights(
                 skill_info=skill_info,
                 prompts=prompts,
                 model=model,
+                min_pass_rate=config.getoption("--aitest-min-pass-rate"),
             )
 
         # Use asyncio.run() instead of deprecated get_event_loop().run_until_complete()

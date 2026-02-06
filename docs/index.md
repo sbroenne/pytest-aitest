@@ -4,6 +4,40 @@
 
 A pytest plugin for validating whether language models can understand and operate your MCP servers, tools, prompts, and skills. Generates AI-powered reports that tell you *what to fix*, not just *what failed*.
 
+## What Makes This Different
+
+### AI-Powered Reports
+
+Reports don't just show pass/fail — they tell you **what to do**. Here's actual output analyzing 2 LLM models:
+
+> ## 🎯 Recommendation
+>
+> **Deploy: gpt-4.1-mini** (default prompt)
+>
+> Achieves **100% pass rate at ~55–70% lower cost** than gpt-5-mini, with equal tool correctness and acceptable response quality.
+>
+> - **Simple weather:** $0.000297 (vs $0.000342 — 13% cheaper)
+> - **Forecast:** $0.000575 (vs $0.001508 — 62% cheaper)  
+> - **Comparison:** $0.000501 (vs $0.001785 — 72% cheaper)
+>
+> ## 🔧 MCP Tool Feedback
+>
+> | Tool | Status | Calls | Issue |
+> |------|--------|-------|-------|
+> | `get_weather` | ✅ | 6 | Working well |
+> | `get_forecast` | ✅ | 2 | Working well |
+> | `compare_weather` | ✅ | 1 | Consider strengthening description |
+> | `list_cities` | ⚠️ | 0 | Not exercised |
+>
+> **Suggested improvement for `compare_weather`:**
+> > Compare current weather between two cities and return per-city conditions plus computed differences (temperature, humidity deltas). Use instead of calling `get_weather` twice.
+>
+> ## 💡 Optimizations
+>
+> **Cost reduction opportunity:** Strengthen `compare_weather` description to encourage single-call logic instead of multiple `get_weather` calls. **Estimated impact: ~15–25% cost reduction** on comparison queries.
+
+*Generates [interactive HTML reports](reports/02_multi_agent.html) with agent leaderboards, comparison tables, and sequence diagrams.*
+
 ## Why?
 
 Your MCP server passes all unit tests. Then an LLM tries to use it and:
