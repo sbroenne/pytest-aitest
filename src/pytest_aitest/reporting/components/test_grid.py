@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from htpy import Node, button, div, span
 
+from .agent_leaderboard import format_cost
 from .test_comparison import test_comparison
 from .types import AgentData, TestData, TestGroupData, TestResultData
 
@@ -51,15 +52,71 @@ def _diff_indicator(has_difference: bool) -> Node | None:
     return span(".text-yellow-400", title="Results differ between agents")["⚡"]
 
 
-def _test_metrics(result: TestResultData | None) -> Node | None:
+def _test_metrics(
+    test: TestData,
+    result: TestResultData | None,
+    comparison_mode: bool,
+    selected_agent_ids: list[str],
+) -> Node | None:
     """Render metrics for a test result."""
     if not result:
         return None
+
+    if not comparison_mode:
+        return div(".flex.items-center.gap-4.text-sm.text-text-muted")[
+            span(".tabular-nums")[f"{result.duration_s:.1f}s"],
+            span(".text-text-muted")["·"],
+            span(".tabular-nums")[f"{result.tool_count}🔧"],
+            span(".text-text-muted")["·"],
+            span(".tabular-nums")[f"{result.tokens:,} tok"],
+            span(".text-text-muted")["·"],
+            span(".tabular-nums")[format_cost(result.cost)],
+        ]
+
+    selected_results = [
+        test.results_by_agent.get(agent_id)
+        for agent_id in selected_agent_ids
+        if test.results_by_agent.get(agent_id)
+    ]
+    if not selected_results:
+        return None
+
+    total_tokens = sum(r.tokens for r in selected_results)
+    total_cost = sum(r.cost for r in selected_results)
     
+    # Calculate percentage deltas (max - min) / min * 100
+    min_tokens = min(r.tokens for r in selected_results)
+    max_tokens = max(r.tokens for r in selected_results)
+    token_delta_pct = ((max_tokens - min_tokens) / min_tokens * 100) if min_tokens > 0 else 0
+    
+    min_cost = min(r.cost for r in selected_results)
+    max_cost = max(r.cost for r in selected_results)
+    cost_delta_pct = ((max_cost - min_cost) / min_cost * 100) if min_cost > 0 else 0
+    
+    min_duration = min(r.duration_s for r in selected_results)
+    max_duration = max(r.duration_s for r in selected_results)
+    duration_delta_pct = ((max_duration - min_duration) / min_duration * 100) if min_duration > 0 else 0
+
     return div(".flex.items-center.gap-4.text-sm.text-text-muted")[
-        span(".tabular-nums")[f"{result.duration_s:.1f}s"],
-        span(".tabular-nums")[f"{result.tool_count}🔧"],
-        span(".tabular-nums")[f"{result.tokens:,} tok"],
+        span(".tabular-nums", title="Total tokens across selected agents")[
+            f"Total {total_tokens:,} tok"
+        ],
+        span(".text-text-muted")["·"],
+        span(".tabular-nums", title="Total cost across selected agents")[
+            f"Total {format_cost(total_cost)}"
+        ],
+        span(".text-text-muted")["·"],
+        span(".tabular-nums", title="Token difference between selected agents (%difference)")[
+            f"Δ {token_delta_pct:+.0f}%"
+        ],
+        span(".text-text-muted")["·"],
+        span(".tabular-nums", title="Duration difference between selected agents (%difference)")[
+            f"Δ {duration_delta_pct:+.0f}%"
+        ],
+        span(".text-text-muted")["·"],
+        span(".tabular-nums", title="Cost difference between selected agents (%difference)")[
+            f"Δ {cost_delta_pct:+.0f}%"
+        ],
     ]
 
 
@@ -136,7 +193,7 @@ def _test_row(
                     span(".text-text-light.truncate")[test.display_name],
                     _diff_indicator(test.has_difference),
                 ],
-                _test_metrics(first_result),
+                _test_metrics(test, first_result, comparison_mode, selected_agent_ids),
             ],
             comparison_badges,
         ],
@@ -224,6 +281,9 @@ def _grid_styles() -> Node:
     transform: rotate(-90deg);
 }
 .test-row.hidden {
+    display: none;
+}
+.test-detail.hidden {
     display: none;
 }
 """

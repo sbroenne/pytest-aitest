@@ -76,8 +76,8 @@ def _build_analysis_input(
                 sections.append(f"[{role}] {content}")
                 if turn.tool_calls:
                     for tc in turn.tool_calls:
-                        if tc.result and len(tc.result) > 200:
-                            result = tc.result[:200] + "..."
+                        if tc.result and len(tc.result) > 500:
+                            result = tc.result[:500] + "..."
                         else:
                             result = tc.result
                         sections.append(f"  → {tc.name}({json.dumps(tc.arguments)}) = {result}")

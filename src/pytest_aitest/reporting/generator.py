@@ -111,12 +111,34 @@ class ReportGenerator:
         """Build typed ReportContext from SuiteReport."""
         # Build report metadata
         ts = report.timestamp
-        timestamp_str = ts.isoformat() if isinstance(ts, datetime) else str(ts)
+        # Format timestamp to be user-friendly (e.g., "February 6, 2026 at 2:30 PM")
+        if isinstance(ts, datetime):
+            timestamp_str = ts.strftime("%B %d, %Y at %I:%M %p")
+        else:
+            # Try to parse ISO string
+            try:
+                dt = datetime.fromisoformat(str(ts))
+                # Convert UTC to local time if timezone info present
+                import datetime as dt_module
+                if dt.tzinfo is not None:
+                    dt = dt.astimezone()
+                timestamp_str = dt.strftime("%B %d, %Y at %I:%M %p")
+            except Exception:
+                timestamp_str = str(ts)
         
         # Get analysis cost from insights dict if available
         analysis_cost = None
-        if insights and isinstance(insights, dict):
-            analysis_cost = insights.get('cost_usd')
+        if insights:
+            if isinstance(insights, dict):
+                analysis_cost = insights.get('cost_usd')
+            elif isinstance(insights, str):
+                # Legacy format - insights is just markdown string
+                analysis_cost = None
+        
+        # Get token range
+        token_stats = report.token_stats
+        token_min = token_stats.get('min', 0)
+        token_max = token_stats.get('max', 0)
         
         report_meta = ReportMetadata(
             name=report.name,
@@ -128,6 +150,9 @@ class ReportGenerator:
             total_cost_usd=report.total_cost_usd or 0,
             suite_docstring=getattr(report, 'suite_docstring', None),
             analysis_cost_usd=analysis_cost,
+            test_files=report.test_files,
+            token_min=token_min,
+            token_max=token_max,
         )
         
         # Build agents
@@ -138,10 +163,16 @@ class ReportGenerator:
         # Build test groups
         test_groups = self._build_test_groups_typed(report, all_agent_ids, agents_by_id)
         
-        # Build AI insights - insights is a plain markdown string
+        # Build AI insights - handle both dict and string formats
         insights_data = None
-        if insights and isinstance(insights, str):
-            insights_data = AIInsightsData(markdown_summary=insights)
+        if insights:
+            if isinstance(insights, dict):
+                markdown = insights.get("markdown_summary", "")
+                if markdown:
+                    insights_data = AIInsightsData(markdown_summary=markdown)
+            elif isinstance(insights, str):
+                # Legacy format - insights is just markdown string
+                insights_data = AIInsightsData(markdown_summary=insights)
         
         return ReportContext(
             report=report_meta,
@@ -419,10 +450,13 @@ class ReportGenerator:
         """
         import json
 
-        # Serialize dataclass to dict
+        # Serialize dataclass to dict  
         report_dict = serialize_dataclass(report)
         
-        # Add insights to the JSON output if provided (now a plain string)
+        # Add schema version
+        report_dict["schema_version"] = "3.0"
+        
+        # Add insights to the JSON output if provided (new format: dict with markdown_summary and cost_usd)
         if insights:
             report_dict["insights"] = insights
         

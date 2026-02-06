@@ -109,6 +109,9 @@ class ReportMetadata:
     total_cost_usd: float
     suite_docstring: str | None = None
     analysis_cost_usd: float | None = None
+    test_files: list[str] = field(default_factory=list)
+    token_min: int = 0
+    token_max: int = 0
 
 
 @dataclass(slots=True)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -25,6 +26,84 @@ COLLECTOR_KEY = pytest.StashKey[ReportCollector]()
 SESSION_MESSAGES_KEY = pytest.StashKey[dict[str, list[dict[str, Any]]]]()
 # Export for use in fixtures
 __all__ = ["COLLECTOR_KEY", "SESSION_MESSAGES_KEY"]
+
+
+class _RecordingLLMAssert:
+    """Wrapper that records LLM assertions for report rendering."""
+
+    def __init__(self, inner: Any, store: list[dict[str, Any]]) -> None:
+        self._inner = inner
+        self._store = store
+
+    def __call__(self, content: str, criterion: str) -> Any:
+        result = self._inner(content, criterion)
+        self._store.append(
+            {
+                "type": "llm",
+                "passed": bool(result),
+                "message": result.criterion,
+                "details": result.reasoning,
+            }
+        )
+        return result
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_pyfunc_call(pyfuncitem: Item) -> Any:
+    """Wrap llm_assert fixture values before test function execution."""
+    llm_assert = getattr(pyfuncitem, "funcargs", {}).get("llm_assert")
+    if llm_assert is not None and not isinstance(llm_assert, _RecordingLLMAssert):
+        store = getattr(pyfuncitem, "_aitest_assertions", None)
+        if store is None:
+            store = []
+            pyfuncitem._aitest_assertions = store  # type: ignore[attr-defined]
+
+        pyfuncitem.funcargs["llm_assert"] = _RecordingLLMAssert(llm_assert, store)
+
+    yield
+
+
+def _get_timestamped_path(base_name: str, test_name: str = None, default_dir: Path = None) -> Path:
+    """Generate timestamped filename for unique report names.
+    
+    Args:
+        base_name: Base filename with extension (e.g., 'results.json', 'report.html')
+        test_name: Name of the test/suite to include in filename
+        default_dir: Directory to store the file (default: 'aitest-reports')
+    
+    Returns:
+        Path with format: {dir}/{prefix}_{test_name}_{ISO8601-timestamp}.{ext}
+    """
+    if default_dir is None:
+        default_dir = Path("aitest-reports")
+    
+    # Use ISO8601 timestamp: YYYY-MM-DDTHH-MM-SS (seconds precision, : replaced with -)
+    timestamp = datetime.now().isoformat(timespec="seconds").replace(":", "-")
+    
+    # Sanitize test name (remove paths, lowercase, replace spaces/special chars)
+    if test_name:
+        # Remove file extensions and paths
+        safe_name = test_name.split("/")[-1].split(".")[0].lower().replace(" ", "-").replace("_", "-")
+    else:
+        safe_name = None
+    
+    # Split filename and extension
+    if "." in base_name:
+        name_part, ext = base_name.rsplit(".", 1)
+        if safe_name:
+            filename = f"{name_part}_{safe_name}_{timestamp}.{ext}"
+        else:
+            filename = f"{name_part}_{timestamp}.{ext}"
+    else:
+        if safe_name:
+            filename = f"{base_name}_{safe_name}_{timestamp}"
+        else:
+            filename = f"{base_name}_{timestamp}"
+    
+    return default_dir / filename
 
 
 def pytest_addoption(parser: Parser) -> None:
@@ -199,16 +278,27 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         if agent_result.skill_info:
             metadata["skill"] = agent_result.skill_info.name
 
-    # Extract assertions from agent_result
-    assertions = []
-    if agent_result and hasattr(agent_result, 'assertions') and agent_result.assertions:
-        for a in agent_result.assertions:
-            assertions.append({
-                "type": a.type,
-                "passed": a.passed,
-                "message": a.message,
-                "details": a.details,
-            })
+    # Extract assertions recorded by the llm_assert fixture
+    assertions = getattr(item, "_aitest_assertions", [])
+
+    # Capture error message - extract just the assertion error, not the whole traceback
+    error_msg = None
+    if report.failed:
+        error_text = str(report.longrepr)
+        
+        # Try to extract just the AssertionError line (starts with "E       ")
+        error_lines = error_text.split("\n")
+        assertion_lines = [line for line in error_lines if line.strip().startswith("E ")]
+        
+        if assertion_lines:
+            # Found assertion lines - use those (without the "E       " prefix)
+            error_msg = "\n".join(line.strip()[2:] for line in assertion_lines)
+        else:
+            # Fallback: truncate full traceback
+            if len(error_text) > 300:
+                error_msg = error_text[:300] + "\n... (see full traceback in test output)"
+            else:
+                error_msg = error_text
 
     # Create test report
     test_report = TestReport(
@@ -216,7 +306,7 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         outcome=report.outcome,
         duration_ms=report.duration * 1000,
         agent_result=agent_result,
-        error=str(report.longrepr) if report.failed else None,
+        error=error_msg,
         assertions=assertions,
         docstring=docstring,
         metadata=metadata,
@@ -236,14 +326,30 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     html_path = config.getoption("--aitest-html")
     json_path = config.getoption("--aitest-json")
 
-    # Default paths - JSON is always generated
-    default_dir = Path("aitest-reports")
-    default_json_path = default_dir / "results.json"
+    # Extract suite docstring from first test's parent class/module
+    suite_docstring = None
+    if session.items:
+        first_item = session.items[0]
+        # Try to get docstring from test class first
+        if hasattr(first_item, 'parent') and first_item.parent:
+            parent = first_item.parent
+            # Check if parent is a class
+            if hasattr(parent, 'obj') and parent.obj and hasattr(parent.obj, '__doc__'):
+                suite_docstring = parent.obj.__doc__
+                if suite_docstring:
+                    # Get first line only
+                    suite_docstring = suite_docstring.strip().split('\n')[0].strip()
 
-    # Build suite report
+    # Build suite report first (to get the test name for default filenames)
+    default_dir = Path("aitest-reports")
     suite_report = collector.build_suite_report(
         name=session.name or "pytest-aitest",
+        suite_docstring=suite_docstring,
     )
+
+    # Generate default paths with test name included
+    default_json_path = _get_timestamped_path("results.json", test_name=suite_report.name, default_dir=default_dir)
+    default_html_path = _get_timestamped_path("report.html", test_name=suite_report.name, default_dir=default_dir)
 
     generator = ReportGenerator()
 
@@ -259,12 +365,16 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     generator.generate_json(suite_report, json_output_path, insights=insights)
     _log_report_path(config, "JSON", json_output_path)
 
-    # Generate HTML report if requested
-    if html_path:
-        path = Path(html_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_html(suite_report, path, insights=insights)
-        _log_report_path(config, "HTML", path)
+    # Generate HTML report (use default timestamped name if not specified)
+    html_output_path = Path(html_path) if html_path else default_html_path
+    html_output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Generate AI insights if HTML requested (even if using default path)
+    if insights is None:
+        insights = _generate_structured_insights(config, suite_report, required=True)
+    
+    generator.generate_html(suite_report, html_output_path, insights=insights)
+    _log_report_path(config, "HTML", html_output_path)
 
 
 def _log_report_path(config: Config, format_name: str, path: Path) -> None:
@@ -346,7 +456,7 @@ def _generate_structured_insights(
             )
 
         # Use asyncio.run() instead of deprecated get_event_loop().run_until_complete()
-        insights, metadata = asyncio.run(_run())
+        markdown_summary, metadata = asyncio.run(_run())
 
         # Log generation stats
         terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
@@ -364,7 +474,13 @@ def _generate_structured_insights(
                 f"\nAI Insights generated{cached_str}: {tokens_str} tokens, {cost_str}"
             )
 
-        return insights
+        # Return dict with both summary and metadata
+        return {
+            "markdown_summary": markdown_summary,
+            "cost_usd": metadata.get("cost_usd") if isinstance(metadata, dict) else getattr(metadata, "cost_usd", None),
+            "tokens_used": metadata.get("tokens_used") if isinstance(metadata, dict) else getattr(metadata, "tokens_used", None),
+            "cached": metadata.get("cached") if isinstance(metadata, dict) else getattr(metadata, "cached", False),
+        }
 
     except pytest.UsageError:
         # Re-raise configuration errors

@@ -76,15 +76,70 @@ def _status_badge(report: ReportMetadata) -> Node | None:
 
 def _report_header(report: ReportMetadata) -> Node:
     """Render the report header section."""
-    display_title = report.suite_docstring or "Test Report"
+    display_title = report.suite_docstring or report.name or "Test Report"
     duration_s = report.duration_ms / 1000
     
-    analysis_cost_node = None
+    # Calculate test run cost (total minus analysis)
+    test_run_cost = report.total_cost_usd
     if report.analysis_cost_usd:
-        analysis_cost_node = span(
-            ".opacity-70",
-            title="AI Analysis cost",
-        )[f"🤖 {format_cost(report.analysis_cost_usd)}"]
+        test_run_cost -= report.analysis_cost_usd
+    
+    # Create test file links
+    file_links = []
+    for test_file in report.test_files:
+        # Use just the filename for display, full path for link
+        display_name = test_file.split("/")[-1]
+        file_links.append(
+            span[
+                "📄 ",
+                span(".text-text-light.hover:text-blue-400.cursor-pointer", title=test_file)[
+                    display_name
+                ],
+            ]
+        )
+    
+    # Build cost breakdown
+    cost_parts = []
+    cost_parts.append(
+        span(".tabular-nums", title="Test execution cost")[
+            f"🧪 {format_cost(test_run_cost)}"
+        ]
+    )
+    if report.analysis_cost_usd:
+        cost_parts.append(
+            span(".tabular-nums", title="AI report analysis cost")[
+                f"🤖 {format_cost(report.analysis_cost_usd)}"
+            ]
+        )
+    cost_parts.append(
+        span(".tabular-nums.font-semibold", title="Total cost")[
+            f"💰 {format_cost(report.total_cost_usd)}"
+        ]
+    )
+    
+    # Token range display
+    token_range_node = None
+    if report.token_min > 0 or report.token_max > 0:
+        if report.token_min == report.token_max:
+            token_range_node = span(".tabular-nums", title="Tokens per test")[
+                f"{report.token_min:,} tok"
+            ]
+        else:
+            token_range_node = span(".tabular-nums", title="Token range (min-max per test)")[
+                f"{report.token_min:,}–{report.token_max:,} tok"
+            ]
+    
+    header_items = [
+        span(".opacity-70")[report.timestamp],
+        *file_links,
+        span(".tabular-nums")[f"{report.total} tests"],
+        span(".tabular-nums")[f"{duration_s:.1f}s"],
+    ]
+    
+    if token_range_node:
+        header_items.append(token_range_node)
+    
+    header_items.extend(cost_parts)
     
     return header(".report-header.mb-8")[
         div(".flex.justify-between.items-start.gap-4.mb-4")[
@@ -94,11 +149,7 @@ def _report_header(report: ReportMetadata) -> Node:
             _status_badge(report),
         ],
         div(".flex.flex-wrap.gap-x-6.gap-y-1.py-3.border-t.border-white/10.text-sm")[
-            span(".opacity-70")[report.timestamp],
-            span(".tabular-nums")[f"{report.total} tests"],
-            span(".tabular-nums")[f"{duration_s:.1f}s"],
-            span(".tabular-nums")[format_cost(report.total_cost_usd)],
-            analysis_cost_node,
+            *header_items
         ],
     ]
 
@@ -122,9 +173,6 @@ def _ai_insights_section(insights: AIInsightsData | None) -> Node | None:
     if not insights or not insights.markdown_summary:
         return None
     
-    if "pending" in insights.markdown_summary.lower():
-        return None
-    
     return section(".mb-8")[
         div(".ai-insights")[
             div(".ai-insights-header")[
@@ -146,7 +194,7 @@ def _ai_insights_section(insights: AIInsightsData | None) -> Node | None:
 
 def _agent_leaderboard_section(agents: list[AgentData]) -> Node | None:
     """Render the agent leaderboard section."""
-    if not agents:
+    if not agents or len(agents) <= 1:
         return None
     
     leaderboard = agent_leaderboard(agents)
@@ -330,7 +378,8 @@ document.addEventListener('DOMContentLoaded', () => {{
 }});
 """
     
-    return script[client_js]
+    # Wrap in Markup so htpy doesn't HTML-escape the JavaScript
+    return script[Markup(client_js)]
 
 
 def full_report(ctx: ReportContext) -> Node:

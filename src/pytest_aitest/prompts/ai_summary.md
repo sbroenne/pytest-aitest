@@ -41,11 +41,11 @@ Use these sections as needed (skip sections with no content):
 
 **Deploy: [agent-name or configuration]**
 
-[One sentence summary - e.g., "Achieves 100% pass rate at lowest cost"]
+[One sentence summary - e.g., "Achieves 100% pass rate at 60% lower cost than alternatives"]
 
-**Reasoning:** [Why this configuration wins - compare pass rates, costs, response quality]
+**Reasoning:** [Why this configuration wins - compare pass rates first, then cost savings with percentages, then response quality]
 
-**Alternatives:** [Trade-offs of other options, or "None - only one configuration tested"]
+**Alternatives:** [Trade-offs of other options with cost comparison, or "None - only one configuration tested"]
 
 ## ❌ Failure Analysis
 
@@ -96,17 +96,39 @@ Use these sections as needed (skip sections with no content):
 1. **[Title]** (recommended/suggestion/info)
    - Current: [What's happening]
    - Change: [What to do]
-   - Impact: [Expected improvement with numbers if possible]
+   - Impact: [Expected cost savings first (e.g., "15% cost reduction"), then token savings if significant]
+
+## 📦 Tool Response Optimization
+
+[Analyze the actual JSON returned by tool calls for token efficiency. Skip if no tool responses to analyze.]
+
+### tool_name (from server_name)
+- **Current response size:** N tokens
+- **Issues found:** [e.g., excessive whitespace/indentation, fields not used by the agent, verbose field names, data the test doesn't need]
+- **Suggested optimization:** [Exact change to the tool response format]
+- **Estimated savings:** N tokens per call (X% reduction)
+
+**Example current vs optimized:**
+```json
+// Current (N tokens)
+{"city": "Paris", "country": "France", ...}
+
+// Optimized (M tokens)
+{"city": "Paris", ...}
+```
 ```
 
 ## Analysis Guidelines
 
 ### Recommendation
-- **Compare by**: pass rate → cost → response quality
-- **Be decisive**: Name the winner and quantify why
-- **Single config?** Still assess: "Deploy X - all tests pass, efficient token usage"
-- **Model comparison?** Focus on which model handles the tools better
-- **Prompt comparison?** Focus on which instructions produce better behavior
+- **Compare by**: pass rate → **cost** (primary metric) → response quality
+- **Emphasize cost over tokens**: Cost is what matters for ranking - mention cost first, then tokens
+  - ✅ Good: "Achieves 100% pass rate at 60% lower cost (~65% fewer tokens)"
+  - ❌ Bad: "Achieves 100% pass rate at 65% lower token usage and cost"
+- **Be decisive**: Name the winner and quantify the cost difference
+- **Single config?** Still assess: "Deploy X - all tests pass at $0.XX total cost"
+- **Model comparison?** Focus on which model achieves lower cost while handling tools correctly
+- **Prompt comparison?** Focus on which prompt achieves lower cost while following instructions
 
 ### Failure Analysis
 - **Read the conversation** to understand what happened
@@ -137,8 +159,16 @@ Use these sections as needed (skip sections with no content):
 - Note if session state caused failures
 
 ### Optimizations
-- Quantify expected impact: "15% token reduction", "eliminate 2 retries"
+- Quantify expected impact with **cost savings first**: "15% cost reduction (~20% fewer tokens)", "eliminate 2 retries saving $0.02/test"
 - Prioritize: `recommended` (do this) > `suggestion` (nice to have) > `info` (FYI)
+
+### Tool Response Optimization
+- **Analyze every tool return JSON** in the conversation for token waste
+- Check for: excessive whitespace/indentation, fields the agent ignores, verbose key names, redundant data
+- Compare **current token count** of tool responses vs **potential optimized** count
+- Show concrete before/after JSON examples with token counts
+- Consider whether data is necessary for the test's purpose (some "extra" data may be intentional)
+- Flag responses that are not optimized for LLM consumption (e.g., pretty-printed JSON vs compact)
 
 ## Strict Rules
 
@@ -149,3 +179,20 @@ Use these sections as needed (skip sections with no content):
 5. **Be concise** - Quality over quantity; 3 good insights > 10 vague ones
 6. **Skip empty sections** - Don't include sections with no content
 7. **Markdown only** - Output clean markdown, no JSON wrapper
+8. **No horizontal rules** - Never use `---`, `***`, or `___` separators. Headings provide sufficient visual separation
+9. **Clean numbered lists** - In numbered lists, do NOT put blank lines between items or between sub-bullets. Keep items tight:
+   ```
+   1. **Title** (priority)
+      - Current: ...
+      - Change: ...
+      - Impact: ...
+   2. **Title** (priority)
+      - Current: ...
+   ```
+   NOT:
+   ```
+   1. **Title**
+      - Current: ...
+
+   2. **Title**
+   ```

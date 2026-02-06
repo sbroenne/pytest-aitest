@@ -51,6 +51,7 @@ tests/fixtures/reports/html/
 # Node.js (Tailwind build)
 node_modules/
 src/pytest_aitest/templates/node_modules/
+package-lock.json
 
 # Environment
 .env

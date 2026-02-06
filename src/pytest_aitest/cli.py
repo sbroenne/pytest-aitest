@@ -74,13 +74,13 @@ def get_config_value(key: str, cli_value: Any, env_var: str) -> Any:
     return config.get(key)
 
 
-def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, str | None]:
+def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
     """Load SuiteReport from JSON file.
 
     Supports both v2.0 Pydantic schema and legacy formats.
 
     Returns:
-        Tuple of (SuiteReport, ai_summary string, insights markdown string)
+        Tuple of (SuiteReport, ai_summary string, insights dict or markdown string)
     """
     data = json.loads(json_path.read_text(encoding="utf-8"))
 
@@ -93,11 +93,11 @@ def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, s
     return _load_legacy_report(data)
 
 
-def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, str | None]:
+def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
     """Load report from v2.0 schema format (current format with dataclasses).
     
     Returns:
-        Tuple of (LegacySuiteReport, ai_summary string, insights markdown string)
+        Tuple of (LegacySuiteReport, ai_summary string, insights dict or string)
     """
     # Load the SuiteReport from our current dataclass format
     from pytest_aitest.core.serialization import deserialize_suite_report
@@ -105,15 +105,17 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
     # Deserialize the report from dict format
     suite_report = deserialize_suite_report(data)
     
-    # Get insights - now a plain markdown string
+    # Get insights - can be dict (new format) or string (legacy)
     insights = data.get("insights")
     ai_summary = None
     if insights:
         if isinstance(insights, str):
+            # Legacy format - insights is just markdown string
             ai_summary = insights
         elif isinstance(insights, dict) and insights.get("markdown_summary"):
+            # New format - insights is dict with markdown_summary and cost_usd
             ai_summary = insights.get("markdown_summary")
-            insights = ai_summary  # Extract string from dict
+            # Keep insights as dict (don't extract just the string)
     
     # Convert to LegacySuiteReport for template compatibility
     tests = []
@@ -172,6 +174,7 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
         passed=suite_report.passed,
         failed=suite_report.failed,
         skipped=suite_report.skipped,
+        suite_docstring=suite_report.suite_docstring,
     )
     
     return report, ai_summary, insights

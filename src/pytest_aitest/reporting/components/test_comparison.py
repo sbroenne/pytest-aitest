@@ -18,12 +18,19 @@ def _metric_cell(value: str, label: str) -> Node:
 
 
 def _metrics_row(result: TestResultData) -> Node:
-    """Render the metrics row for a test result."""
-    return div(".grid.grid-cols-4.gap-2.mb-4.p-3.bg-surface-elevated.rounded-material.text-center")[
-        _metric_cell(f"{result.duration_s:.2f}s", "duration"),
-        _metric_cell(str(result.turns), "turns"),
-        _metric_cell(str(result.tool_count), "tools"),
-        _metric_cell(format_cost(result.cost), "cost"),
+    """Render the metrics row for a test result (2 rows of metrics)."""
+    return div(".space-y-2.mb-4")[
+        # First row: duration, turns, tools
+        div(".grid.grid-cols-4.gap-2.p-3.bg-surface-elevated.rounded-material.text-center")[
+            _metric_cell(f"{result.duration_s:.2f}s", "duration"),
+            _metric_cell(str(result.turns), "turns"),
+            _metric_cell(str(result.tool_count), "tools"),
+            _metric_cell(f"{result.tokens:,}", "tokens"),
+        ],
+        # Second row: cost
+        div(".grid.grid-cols-4.gap-2.p-3.bg-surface-elevated.rounded-material.text-center")[
+            _metric_cell(format_cost(result.cost), "cost"),
+        ],
     ]
 
 
@@ -37,7 +44,10 @@ def _mermaid_diagram(result: TestResultData) -> Node | None:
         "cursor-pointer hover:border-primary/30 transition-colors"
     )
     return div(".mb-4")[
-        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["Sequence"],
+        div(".text-sm.font-medium.text-text-light.mb-3.flex.items-center.gap-2")[
+            span["📊"],
+            span["Sequence"],
+        ],
         div(
             class_=diagram_cls,
             onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);",
@@ -72,7 +82,10 @@ def _tool_calls_section(result: TestResultData) -> Node | None:
         return None
     
     return div(".mb-4")[
-        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["Tool Calls"],
+        div(".text-sm.font-medium.text-text-light.mb-3.flex.items-center.gap-2")[
+            span["🔧"],
+            span["Tool Calls"],
+        ],
         div(".space-y-1")[
             [_tool_call_item(tc) for tc in result.tool_calls]
         ],
@@ -98,8 +111,11 @@ def _assertions_section(result: TestResultData) -> Node | None:
         return None
     
     return div(".mb-4")[
-        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["✓ Assertions"],
-        div(".space-y-1")[
+        div(".text-sm.font-medium.text-text-light.mb-3.flex.items-center.gap-2")[
+            span["✓"],
+            span["Assertions"],
+        ],
+        div(".space-y-2")[
             [_assertion_item(a) for a in result.assertions]
         ],
     ]
@@ -110,13 +126,14 @@ def _response_section(result: TestResultData) -> Node | None:
     if not result.final_response:
         return None
     
-    display_response = result.final_response[:500]
-    if len(result.final_response) > 500:
-        display_response += "..."
-    
     return div(".mb-4")[
-        div(".text-xs.font-medium.text-text-muted.uppercase.tracking-wider.mb-2")["💬 Response"],
-        div(".p-3.bg-surface-elevated.rounded-material.text-sm.text-text")[display_response],
+        div(".text-sm.font-medium.text-text-light.mb-3.flex.items-center.gap-2")[
+            span["💬"],
+            span["Response"],
+        ],
+        div(style="padding: 1rem; background-color: var(--color-surface-elevated); border-radius: 0.5rem; color: var(--color-text); white-space: pre-wrap; word-wrap: break-word; line-height: 1.625;")[
+            result.final_response
+        ],
     ]
 
 
@@ -125,10 +142,18 @@ def _error_section(result: TestResultData) -> Node | None:
     if not result.error:
         return None
     
+    # Truncate very long error messages to first 500 chars + ellipsis
+    error_text = result.error
+    if len(error_text) > 500:
+        error_text = error_text[:500] + "\n\n... (error truncated, see full logs for details)"
+    
     return div[
-        div(".text-xs.font-medium.text-red-400.uppercase.tracking-wider.mb-2")["❌ Error"],
-        div(".p-3.bg-red-500/10.border.border-red-500/30.rounded-material.text-sm.text-red-300")[
-            result.error
+        div(".text-sm.font-medium.text-red-400.mb-3.flex.items-center.gap-2")[
+            span["❌"],
+            span["Error"],
+        ],
+        div(style="padding: 0.75rem; background-color: rgb(127, 29, 29); border: 1px solid rgb(153, 27, 27); border-radius: 0.5rem; color: rgb(254, 202, 202); font-size: 0.875rem; white-space: pre-wrap; word-wrap: break-word; max-height: 200px; overflow-y: auto;")[
+            error_text
         ],
     ]
 
@@ -209,8 +234,14 @@ def test_comparison(
         htpy Node for the comparison grid.
     """
     selected_set = set(selected_agent_ids)
+    visible_count = len([agent_id for agent_id in all_agent_ids if agent_id in selected_set])
+    if visible_count == 0:
+        visible_count = 1
     
-    return div(".comparison-grid.grid.gap-4.p-5")[
+    return div(
+        class_="comparison-grid grid gap-4 p-5",
+        style=f"grid-template-columns: repeat({visible_count}, 1fr);",
+    )[
         [
             _agent_result_column(
                 agents_by_id[agent_id],

@@ -59,6 +59,20 @@ class SkillInfo:
 
 
 @dataclass(slots=True)
+class Assertion:
+    """A single assertion result from a test."""
+
+    type: str  # "semantic", "condition", etc.
+    passed: bool
+    message: str
+    details: str | None = None
+
+    def __repr__(self) -> str:
+        status = "✓" if self.passed else "✗"
+        return f"Assertion({status} {self.message})"
+
+
+@dataclass(slots=True)
 class Turn:
     """A single conversational turn."""
 
@@ -98,6 +112,7 @@ class AgentResult:
     cost_usd: float = 0.0
     _messages: list[dict[str, Any]] = field(default_factory=list)
     session_context_count: int = 0  # Number of prior messages passed in
+    assertions: list[Assertion] = field(default_factory=list)  # Assertion results
 
     # Phase 2: Collection for AI analysis
     available_tools: list[ToolInfo] = field(default_factory=list)

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from htpy import Node, div, input_, label, span
+# Note: htpy uses `input` not `input_` - no underscore suffix needed
+from htpy import Node, div, input, label, span
 
 from .types import AgentData
 
@@ -13,7 +14,7 @@ def _agent_chip(agent: AgentData, is_selected: bool) -> Node:
     checked = "checked" if is_selected else None
     
     return label(class_=f"agent-chip {selected_class}")[
-        input_(
+        input(
             type="checkbox",
             name="compare-agent",
             value=agent.id,

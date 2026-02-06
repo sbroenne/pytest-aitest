@@ -44,6 +44,61 @@ For LLMs, your API isn't functions and types — it's **tool descriptions, syste
 
 **The key insight: your test is a prompt.** You write what a user would say ("What's the weather in Paris?"), and the LLM figures out how to use your tools. If it can't, your AI interface needs work.
 
+## CRITICAL: HTML Report Development Workflow
+
+**MANDATORY STEPS AFTER EVERY CODE CHANGE:**
+
+1. **RUN VISUAL TESTS** (non-negotiable)
+   ```bash
+   uv run pytest tests/visual/ -q
+   ```
+   - All 44 tests MUST PASS
+   - Tests verify HTML rendering in actual browser
+   - Do NOT proceed if any test fails
+
+2. **VERIFY TEST ASSERTIONS** (non-negotiable)
+   - Understand what each test checks for
+   - Mentally verify the code change addresses the test requirement
+   - Do NOT assume tests passing means feature works correctly
+
+3. **REGENERATE ALL REPORTS** (non-negotiable)
+   ```bash
+   uv run python scripts/generate_fixture_html.py
+   ```
+   - Generates 4 fixture reports in docs/reports/
+   - Do NOT skip this step
+
+4. **VERIFY CHANGES IN ACTUAL HTML** (non-negotiable)
+   ```bash
+   Select-String -Path "docs\reports\01_single_agent.html" -Pattern "YOUR_SEARCH_TERM"
+   ```
+   - Search for the specific change (e.g., "Single agent tests", "✓ Assertions", "whitespace-pre-wrap")
+   - Confirm change is present in generated HTML
+   - Do NOT proceed without this verification
+
+5. **OPEN IN BROWSER** (when feasible)
+   - Visually inspect the HTML report
+   - Verify feature works as intended
+   - Catch CSS/layout issues that grep won't find
+
+**IF CHANGE DOESN'T APPEAR IN HTML:**
+- Check if test fixture JSON has the data (examine .json file)
+- Check if generator.py is reading it (add print statements if needed)
+- Check if template component is receiving it (inspect types)
+- Check if component is rendering it (check htpy code)
+- Verify HTML output contains the CSS/classes
+- Regenerate reports again
+- Search HTML again with broader patterns
+
+**WHAT NOT TO DO:**
+- ❌ Assume tests passing means feature works
+- ❌ Skip visual tests
+- ❌ Skip report regeneration  
+- ❌ Assume old code won't still generate old output
+- ❌ Proceed without searching HTML for the change
+- ❌ Modify fixture JSONs directly - regenerate via pytest
+- ❌ Commit without verifying in browser
+
 ## Technology Stack & Code Style
 
 ### Language & Runtime

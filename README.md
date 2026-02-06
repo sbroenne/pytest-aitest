@@ -61,33 +61,35 @@ See [Getting Started](docs/getting-started/index.md) for details on each compone
 
 ### AI-Powered Reports
 
-Reports don't just show pass/fail — they tell you **what to do**. Here's actual output from a test run:
+Reports don't just show pass/fail — they tell you **what to do**. Here's actual output analyzing 2 LLM models:
 
-> # pytest-aitest
->
-> ✅ **2 passed** · ⏱️ 16.8s · 💰 $0.001
->
 > ## 🎯 Recommendation
 >
-> **Deploy `gpt-5-mini / default`**
+> **Deploy: gpt-4.1-mini** (default prompt)
 >
-> Deploy the existing configuration as-is; it achieves a 100% pass rate on the tested scenarios with correct tool usage.
+> Achieves **100% pass rate at ~55–70% lower cost** than gpt-5-mini, with equal tool correctness and acceptable response quality.
 >
-> ## 🔧 Tool Improvements
+> - **Simple weather:** $0.000297 (vs $0.000342 — 13% cheaper)
+> - **Forecast:** $0.000575 (vs $0.001508 — 62% cheaper)  
+> - **Comparison:** $0.000501 (vs $0.001785 — 72% cheaper)
 >
-> | Tool | Status | Issue |
-> |------|--------|-------|
-> | `get_balance` | ✅ working | None |
-> | `get_budgets` | ✅ working | None |
-> | `get_all_balances` | ➖ unused | Not exercised by any test cases |
+> ## 🔧 MCP Tool Feedback
 >
-> <details>
-> <summary>💡 Suggested description for <code>get_all_balances</code></summary>
+> | Tool | Status | Calls | Issue |
+> |------|--------|-------|-------|
+> | `get_weather` | ✅ | 6 | Working well |
+> | `get_forecast` | ✅ | 2 | Working well |
+> | `compare_weather` | ✅ | 1 | Consider strengthening description |
+> | `list_cities` | ⚠️ | 0 | Not exercised |
 >
-> `Get balances for all accounts at once. Use when the user asks for an overview of all accounts or total balance.`
-> </details>
+> **Suggested improvement for `compare_weather`:**
+> > Compare current weather between two cities and return per-city conditions plus computed differences (temperature, humidity deltas). Use instead of calling `get_weather` twice.
+>
+> ## 💡 Optimizations
+>
+> **Cost reduction opportunity:** Strengthen `compare_weather` description to encourage single-call logic instead of multiple `get_weather` calls. **Estimated impact: ~15–25% cost reduction** on comparison queries.
 
-*Generates both Markdown (for GitHub PRs) and [interactive HTML reports](https://sbroenne.github.io/pytest-aitest/demo/hero-report.html) with sequence diagrams.*
+*Generates [interactive HTML reports](https://sbroenne.github.io/pytest-aitest/docs/reports/02_multi_agent.html) with agent leaderboards, comparison tables, and sequence diagrams.*
 
 ### Compare Configurations
 

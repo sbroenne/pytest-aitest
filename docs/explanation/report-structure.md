@@ -13,29 +13,39 @@ Every visual element supports this goal through:
 3. **Scalability** — Works for 2 agents or 20 agents
 4. **Actionable insights** — Not just metrics, but what to fix
 
-## Report Sections
+## Implementation
 
-Reports have a minimal, focused structure:
+Reports are generated using [htpy](https://htpy.dev/) - a type-safe HTML generation library. Components are Python functions in `src/pytest_aitest/reporting/components/`.
+
+## Report Sections
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ 1. HEADER (inline in report.html)                               │
-│    Suite name, status badge, metrics, context                   │
+│ 1. HEADER                                                       │
+│    Suite name, status badge, metrics                            │
 ├─────────────────────────────────────────────────────────────────┤
 │ 2. AI ANALYSIS                                                  │
 │    LLM-generated markdown (insights.markdown_summary)           │
 ├─────────────────────────────────────────────────────────────────┤
-│ 3. AGENT LEADERBOARD (if multiple agents)                       │
+│ 3. AGENT LEADERBOARD (if > 1 agent)                             │
 │    Ranked table of configurations                               │
 ├─────────────────────────────────────────────────────────────────┤
-│ 4. DETAILED RESULTS                                             │
-│    Test cards with sessions as visual grouping                  │
+│ 4. AGENT SELECTOR (if > 2 agents)                               │
+│    Pick 2 agents for side-by-side comparison                    │
+├─────────────────────────────────────────────────────────────────┤
+│ 5. TEST RESULTS                                                 │
+│    Filter buttons + test cards with comparison columns          │
+├─────────────────────────────────────────────────────────────────┤
+│ 6. OVERLAY (hidden by default)                                  │
+│    Fullscreen mermaid diagram viewer                            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ## 1. Header
 
-Inline in `report.html` (not a separate partial). Shows suite identity and key metrics.
+Suite identity and key metrics at the top of the report.
+
+**Component:** `report.py` → `_report_header()`
 
 ### Components
 
@@ -43,8 +53,7 @@ Inline in `report.html` (not a separate partial). Shows suite identity and key m
 |-----------|---------|---------|
 | **Suite Title** | Module docstring or "Test Report" | "Weather API Integration Tests" |
 | **Status Badge** | Pass/fail with visual styling | ✅ All Passed or ✗ 2 Failed |
-| **Metrics Bar** | 6 key numbers | passed, failed, pass rate, tokens, cost, duration |
-| **Context Badges** | What was tested | "2 agents compared", "model · prompt", 🤖 $0.03 |
+| **Metrics Bar** | Key numbers | tests, duration, cost, AI analysis cost |
 
 ### Layout
 
@@ -52,9 +61,7 @@ Inline in `report.html` (not a separate partial). Shows suite identity and key m
 ┌─────────────────────────────────────────────────────────────────┐
 │ Weather API Integration Tests                    ✅ All Passed  │
 ├─────────────────────────────────────────────────────────────────┤
-│ 4 passed │ 0 failed │ 100% pass rate │ 3,041 tokens │ $0.004   │
-├─────────────────────────────────────────────────────────────────┤
-│ Feb 05, 2026 at 14:30  │ 2 agents compared │ model · prompt    │
+│ 4 tests │ 12.3s │ $0.004 │ 🤖 $0.002                            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -62,17 +69,21 @@ Inline in `report.html` (not a separate partial). Shows suite identity and key m
 
 LLM-generated markdown rendered directly. The AI writes analysis prose that's displayed as-is.
 
-The `insights.markdown_summary` field contains the complete analysis as markdown:
+**Component:** `report.py` → `_ai_insights_section()`
 
-```jinja2
-{{ insights.markdown_summary | markdown | safe }}
-```
+The `insights.markdown_summary` field contains the complete analysis as markdown, converted to HTML via the `markdown` library.
+
+Features:
+- **Toggle button** — Collapse/expand the section
+- **Markdown styling** — Headers, lists, code blocks, etc.
 
 For details on what the AI analyzes and how insights are generated, see [AI-Powered Reports](ai-reports.md).
 
 ## 3. Agent Leaderboard
 
-**Only shown when multiple agents are tested** (`flags.show_agent_leaderboard`).
+**Only shown when multiple agents are tested.**
+
+**Component:** `agent_leaderboard.py` → `agent_leaderboard()`
 
 Answers: "Which configuration should I deploy?"
 
@@ -97,11 +108,51 @@ Answers: "Which configuration should I deploy?"
 - **Medals** (🥇🥈🥉) for top 3
 - **Pass rate bar** (visual progress)
 - **Star (★)** on best-in-column values
+- **Winner row highlighting** (green background)
 - **Full agent identity**: Model + Prompt name + Skill name
 
-## 4. Detailed Results
+## 4. Agent Selector
 
-All test results with full agent interaction details. Sessions are shown as visual groupings within this section.
+**Only shown when more than 2 agents are tested.**
+
+**Component:** `agent_selector.py` → `agent_selector()`
+
+Allows picking exactly 2 agents for side-by-side comparison in test details.
+
+### Layout
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Compare agents:                                                 │
+│ ┌────────────────┐ ┌────────────────┐ ┌────────────────┐        │
+│ │ ☑ gpt-4.1-mini │ │ ☑ gpt-5-mini   │ │ ☐ gpt-5-mini   │        │
+│ │   100% ✓       │ │   100% ✓       │ │   + skill      │        │
+│ └────────────────┘ └────────────────┘ └────────────────┘        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Behavior
+
+- **Exactly 2 selected** — Always maintains 2 agents selected
+- **Click to swap** — Clicking a third agent replaces the oldest selection
+- **Cannot deselect below 2** — Clicking selected agent does nothing
+- **Visual feedback** — Selected chips have highlighted border
+
+## 5. Test Results
+
+All test results with comparison columns for selected agents.
+
+**Components:** 
+- `test_grid.py` → `test_grid()` (main container)
+- `test_comparison.py` → `test_comparison()` (per-test details)
+
+### Filter Buttons
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [All (4)] [Failed (0)]                                          │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Test Card (Collapsed)
 
@@ -113,35 +164,27 @@ All test results with full agent interaction details. Sessions are shown as visu
 
 ### Test Card (Expanded)
 
-Tests are **expanded by default** so users see results immediately.
+Shows side-by-side comparison of selected agents:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ ▼ Get weather in Paris                    ✅ passed │ 4.6s     │
 ├─────────────────────────────────────────────────────────────────┤
-│ Agent: gpt-4.1-mini / concise                                   │
-│ Tokens: 561 │ Cost: $0.001 │ Tools: get_weather                 │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │                     Mermaid Diagram                       │  │
-│  │   (full width, readable sequence diagram)                 │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  💬 Final Response                                              │
-│  Paris: 18°C (64°F), partly cloudy, humidity 65%, SW wind       │
-│  12 km/h.                                                       │
-│                                                                 │
-│  ✓ Assertions                                                   │
-│  · result.success == True                                       │
-│  · result.tool_was_called("get_weather") == True                │
-│                                                                 │
+│ ┌─────────────────────────┐ ┌─────────────────────────┐         │
+│ │ gpt-4.1-mini           ✅│ │ gpt-5-mini             ✅│         │
+│ │ 561 tokens │ $0.001     │ │ 743 tokens │ $0.002     │         │
+│ ├─────────────────────────┤ ├─────────────────────────┤         │
+│ │   [Mermaid Diagram]     │ │   [Mermaid Diagram]     │         │
+│ ├─────────────────────────┤ ├─────────────────────────┤         │
+│ │ Final Response:         │ │ Final Response:         │         │
+│ │ Paris: 18°C, cloudy...  │ │ The weather in Paris... │         │
+│ └─────────────────────────┘ └─────────────────────────┘         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Session Grouping
 
-Multi-turn sessions appear as grouped test cards with visual connectors showing context flow:
+Multi-turn sessions appear as grouped test cards with visual connectors:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -149,45 +192,56 @@ Multi-turn sessions appear as grouped test cards with visual connectors showing 
 ├─────────────────────────────────────────────────────────────────┤
 │ ┌───────────────────────────────────────────────────────────┐   │
 │ │ ▼ Check account balance                   ✅ │ 2.1s       │   │
-│ │ [test details...]                                         │   │
+│ │ [comparison columns...]                                   │   │
 │ └───────────────────────────────────────────────────────────┘   │
 │                          │                                      │
-│                     +3 msgs (context carried)                   │
+│                     Context carried                             │
 │                          │                                      │
 │ ┌───────────────────────────────────────────────────────────┐   │
 │ │ ▼ Transfer to savings                     ✅ │ 3.4s       │   │
-│ │ [test details...]                                         │   │
-│ └───────────────────────────────────────────────────────────┘   │
-│                          │                                      │
-│                     +5 msgs (context carried)                   │
-│                          │                                      │
-│ ┌───────────────────────────────────────────────────────────┐   │
-│ │ ▼ Confirm transaction                     ✅ │ 1.8s       │   │
-│ │ [test details...]                                         │   │
+│ │ [comparison columns...]                                   │   │
 │ └───────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## 6. Overlay
+
+Fullscreen mermaid diagram viewer. Hidden by default, triggered by clicking a diagram.
+
+**Component:** `overlay.py` → `overlay()`
+
+### Features
+
+- **Click diagram to enlarge** — Opens in fullscreen overlay
+- **Click outside to close** — Dismiss by clicking backdrop
+- **Re-renders at full size** — Diagram redrawn for maximum readability
 
 ## Adaptive Behavior
 
 The report layout adapts based on what was tested:
 
-| Scenario | Agent Leaderboard | Detailed Results |
-|----------|-------------------|------------------|
-| 1 agent, 1 test | ❌ | ✅ Expanded |
-| 1 agent, N tests | ❌ | ✅ Expanded |
-| N agents, same tests | ✅ | ✅ Grouped by test |
-| Session tests | ❌ (unless multi-agent) | ✅ Session grouping |
+| Scenario | Leaderboard | Agent Selector | Comparison Columns |
+|----------|-------------|----------------|-------------------|
+| 1 agent | ❌ | ❌ | ❌ (single column) |
+| 2 agents | ✅ | ❌ | ✅ (both shown) |
+| 3+ agents | ✅ | ✅ | ✅ (pick 2) |
+| Sessions | Based on agent count | Based on agent count | ✅ |
 
 ### Detection Logic
 
 ```python
-if len(unique_agents) == 1:
-    # Simple mode: no comparison views
-    show_agent_leaderboard = False
-elif len(unique_agents) > 1:
-    # Comparison mode
-    show_agent_leaderboard = True
+if len(agents) == 1:
+    # Simple mode: no comparison UI
+    show_leaderboard = False
+    show_selector = False
+elif len(agents) == 2:
+    # Two-agent mode: comparison but no selector needed
+    show_leaderboard = True
+    show_selector = False
+else:
+    # Multi-agent mode: full comparison UI
+    show_leaderboard = True
+    show_selector = True
 ```
 
 ## Scalability Requirements
@@ -196,10 +250,11 @@ The design MUST work at these scales:
 
 | Scale | Behavior |
 |-------|----------|
-| 2 agents | Leaderboard shows 2 rows |
-| 8 agents | Leaderboard with 8 rows, vertical scroll |
-| 20 agents | Leaderboard with pagination |
-| 50+ tests | Tests expanded by default, browser scroll |
+| 2 agents | Leaderboard with 2 rows, no selector |
+| 3-6 agents | Selector chips in single row |
+| 8+ agents | Selector chips wrap to multiple rows |
+| 20+ agents | Leaderboard with pagination |
+| 50+ tests | All tests rendered, browser scroll |
 
 ### Anti-Patterns (What NOT to Do)
 
@@ -207,7 +262,7 @@ The design MUST work at these scales:
 ❌ **Don't** truncate agent names — wrap or tooltip instead  
 ❌ **Don't** show tiny unreadable diagrams  
 ❌ **Don't** require horizontal scrolling for core content  
-❌ **Don't** duplicate information across multiple views
+❌ **Don't** select more than 2 agents for comparison
 
 ## Visual Design Tokens
 
@@ -215,47 +270,88 @@ Consistent styling from Material Design (indigo theme):
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--c-primary` | `#3f51b5` | Primary actions, highlights |
-| `--c-pass` | `#4caf50` | Success states |
-| `--c-fail` | `#f44336` | Error states |
-| `--c-warn` | `#ff9800` | Warnings, tool names |
-| `--c-card` | `#1e1e1e` (dark) | Card backgrounds |
-| `--radius` | `8px` | Border radius |
-| `--font-mono` | `Roboto Mono` | Code, metrics |
+| Primary | `#4051b5` | Primary actions, highlights |
+| Pass | `#22c55e` | Success states |
+| Fail | `#ef4444` | Error states |
+| Card BG | `#282c34` | Card backgrounds |
+| Surface | `#1e2129` | Page background |
+| Border radius | `4px` | Consistent Material feel |
+| Font | `Roboto` | Body text |
+| Mono font | `Roboto Mono` | Code, metrics |
 
 ## Implementation Files
 
-The template structure is minimal and focused:
+Components are Python functions generating HTML via htpy:
 
 | File | Purpose |
 |------|---------|
-| `templates/report.html` | Main report template (includes inline header) |
-| `templates/partials/agent_leaderboard.html` | Agent ranking table |
-| `templates/partials/detailed_results.html` | Test cards with session grouping |
-| `templates/partials/test_details.html` | Expanded test view (metrics, diagram, response) |
-| `templates/partials/overlay.html` | Fullscreen diagram viewer |
-| `templates/partials/styles.css` | All CSS |
-| `templates/partials/scripts.js` | Interactions (expand/collapse, diagram zoom) |
-
-### Removed Partials (Dead Code)
-
-These partials were removed as they duplicated functionality or were never used:
-
-| Removed File | Reason |
-|--------------|--------|
-| `header.html` | Header is inline in report.html |
-| `summary_cards.html` | Never included in any template |
-| `ai_summary.html` | Replaced by markdown_summary rendering |
-| `prompt_comparison.html` | Redundant with Agent Leaderboard |
-| `comparison_matrix.html` | Limited to 2D, breaks with 3+ dimensions |
-| `side_by_side.html` | Broken layout, doesn't scale |
-| `tool_comparison.html` | Covered by AI Analysis |
-| `session_container.html` | Merged into detailed_results.html |
+| `components/report.py` | Main report, header, AI analysis |
+| `components/agent_leaderboard.py` | Ranked agent table |
+| `components/agent_selector.py` | Agent comparison picker |
+| `components/test_grid.py` | Test list with filter buttons |
+| `components/test_comparison.py` | Side-by-side agent results |
+| `components/overlay.py` | Fullscreen diagram viewer |
+| `components/types.py` | Data types for components |
+| `templates/partials/tailwind.css` | All CSS styles |
+| `templates/partials/scripts.js` | Client-side interactions |
 
 ## Key Principles
 
-1. **One source of truth** — Agent Leaderboard is THE comparison view
-2. **AI explains, templates display** — AI writes insights in markdown
+1. **Exactly 2 for comparison** — Always compare exactly 2 agents, no more
+2. **AI explains, components display** — AI writes insights in markdown
 3. **Sessions are grouping, not special** — Same test cards, visual connectors
 4. **Progressive disclosure** — Click to expand details
 5. **No redundancy** — Each piece of information appears once
+
+## Testing Matrix
+
+Visual tests use stable JSON fixtures in `tests/fixtures/reports/`:
+
+| Fixture | Agents | Sessions | What to Test |
+|---------|--------|----------|--------------|
+| `01_single_agent.json` | 1 | No | Header, AI Analysis, Test grid (no comparison) |
+| `02_multi_agent.json` | 2 | No | Leaderboard, Comparison columns (no selector) |
+| `03_multi_agent_sessions.json` | 2 | Yes | Session grouping, Leaderboard (no selector) |
+| `04_agent_selector.json` | 3 | No | Agent selector, Leaderboard with medals, Selection behavior |
+
+### Test Checklist by Fixture
+
+**01_single_agent.json:**
+
+- [ ] Header shows suite name and status badge
+- [ ] AI Analysis section renders markdown
+- [ ] AI Analysis toggle button works
+- [ ] Test cards expand/collapse
+- [ ] Mermaid diagrams render
+- [ ] Filter buttons work (all/failed)
+- [ ] NO leaderboard shown
+- [ ] NO agent selector shown
+- [ ] NO comparison columns (single column only)
+
+**02_multi_agent.json:**
+
+- [ ] Leaderboard shows 2 agents
+- [ ] Winner row highlighted
+- [ ] Both comparison columns visible
+- [ ] NO agent selector (only 2 agents)
+- [ ] Mermaid overlay opens on click
+- [ ] Overlay closes on backdrop click
+
+**03_multi_agent_sessions.json:**
+
+- [ ] Session grouping with visual connectors
+- [ ] Session header shows test count and status
+- [ ] Leaderboard shows 2 agents
+- [ ] NO agent selector (only 2 agents)
+- [ ] Both comparison columns visible
+
+**04_agent_selector.json:**
+
+- [ ] Leaderboard shows 3 agents with medals (🥇🥈🥉)
+- [ ] Winner row highlighted
+- [ ] Agent selector shows 3 chips
+- [ ] Exactly 2 agents selected by default
+- [ ] Clicking 3rd agent swaps selection
+- [ ] Cannot deselect to less than 2
+- [ ] Comparison columns show side-by-side
+- [ ] Hidden columns update when selection changes

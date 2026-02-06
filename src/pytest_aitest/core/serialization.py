@@ -126,5 +126,6 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
         passed=data.get("passed", 0),
         failed=data.get("failed", 0),
         skipped=data.get("skipped", 0),
+        suite_docstring=data.get("suite_docstring"),
     )
 
