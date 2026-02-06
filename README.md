@@ -38,7 +38,7 @@ If the test fails, your tool descriptions need work — not your code.
 
 ## AI-Powered Reports
 
-AI analyzes your results and tells you **what to fix**: which model to deploy, how to improve tool descriptions, where to cut costs. [See a sample report →](https://sbroenne.github.io/pytest-aitest/reports/02_multi_agent.html)
+AI analyzes your results and tells you **what to fix**: which model to deploy, how to improve tool descriptions, where to cut costs. [See a sample report →](https://sbroenne.github.io/pytest-aitest/demo/hero-report.html)
 
 > **Deploy: gpt-4.1-mini** — Achieves 100% pass rate at ~55–70% lower cost. Strengthen `compare_weather` description to encourage single-call logic instead of multiple `get_weather` calls. Estimated impact: ~15–25% cost reduction.
 
@@ -56,7 +56,6 @@ Configure in `pyproject.toml`:
 [tool.pytest.ini_options]
 addopts = """
 --aitest-summary-model=azure/gpt-5.2-chat
---aitest-html=aitest-reports/report.html
 """
 ```
 
@@ -67,8 +66,6 @@ export AZURE_API_BASE=https://your-resource.openai.azure.com/
 az login
 pytest tests/
 ```
-
-See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for 100+ supported providers.
 
 ## Features
 
