@@ -95,7 +95,7 @@ class TestCLIServer:
         assert server.shell is None  # Auto-detect
         assert server.cwd is None
         assert server.env == {}
-        assert server.discover_help is True
+        assert server.discover_help is False  # LLM must discover help itself
 
     def test_with_cwd(self) -> None:
         server = CLIServer(

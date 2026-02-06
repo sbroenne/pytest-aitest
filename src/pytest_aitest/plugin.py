@@ -319,6 +319,82 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
 
     collector.add_test(test_report)
 
+    # Enrich JUnit XML with agent metadata (user_properties → <property> elements)
+    _add_junit_properties(report, agent_result, metadata)
+
+
+def _add_junit_properties(
+    report: PytestTestReport,
+    agent_result: Any,
+    metadata: dict[str, str],
+) -> None:
+    """Add agent metadata to pytest report for JUnit XML output.
+
+    Properties are added to report.user_properties which pytest writes
+    as <property> elements in JUnit XML output.
+
+    Example output:
+        <testcase name="test_weather">
+          <properties>
+            <property name="aitest.agent.name" value="weather-agent"/>
+            <property name="aitest.model" value="gpt-5-mini"/>
+            <property name="aitest.skill" value="weather-expert"/>
+            <property name="aitest.tools.called" value="get_weather,get_forecast"/>
+          </properties>
+        </testcase>
+    """
+    if not hasattr(report, "user_properties"):
+        return
+
+    props = []
+
+    # Agent identity
+    if agent_result.agent_name:
+        props.append(("aitest.agent.name", agent_result.agent_name))
+    if agent_result.model:
+        props.append(("aitest.model", agent_result.model))
+
+    # Skill
+    if agent_result.skill_info:
+        props.append(("aitest.skill", agent_result.skill_info.name))
+
+    # System prompt name (from metadata, if available)
+    if metadata.get("prompt"):
+        props.append(("aitest.prompt", metadata["prompt"]))
+
+    # Token usage
+    if agent_result.token_usage:
+        if "prompt_tokens" in agent_result.token_usage:
+            props.append(("aitest.tokens.input", str(agent_result.token_usage["prompt_tokens"])))
+        if "completion_tokens" in agent_result.token_usage:
+            props.append(
+                ("aitest.tokens.output", str(agent_result.token_usage["completion_tokens"]))
+            )
+        if "total_tokens" in agent_result.token_usage:
+            props.append(("aitest.tokens.total", str(agent_result.token_usage["total_tokens"])))
+
+    # Cost
+    if agent_result.cost_usd > 0:
+        props.append(("aitest.cost_usd", f"{agent_result.cost_usd:.6f}"))
+
+    # Turns
+    if agent_result.turns:
+        props.append(("aitest.turns", str(len(agent_result.turns))))
+
+    # Tools called (unique, comma-separated)
+    tools_called = set()
+    for turn in agent_result.turns:
+        for tc in turn.tool_calls:
+            tools_called.add(tc.name)
+    if tools_called:
+        props.append(("aitest.tools.called", ",".join(sorted(tools_called))))
+
+    # Success/failure
+    props.append(("aitest.success", str(agent_result.success).lower()))
+
+    # Add all properties to report
+    report.user_properties.extend(props)
+
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     """Generate reports at end of test session."""

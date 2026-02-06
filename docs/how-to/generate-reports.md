@@ -187,6 +187,42 @@ pytest tests/ \
 | `--aitest-html` | AI insights, tool analysis | Human review |
 | `--aitest-json` | Raw data for custom tooling | Scripts, dashboards |
 
+### JUnit XML Properties
+
+pytest-aitest automatically enriches JUnit XML with agent metadata as `<property>` elements:
+
+```xml
+<testcase name="test_weather" time="2.34">
+  <properties>
+    <property name="aitest.agent.name" value="weather-agent"/>
+    <property name="aitest.model" value="gpt-5-mini"/>
+    <property name="aitest.skill" value="weather-expert"/>
+    <property name="aitest.prompt" value="concise"/>
+    <property name="aitest.tokens.input" value="1250"/>
+    <property name="aitest.tokens.output" value="89"/>
+    <property name="aitest.cost_usd" value="0.000425"/>
+    <property name="aitest.turns" value="3"/>
+    <property name="aitest.tools.called" value="get_forecast,get_weather"/>
+    <property name="aitest.success" value="true"/>
+  </properties>
+</testcase>
+```
+
+| Property | Description |
+|----------|-------------|
+| `aitest.agent.name` | Agent identifier |
+| `aitest.model` | LLM model used |
+| `aitest.skill` | Skill name (if used) |
+| `aitest.prompt` | System prompt name (if parametrized) |
+| `aitest.tokens.input` | Input tokens consumed |
+| `aitest.tokens.output` | Output tokens generated |
+| `aitest.cost_usd` | Estimated cost in USD |
+| `aitest.turns` | Number of conversation turns |
+| `aitest.tools.called` | Comma-separated list of tools called |
+| `aitest.success` | Whether the agent completed successfully |
+
+These properties enable CI dashboards to display agent metrics alongside test results.
+
 ### GitHub Actions Example
 
 ```yaml
