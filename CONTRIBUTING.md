@@ -59,17 +59,18 @@ This project uses automated tools to maintain code quality:
 - **[Ruff](https://docs.astral.sh/ruff/)** — Linting and formatting
 - **[Pyright](https://github.com/microsoft/pyright)** — Type checking
 - **[pre-commit](https://pre-commit.com/)** — Git hooks for automated checks
+- **[CodeQL](https://codeql.github.com/)** — Security scanning on GitHub
 
 ### Running Checks Manually
 
 ```bash
-# Run all pre-commit hooks
+# Run all pre-commit hooks (same checks as git commit)
 pre-commit run --all-files
 
 # Or run individual tools
-ruff check .                 # Linting
-ruff format .                # Formatting
-pyright                      # Type checking
+ruff check .                 # Lint ❌
+ruff format .                # Format
+pyright src                  # Type Check ❌
 ```
 
 ### Pre-commit Hooks
@@ -77,7 +78,9 @@ pyright                      # Type checking
 Pre-commit hooks run automatically on `git commit`. If a hook fails, fix the issues and commit again.
 
 The hooks will:
-1. **ruff** — Auto-fix linting issues where possible
+1. **Lint ❌** (ruff) — Auto-fix linting issues where possible
+2. **Format** (ruff) — Auto-format code
+3. **Type Check ❌** (pyright) — Validate type hints
 2. **ruff-format** — Format code consistently
 3. **pyright** — Check types
 
