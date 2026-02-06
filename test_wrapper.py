@@ -1,6 +1,7 @@
-from pytest_aitest.core.serialization import DictWithAttrAccess, to_dict_with_attr
 import json
 from pathlib import Path
+
+from pytest_aitest.core.serialization import to_dict_with_attr
 
 # Load JSON fixture
 data = json.loads(Path("tests/fixtures/reports/01_single_agent.json").read_text())
@@ -12,7 +13,7 @@ wrapped = to_dict_with_attr(data)
 print(f"Type of wrapped: {type(wrapped)}")
 print(f"Type of wrapped['summary']: {type(wrapped['summary'])}")
 print(f"Has summary attr: {hasattr(wrapped, 'summary')}")
-if hasattr(wrapped, 'summary'):
+if hasattr(wrapped, "summary"):
     print(f"wrapped.summary type: {type(wrapped.summary)}")
     print(f"wrapped.summary has failed: {hasattr(wrapped.summary, 'failed')}")
     print(f"wrapped.summary['failed']: {wrapped.summary['failed']}")

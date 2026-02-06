@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 from playwright.sync_api import Page
 
 
@@ -95,10 +94,10 @@ class TestAgentSelectorDefaultState:
         page.wait_for_load_state("networkidle")
 
         chips = page.locator(".agent-chip")
-        
+
         first_classes = chips.nth(0).get_attribute("class") or ""
         assert "selected" in first_classes, "First chip should be selected"
-        
+
         second_classes = chips.nth(1).get_attribute("class") or ""
         assert "selected" in second_classes, "Second chip should be selected"
 
@@ -145,7 +144,9 @@ class TestAgentSelectorInteraction:
                 return Array.from(checked).map(cb => cb.value);
             })()
         """)
-        assert len(initial_selected) == 2, f"Expected 2 initially selected, got {len(initial_selected)}"
+        assert len(initial_selected) == 2, (
+            f"Expected 2 initially selected, got {len(initial_selected)}"
+        )
 
         # Click 3rd agent chip via label click (label contains checkbox)
         third_chip = page.locator(".agent-chip").nth(2)

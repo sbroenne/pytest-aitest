@@ -59,11 +59,11 @@ class AgentEngine:
         self._available_tools: list[ToolInfo] = []
         self._skill_info: SkillInfo | None = None
         self._effective_system_prompt: str = ""
-        
+
         # Agent identity
         self._agent_name = self._compute_agent_name()
         self._model = self._compute_model()
-    
+
     def _compute_agent_name(self) -> str:
         """Compute agent name (explicit or synthesized from model+skill)."""
         if self.agent.name:
@@ -73,7 +73,7 @@ class AgentEngine:
         if self.agent.skill:
             return f"{model}+{self.agent.skill.name}"
         return model
-    
+
     def _compute_model(self) -> str:
         """Get model name (with provider prefix stripped for display)."""
         model = self.agent.provider.model
@@ -355,18 +355,20 @@ class AgentEngine:
         results = []
         for tc in tool_calls:
             start_time = time.perf_counter()
-            
+
             # Validate tool call structure
             if not hasattr(tc, "function") or tc.function is None:
                 _logger.warning("Malformed tool call: missing function attribute")
-                results.append(ToolCall(
-                    name="unknown",
-                    arguments={},
-                    error="Malformed tool call: missing function",
-                    duration_ms=(time.perf_counter() - start_time) * 1000,
-                ))
+                results.append(
+                    ToolCall(
+                        name="unknown",
+                        arguments={},
+                        error="Malformed tool call: missing function",
+                        duration_ms=(time.perf_counter() - start_time) * 1000,
+                    )
+                )
                 continue
-            
+
             name = tc.function.name
             try:
                 arguments = json.loads(tc.function.arguments)
@@ -378,12 +380,14 @@ class AgentEngine:
                     result = await self.server_manager.call_tool(name, arguments)
 
                 duration_ms = (time.perf_counter() - start_time) * 1000
-                results.append(ToolCall(
-                    name=name,
-                    arguments=arguments,
-                    result=result,
-                    duration_ms=duration_ms,
-                ))
+                results.append(
+                    ToolCall(
+                        name=name,
+                        arguments=arguments,
+                        result=result,
+                        duration_ms=duration_ms,
+                    )
+                )
             except json.JSONDecodeError as e:
                 duration_ms = (time.perf_counter() - start_time) * 1000
                 results.append(
@@ -401,10 +405,12 @@ class AgentEngine:
                 except Exception:
                     _logger.debug("Could not parse arguments for error reporting", exc_info=True)
                     arguments = {}
-                results.append(ToolCall(
-                    name=name,
-                    arguments=arguments,
-                    error=str(e),
-                    duration_ms=duration_ms,
-                ))
+                results.append(
+                    ToolCall(
+                        name=name,
+                        arguments=arguments,
+                        error=str(e),
+                        duration_ms=duration_ms,
+                    )
+                )
         return results

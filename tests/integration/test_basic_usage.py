@@ -32,9 +32,7 @@ class TestWeatherWorkflows:
     """Multi-step weather workflows that test real-world usage patterns."""
 
     @pytest.mark.asyncio
-    async def test_trip_planning_compare_destinations(
-        self, aitest_run, weather_server, llm_assert
-    ):
+    async def test_trip_planning_compare_destinations(self, aitest_run, weather_server, llm_assert):
         """Plan a trip: get forecasts for two cities and recommend the better one.
 
         This tests:

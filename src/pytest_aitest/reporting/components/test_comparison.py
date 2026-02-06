@@ -38,7 +38,7 @@ def _mermaid_diagram(result: TestResultData) -> Node | None:
     """Render the sequence diagram section."""
     if not result.mermaid:
         return None
-    
+
     diagram_cls = (
         "p-3 bg-surface-code rounded-material border border-white/5 "
         "cursor-pointer hover:border-primary/30 transition-colors"
@@ -52,9 +52,7 @@ def _mermaid_diagram(result: TestResultData) -> Node | None:
             class_=diagram_cls,
             onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);",
             data_mermaid_code=result.mermaid,
-        )[
-            div(".mermaid.text-xs")[Markup(result.mermaid)],
-        ],
+        )[div(".mermaid.text-xs")[Markup(result.mermaid)],],
     ]
 
 
@@ -63,12 +61,12 @@ def _tool_call_item(tc: ToolCallData) -> Node:
     bg_class = "bg-green-500/5" if tc.success else "bg-red-500/5"
     status_class = "text-green-400" if tc.success else "text-red-400"
     status_icon = "✅" if tc.success else "❌"
-    
+
     error_node = None
     if tc.error:
         display_error = tc.error[:40] + ("..." if len(tc.error) > 40 else "")
         error_node = span(".text-xs.text-red-400.truncate", title=tc.error)[display_error]
-    
+
     return div(class_=f"flex items-center gap-2 text-sm p-2 rounded {bg_class}")[
         span(class_=status_class)[status_icon],
         code(".tool-name")[tc.name],
@@ -80,15 +78,13 @@ def _tool_calls_section(result: TestResultData) -> Node | None:
     """Render the tool calls section."""
     if not result.tool_calls:
         return None
-    
+
     return div(".mb-4")[
         div(".text-sm.font-medium.text-text-light.mb-3.flex.items-center.gap-2")[
             span["🔧"],
             span["Tool Calls"],
         ],
-        div(".space-y-1")[
-            [_tool_call_item(tc) for tc in result.tool_calls]
-        ],
+        div(".space-y-1")[[_tool_call_item(tc) for tc in result.tool_calls]],
     ]
 
 
@@ -97,7 +93,7 @@ def _assertion_item(a: AssertionData) -> Node:
     bg_class = "bg-green-500/5" if a.passed else "bg-red-500/5"
     status_class = "text-green-400" if a.passed else "text-red-400"
     status_icon = "✅" if a.passed else "❌"
-    
+
     return div(class_=f"flex items-center gap-2 text-sm p-2 rounded {bg_class}")[
         span(class_=status_class)[status_icon],
         code(".text-text-muted")[a.type],
@@ -109,15 +105,13 @@ def _assertions_section(result: TestResultData) -> Node | None:
     """Render the assertions section."""
     if not result.assertions:
         return None
-    
+
     return div(".mb-4")[
         div(".text-sm.font-medium.text-text-light.mb-3.flex.items-center.gap-2")[
             span["✓"],
             span["Assertions"],
         ],
-        div(".space-y-2")[
-            [_assertion_item(a) for a in result.assertions]
-        ],
+        div(".space-y-2")[[_assertion_item(a) for a in result.assertions]],
     ]
 
 
@@ -125,15 +119,19 @@ def _response_section(result: TestResultData) -> Node | None:
     """Render the final response section."""
     if not result.final_response:
         return None
-    
+
     return div(".mb-4")[
         div(".text-sm.font-medium.text-text-light.mb-3.flex.items-center.gap-2")[
             span["💬"],
             span["Response"],
         ],
-        div(style="padding: 1rem; background-color: var(--color-surface-elevated); border-radius: 0.5rem; color: var(--color-text); white-space: pre-wrap; word-wrap: break-word; line-height: 1.625;")[
-            result.final_response
-        ],
+        div(
+            style=(
+                "padding: 1rem; background-color: var(--color-surface-elevated); "
+                "border-radius: 0.5rem; color: var(--color-text); "
+                "white-space: pre-wrap; word-wrap: break-word; line-height: 1.625;"
+            )
+        )[result.final_response],
     ]
 
 
@@ -141,20 +139,26 @@ def _error_section(result: TestResultData) -> Node | None:
     """Render the error section."""
     if not result.error:
         return None
-    
+
     # Truncate very long error messages to first 500 chars + ellipsis
     error_text = result.error
     if len(error_text) > 500:
         error_text = error_text[:500] + "\n\n... (error truncated, see full logs for details)"
-    
+
     return div[
         div(".text-sm.font-medium.text-red-400.mb-3.flex.items-center.gap-2")[
             span["❌"],
             span["Error"],
         ],
-        div(style="padding: 0.75rem; background-color: rgb(127, 29, 29); border: 1px solid rgb(153, 27, 27); border-radius: 0.5rem; color: rgb(254, 202, 202); font-size: 0.875rem; white-space: pre-wrap; word-wrap: break-word; max-height: 200px; overflow-y: auto;")[
-            error_text
-        ],
+        div(
+            style=(
+                "padding: 0.75rem; background-color: rgb(127, 29, 29); "
+                "border: 1px solid rgb(153, 27, 27); border-radius: 0.5rem; "
+                "color: rgb(254, 202, 202); font-size: 0.875rem; "
+                "white-space: pre-wrap; word-wrap: break-word; max-height: 200px; "
+                "overflow-y: auto;"
+            )
+        )[error_text],
     ]
 
 
@@ -165,7 +169,7 @@ def _agent_result_column(
 ) -> Node:
     """Render a single agent's result column."""
     hidden_class = "hidden" if not is_selected else ""
-    
+
     if result:
         passed_border = "border-l-[3px] border-green-500"
         failed_border = "border-l-[3px] border-red-500"
@@ -178,16 +182,16 @@ def _agent_result_column(
         border_class = "opacity-50"
         status_text = None
         status_bg = None
-    
+
     status_span = None
     if status_text:
-        status_span = span(
-            class_=f"px-2 py-0.5 rounded text-xs font-medium {status_bg}"
-        )[status_text]
-    
+        status_span = span(class_=f"px-2 py-0.5 rounded text-xs font-medium {status_bg}")[
+            status_text
+        ]
+
     no_result_div = div(".text-center.text-text-muted.py-8")["No result for this agent"]
     content = _result_content(result) if result else no_result_div
-    
+
     return div(
         class_=f"comparison-column {hidden_class} {border_class}",
         data_agent_id=agent.id,
@@ -221,15 +225,15 @@ def test_comparison(
     agents_by_id: dict[str, AgentData],
 ) -> Node:
     """Render the test comparison view.
-    
+
     Shows side-by-side results for each agent on a single test.
-    
+
     Args:
         test: Test data with results_by_agent.
         all_agent_ids: All agent IDs.
         selected_agent_ids: Currently selected agent IDs.
         agents_by_id: Mapping of agent ID to agent data.
-    
+
     Returns:
         htpy Node for the comparison grid.
     """
@@ -237,7 +241,7 @@ def test_comparison(
     visible_count = len([agent_id for agent_id in all_agent_ids if agent_id in selected_set])
     if visible_count == 0:
         visible_count = 1
-    
+
     return div(
         class_="comparison-grid grid gap-4 p-5",
         style=f"grid-template-columns: repeat({visible_count}, 1fr);",

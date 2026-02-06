@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 from playwright.sync_api import Page
 
 
@@ -41,7 +40,9 @@ class TestMultiAgentLeaderboard:
         page.wait_for_load_state("networkidle")
 
         # Look for winner class or highlighted styling
-        winner = page.locator(".leaderboard-table tbody tr.winner, .leaderboard-table tbody tr:first-child")
+        winner = page.locator(
+            ".leaderboard-table tbody tr.winner, .leaderboard-table tbody tr:first-child"
+        )
         assert winner.count() > 0, "Winner row not found"
 
 
@@ -72,7 +73,9 @@ class TestMultiAgentComparison:
 
         # Count visible columns within the first expanded test detail only
         columns = page.locator(".test-row:first-child .test-detail .comparison-column:not(.hidden)")
-        assert columns.count() == 2, f"Expected 2 visible columns in first test, got {columns.count()}"
+        assert columns.count() == 2, (
+            f"Expected 2 visible columns in first test, got {columns.count()}"
+        )
 
         grid_style = page.evaluate(
             """
@@ -82,7 +85,7 @@ class TestMultiAgentComparison:
             }
             """
         )
-        column_count = len([col for col in grid_style.split(' ') if col])
+        column_count = len([col for col in grid_style.split(" ") if col])
         assert column_count == 2, f"Expected two-column grid layout, got '{grid_style}'"
 
 
@@ -100,7 +103,9 @@ class TestMultiAgentMermaidOverlay:
         page.wait_for_timeout(500)
 
         # The mermaid container should be clickable and have onclick
-        mermaid_container = page.locator(".test-row:first-child .test-detail [data-mermaid-code]").first
+        mermaid_container = page.locator(
+            ".test-row:first-child .test-detail [data-mermaid-code]"
+        ).first
         if mermaid_container.count() > 0:
             mermaid_container.click()
             page.wait_for_timeout(500)
@@ -121,7 +126,9 @@ class TestMultiAgentMermaidOverlay:
         page.wait_for_timeout(500)
 
         # Click mermaid to open overlay
-        mermaid_container = page.locator(".test-row:first-child .test-detail [data-mermaid-code]").first
+        mermaid_container = page.locator(
+            ".test-row:first-child .test-detail [data-mermaid-code]"
+        ).first
         if mermaid_container.count() > 0:
             mermaid_container.click()
             page.wait_for_timeout(500)

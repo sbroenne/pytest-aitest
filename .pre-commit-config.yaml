@@ -1,16 +1,25 @@
 repos:
+  # Lint & Format: Ruff (via uv)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.0
     hooks:
       - id: ruff
+        name: "Lint ❌"
         args: [--fix]
+        language_version: python3
       - id: ruff-format
+        name: "Format"
+        language_version: python3
 
+  # Type Check: Pyright (via uv)
   - repo: local
     hooks:
       - id: pyright
-        name: pyright
-        entry: pyright
+        name: "Type Check ❌"
+        entry: uv run pyright
         language: system
         types: [python]
         pass_filenames: false
+
+# Note: CodeQL ❌ runs on GitHub Actions (not pre-commit)
+# See: .github/workflows/codeql.yml

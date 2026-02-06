@@ -54,42 +54,47 @@ class _RecordingLLMAssert:
 @pytest.hookimpl(hookwrapper=True)
 def pytest_pyfunc_call(pyfuncitem: Item) -> Any:
     """Wrap llm_assert fixture values before test function execution."""
-    llm_assert = getattr(pyfuncitem, "funcargs", {}).get("llm_assert")
+    funcargs = getattr(pyfuncitem, "funcargs", {})
+    llm_assert = funcargs.get("llm_assert")
     if llm_assert is not None and not isinstance(llm_assert, _RecordingLLMAssert):
         store = getattr(pyfuncitem, "_aitest_assertions", None)
         if store is None:
             store = []
             pyfuncitem._aitest_assertions = store  # type: ignore[attr-defined]
 
-        pyfuncitem.funcargs["llm_assert"] = _RecordingLLMAssert(llm_assert, store)
+        pyfuncitem.funcargs["llm_assert"] = _RecordingLLMAssert(llm_assert, store)  # type: ignore[index]
 
     yield
 
 
-def _get_timestamped_path(base_name: str, test_name: str = None, default_dir: Path = None) -> Path:
+def _get_timestamped_path(
+    base_name: str, test_name: str | None = None, default_dir: Path | None = None
+) -> Path:
     """Generate timestamped filename for unique report names.
-    
+
     Args:
         base_name: Base filename with extension (e.g., 'results.json', 'report.html')
         test_name: Name of the test/suite to include in filename
         default_dir: Directory to store the file (default: 'aitest-reports')
-    
+
     Returns:
         Path with format: {dir}/{prefix}_{test_name}_{ISO8601-timestamp}.{ext}
     """
     if default_dir is None:
         default_dir = Path("aitest-reports")
-    
+
     # Use ISO8601 timestamp: YYYY-MM-DDTHH-MM-SS (seconds precision, : replaced with -)
     timestamp = datetime.now().isoformat(timespec="seconds").replace(":", "-")
-    
+
     # Sanitize test name (remove paths, lowercase, replace spaces/special chars)
     if test_name:
         # Remove file extensions and paths
-        safe_name = test_name.split("/")[-1].split(".")[0].lower().replace(" ", "-").replace("_", "-")
+        safe_name = (
+            test_name.split("/")[-1].split(".")[0].lower().replace(" ", "-").replace("_", "-")
+        )
     else:
         safe_name = None
-    
+
     # Split filename and extension
     if "." in base_name:
         name_part, ext = base_name.rsplit(".", 1)
@@ -102,7 +107,7 @@ def _get_timestamped_path(base_name: str, test_name: str = None, default_dir: Pa
             filename = f"{base_name}_{safe_name}_{timestamp}"
         else:
             filename = f"{base_name}_{timestamp}"
-    
+
     return default_dir / filename
 
 
@@ -268,7 +273,7 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
 
     # Build metadata from agent_result (source of truth) with fallback to parsing
     metadata = _extract_metadata_from_nodeid(item.nodeid)
-    
+
     # Override with actual values from agent_result if available
     if agent_result:
         if agent_result.agent_name:
@@ -285,11 +290,11 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     error_msg = None
     if report.failed:
         error_text = str(report.longrepr)
-        
+
         # Try to extract just the AssertionError line (starts with "E       ")
         error_lines = error_text.split("\n")
         assertion_lines = [line for line in error_lines if line.strip().startswith("E ")]
-        
+
         if assertion_lines:
             # Found assertion lines - use those (without the "E       " prefix)
             error_msg = "\n".join(line.strip()[2:] for line in assertion_lines)
@@ -331,14 +336,15 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     if session.items:
         first_item = session.items[0]
         # Try to get docstring from test class first
-        if hasattr(first_item, 'parent') and first_item.parent:
+        if hasattr(first_item, "parent") and first_item.parent:
             parent = first_item.parent
             # Check if parent is a class
-            if hasattr(parent, 'obj') and parent.obj and hasattr(parent.obj, '__doc__'):
-                suite_docstring = parent.obj.__doc__
+            parent_obj = getattr(parent, "obj", None)
+            if parent_obj and hasattr(parent_obj, "__doc__"):
+                suite_docstring = parent_obj.__doc__
                 if suite_docstring:
                     # Get first line only
-                    suite_docstring = suite_docstring.strip().split('\n')[0].strip()
+                    suite_docstring = suite_docstring.strip().split("\n")[0].strip()
 
     # Build suite report first (to get the test name for default filenames)
     default_dir = Path("aitest-reports")
@@ -348,8 +354,12 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     )
 
     # Generate default paths with test name included
-    default_json_path = _get_timestamped_path("results.json", test_name=suite_report.name, default_dir=default_dir)
-    default_html_path = _get_timestamped_path("report.html", test_name=suite_report.name, default_dir=default_dir)
+    default_json_path = _get_timestamped_path(
+        "results.json", test_name=suite_report.name, default_dir=default_dir
+    )
+    default_html_path = _get_timestamped_path(
+        "report.html", test_name=suite_report.name, default_dir=default_dir
+    )
 
     generator = ReportGenerator()
 
@@ -368,11 +378,11 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     # Generate HTML report (use default timestamped name if not specified)
     html_output_path = Path(html_path) if html_path else default_html_path
     html_output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Generate AI insights if HTML requested (even if using default path)
     if insights is None:
         insights = _generate_structured_insights(config, suite_report, required=True)
-    
+
     generator.generate_html(suite_report, html_output_path, insights=insights)
     _log_report_path(config, "HTML", html_output_path)
 
@@ -390,15 +400,15 @@ def _generate_structured_insights(
     """Generate structured AI insights from test results.
 
     Uses the new insights generation system with structured output.
-    
+
     Args:
         config: pytest config
         report: Suite report with test results
         required: If True, raise error when model not configured (for report generation)
-    
+
     Returns:
         AIInsights object or None if generation fails/skipped.
-        
+
     Raises:
         pytest.UsageError: If required=True and model not configured.
     """
@@ -432,12 +442,12 @@ def _generate_structured_insights(
                     if t.name not in seen_tools:
                         tool_info.append(t)
                         seen_tools.add(t.name)
-                
+
                 # Collect skills (deduplicate by name)
                 skill = getattr(test.agent_result, "skill_info", None)
                 if skill and skill.name not in {s.name for s in skill_info}:
                     skill_info.append(skill)
-                
+
                 # Collect effective system prompts as prompt variants
                 effective_prompt = getattr(test.agent_result, "effective_system_prompt", "")
                 if effective_prompt and test.metadata:
@@ -463,10 +473,12 @@ def _generate_structured_insights(
             "terminalreporter"
         )
         if terminalreporter:
-            tokens_used = metadata.get("tokens_used") if isinstance(metadata, dict) else metadata.tokens_used
+            tokens_used = (
+                metadata.get("tokens_used") if isinstance(metadata, dict) else metadata.tokens_used
+            )
             cost_usd = metadata.get("cost_usd") if isinstance(metadata, dict) else metadata.cost_usd
             cached = metadata.get("cached") if isinstance(metadata, dict) else metadata.cached
-            
+
             tokens_str = f"{tokens_used:,}" if tokens_used else "N/A"
             cost_str = f"${cost_usd:.4f}" if cost_usd else "N/A"
             cached_str = " (cached)" if cached else ""
@@ -477,9 +489,15 @@ def _generate_structured_insights(
         # Return dict with both summary and metadata
         return {
             "markdown_summary": markdown_summary,
-            "cost_usd": metadata.get("cost_usd") if isinstance(metadata, dict) else getattr(metadata, "cost_usd", None),
-            "tokens_used": metadata.get("tokens_used") if isinstance(metadata, dict) else getattr(metadata, "tokens_used", None),
-            "cached": metadata.get("cached") if isinstance(metadata, dict) else getattr(metadata, "cached", False),
+            "cost_usd": metadata.get("cost_usd")
+            if isinstance(metadata, dict)
+            else getattr(metadata, "cost_usd", None),
+            "tokens_used": metadata.get("tokens_used")
+            if isinstance(metadata, dict)
+            else getattr(metadata, "tokens_used", None),
+            "cached": metadata.get("cached")
+            if isinstance(metadata, dict)
+            else getattr(metadata, "cached", False),
         }
 
     except pytest.UsageError:

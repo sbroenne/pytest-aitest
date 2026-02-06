@@ -60,7 +60,9 @@ class TestModelBenchmark:
 
     @pytest.mark.parametrize("model,skill,agent_name", AGENT_CONFIGS)
     @pytest.mark.asyncio
-    async def test_multi_city_comparison(self, aitest_run, weather_server, model, skill, agent_name):
+    async def test_multi_city_comparison(
+        self, aitest_run, weather_server, model, skill, agent_name
+    ):
         """Compare weather in two cities - tests reasoning."""
         agent = Agent(
             name=agent_name,
@@ -81,7 +83,9 @@ class TestModelBenchmark:
 
     @pytest.mark.parametrize("model,skill,agent_name", AGENT_CONFIGS)
     @pytest.mark.asyncio
-    async def test_forecast_interpretation(self, aitest_run, weather_server, model, skill, agent_name):
+    async def test_forecast_interpretation(
+        self, aitest_run, weather_server, model, skill, agent_name
+    ):
         """Forecast + interpretation - tests comprehension."""
         agent = Agent(
             name=agent_name,

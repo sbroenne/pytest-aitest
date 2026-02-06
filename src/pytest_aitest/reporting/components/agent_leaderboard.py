@@ -38,7 +38,7 @@ def _agent_tags(agent: AgentData) -> Node:
         tags.append(span(".tag.tag-skill")[f"📚 {agent.skill}"])
     if agent.prompt_name:
         tags.append(span(".tag.tag-prompt")[f"📝 {agent.prompt_name}"])
-    
+
     if not tags:
         return None
     return div(".flex.flex-wrap.gap-1.5.mt-1")[tags]
@@ -47,7 +47,7 @@ def _agent_tags(agent: AgentData) -> Node:
 def _leaderboard_row(agent: AgentData, rank: int) -> Node:
     """Render a single leaderboard row."""
     row_class = "winner-row" if rank == 1 else ""
-    
+
     return tr(class_=row_class)[
         # Rank medal
         td(".text-center.text-xl")[_medal(rank)],
@@ -92,9 +92,7 @@ def _multi_agent_table(agents: list[AgentData]) -> Node:
                     th(".text-right")["Duration"],
                 ],
             ],
-            tbody[
-                [_leaderboard_row(agent, i + 1) for i, agent in enumerate(agents)]
-            ],
+            tbody[[_leaderboard_row(agent, i + 1) for i, agent in enumerate(agents)]],
         ],
     ]
 
@@ -102,10 +100,10 @@ def _multi_agent_table(agents: list[AgentData]) -> Node:
 def _single_agent_card(agent: AgentData) -> Node:
     """Render a single agent summary card."""
     status_class = "text-green-400" if agent.pass_rate == 100 else "text-red-400"
-    
+
     skill_tag = span(".tag.tag-skill")[f"📚 {agent.skill}"] if agent.skill else None
     prompt_tag = span(".tag.tag-prompt")[f"📝 {agent.prompt_name}"] if agent.prompt_name else None
-    
+
     return div(".card.p-5")[
         div(".flex.items-center.justify-between")[
             div[
@@ -129,21 +127,21 @@ def _single_agent_card(agent: AgentData) -> Node:
 
 def agent_leaderboard(agents: list[AgentData]) -> Node | None:
     """Render the agent leaderboard.
-    
+
     For multiple agents: Shows ranked table with medals.
     For single agent: Shows summary card.
     For no agents: Returns None.
-    
+
     Args:
         agents: List of agents sorted by pass_rate desc, cost asc.
-    
+
     Returns:
         htpy Node or None if no agents.
     """
     if not agents:
         return None
-    
+
     if len(agents) == 1:
         return _single_agent_card(agents[0])
-    
+
     return _multi_agent_table(agents)

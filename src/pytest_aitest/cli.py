@@ -74,7 +74,9 @@ def get_config_value(key: str, cli_value: Any, env_var: str) -> Any:
     return config.get(key)
 
 
-def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
+def load_suite_report(
+    json_path: Path,
+) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
     """Load SuiteReport from JSON file.
 
     Supports both v2.0 Pydantic schema and legacy formats.
@@ -88,23 +90,25 @@ def load_suite_report(json_path: Path) -> tuple[LegacySuiteReport, str | None, d
     schema_version = data.get("schema_version")
     if schema_version and schema_version >= "2.0":
         return _load_v2_report(data)
-    
+
     # Fall back to legacy format
     return _load_legacy_report(data)
 
 
-def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
+def _load_v2_report(
+    data: dict[str, Any],
+) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
     """Load report from v2.0 schema format (current format with dataclasses).
-    
+
     Returns:
         Tuple of (LegacySuiteReport, ai_summary string, insights dict or string)
     """
     # Load the SuiteReport from our current dataclass format
     from pytest_aitest.core.serialization import deserialize_suite_report
-    
+
     # Deserialize the report from dict format
     suite_report = deserialize_suite_report(data)
-    
+
     # Get insights - can be dict (new format) or string (legacy)
     insights = data.get("insights")
     ai_summary = None
@@ -116,7 +120,7 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
             # New format - insights is dict with markdown_summary and cost_usd
             ai_summary = insights.get("markdown_summary")
             # Keep insights as dict (don't extract just the string)
-    
+
     # Convert to LegacySuiteReport for template compatibility
     tests = []
     for test_report in suite_report.tests:
@@ -150,21 +154,23 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
                 cost_usd=ar.cost_usd,
                 session_context_count=ar.session_context_count,
             )
-        
+
         # Use metadata from test_report (already contains model from serialized data)
         metadata = dict(test_report.metadata) if test_report.metadata else {}
-        
-        tests.append(LegacyTestReport(
-            name=test_report.name,
-            outcome=test_report.outcome,
-            duration_ms=test_report.duration_ms,
-            agent_result=agent_result,
-            error=test_report.error,
-            assertions=test_report.assertions or [],
-            metadata=metadata,
-            docstring=test_report.docstring,
-        ))
-    
+
+        tests.append(
+            LegacyTestReport(
+                name=test_report.name,
+                outcome=test_report.outcome,
+                duration_ms=test_report.duration_ms,
+                agent_result=agent_result,
+                error=test_report.error,
+                assertions=test_report.assertions or [],
+                metadata=metadata,
+                docstring=test_report.docstring,
+            )
+        )
+
     # Build the legacy report
     report = LegacySuiteReport(
         name=suite_report.name,
@@ -176,19 +182,21 @@ def _load_v2_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None
         skipped=suite_report.skipped,
         suite_docstring=suite_report.suite_docstring,
     )
-    
+
     return report, ai_summary, insights
 
 
-def _load_legacy_report(data: dict[str, Any]) -> tuple[LegacySuiteReport, str | None, str | None]:
+def _load_legacy_report(
+    data: dict[str, Any],
+) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
     """Load report from legacy format (pre-v2.0).
-    
+
     Returns:
         Tuple of (LegacySuiteReport, ai_summary string, insights markdown string)
     """
     # Extract AI summary if present (old format)
     ai_summary = data.get("ai_summary")
-    
+
     # Check for insights - now a plain markdown string
     insights = data.get("insights")
     if insights:
@@ -301,9 +309,9 @@ def generate_ai_summary(report: LegacySuiteReport, model: str) -> str:
         return insights
 
     insights = asyncio.run(_run())
-    
-    # Return the markdown_summary if available
-    return insights.markdown_summary if insights.markdown_summary else ""
+
+    # Return the markdown summary (insights is already a string)
+    return insights if insights else ""
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -325,8 +333,6 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         help="Generate HTML report to given path",
     )
-
-
 
     parser.add_argument(
         "--summary",

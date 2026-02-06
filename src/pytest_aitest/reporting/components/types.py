@@ -13,7 +13,7 @@ from typing import Any
 @dataclass(slots=True)
 class AgentData:
     """Data for a single agent in the leaderboard."""
-    
+
     id: str
     name: str
     passed: int
@@ -31,7 +31,7 @@ class AgentData:
 @dataclass(slots=True)
 class ToolCallData:
     """Data for a tool call in test results."""
-    
+
     name: str
     success: bool
     error: str | None = None
@@ -42,7 +42,7 @@ class ToolCallData:
 @dataclass(slots=True)
 class AssertionData:
     """Data for an assertion result."""
-    
+
     type: str
     passed: bool
     message: str
@@ -52,7 +52,7 @@ class AssertionData:
 @dataclass(slots=True)
 class TestResultData:
     """Data for a single test result for one agent."""
-    
+
     outcome: str
     passed: bool
     duration_s: float
@@ -70,7 +70,7 @@ class TestResultData:
 @dataclass(slots=True)
 class TestData:
     """Data for a single test across all agents."""
-    
+
     id: str
     display_name: str
     results_by_agent: dict[str, TestResultData]
@@ -81,7 +81,7 @@ class TestData:
 @dataclass(slots=True)
 class AgentStats:
     """Per-agent stats within a test group."""
-    
+
     passed: int
     failed: int
 
@@ -89,7 +89,7 @@ class AgentStats:
 @dataclass(slots=True)
 class TestGroupData:
     """Data for a group of tests (session or standalone)."""
-    
+
     type: str  # "session" or "standalone"
     name: str
     tests: list[TestData]
@@ -99,7 +99,7 @@ class TestGroupData:
 @dataclass(slots=True)
 class ReportMetadata:
     """Top-level report metadata."""
-    
+
     name: str
     timestamp: str
     passed: int
@@ -117,14 +117,14 @@ class ReportMetadata:
 @dataclass(slots=True)
 class AIInsightsData:
     """AI analysis insights."""
-    
+
     markdown_summary: str
 
 
 @dataclass(slots=True)
 class ReportContext:
     """Complete context for rendering the full report."""
-    
+
     report: ReportMetadata
     agents: list[AgentData]
     agents_by_id: dict[str, AgentData]

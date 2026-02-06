@@ -130,7 +130,7 @@ def load_prompt(path: str | Path) -> Prompt:
 
 def load_system_prompts(directory: str | Path) -> dict[str, str]:
     """Load all system prompts from a directory as a simple dict.
-    
+
     This is a convenience function for quick parametrization.
     For full Prompt metadata, use load_prompts() instead.
 
@@ -151,17 +151,17 @@ def load_system_prompts(directory: str | Path) -> dict[str, str]:
     directory = Path(directory)
     if not directory.exists():
         raise FileNotFoundError(f"Prompts directory not found: {directory}")
-    
+
     result = {}
-    
+
     # Load from YAML files
     for prompt in load_prompts(directory):
         result[prompt.name] = prompt.system_prompt
-    
+
     # Also load from .md files (plain markdown = system prompt content)
     for path in sorted(directory.glob("*.md")):
         name = path.stem
         if name not in result:  # YAML takes precedence
             result[name] = path.read_text(encoding="utf-8")
-    
+
     return result

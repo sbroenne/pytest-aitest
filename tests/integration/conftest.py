@@ -59,6 +59,7 @@ def pytest_configure(config: pytest.Config) -> None:
         config.option.llm_model = "azure/gpt-5-mini"
         config.option.llm_api_base = azure_base
 
+
 # =============================================================================
 # Test Configuration Constants
 # =============================================================================
@@ -158,7 +159,7 @@ def keyvalue_server():
 @pytest.fixture(scope="module")
 def banking_server():
     """Banking MCP server - realistic banking scenario.
-    
+
     Provides:
     - 2 accounts: checking ($1,500), savings ($3,000)
     - Tools: get_balance, get_all_balances, transfer, deposit, withdraw, get_transactions
@@ -170,8 +171,14 @@ def banking_server():
             "-m",
             "pytest_aitest.testing.banking_mcp",
         ],
-        wait=Wait.for_tools([
-            "get_balance", "get_all_balances", "transfer",
-            "deposit", "withdraw", "get_transactions",
-        ]),
+        wait=Wait.for_tools(
+            [
+                "get_balance",
+                "get_all_balances",
+                "transfer",
+                "deposit",
+                "withdraw",
+                "get_transactions",
+            ]
+        ),
     )

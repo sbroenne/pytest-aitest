@@ -7,7 +7,6 @@ class AITestError(Exception):
     """Base exception for pytest-aitest errors."""
 
 
-
 class ServerStartError(AITestError):
     """Error starting an MCP or CLI server."""
 

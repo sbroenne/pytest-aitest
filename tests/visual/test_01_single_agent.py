@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 from playwright.sync_api import Page
 
 
@@ -40,7 +39,9 @@ class TestSingleAgentHeader:
         assert title.count() > 0, "Title not found"
         title_text = (title.text_content() or "").strip()
         # Should show docstring, not generic "pytest-aitest"
-        assert "Single agent tests" in title_text, f"Expected suite docstring in title, got: {title_text}"
+        assert "Single agent tests" in title_text, (
+            f"Expected suite docstring in title, got: {title_text}"
+        )
 
     def test_cost_breakdown_present(self, page: Page, single_agent_report: Path):
         """Header should show test cost, AI cost, and total cost."""
@@ -49,7 +50,7 @@ class TestSingleAgentHeader:
 
         header = page.locator("header")
         header_text = (header.text_content() or "").strip()
-        
+
         # Should contain cost indicators (🧪 test cost, 🤖 AI cost, 💰 total)
         assert "🧪" in header_text or "$" in header_text, "Test cost not found in header"
         assert "🤖" in header_text, "AI analysis cost not found in header"
@@ -112,7 +113,9 @@ class TestSingleAgentTestGrid:
 
         # Detail should be visible (not hidden) - toggled by onclick handler
         visible_details = page.locator(".test-row:first-child .test-detail:not(.hidden)")
-        assert visible_details.count() > 0, "Test detail did not expand on click - onclick handler may not be working"
+        assert visible_details.count() > 0, (
+            "Test detail did not expand on click - onclick handler may not be working"
+        )
 
     def test_filter_buttons_exist(self, page: Page, single_agent_report: Path):
         """Filter buttons should exist."""

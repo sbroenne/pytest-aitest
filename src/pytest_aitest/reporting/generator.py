@@ -68,7 +68,7 @@ class ReportGenerator:
         generator.generate_html(suite_report, "report.html")
         generator.generate_json(suite_report, "report.json")
     """
-    
+
     @staticmethod
     def _format_cost(cost: float) -> str:
         """Format cost in USD."""
@@ -96,16 +96,16 @@ class ReportGenerator:
         """
         # Build typed data structures for htpy components
         context = self._build_report_context(report, insights=insights)
-        
+
         # Render with htpy - htpy automatically outputs doctype lowercase
         html_node = full_report(context)
         html_str = str(html_node)
         Path(output_path).write_text(html_str, encoding="utf-8")
-    
+
     def _build_report_context(
-        self, 
-        report: SuiteReport, 
-        *, 
+        self,
+        report: SuiteReport,
+        *,
         insights: Any | None = None,
     ) -> ReportContext:
         """Build typed ReportContext from SuiteReport."""
@@ -119,27 +119,26 @@ class ReportGenerator:
             try:
                 dt = datetime.fromisoformat(str(ts))
                 # Convert UTC to local time if timezone info present
-                import datetime as dt_module
                 if dt.tzinfo is not None:
                     dt = dt.astimezone()
                 timestamp_str = dt.strftime("%B %d, %Y at %I:%M %p")
             except Exception:
                 timestamp_str = str(ts)
-        
+
         # Get analysis cost from insights dict if available
         analysis_cost = None
         if insights:
             if isinstance(insights, dict):
-                analysis_cost = insights.get('cost_usd')
+                analysis_cost = insights.get("cost_usd")
             elif isinstance(insights, str):
                 # Legacy format - insights is just markdown string
                 analysis_cost = None
-        
+
         # Get token range
         token_stats = report.token_stats
-        token_min = token_stats.get('min', 0)
-        token_max = token_stats.get('max', 0)
-        
+        token_min = token_stats.get("min", 0)
+        token_max = token_stats.get("max", 0)
+
         report_meta = ReportMetadata(
             name=report.name,
             timestamp=timestamp_str,
@@ -148,21 +147,21 @@ class ReportGenerator:
             total=report.total,
             duration_ms=report.duration_ms or 0,
             total_cost_usd=report.total_cost_usd or 0,
-            suite_docstring=getattr(report, 'suite_docstring', None),
+            suite_docstring=getattr(report, "suite_docstring", None),
             analysis_cost_usd=analysis_cost,
             test_files=report.test_files,
             token_min=token_min,
             token_max=token_max,
         )
-        
+
         # Build agents
         agents, agents_by_id = self._build_agents(report)
         all_agent_ids = [a.id for a in agents]
         selected_agent_ids = [a.id for a in agents[:2]]
-        
+
         # Build test groups
         test_groups = self._build_test_groups_typed(report, all_agent_ids, agents_by_id)
-        
+
         # Build AI insights - handle both dict and string formats
         insights_data = None
         if insights:
@@ -173,7 +172,7 @@ class ReportGenerator:
             elif isinstance(insights, str):
                 # Legacy format - insights is just markdown string
                 insights_data = AIInsightsData(markdown_summary=insights)
-        
+
         return ReportContext(
             report=report_meta,
             agents=agents,
@@ -184,87 +183,91 @@ class ReportGenerator:
             total_tests=len(report.tests),
             insights=insights_data,
         )
-    
+
     def _build_agents(self, report: SuiteReport) -> tuple[list[AgentData], dict[str, AgentData]]:
         """Build agent data from test results."""
         from collections import defaultdict
-        
+
         # Group tests by agent identity
-        agent_stats: dict[str, dict[str, Any]] = defaultdict(lambda: {
-            "passed": 0,
-            "failed": 0,
-            "total": 0,
-            "cost": 0.0,
-            "tokens": 0,
-            "duration_ms": 0,
-            "skill": None,
-            "prompt_name": None,
-            "model": None,
-        })
-        
+        agent_stats: dict[str, dict[str, Any]] = defaultdict(
+            lambda: {
+                "passed": 0,
+                "failed": 0,
+                "total": 0,
+                "cost": 0.0,
+                "tokens": 0,
+                "duration_ms": 0,
+                "skill": None,
+                "prompt_name": None,
+                "model": None,
+            }
+        )
+
         for test in report.tests:
             model = _get_metadata_field(test.metadata, "model") or "unknown"
             skill = _get_metadata_field(test.metadata, "skill")
             prompt_name = _get_metadata_field(test.metadata, "system_prompt")
-            
+
             agent_id = model
             if skill:
                 agent_id += f"+{skill}"
             if prompt_name:
                 agent_id += f"+{prompt_name}"
-            
+
             stats = agent_stats[agent_id]
             stats["model"] = model
             stats["skill"] = skill
             stats["prompt_name"] = prompt_name
             stats["total"] += 1
-            
+
             if test.outcome == "passed":
                 stats["passed"] += 1
             else:
                 stats["failed"] += 1
-            
+
             if test.duration_ms:
                 stats["duration_ms"] += test.duration_ms
-            
+
             if test.agent_result:
                 if test.agent_result.cost_usd:
                     stats["cost"] += test.agent_result.cost_usd
                 if test.agent_result.token_usage:
                     usage = test.agent_result.token_usage
                     stats["tokens"] += usage.get("prompt", 0) + usage.get("completion", 0)
-        
+
         # Build typed agents list
         agents = []
         for agent_id, stats in agent_stats.items():
             total = stats["total"]
             passed = stats["passed"]
             pass_rate = (passed / total * 100) if total > 0 else 0
-            
-            agents.append(AgentData(
-                id=agent_id,
-                name=stats["model"],
-                skill=stats["skill"],
-                prompt_name=stats["prompt_name"],
-                passed=passed,
-                failed=stats["failed"],
-                total=total,
-                pass_rate=pass_rate,
-                cost=stats["cost"],
-                tokens=stats["tokens"],
-                duration_s=stats["duration_ms"] / 1000,
-            ))
-        
+
+            agents.append(
+                AgentData(
+                    id=agent_id,
+                    name=stats["model"],
+                    skill=stats["skill"],
+                    prompt_name=stats["prompt_name"],
+                    passed=passed,
+                    failed=stats["failed"],
+                    total=total,
+                    pass_rate=pass_rate,
+                    cost=stats["cost"],
+                    tokens=stats["tokens"],
+                    duration_s=stats["duration_ms"] / 1000,
+                )
+            )
+
         # Sort by pass rate (desc), then cost (asc)
         agents.sort(key=lambda a: (-a.pass_rate, a.cost))
-        
+
         # Mark winner
         if agents:
             agents[0] = AgentData(
                 id=agents[0].id,
                 name=agents[0].name,
                 skill=agents[0].skill,
-                prompt_name=agents[0].prompt_name,           
+                prompt_name=agents[0].prompt_name,
                 passed=agents[0].passed,
                 failed=agents[0].failed,
                 total=agents[0].total,
@@ -274,10 +277,10 @@ class ReportGenerator:
                 duration_s=agents[0].duration_s,
                 is_winner=True,
             )
-        
+
         agents_by_id = {a.id: a for a in agents}
         return agents, agents_by_id
-    
+
     def _build_test_groups_typed(
         self,
         report: SuiteReport,
@@ -286,10 +289,10 @@ class ReportGenerator:
     ) -> list[TestGroupData]:
         """Build typed test groups for htpy components."""
         from collections import defaultdict
-        
+
         # Group tests by session (class name) and base test name
         test_groups: dict[str, dict[str, list[Any]]] = defaultdict(lambda: defaultdict(list))
-        
+
         for test in report.tests:
             parts = test.name.split("::")
             if len(parts) >= 2:
@@ -298,14 +301,14 @@ class ReportGenerator:
             else:
                 class_name = "standalone"
                 test_name = parts[-1].split("[")[0]
-            
+
             test_groups[class_name][test_name].append(test)
-        
+
         # Build result structure
         result = []
         for group_name, tests_by_name in test_groups.items():
             is_session = group_name.startswith("Test") and len(tests_by_name) > 1
-            
+
             test_list = []
             for test_name, test_variants in tests_by_name.items():
                 results_by_agent: dict[str, TestResultData] = {}
@@ -313,58 +316,64 @@ class ReportGenerator:
                 has_failed = False
                 outcomes = set()
                 first_test = test_variants[0] if test_variants else None
-                
+
                 for test in test_variants:
                     model = _get_metadata_field(test.metadata, "model") or "unknown"
                     skill = _get_metadata_field(test.metadata, "skill")
                     prompt_name = _get_metadata_field(test.metadata, "system_prompt")
-                    
+
                     agent_id = model
                     if skill:
                         agent_id += f"+{skill}"
                     if prompt_name:
                         agent_id += f"+{prompt_name}"
-                    
+
                     if agent_id in all_agent_ids:
                         outcome = test.outcome or "unknown"
                         outcomes.add(outcome)
-                        
+
                         if outcome != "passed":
                             has_failed = True
-                        
+
                         # Extract tool calls
                         tool_calls = []
                         if test.agent_result and test.agent_result.turns:
                             for turn in test.agent_result.turns:
                                 if turn.tool_calls:
                                     for tc in turn.tool_calls:
-                                        tool_calls.append(ToolCallData(
-                                            name=tc.name,
-                                            success=tc.error is None,
-                                            error=tc.error,
-                                            args=tc.arguments,
-                                            result=tc.result,
-                                        ))
-                        
+                                        tool_calls.append(
+                                            ToolCallData(
+                                                name=tc.name,
+                                                success=tc.error is None,
+                                                error=tc.error,
+                                                args=tc.arguments,
+                                                result=tc.result,
+                                            )
+                                        )
+
                         # Extract assertions
                         assertions_data = []
                         if test.assertions:
                             for a in test.assertions:
-                                if hasattr(a, 'type'):
-                                    assertions_data.append(AssertionData(
-                                        type=a.type,
-                                        passed=a.passed,
-                                        message=a.message or "",
-                                        details=a.details,
-                                    ))
+                                if hasattr(a, "type"):
+                                    assertions_data.append(
+                                        AssertionData(
+                                            type=a.type,
+                                            passed=a.passed,
+                                            message=a.message or "",
+                                            details=a.details,
+                                        )
+                                    )
                                 else:
-                                    assertions_data.append(AssertionData(
-                                        type=a.get("type", "unknown"),
-                                        passed=a.get("passed", True),
-                                        message=a.get("message", ""),
-                                        details=a.get("details"),
-                                    ))
-                        
+                                    assertions_data.append(
+                                        AssertionData(
+                                            type=a.get("type", "unknown"),
+                                            passed=a.get("passed", True),
+                                            message=a.get("message", ""),
+                                            details=a.get("details"),
+                                        )
+                                    )
+
                         duration_ms = test.duration_ms or 0
                         has_result = test.agent_result and test.agent_result.turns
                         turn_count = len(test.agent_result.turns) if has_result else 0
@@ -372,7 +381,7 @@ class ReportGenerator:
                         if test.agent_result and test.agent_result.token_usage:
                             usage = test.agent_result.token_usage
                             tokens = usage.get("prompt", 0) + usage.get("completion", 0)
-                        
+
                         agent_result = test.agent_result
                         mermaid = generate_mermaid_sequence(agent_result) if agent_result else None
                         final_resp = agent_result.final_response if agent_result else None
@@ -390,46 +399,52 @@ class ReportGenerator:
                             error=test.error,
                             assertions=assertions_data,
                         )
-                
+
                 if len(outcomes) > 1:
                     has_difference = True
-                
+
                 display_name = test_name
-                if first_test and hasattr(first_test, 'docstring') and first_test.docstring:
-                    first_line = first_test.docstring.split('\n')[0].strip()
+                if first_test and hasattr(first_test, "docstring") and first_test.docstring:
+                    first_line = first_test.docstring.split("\n")[0].strip()
                     if first_line:
                         display_name = first_line[:60] + ("…" if len(first_line) > 60 else "")
-                
-                test_list.append(TestData(
-                    id=test_name,
-                    display_name=display_name,
-                    results_by_agent=results_by_agent,
-                    has_difference=has_difference,
-                    has_failed=has_failed,
-                ))
-            
+
+                test_list.append(
+                    TestData(
+                        id=test_name,
+                        display_name=display_name,
+                        results_by_agent=results_by_agent,
+                        has_difference=has_difference,
+                        has_failed=has_failed,
+                    )
+                )
+
             # Calculate group-level stats per agent
             agent_stats: dict[str, AgentStats] = {}
             for agent_id in all_agent_ids:
                 passed = sum(
-                    1 for t in test_list 
-                    if t.results_by_agent.get(agent_id) 
+                    1
+                    for t in test_list
+                    if t.results_by_agent.get(agent_id)
                     and t.results_by_agent[agent_id].outcome == "passed"
                 )
                 failed = sum(
-                    1 for t in test_list 
-                    if t.results_by_agent.get(agent_id) 
+                    1
+                    for t in test_list
+                    if t.results_by_agent.get(agent_id)
                     and t.results_by_agent[agent_id].outcome != "passed"
                 )
                 agent_stats[agent_id] = AgentStats(passed=passed, failed=failed)
-            
-            result.append(TestGroupData(
-                type="session" if is_session else "standalone",
-                name=group_name,
-                tests=test_list,
-                agent_stats=agent_stats,
-            ))
-        
+
+            result.append(
+                TestGroupData(
+                    type="session" if is_session else "standalone",
+                    name=group_name,
+                    tests=test_list,
+                    agent_stats=agent_stats,
+                )
+            )
+
         return result
 
     def generate_json(
@@ -450,20 +465,19 @@ class ReportGenerator:
         """
         import json
 
-        # Serialize dataclass to dict  
+        # Serialize dataclass to dict
         report_dict = serialize_dataclass(report)
-        
+
         # Add schema version
         report_dict["schema_version"] = "3.0"
-        
-        # Add insights to the JSON output if provided (new format: dict with markdown_summary and cost_usd)
+
+        # Add insights to the JSON output if provided
+        # (new format: dict with markdown_summary and cost_usd)
         if insights:
             report_dict["insights"] = insights
-        
+
         json_str = json.dumps(report_dict, indent=2, default=str)
         Path(output_path).write_text(json_str, encoding="utf-8")
-
-
 
 
 def generate_mermaid_sequence(result: AgentResult) -> str:

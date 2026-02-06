@@ -48,7 +48,9 @@ class TestDimensionDetection:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("model", TEST_MODELS, ids=TEST_MODELS)
-    @pytest.mark.parametrize("prompt_name,system_prompt", TEST_PROMPTS.items(), ids=TEST_PROMPTS.keys())
+    @pytest.mark.parametrize(
+        "prompt_name,system_prompt", TEST_PROMPTS.items(), ids=TEST_PROMPTS.keys()
+    )
     async def test_weather_with_all_permutations(
         self,
         aitest_run,

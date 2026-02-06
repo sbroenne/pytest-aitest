@@ -54,17 +54,23 @@ BANKING_PROMPT_BASE = (
 @pytest.fixture(scope="module")
 def banking_server():
     """Banking MCP server - the ONLY server for all hero tests.
-    
+
     Provides a realistic banking scenario with:
     - 2 accounts: checking ($1,500), savings ($3,000)
     - Tools: get_balance, get_all_balances, transfer, deposit, withdraw, get_transactions
     """
     return MCPServer(
         command=[sys.executable, "-u", "-m", "pytest_aitest.testing.banking_mcp"],
-        wait=Wait.for_tools([
-            "get_balance", "get_all_balances", "transfer",
-            "deposit", "withdraw", "get_transactions",
-        ]),
+        wait=Wait.for_tools(
+            [
+                "get_balance",
+                "get_all_balances",
+                "transfer",
+                "deposit",
+                "withdraw",
+                "get_transactions",
+            ]
+        ),
     )
 
 
@@ -171,7 +177,7 @@ class TestMultiToolWorkflows:
 @pytest.mark.session("savings-planning")
 class TestSavingsPlanningSession:
     """Multi-turn session: Planning savings transfers.
-    
+
     Tests that the agent remembers context across turns:
     - Turn 1: Check balances and discuss savings
     - Turn 2: Reference "my savings" (must remember context)
@@ -248,7 +254,9 @@ class TestModelComparison:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_financial_advice_quality(self, aitest_run, llm_assert, banking_server, model: str):
+    async def test_financial_advice_quality(
+        self, aitest_run, llm_assert, banking_server, model: str
+    ):
         """Compare models on providing financial advice."""
         agent = Agent(
             provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
@@ -292,7 +300,9 @@ class TestPromptComparison:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("prompt_name,system_prompt", ADVISOR_PROMPTS.items())
-    async def test_advice_style_comparison(self, aitest_run, llm_assert, banking_server, prompt_name, system_prompt):
+    async def test_advice_style_comparison(
+        self, aitest_run, llm_assert, banking_server, prompt_name, system_prompt
+    ):
         """Compare concise vs detailed vs friendly advisory styles."""
         agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
@@ -362,7 +372,8 @@ class TestErrorHandling:
         agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE + " If an operation fails, explain why and suggest alternatives.",
+            system_prompt=BANKING_PROMPT_BASE
+            + " If an operation fails, explain why and suggest alternatives.",
             max_turns=DEFAULT_MAX_TURNS,
         )
 
@@ -384,7 +395,8 @@ class TestErrorHandling:
         agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT_BASE + " Ask for clarification when requests are ambiguous.",
+            system_prompt=BANKING_PROMPT_BASE
+            + " Ask for clarification when requests are ambiguous.",
             max_turns=DEFAULT_MAX_TURNS,
         )
 

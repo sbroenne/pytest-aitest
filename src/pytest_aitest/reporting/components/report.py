@@ -49,7 +49,7 @@ def _load_static_asset(path: str) -> str:
 def _html_head(report: ReportMetadata) -> Node:
     """Render the HTML head section."""
     css_content = _load_static_asset("partials/tailwind.css")
-    
+
     return head[
         meta(charset="UTF-8"),
         meta(name="viewport", content="width=device-width, initial-scale=1.0"),
@@ -78,12 +78,12 @@ def _report_header(report: ReportMetadata) -> Node:
     """Render the report header section."""
     display_title = report.suite_docstring or report.name or "Test Report"
     duration_s = report.duration_ms / 1000
-    
+
     # Calculate test run cost (total minus analysis)
     test_run_cost = report.total_cost_usd
     if report.analysis_cost_usd:
         test_run_cost -= report.analysis_cost_usd
-    
+
     # Create test file links
     file_links = []
     for test_file in report.test_files:
@@ -97,13 +97,11 @@ def _report_header(report: ReportMetadata) -> Node:
                 ],
             ]
         )
-    
+
     # Build cost breakdown
     cost_parts = []
     cost_parts.append(
-        span(".tabular-nums", title="Test execution cost")[
-            f"🧪 {format_cost(test_run_cost)}"
-        ]
+        span(".tabular-nums", title="Test execution cost")[f"🧪 {format_cost(test_run_cost)}"]
     )
     if report.analysis_cost_usd:
         cost_parts.append(
@@ -116,7 +114,7 @@ def _report_header(report: ReportMetadata) -> Node:
             f"💰 {format_cost(report.total_cost_usd)}"
         ]
     )
-    
+
     # Token range display
     token_range_node = None
     if report.token_min > 0 or report.token_max > 0:
@@ -128,29 +126,25 @@ def _report_header(report: ReportMetadata) -> Node:
             token_range_node = span(".tabular-nums", title="Token range (min-max per test)")[
                 f"{report.token_min:,}–{report.token_max:,} tok"
             ]
-    
+
     header_items = [
         span(".opacity-70")[report.timestamp],
         *file_links,
         span(".tabular-nums")[f"{report.total} tests"],
         span(".tabular-nums")[f"{duration_s:.1f}s"],
     ]
-    
+
     if token_range_node:
         header_items.append(token_range_node)
-    
+
     header_items.extend(cost_parts)
-    
+
     return header(".report-header.mb-8")[
         div(".flex.justify-between.items-start.gap-4.mb-4")[
-            div(".flex-1")[
-                h1(".text-2xl.font-medium.mb-1")[display_title],
-            ],
+            div(".flex-1")[h1(".text-2xl.font-medium.mb-1")[display_title],],
             _status_badge(report),
         ],
-        div(".flex.flex-wrap.gap-x-6.gap-y-1.py-3.border-t.border-white/10.text-sm")[
-            *header_items
-        ],
+        div(".flex.flex-wrap.gap-x-6.gap-y-1.py-3.border-t.border-white/10.text-sm")[*header_items],
     ]
 
 
@@ -172,7 +166,7 @@ def _ai_insights_section(insights: AIInsightsData | None) -> Node | None:
     """Render the AI insights section."""
     if not insights or not insights.markdown_summary:
         return None
-    
+
     return section(".mb-8")[
         div(".ai-insights")[
             div(".ai-insights-header")[
@@ -184,9 +178,7 @@ def _ai_insights_section(insights: AIInsightsData | None) -> Node | None:
                 )["Toggle"],
             ],
             div(".card-body")[
-                div(".markdown-content")[
-                    _render_markdown(insights.markdown_summary)
-                ],
+                div(".markdown-content")[_render_markdown(insights.markdown_summary)],
             ],
         ],
     ]
@@ -196,11 +188,11 @@ def _agent_leaderboard_section(agents: list[AgentData]) -> Node | None:
     """Render the agent leaderboard section."""
     if not agents or len(agents) <= 1:
         return None
-    
+
     leaderboard = agent_leaderboard(agents)
     if not leaderboard:
         return None
-    
+
     return section(".mb-8")[
         h2(".section-title")["🏆 Agent Leaderboard"],
         leaderboard,
@@ -212,7 +204,7 @@ def _agent_selector_section(agents: list[AgentData], selected_ids: list[str]) ->
     selector = agent_selector(agents, selected_ids)
     if not selector:
         return None
-    
+
     return section(".mb-8")[selector]
 
 
@@ -233,26 +225,25 @@ def _test_results_section(ctx: ReportContext) -> Node:
 def _scripts_section(ctx: ReportContext) -> Node:
     """Render the scripts section with all JS."""
     js_content = _load_static_asset("partials/scripts.js")
-    
+
     # Serialize agent data for client-side filtering
-    agents_json = json.dumps([
-        {
-            "id": a.id,
-            "name": a.name,
-            "pass_rate": a.pass_rate,
-            "skill": a.skill,
-            "prompt_name": a.prompt_name,
-        }
-        for a in ctx.agents
-    ])
-    
-    agents_by_id_json = json.dumps({
-        a.id: {"id": a.id, "name": a.name}
-        for a in ctx.agents
-    })
-    
+    agents_json = json.dumps(
+        [
+            {
+                "id": a.id,
+                "name": a.name,
+                "pass_rate": a.pass_rate,
+                "skill": a.skill,
+                "prompt_name": a.prompt_name,
+            }
+            for a in ctx.agents
+        ]
+    )
+
+    agents_by_id_json = json.dumps({a.id: {"id": a.id, "name": a.name} for a in ctx.agents})
+
     selected_ids_json = json.dumps(ctx.selected_agent_ids)
-    
+
     # Client-side JS for agent comparison
     client_js = f"""
 {js_content}
@@ -377,17 +368,17 @@ document.addEventListener('DOMContentLoaded', () => {{
     }}
 }});
 """
-    
+
     # Wrap in Markup so htpy doesn't HTML-escape the JavaScript
     return script[Markup(client_js)]
 
 
 def full_report(ctx: ReportContext) -> Node:
     """Render the complete HTML report.
-    
+
     Args:
         ctx: Complete report context with all data.
-    
+
     Returns:
         htpy Node for the full HTML document.
     """

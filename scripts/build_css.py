@@ -24,10 +24,10 @@ def build_css(watch: bool = False) -> None:
     """Build the Tailwind CSS file."""
     script = "watch" if watch else "build"
     cmd = ["npm", "run", script]
-    
+
     print(f"Running: {' '.join(cmd)} in {TEMPLATES_DIR}")
     result = subprocess.run(cmd, cwd=TEMPLATES_DIR)
-    
+
     if result.returncode == 0 and not watch:
         size = OUTPUT_CSS.stat().st_size
         print(f"✓ Built {OUTPUT_CSS.name} ({size:,} bytes)")

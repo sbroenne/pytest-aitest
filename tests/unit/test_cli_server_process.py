@@ -387,7 +387,7 @@ class TestEnvironmentAndCwd:
             server = CLIServerProcess(config)
             await server.start()
             result = await server.call_tool("env_execute", {"args": "MY_TEST_VAR"})
-        
+
         parsed = json.loads(result)
 
         assert parsed["exit_code"] == 0
@@ -398,6 +398,7 @@ class TestEnvironmentAndCwd:
         if sys.platform == "win32":
             # Use temp directory that exists on Windows
             import tempfile
+
             temp_dir = tempfile.gettempdir()
             config = CLIServer(
                 name="pwd",
@@ -412,7 +413,9 @@ class TestEnvironmentAndCwd:
             parsed = json.loads(result)
             assert parsed["exit_code"] == 0
             # Windows temp dir path should be in output
-            assert temp_dir.lower() in parsed["stdout"].lower() or "temp" in parsed["stdout"].lower()
+            assert (
+                temp_dir.lower() in parsed["stdout"].lower() or "temp" in parsed["stdout"].lower()
+            )
         else:
             config = CLIServer(
                 name="pwd",

@@ -7,13 +7,12 @@ from htpy import Node, button, div, style
 
 def overlay() -> Node:
     """Render the fullscreen overlay for diagram viewing.
-    
+
     Returns:
         htpy Node for the overlay and hover popup.
     """
     overlay_cls = (
-        "fixed inset-0 bg-black/80 backdrop-blur-sm z-50 "
-        "hidden items-center justify-center p-8"
+        "fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-8"
     )
     close_btn_cls = (
         "absolute top-4 right-4 w-10 h-10 flex items-center justify-center "
@@ -46,9 +45,7 @@ def overlay() -> Node:
             div(
                 class_=content_cls,
                 onclick="event.stopPropagation()",
-            )[
-                div(".mermaid.w-full.h-full", id="overlay-mermaid"),
-            ],
+            )[div(".mermaid.w-full.h-full", id="overlay-mermaid"),],
         ],
         # Hover popup for side-by-side diagrams
         div(
@@ -57,9 +54,7 @@ def overlay() -> Node:
             onmouseenter="keepDiagramHover()",
             onmouseleave="hideDiagramHover()",
             onclick=hover_onclick,
-        )[
-            div(".mermaid", id="hover-mermaid"),
-        ],
+        )[div(".mermaid", id="hover-mermaid"),],
         # Styles for overlay behavior
         style[
             """

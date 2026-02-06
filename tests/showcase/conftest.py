@@ -4,7 +4,6 @@ These tests generate the hero report for README demonstration.
 """
 
 
-
 def pytest_configure(config):
     """Register showcase marker."""
     config.addinivalue_line(

@@ -118,7 +118,7 @@ class AgentResult:
     available_tools: list[ToolInfo] = field(default_factory=list)
     skill_info: SkillInfo | None = None
     effective_system_prompt: str = ""
-    
+
     # Agent identity (captured from Agent at execution time)
     agent_name: str = ""  # Agent.name or synthesized from model+skill
     model: str = ""  # Agent.provider.model (without provider prefix)

@@ -28,9 +28,7 @@ class TestWeatherSkillImprovement:
         """Load the weather expert skill."""
         return Skill.from_path(SKILLS_DIR / "weather-expert")
 
-    async def test_baseline_packing_advice_may_skip_weather_check(
-        self, aitest_run, weather_server
-    ):
+    async def test_baseline_packing_advice_may_skip_weather_check(self, aitest_run, weather_server):
         """WITHOUT skill: LLM might give generic advice without checking weather.
 
         This test establishes baseline behavior - the LLM may or may not

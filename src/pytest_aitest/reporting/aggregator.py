@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 @dataclass(slots=True)
 class TestDimensions:
     """Detected test dimensions (models and prompts used in the test suite)."""
-    
+
     models: list[str]
     prompts: list[str]
 
@@ -80,9 +80,6 @@ class AdaptiveFlags:
             single_prompt_mode=prompt_count <= 1,
             single_prompt_name=dimensions.prompts[0] if prompt_count == 1 else None,
         )
-
-
-
 
 
 @dataclass
@@ -257,8 +254,6 @@ class DimensionAggregator:
         r"prompt_v\d+",
     )
 
-
-
     def _parse_node_id(self, node_id: str) -> tuple[str, list[str]]:
         """Parse pytest node ID into base name and parameters.
 
@@ -299,16 +294,16 @@ class DimensionAggregator:
 
     def detect_dimensions(self, report: SuiteReport) -> TestDimensions:
         """Detect unique models and prompts used in the test suite.
-        
+
         Extracts from test metadata and node IDs to build a complete
         picture of what dimensions are being compared.
-        
+
         Returns:
             TestDimensions with unique models and prompts.
         """
         models: set[str] = set()
         prompts: set[str] = set()
-        
+
         for test in report.tests:
             # Extract model
             model = test.metadata.get("model")
@@ -318,7 +313,7 @@ class DimensionAggregator:
                     model = self._extract_model_from_params(params[0])
             if model:
                 models.add(model)
-            
+
             # Extract prompt
             prompt = test.metadata.get("prompt")
             if not prompt:
@@ -327,7 +322,7 @@ class DimensionAggregator:
                     prompt = self._extract_prompt_from_params(params[0])
             if prompt:
                 prompts.add(prompt)
-        
+
         return TestDimensions(
             models=sorted(models),
             prompts=sorted(prompts),
@@ -527,21 +522,18 @@ class DimensionAggregator:
         """Create adaptive flags for template rendering."""
         dimensions = self.detect_dimensions(report)
         flags = AdaptiveFlags.from_dimensions(dimensions, len(report.tests))
-        
+
         # Add new comparison flags
         flags.show_tool_comparison = (
             flags.model_count > 1 or flags.prompt_count > 1
         ) and self._has_tool_calls(report)
         flags.show_side_by_side = flags.model_count > 1 or flags.prompt_count > 1
-        
+
         return flags
 
     def _has_tool_calls(self, report: SuiteReport) -> bool:
         """Check if any test has tool calls."""
-        return any(
-            t.agent_result and t.agent_result.all_tool_calls
-            for t in report.tests
-        )
+        return any(t.agent_result and t.agent_result.all_tool_calls for t in report.tests)
 
     def _get_model_for_test(self, test: TestReport) -> str | None:
         """Extract model name from test metadata or node ID."""
@@ -563,7 +555,7 @@ class DimensionAggregator:
 
     def build_tool_comparison(self, report: SuiteReport) -> dict | None:
         """Build tool usage comparison across models or prompts.
-        
+
         Returns a dict with:
         - columns: list of column names (models or prompts)
         - tools: list of {name, counts, total} for each tool
@@ -571,7 +563,7 @@ class DimensionAggregator:
         - grand_total: total calls across all
         """
         dimensions = self.detect_dimensions(report)
-        
+
         # Determine columns (prefer models if available, otherwise prompts)
         if len(dimensions.models) > 1:
             columns = dimensions.models
@@ -581,41 +573,40 @@ class DimensionAggregator:
             get_column = self._get_prompt_for_test
         else:
             return None  # No comparison possible
-        
+
         # Collect tool calls per column
         tool_counts: dict[str, dict[str, int]] = {}  # tool_name -> column -> count
-        
+
         for test in report.tests:
             if not test.agent_result:
                 continue
             column = get_column(test)
             if not column:
                 continue
-            
+
             for tc in test.agent_result.all_tool_calls:
                 if tc.name not in tool_counts:
                     tool_counts[tc.name] = {c: 0 for c in columns}
                 if column in tool_counts[tc.name]:
                     tool_counts[tc.name][column] += 1
-        
+
         if not tool_counts:
             return None
-        
+
         # Build result structure
         tools = []
         for tool_name in sorted(tool_counts.keys()):
             counts = [tool_counts[tool_name].get(c, 0) for c in columns]
-            tools.append({
-                "name": tool_name,
-                "counts": counts,
-                "total": sum(counts),
-            })
-        
-        column_totals = [
-            sum(tool_counts[t].get(c, 0) for t in tool_counts)
-            for c in columns
-        ]
-        
+            tools.append(
+                {
+                    "name": tool_name,
+                    "counts": counts,
+                    "total": sum(counts),
+                }
+            )
+
+        column_totals = [sum(tool_counts[t].get(c, 0) for t in tool_counts) for c in columns]
+
         return {
             "columns": columns,
             "tools": tools,
@@ -625,37 +616,37 @@ class DimensionAggregator:
 
     def build_side_by_side(self, report: SuiteReport) -> list[dict] | None:
         """Build side-by-side comparison data for tests across variants.
-        
+
         Returns list of test groups, each with:
         - test_name: base test name
         - variants: list of {name, passed, duration_ms, total_tokens, tool_calls, agent_result}
         - has_tool_calls: bool
         """
         dimensions = self.detect_dimensions(report)
-        
+
         # Need multiple models or prompts for comparison
         if len(dimensions.models) <= 1 and len(dimensions.prompts) <= 1:
             return None
-        
+
         # Group by base test name
         test_groups: dict[str, list[TestReport]] = {}
-        
+
         for test in report.tests:
             base_name, _ = self._parse_node_id(test.name)
             if base_name not in test_groups:
                 test_groups[base_name] = []
             test_groups[base_name].append(test)
-        
+
         # Only include tests with multiple variants
         result = []
         for base_name, tests in test_groups.items():
             if len(tests) <= 1:
                 continue
-            
+
             # Build variant info
             variants = []
             has_tool_calls = False
-            
+
             for test in tests:
                 # Determine variant name (model or prompt or both)
                 parts = []
@@ -666,32 +657,35 @@ class DimensionAggregator:
                 if prompt:
                     parts.append(prompt)
                 variant_name = " / ".join(parts) if parts else test.name
-                
+
                 # Calculate metrics
                 total_tokens = 0
                 tool_calls = 0
                 if test.agent_result is not None:
-                    total_tokens = (
-                        test.agent_result.token_usage.get("prompt", 0)
-                        + test.agent_result.token_usage.get("completion", 0)
-                    )
+                    total_tokens = test.agent_result.token_usage.get(
+                        "prompt", 0
+                    ) + test.agent_result.token_usage.get("completion", 0)
                     tool_calls = len(test.agent_result.all_tool_calls)
                     if tool_calls > 0:
                         has_tool_calls = True
-                
-                variants.append({
-                    "name": variant_name,
-                    "passed": test.outcome == "passed",
-                    "duration_ms": test.duration_ms,
-                    "total_tokens": total_tokens,
-                    "tool_calls": tool_calls,
-                    "agent_result": test.agent_result,
-                })
-            
-            result.append({
-                "test_name": base_name,
-                "variants": variants,
-                "has_tool_calls": has_tool_calls,
-            })
-        
+
+                variants.append(
+                    {
+                        "name": variant_name,
+                        "passed": test.outcome == "passed",
+                        "duration_ms": test.duration_ms,
+                        "total_tokens": total_tokens,
+                        "tool_calls": tool_calls,
+                        "agent_result": test.agent_result,
+                    }
+                )
+
+            result.append(
+                {
+                    "test_name": base_name,
+                    "variants": variants,
+                    "has_tool_calls": has_tool_calls,
+                }
+            )
+
         return result if result else None

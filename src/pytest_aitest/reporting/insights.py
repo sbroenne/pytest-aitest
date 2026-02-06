@@ -5,8 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+
+import litellm
+from litellm.exceptions import RateLimitError
 
 from pytest_aitest.core.auth import get_azure_ad_token_provider
 
@@ -138,9 +142,9 @@ def _get_results_hash(suite_report: SuiteReport) -> str:
 
 def create_placeholder_insights() -> str:
     """Create placeholder insights for internal use only.
-    
+
     Note: AI analysis is mandatory for report generation, so this
-    should only be used internally (e.g., in model converter for 
+    should only be used internally (e.g., in model converter for
     backwards compatibility with old fixtures).
     """
     return "*AI analysis pending - run with `--aitest-summary-model` to generate.*"
@@ -171,9 +175,6 @@ async def generate_insights(
         InsightsGenerationError: If AI analysis fails after retries
     """
     import asyncio
-    import time
-
-    import litellm
 
     # Check cache first
     results_hash = _get_results_hash(suite_report)
@@ -212,7 +213,7 @@ async def generate_insights(
     start_time = time.perf_counter()
     total_tokens = 0
     total_cost = 0.0
-    
+
     # Get Azure AD token provider for authentication
     azure_ad_token_provider = get_azure_ad_token_provider()
 
@@ -223,22 +224,24 @@ async def generate_insights(
                 "model": model,
                 "messages": [{"role": "user", "content": full_prompt}],
             }
-            
+
             # Add Azure AD token provider if available
             if azure_ad_token_provider is not None:
                 kwargs["azure_ad_token_provider"] = azure_ad_token_provider
-            
+
             response = await litellm.acompletion(**kwargs)
 
             # Track usage
-            if hasattr(response, "usage") and response.usage:
-                usage = response.usage
+            total_tokens = 0
+            total_cost = 0.0
+            if hasattr(response, "usage") and response.usage:  # type: ignore[union-attr]
+                usage = response.usage  # type: ignore[union-attr]
                 total_tokens = (usage.prompt_tokens or 0) + (usage.completion_tokens or 0)
             if hasattr(response, "_hidden_params"):
                 total_cost = response._hidden_params.get("response_cost", 0.0) or 0.0
 
             # Get markdown content directly from LLM response
-            markdown_content = response.choices[0].message.content
+            markdown_content = response.choices[0].message.content or ""  # type: ignore[union-attr]
 
             duration_ms = (time.perf_counter() - start_time) * 1000
             metadata = {
@@ -264,13 +267,11 @@ async def generate_insights(
             # Return markdown string directly, not dict
             return markdown_content, metadata
 
-        except litellm.RateLimitError as e:
+        except RateLimitError as e:
             if attempt < 2:
                 await asyncio.sleep(2**attempt)
                 continue
-            raise InsightsGenerationError(
-                f"Rate limited after {attempt + 1} attempts"
-            ) from e
+            raise InsightsGenerationError(f"Rate limited after {attempt + 1} attempts") from e
         except Exception as e:
             if attempt < 2:
                 await asyncio.sleep(1)
@@ -283,4 +284,3 @@ async def generate_insights(
 
 class InsightsGenerationError(Exception):
     """Raised when AI insights generation fails."""
-
