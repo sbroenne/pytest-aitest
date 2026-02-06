@@ -31,8 +31,14 @@ class TestReport:
     agent_result: AgentResult | None = None
     error: str | None = None
     assertions: list[dict[str, Any]] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
     docstring: str | None = None
+
+    # Agent identity (populated by plugin from Agent object, or from JSON)
+    agent_id: str = ""
+    agent_name: str = ""
+    model: str = ""
+    system_prompt_name: str | None = None
+    skill_name: str | None = None
 
     @property
     def is_passed(self) -> bool:
@@ -57,16 +63,6 @@ class TestReport:
             # Return first line of docstring, stripped
             return self.docstring.split("\n")[0].strip()
         return self.short_name
-
-    @property
-    def model(self) -> str | None:
-        """Get model name from metadata if present."""
-        return self.metadata.get("model")
-
-    @property
-    def prompt_name(self) -> str | None:
-        """Get prompt name from metadata if present."""
-        return self.metadata.get("prompt")
 
     @property
     def tokens_used(self) -> int:
@@ -199,12 +195,74 @@ class SuiteReport:
 
     @property
     def prompts_used(self) -> list[str]:
-        """Unique prompts used across tests."""
+        """Unique system prompt names used across tests."""
         prompts = set()
         for t in self.tests:
-            if t.prompt_name:
-                prompts.add(t.prompt_name)
+            if t.system_prompt_name:
+                prompts.add(t.system_prompt_name)
         return sorted(prompts)
+
+
+@dataclass
+class SessionGroup:
+    """A group of tests that share conversation history (session).
+
+    Detected from test class names - tests in the same class with
+    is_session_continuation form a session workflow.
+    """
+
+    name: str  # Class name or "Standalone" for non-session tests
+    tests: list[TestReport]
+    is_session: bool = False  # True if tests share conversation context
+
+    @property
+    def total_messages(self) -> int:
+        """Total messages in the session (from last test)."""
+        if not self.tests:
+            return 0
+        last = self.tests[-1]
+        if last.agent_result:
+            return len(last.agent_result.messages)
+        return 0
+
+    @property
+    def passed(self) -> int:
+        return sum(1 for t in self.tests if t.outcome == "passed")
+
+    @property
+    def failed(self) -> int:
+        return sum(1 for t in self.tests if t.outcome == "failed")
+
+    @property
+    def all_passed(self) -> bool:
+        return self.failed == 0 and self.passed > 0
+
+    @property
+    def total_duration_ms(self) -> float:
+        """Total duration of all tests in session."""
+        return sum(t.duration_ms for t in self.tests)
+
+    @property
+    def total_tokens(self) -> int:
+        """Total tokens used across all tests in session."""
+        return sum(
+            (
+                t.agent_result.token_usage.get("prompt", 0)
+                + t.agent_result.token_usage.get("completion", 0)
+            )
+            for t in self.tests
+            if t.agent_result
+        )
+
+    @property
+    def total_cost(self) -> float:
+        """Total cost across all tests in session."""
+        return sum(t.agent_result.cost_usd for t in self.tests if t.agent_result)
+
+    @property
+    def total_tool_calls(self) -> int:
+        """Total tool calls across all tests in session."""
+        return sum(len(t.agent_result.all_tool_calls) for t in self.tests if t.agent_result)
 
 
 class ReportCollector:

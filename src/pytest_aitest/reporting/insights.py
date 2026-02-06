@@ -64,11 +64,11 @@ def _build_analysis_input(
             sections.append(f"- Error: {test.error}")
         if test.agent_result:
             ar = test.agent_result
-            # Include agent identity for this specific test
-            if ar.agent_name:
-                sections.append(f"- Agent: {ar.agent_name}")
-            if ar.model:
-                sections.append(f"- Model: {ar.model}")
+            # Include agent identity for this specific test (from TestReport, not AgentResult)
+            if test.agent_name:
+                sections.append(f"- Agent: {test.agent_name}")
+            if test.model:
+                sections.append(f"- Model: {test.model}")
             if ar.skill_info:
                 sections.append(f"- Skill: {ar.skill_info.name}")
             sections.append(f"- Duration: {ar.duration_ms:.0f}ms")

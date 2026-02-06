@@ -51,20 +51,11 @@ def _to_file_url(path: str) -> str:
     return Path(path).resolve().as_uri()
 
 
-def _get_metadata_field(metadata: Any | dict | None, field: str) -> Any:
-    """Safely get a field from metadata (handles both objects and dicts)."""
-    if not metadata:
-        return None
-    if isinstance(metadata, dict):
-        return metadata.get(field)
-    return getattr(metadata, field, None)
-
-
 def _resolve_agent_id(test: Any) -> str:
-    """Get the agent ID from test metadata."""
-    agent_id = _get_metadata_field(test.metadata, "agent_id")
+    """Get the agent ID from TestReport."""
+    agent_id = test.agent_id
     if not agent_id:
-        msg = f"Test {test.name!r} missing 'agent_id' in metadata"
+        msg = f"Test {test.name!r} missing 'agent_id'"
         raise ValueError(msg)
     return agent_id
 
@@ -220,7 +211,7 @@ class ReportGenerator:
                 "duration_ms": 0,
                 "agent_name": None,
                 "skill": None,
-                "prompt_name": None,
+                "system_prompt_name": None,
                 "model": None,
             }
         )
@@ -228,16 +219,16 @@ class ReportGenerator:
         for test in report.tests:
             agent_id = _resolve_agent_id(test)
 
-            model = _get_metadata_field(test.metadata, "model") or "unknown"
-            agent_name = _get_metadata_field(test.metadata, "agent_name") or model
-            skill = _get_metadata_field(test.metadata, "skill")
-            prompt_name = _get_metadata_field(test.metadata, "prompt")
+            model = test.model or "unknown"
+            agent_name = test.agent_name or model
+            skill = test.skill_name
+            system_prompt_name = test.system_prompt_name
 
             stats = agent_stats[agent_id]
             stats["model"] = model
             stats["agent_name"] = agent_name
             stats["skill"] = skill
-            stats["prompt_name"] = prompt_name
+            stats["system_prompt_name"] = system_prompt_name
             stats["total"] += 1
 
             if test.outcome == "passed":
@@ -270,7 +261,7 @@ class ReportGenerator:
                     id=agent_id,
                     name=stats["agent_name"],
                     skill=stats["skill"],
-                    prompt_name=stats["prompt_name"],
+                    system_prompt_name=stats["system_prompt_name"],
                     passed=passed,
                     failed=stats["failed"],
                     total=total,
@@ -293,7 +284,7 @@ class ReportGenerator:
                     id=agent.id,
                     name=agent.name,
                     skill=agent.skill,
-                    prompt_name=agent.prompt_name,
+                    system_prompt_name=agent.system_prompt_name,
                     passed=agent.passed,
                     failed=agent.failed,
                     total=agent.total,

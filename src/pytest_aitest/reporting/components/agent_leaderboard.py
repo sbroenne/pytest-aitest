@@ -36,8 +36,8 @@ def _agent_tags(agent: AgentData) -> Node:
     tags = []
     if agent.skill:
         tags.append(span(".tag.tag-skill")[f"📚 {agent.skill}"])
-    if agent.prompt_name:
-        tags.append(span(".tag.tag-prompt")[f"📝 {agent.prompt_name}"])
+    if agent.system_prompt_name:
+        tags.append(span(".tag.tag-prompt")[f"📝 {agent.system_prompt_name}"])
 
     if not tags:
         return None
@@ -116,7 +116,8 @@ def _single_agent_card(agent: AgentData) -> Node:
     status_class = "text-green-400" if agent.pass_rate == 100 else "text-red-400"
 
     skill_tag = span(".tag.tag-skill")[f"📚 {agent.skill}"] if agent.skill else None
-    prompt_tag = span(".tag.tag-prompt")[f"📝 {agent.prompt_name}"] if agent.prompt_name else None
+    prompt_name = agent.system_prompt_name
+    prompt_tag = span(".tag.tag-prompt")[f"📝 {prompt_name}"] if prompt_name else None
 
     return div(".card.p-5")[
         div(".flex.items-center.justify-between")[

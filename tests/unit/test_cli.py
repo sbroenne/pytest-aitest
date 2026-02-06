@@ -183,7 +183,7 @@ class TestDeserializeTest:
         assert test.name == "test_example"
         assert test.outcome == "passed"
         assert test.duration_ms == 100.0
-        assert test.metadata == {"model": "gpt-4"}
+        assert test.model == "gpt-4"
 
     def test_test_with_agent_result(self) -> None:
         data = {

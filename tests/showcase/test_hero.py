@@ -83,7 +83,7 @@ PROMPT_AGENTS = [
         provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
         mcp_servers=[BANKING_SERVER],
         system_prompt=system_prompt,
-        prompt_name=prompt_name,
+        system_prompt_name=prompt_name,
         max_turns=DEFAULT_MAX_TURNS,
     )
     for model in BENCHMARK_MODELS

@@ -74,7 +74,7 @@ Use these sections as needed (skip sections with no content):
 
 [For each prompt variant - skip if single prompt worked well:]
 
-### prompt_name (effective/mixed/ineffective)
+### system_prompt_name (effective/mixed/ineffective)
 - **Token count:** N
 - **Problem:** [What's wrong - too verbose? missing instructions? confusing?]
 - **Suggested change:** [Exact text to add/remove/replace]

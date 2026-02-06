@@ -225,4 +225,4 @@ class Agent:
     max_turns: int = 10
     skill: Skill | None = None
     allowed_tools: list[str] | None = None  # Filter to specific tools (None = all)
-    prompt_name: str | None = None  # Label for system prompt (for report grouping)
+    system_prompt_name: str | None = None  # Label for system prompt (for report grouping)

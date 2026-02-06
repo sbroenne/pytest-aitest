@@ -106,9 +106,15 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
                 token_usage=ar_data.get("token_usage", {}),
                 cost_usd=ar_data.get("cost_usd", 0.0),
                 session_context_count=ar_data.get("session_context_count", 0),
-                agent_name=ar_data.get("agent_name", ""),
-                model=ar_data.get("model", ""),
             )
+
+        # Read identity from typed fields, falling back to metadata for old JSON
+        metadata = test_data.get("metadata", {})
+        agent_id = test_data.get("agent_id") or metadata.get("agent_id", "")
+        agent_name = test_data.get("agent_name") or metadata.get("agent_name", "")
+        model = test_data.get("model") or metadata.get("model", "")
+        system_prompt_name = test_data.get("system_prompt_name") or metadata.get("prompt")
+        skill_name = test_data.get("skill_name") or metadata.get("skill")
 
         # Reconstruct test report
         test_report = TestReport(
@@ -118,8 +124,12 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
             agent_result=agent_result,
             error=test_data.get("error"),
             assertions=test_data.get("assertions", []),
-            metadata=test_data.get("metadata", {}),
             docstring=test_data.get("docstring"),
+            agent_id=agent_id,
+            agent_name=agent_name,
+            model=model,
+            system_prompt_name=system_prompt_name,
+            skill_name=skill_name,
         )
         tests.append(test_report)
 

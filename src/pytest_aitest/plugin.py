@@ -183,56 +183,6 @@ def pytest_configure(config: Config) -> None:
     config.stash[SESSION_MESSAGES_KEY] = {}
 
 
-def _extract_metadata_from_nodeid(nodeid: str) -> dict[str, Any]:
-    """Extract model and prompt from parametrized test node ID.
-
-    Parses test names like 'test_foo[gpt-5-mini-PROMPT_V1]' to extract:
-    - model: gpt-5-mini
-    - prompt: PROMPT_V1
-    """
-    import re
-
-    metadata: dict[str, Any] = {}
-
-    # Extract parameters from node ID: test_foo[param1-param2] -> "param1-param2"
-    match = re.search(r"\[([^\]]+)\]", nodeid)
-    if not match:
-        return metadata
-
-    params_str = match.group(1)
-
-    # Model patterns - use negative lookahead to stop before PROMPT_
-    # Note: Order matters - more specific patterns first (gpt-4o before gpt-4)
-    model_patterns = [
-        r"gpt-\d+(?:\.\d+)?o(?:-(?!PROMPT)\w+)*",  # gpt-4o, gpt-4o-mini
-        r"gpt-\d+(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # gpt-4, gpt-4-turbo, gpt-5-mini
-        r"o\d+-(?!PROMPT)\w+",  # o1-mini, o1-preview, o3-mini
-        r"claude-\d+(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # claude-3-opus, claude-3.5-sonnet
-        r"gemini-\d+(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # gemini-1.5-pro
-        r"mistral-(?!PROMPT)\w+",  # mistral-large
-        r"llama-?\d*(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # llama-3.1-70b
-        r"deepseek-(?!PROMPT)\w+",  # deepseek-chat
-        r"qwen-?\d*(?:\.\d+)?(?:-(?!PROMPT)\w+)*",  # qwen-2.5-72b
-        r"command-r(?:-(?!PROMPT)\w+)?",  # command-r-plus
-    ]
-    model_pattern = re.compile("|".join(f"({p})" for p in model_patterns), re.IGNORECASE)
-    model_match = model_pattern.search(params_str)
-    if model_match:
-        metadata["model"] = model_match.group(0)
-
-    # Prompt patterns (from DimensionAggregator)
-    prompt_patterns = [
-        r"PROMPT_\w+",  # PROMPT_V1, PROMPT_CONCISE
-        r"prompt_\w+",  # prompt_v1, prompt_concise
-    ]
-    prompt_pattern = re.compile("|".join(f"({p})" for p in prompt_patterns))
-    prompt_match = prompt_pattern.search(params_str)
-    if prompt_match:
-        metadata["prompt"] = prompt_match.group(0)
-
-    return metadata
-
-
 def pytest_collection_modifyitems(
     session: pytest.Session,
     config: Config,
@@ -276,22 +226,14 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     if agent_result is None:
         return
 
+    # Get agent identity directly from the Agent object stashed by the fixture
+    agent = getattr(item, "_aitest_agent", None)
+
     # Get test function docstring if available
     docstring = None
     func = getattr(item, "function", None)
     if func is not None and func.__doc__:
         docstring = func.__doc__
-
-    # Build metadata from agent_result (source of truth) with fallback to parsing
-    metadata = _extract_metadata_from_nodeid(item.nodeid)
-
-    # Override with actual values from agent_result (source of truth)
-    if agent_result:
-        metadata["agent_id"] = agent_result.agent_id
-        metadata["agent_name"] = agent_result.agent_name
-        metadata["model"] = agent_result.model
-        if agent_result.skill_info:
-            metadata["skill"] = agent_result.skill_info.name
 
     # Extract assertions recorded by the llm_assert fixture
     assertions = getattr(item, "_aitest_assertions", [])
@@ -315,7 +257,18 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
             else:
                 error_msg = error_text
 
-    # Create test report
+    # Build agent identity from the Agent object
+    def _display_model(model: str) -> str:
+        """Strip provider prefix for display (azure/gpt-5-mini → gpt-5-mini)."""
+        return model.split("/")[-1] if "/" in model else model
+
+    agent_id = agent.id if agent else ""
+    model = _display_model(agent.provider.model) if agent else ""
+    agent_name = agent.name or model if agent else ""
+    system_prompt_name = agent.system_prompt_name if agent else None
+    skill_name = agent.skill.name if agent and agent.skill else None
+
+    # Create test report with typed identity fields
     test_report = TestReport(
         name=item.nodeid,
         outcome=report.outcome,
@@ -324,20 +277,22 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         error=error_msg,
         assertions=assertions,
         docstring=docstring,
-        metadata=metadata,
+        agent_id=agent_id,
+        agent_name=agent_name,
+        model=model,
+        system_prompt_name=system_prompt_name,
+        skill_name=skill_name,
     )
 
     collector.add_test(test_report)
 
     # Enrich JUnit XML with agent metadata (user_properties → <property> elements)
-    agent = getattr(item, "_aitest_agent", None)
-    _add_junit_properties(report, agent_result, metadata, agent)
+    _add_junit_properties(report, agent_result, agent)
 
 
 def _add_junit_properties(
     report: PytestTestReport,
     agent_result: Any,
-    metadata: dict[str, str],
     agent: Any | None = None,
 ) -> None:
     """Add agent metadata to pytest report for JUnit XML output.
@@ -360,19 +315,25 @@ def _add_junit_properties(
 
     props = []
 
-    # Agent identity
-    if agent_result.agent_name:
-        props.append(("aitest.agent.name", agent_result.agent_name))
-    if agent_result.model:
-        props.append(("aitest.model", agent_result.model))
+    # Agent identity (from Agent object)
+    if agent:
+        model = agent.provider.model
+        display_model = model.split("/")[-1] if "/" in model else model
+        agent_name = agent.name or display_model
+        props.append(("aitest.agent.name", agent_name))
+        props.append(("aitest.model", display_model))
+        if agent.system_prompt_name:
+            props.append(("aitest.prompt", agent.system_prompt_name))
+    else:
+        # Fallback to agent_result fields (for backward compat with tests)
+        if hasattr(agent_result, "agent_name") and agent_result.agent_name:
+            props.append(("aitest.agent.name", agent_result.agent_name))
+        if hasattr(agent_result, "model") and agent_result.model:
+            props.append(("aitest.model", agent_result.model))
 
     # Skill
     if agent_result.skill_info:
         props.append(("aitest.skill", agent_result.skill_info.name))
-
-    # System prompt name (from metadata, if available)
-    if metadata.get("prompt"):
-        props.append(("aitest.prompt", metadata["prompt"]))
 
     # MCP servers (from agent config)
     if agent and agent.mcp_servers:
@@ -579,10 +540,10 @@ def _generate_structured_insights(
 
                 # Collect effective system prompts as prompt variants
                 effective_prompt = getattr(test.agent_result, "effective_system_prompt", "")
-                if effective_prompt and test.metadata:
-                    prompt_name = test.metadata.get("prompt", "default")
-                    if prompt_name not in prompts:
-                        prompts[prompt_name] = effective_prompt
+                if effective_prompt:
+                    prompt_label = test.system_prompt_name or "default"
+                    if prompt_label not in prompts:
+                        prompts[prompt_label] = effective_prompt
 
         # Generate insights using async function
         async def _run() -> tuple[Any, Any]:

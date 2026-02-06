@@ -121,69 +121,8 @@ def _load_v2_report(
             ai_summary = insights.get("markdown_summary")
             # Keep insights as dict (don't extract just the string)
 
-    # Convert to LegacySuiteReport for template compatibility
-    tests = []
-    for test_report in suite_report.tests:
-        # Create agent result from dict if present
-        agent_result = None
-        if test_report.agent_result:
-            ar = test_report.agent_result
-            turns = [
-                Turn(
-                    role=turn.role,
-                    content=turn.content,
-                    tool_calls=[
-                        ToolCall(
-                            name=tc.name,
-                            arguments=tc.arguments,
-                            result=tc.result,
-                            error=tc.error,
-                            duration_ms=tc.duration_ms,
-                        )
-                        for tc in turn.tool_calls
-                    ],
-                )
-                for turn in ar.turns
-            ]
-            agent_result = AgentResult(
-                turns=turns,
-                success=ar.success,
-                error=ar.error,
-                duration_ms=ar.duration_ms,
-                token_usage=ar.token_usage,
-                cost_usd=ar.cost_usd,
-                session_context_count=ar.session_context_count,
-            )
-
-        # Use metadata from test_report (already contains model from serialized data)
-        metadata = dict(test_report.metadata) if test_report.metadata else {}
-
-        tests.append(
-            LegacyTestReport(
-                name=test_report.name,
-                outcome=test_report.outcome,
-                duration_ms=test_report.duration_ms,
-                agent_result=agent_result,
-                error=test_report.error,
-                assertions=test_report.assertions or [],
-                metadata=metadata,
-                docstring=test_report.docstring,
-            )
-        )
-
-    # Build the legacy report
-    report = LegacySuiteReport(
-        name=suite_report.name,
-        timestamp=suite_report.timestamp,
-        duration_ms=suite_report.duration_ms,
-        tests=tests,
-        passed=suite_report.passed,
-        failed=suite_report.failed,
-        skipped=suite_report.skipped,
-        suite_docstring=suite_report.suite_docstring,
-    )
-
-    return report, ai_summary, insights
+    # deserialize_suite_report returns fully reconstructed SuiteReport with typed fields
+    return suite_report, ai_summary, insights
 
 
 def _load_legacy_report(
@@ -230,6 +169,14 @@ def _deserialize_test(data: dict[str, Any]) -> LegacyTestReport:
     if "agent_result" in data:
         agent_result = _deserialize_agent_result(data["agent_result"])
 
+    # Read identity from typed fields, falling back to metadata for old JSON
+    metadata = data.get("metadata", {})
+    agent_id = data.get("agent_id") or metadata.get("agent_id", "")
+    agent_name = data.get("agent_name") or metadata.get("agent_name", "")
+    model = data.get("model") or metadata.get("model", "")
+    system_prompt_name = data.get("system_prompt_name") or metadata.get("prompt")
+    skill_name = data.get("skill_name") or metadata.get("skill")
+
     return LegacyTestReport(
         name=data.get("name", ""),
         outcome=data.get("outcome", "unknown"),
@@ -237,8 +184,12 @@ def _deserialize_test(data: dict[str, Any]) -> LegacyTestReport:
         agent_result=agent_result,
         error=data.get("error"),
         assertions=data.get("assertions", []),
-        metadata=data.get("metadata", {}),
         docstring=data.get("docstring"),
+        agent_id=agent_id,
+        agent_name=agent_name,
+        model=model,
+        system_prompt_name=system_prompt_name,
+        skill_name=skill_name,
     )
 
 
