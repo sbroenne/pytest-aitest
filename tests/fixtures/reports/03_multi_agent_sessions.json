@@ -240,7 +240,7 @@
         }
       ],
       "docstring": "First turn: check account balance.",
-      "agent_id": "",
+      "agent_id": "7b30ec34-446c-584e-87f8-402c4f37931d",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini"
     },
@@ -481,7 +481,7 @@
         }
       ],
       "docstring": "First turn: check account balance.",
-      "agent_id": "",
+      "agent_id": "931c3b4d-f486-5473-bdb1-fdf2487294d2",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini"
     },
@@ -515,7 +515,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done \u2014 $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?",
+            "content": "Done — $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?",
             "tool_calls": []
           }
         ],
@@ -594,7 +594,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done \u2014 $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?"
+            "content": "Done — $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?"
           }
         ],
         "session_context_count": 5,
@@ -756,7 +756,7 @@
         }
       ],
       "docstring": "Second turn: transfer money.",
-      "agent_id": "",
+      "agent_id": "7b30ec34-446c-584e-87f8-402c4f37931d",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini"
     },
@@ -1031,7 +1031,7 @@
         }
       ],
       "docstring": "Second turn: transfer money.",
-      "agent_id": "",
+      "agent_id": "931c3b4d-f486-5473-bdb1-fdf2487294d2",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini"
     },
@@ -1061,7 +1061,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here are your current balances:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I previously confirmed a $100 transfer and reported new balances of Checking $1,400.00 / Savings $3,100.00, which differs from the totals above. Sorry for the confusion \u2014 would you like me to:\n- Refresh balances again,\n- Show recent transactions (to confirm the transfer), or\n- Reconcile and investigate the discrepancy?\n\nWhich would you like me to do?",
+            "content": "Here are your current balances:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I previously confirmed a $100 transfer and reported new balances of Checking $1,400.00 / Savings $3,100.00, which differs from the totals above. Sorry for the confusion — would you like me to:\n- Refresh balances again,\n- Show recent transactions (to confirm the transfer), or\n- Reconcile and investigate the discrepancy?\n\nWhich would you like me to do?",
             "tool_calls": []
           }
         ],
@@ -1140,7 +1140,7 @@
           },
           {
             "role": "assistant",
-            "content": "Done \u2014 $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?"
+            "content": "Done — $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?"
           },
           {
             "role": "user",
@@ -1172,7 +1172,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here are your current balances:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I previously confirmed a $100 transfer and reported new balances of Checking $1,400.00 / Savings $3,100.00, which differs from the totals above. Sorry for the confusion \u2014 would you like me to:\n- Refresh balances again,\n- Show recent transactions (to confirm the transfer), or\n- Reconcile and investigate the discrepancy?\n\nWhich would you like me to do?"
+            "content": "Here are your current balances:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I previously confirmed a $100 transfer and reported new balances of Checking $1,400.00 / Savings $3,100.00, which differs from the totals above. Sorry for the confusion — would you like me to:\n- Refresh balances again,\n- Show recent transactions (to confirm the transfer), or\n- Reconcile and investigate the discrepancy?\n\nWhich would you like me to do?"
           }
         ],
         "session_context_count": 9,
@@ -1334,7 +1334,7 @@
         }
       ],
       "docstring": "Third turn: verify the transfer.",
-      "agent_id": "",
+      "agent_id": "7b30ec34-446c-584e-87f8-402c4f37931d",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini"
     },
@@ -1637,7 +1637,7 @@
         }
       ],
       "docstring": "Third turn: verify the transfer.",
-      "agent_id": "",
+      "agent_id": "931c3b4d-f486-5473-bdb1-fdf2487294d2",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini"
     }
@@ -1648,7 +1648,7 @@
   "suite_docstring": "Multi-turn banking session with 2 agents.",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-4.1-mini**\n\nAchieves 100% pass rate across all session tests at **~46% lower total cost** than gpt-5-mini with consistently lower latency and token usage.\n\n**Reasoning:** Both models passed all tests, so cost is the deciding factor. Across the three-turn session, gpt-4.1-mini cost **$0.00140 total vs $0.00233** for gpt-5-mini (~46% cheaper) while also using ~35% fewer tokens. Response quality was comparable, and gpt-4.1-mini avoided unnecessary meta-commentary in the final verification step.\n\n**Alternatives:**  \n- **gpt-5-mini**: Higher cost and token usage with no accuracy benefit. Only advantage observed was proactive discrepancy explanation, which is not required by tests and increased cost.\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.banking_mcp\nOverall, tools are clearly named and correctly invoked by both models. No tool confusion observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_balance | \u2705 | 2 | Working well |\n| transfer | \u2705 | 2 | Working well |\n| get_all_balances | \u2705 | 2 | Working well |\n| deposit | \u2705 | 0 | Not exercised in tests |\n| withdraw | \u2705 | 0 | Not exercised in tests |\n| get_transactions | \u2705 | 0 | Not exercised in tests |\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_balance (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~18 tokens\n- **Issues found:** Redundant dual representation of balance (`balance` and `formatted`). The agent always uses the formatted string in responses.\n- **Suggested optimization:** Remove the raw numeric `balance` field or make `formatted` optional.\n- **Estimated savings:** ~4 tokens per call (~22% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~18 tokens)\n{\"account\":\"checking\",\"balance\":1500.0,\"formatted\":\"$1,500.00\"}\n\n// Optimized (~14 tokens)\n{\"account\":\"checking\",\"formatted\":\"$1,500.00\"}\n```\n\n### transfer (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~45 tokens\n- **Issues found:** Multiple redundant fields: `type`, `amount` vs `amount_formatted`, and verbose `message` duplicate the same information.\n- **Suggested optimization:** Keep IDs and post-transfer balances; drop `type`, raw `amount`, and `message`.\n- **Estimated savings:** ~15\u201318 tokens per call (~35\u201340% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~45 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"type\":\"transfer\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount\":100,\n  \"amount_formatted\":\"$100.00\",\n  \"new_balance_from\":1400.0,\n  \"new_balance_to\":3100.0,\n  \"message\":\"Successfully transferred $100.00 from checking to savings.\"\n}\n\n// Optimized (~27 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount_formatted\":\"$100.00\",\n  \"new_balance_from\":1400.0,\n  \"new_balance_to\":3100.0\n}\n```\n\n### get_all_balances (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~34 tokens\n- **Issues found:** Redundant `balance` and `formatted` pairs for each account plus duplicated `total` and `total_formatted`.\n- **Suggested optimization:** Return only formatted strings, or only numeric values plus a single formatting hint.\n- **Estimated savings:** ~10\u201312 tokens per call (~30% reduction)\n\n## \ud83d\udca1 Optimizations\n\n1. **Remove redundant formatted fields from MCP responses** (recommended)\n   - Current: Tools return both numeric and formatted values plus verbose messages.\n   - Change: Standardize on formatted strings for user-facing tests, drop raw duplicates.\n   - Impact: **~30\u201340% cost reduction on tool-heavy tests**, fewer tokens per turn.\n\n2. **Discourage unnecessary discrepancy explanations in system prompt** (suggestion)\n   - Current: gpt-5-mini added a long reconciliation explanation in `test_verify_transfer` despite test passing.\n   - Change: Append to prompt:  \n     > \u201cDo not speculate or reconcile discrepancies unless the user explicitly asks.\u201d\n   - Impact: **~20\u201325% cost reduction** in multi-turn sessions by avoiding extra reasoning text.\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (mixed)\n- **Token count:** 13\n- **Problem:** Lacks guidance on verbosity and speculation, leading to unnecessary explanations in some models (notably gpt-5-mini).\n- **Suggested change:** Replace with:\n  ```\n  You are a helpful banking assistant. Use tools to help users manage their accounts.\n  Be concise. Do not speculate, explain discrepancies, or add follow-up options unless the user asks.\n  ```\n",
+    "markdown_summary": "## 🎯 Recommendation\n\n**Deploy: gpt-4.1-mini**\n\nAchieves 100% pass rate across all session tests at **~46% lower total cost** than gpt-5-mini with consistently lower latency and token usage.\n\n**Reasoning:** Both models passed all tests, so cost is the deciding factor. Across the three-turn session, gpt-4.1-mini cost **$0.00140 total vs $0.00233** for gpt-5-mini (~46% cheaper) while also using ~35% fewer tokens. Response quality was comparable, and gpt-4.1-mini avoided unnecessary meta-commentary in the final verification step.\n\n**Alternatives:**  \n- **gpt-5-mini**: Higher cost and token usage with no accuracy benefit. Only advantage observed was proactive discrepancy explanation, which is not required by tests and increased cost.\n\n## 🔧 MCP Tool Feedback\n\n### pytest_aitest.testing.banking_mcp\nOverall, tools are clearly named and correctly invoked by both models. No tool confusion observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_balance | ✅ | 2 | Working well |\n| transfer | ✅ | 2 | Working well |\n| get_all_balances | ✅ | 2 | Working well |\n| deposit | ✅ | 0 | Not exercised in tests |\n| withdraw | ✅ | 0 | Not exercised in tests |\n| get_transactions | ✅ | 0 | Not exercised in tests |\n\n## 📦 Tool Response Optimization\n\n### get_balance (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~18 tokens\n- **Issues found:** Redundant dual representation of balance (`balance` and `formatted`). The agent always uses the formatted string in responses.\n- **Suggested optimization:** Remove the raw numeric `balance` field or make `formatted` optional.\n- **Estimated savings:** ~4 tokens per call (~22% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~18 tokens)\n{\"account\":\"checking\",\"balance\":1500.0,\"formatted\":\"$1,500.00\"}\n\n// Optimized (~14 tokens)\n{\"account\":\"checking\",\"formatted\":\"$1,500.00\"}\n```\n\n### transfer (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~45 tokens\n- **Issues found:** Multiple redundant fields: `type`, `amount` vs `amount_formatted`, and verbose `message` duplicate the same information.\n- **Suggested optimization:** Keep IDs and post-transfer balances; drop `type`, raw `amount`, and `message`.\n- **Estimated savings:** ~15–18 tokens per call (~35–40% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~45 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"type\":\"transfer\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount\":100,\n  \"amount_formatted\":\"$100.00\",\n  \"new_balance_from\":1400.0,\n  \"new_balance_to\":3100.0,\n  \"message\":\"Successfully transferred $100.00 from checking to savings.\"\n}\n\n// Optimized (~27 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount_formatted\":\"$100.00\",\n  \"new_balance_from\":1400.0,\n  \"new_balance_to\":3100.0\n}\n```\n\n### get_all_balances (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~34 tokens\n- **Issues found:** Redundant `balance` and `formatted` pairs for each account plus duplicated `total` and `total_formatted`.\n- **Suggested optimization:** Return only formatted strings, or only numeric values plus a single formatting hint.\n- **Estimated savings:** ~10–12 tokens per call (~30% reduction)\n\n## 💡 Optimizations\n\n1. **Remove redundant formatted fields from MCP responses** (recommended)\n   - Current: Tools return both numeric and formatted values plus verbose messages.\n   - Change: Standardize on formatted strings for user-facing tests, drop raw duplicates.\n   - Impact: **~30–40% cost reduction on tool-heavy tests**, fewer tokens per turn.\n\n2. **Discourage unnecessary discrepancy explanations in system prompt** (suggestion)\n   - Current: gpt-5-mini added a long reconciliation explanation in `test_verify_transfer` despite test passing.\n   - Change: Append to prompt:  \n     > “Do not speculate or reconcile discrepancies unless the user explicitly asks.”\n   - Impact: **~20–25% cost reduction** in multi-turn sessions by avoiding extra reasoning text.\n\n## 📝 System Prompt Feedback\n\n### default (mixed)\n- **Token count:** 13\n- **Problem:** Lacks guidance on verbosity and speculation, leading to unnecessary explanations in some models (notably gpt-5-mini).\n- **Suggested change:** Replace with:\n  ```\n  You are a helpful banking assistant. Use tools to help users manage their accounts.\n  Be concise. Do not speculate, explain discrepancies, or add follow-up options unless the user asks.\n  ```\n",
     "cost_usd": 0.0198121,
     "tokens_used": 5255,
     "cached": false

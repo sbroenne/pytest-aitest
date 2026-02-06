@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from pytest_aitest.reporting import ReportCollector, ReportGenerator, TestReport
+from pytest_aitest.reporting import TestReport, build_suite_report, generate_html, generate_json
 
 if TYPE_CHECKING:
     from _pytest.config import Config
@@ -17,11 +17,14 @@ if TYPE_CHECKING:
     from _pytest.reports import TestReport as PytestTestReport
     from _pytest.terminal import TerminalReporter
 
+    from pytest_aitest.core.agent import Agent
+    from pytest_aitest.core.result import AgentResult
     from pytest_aitest.reporting import SuiteReport
+    from pytest_aitest.reporting.insights import InsightsResult
 
 
-# Key for storing report collector in config
-COLLECTOR_KEY = pytest.StashKey[ReportCollector]()
+# Key for storing test reports in config
+COLLECTOR_KEY = pytest.StashKey[list[TestReport]]()
 # Key for storing session messages for @pytest.mark.session
 SESSION_MESSAGES_KEY = pytest.StashKey[dict[str, list[dict[str, Any]]]]()
 # Export for use in fixtures
@@ -177,8 +180,8 @@ def pytest_configure(config: Config) -> None:
         "Tests with the same session name share conversation history automatically.",
     )
 
-    # Always initialize report collector - JSON is always generated
-    config.stash[COLLECTOR_KEY] = ReportCollector()
+    # Always initialize report collection - JSON is always generated
+    config.stash[COLLECTOR_KEY] = []
     # Initialize session message storage
     config.stash[SESSION_MESSAGES_KEY] = {}
 
@@ -192,7 +195,7 @@ def pytest_collection_modifyitems(
     for item in items:
         # Check if test uses any aitest fixtures
         fixturenames = getattr(item, "fixturenames", [])
-        aitest_fixtures = {"aitest_run", "agent_factory"}
+        aitest_fixtures = {"aitest_run"}
         if (aitest_fixtures & set(fixturenames)) and not any(
             m.name == "aitest" for m in item.iter_markers()
         ):
@@ -210,8 +213,8 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         return
 
     # Check if reporting is enabled
-    collector = item.config.stash.get(COLLECTOR_KEY, None)
-    if collector is None:
+    tests = item.config.stash.get(COLLECTOR_KEY, None)
+    if tests is None:
         return
 
     # Skip if marked to exclude from report
@@ -284,7 +287,7 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         skill_name=skill_name,
     )
 
-    collector.add_test(test_report)
+    tests.append(test_report)
 
     # Enrich JUnit XML with agent metadata (user_properties → <property> elements)
     _add_junit_properties(report, agent_result, agent)
@@ -292,8 +295,8 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
 
 def _add_junit_properties(
     report: PytestTestReport,
-    agent_result: Any,
-    agent: Any | None = None,
+    agent_result: AgentResult,
+    agent: Agent | None = None,
 ) -> None:
     """Add agent metadata to pytest report for JUnit XML output.
 
@@ -348,14 +351,15 @@ def _add_junit_properties(
 
     # Token usage
     if agent_result.token_usage:
-        if "prompt_tokens" in agent_result.token_usage:
-            props.append(("aitest.tokens.input", str(agent_result.token_usage["prompt_tokens"])))
-        if "completion_tokens" in agent_result.token_usage:
-            props.append(
-                ("aitest.tokens.output", str(agent_result.token_usage["completion_tokens"]))
-            )
-        if "total_tokens" in agent_result.token_usage:
-            props.append(("aitest.tokens.total", str(agent_result.token_usage["total_tokens"])))
+        prompt = agent_result.token_usage.get("prompt", 0)
+        completion = agent_result.token_usage.get("completion", 0)
+        if prompt:
+            props.append(("aitest.tokens.input", str(prompt)))
+        if completion:
+            props.append(("aitest.tokens.output", str(completion)))
+        total = prompt + completion
+        if total:
+            props.append(("aitest.tokens.total", str(total)))
 
     # Cost
     if agent_result.cost_usd > 0:
@@ -383,9 +387,9 @@ def _add_junit_properties(
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     """Generate reports and enforce minimum pass rate at end of test session."""
     config = session.config
-    collector = config.stash.get(COLLECTOR_KEY, None)
+    tests = config.stash.get(COLLECTOR_KEY, None)
 
-    if collector is None or not collector.tests:
+    if tests is None or not tests:
         return
 
     html_path = config.getoption("--aitest-html")
@@ -409,7 +413,8 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     # Build suite report first (to get the test name for default filenames)
     default_dir = Path("aitest-reports")
-    suite_report = collector.build_suite_report(
+    suite_report = build_suite_report(
+        tests,
         name=session.name or "pytest-aitest",
         suite_docstring=suite_docstring,
     )
@@ -422,8 +427,6 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         "report.html", test_name=suite_report.name, default_dir=default_dir
     )
 
-    generator = ReportGenerator()
-
     # Generate AI insights if HTML report requested OR summary model specified
     summary_model = config.getoption("--aitest-summary-model")
     insights = None
@@ -433,7 +436,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     # Always generate JSON report (to default or custom path)
     json_output_path = Path(json_path) if json_path else default_json_path
     json_output_path.parent.mkdir(parents=True, exist_ok=True)
-    generator.generate_json(suite_report, json_output_path, insights=insights)
+    generate_json(suite_report, json_output_path, insights=insights)
     _log_report_path(config, "JSON", json_output_path)
 
     # Generate HTML report (use default timestamped name if not specified)
@@ -444,9 +447,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     if insights is None:
         insights = _generate_structured_insights(config, suite_report, required=True)
 
-    generator.generate_html(
-        suite_report, html_output_path, insights=insights, min_pass_rate=min_pass_rate
-    )
+    generate_html(suite_report, html_output_path, insights=insights, min_pass_rate=min_pass_rate)
     _log_report_path(config, "HTML", html_output_path)
 
     # Enforce minimum pass rate threshold
@@ -480,10 +481,8 @@ def _log_report_path(config: Config, format_name: str, path: Path) -> None:
 
 def _generate_structured_insights(
     config: Config, report: SuiteReport, *, required: bool = False
-) -> Any:
+) -> InsightsResult | None:
     """Generate structured AI insights from test results.
-
-    Uses the new insights generation system with structured output.
 
     Args:
         config: pytest config
@@ -491,7 +490,7 @@ def _generate_structured_insights(
         required: If True, raise error when model not configured (for report generation)
 
     Returns:
-        AIInsights object or None if generation fails/skipped.
+        InsightsResult or None if generation fails/skipped.
 
     Raises:
         pytest.UsageError: If required=True and model not configured.
@@ -540,7 +539,7 @@ def _generate_structured_insights(
                         prompts[prompt_label] = effective_prompt
 
         # Generate insights using async function
-        async def _run() -> tuple[Any, Any]:
+        async def _run() -> InsightsResult:
             return await generate_insights(
                 suite_report=report,
                 tool_info=tool_info,
@@ -551,31 +550,21 @@ def _generate_structured_insights(
             )
 
         # Use asyncio.run() instead of deprecated get_event_loop().run_until_complete()
-        markdown_summary, metadata = asyncio.run(_run())
+        result = asyncio.run(_run())
 
         # Log generation stats
         terminalreporter: TerminalReporter | None = config.pluginmanager.get_plugin(
             "terminalreporter"
         )
         if terminalreporter:
-            tokens_used = metadata.get("tokens_used")
-            cost_usd = metadata.get("cost_usd")
-            cached = metadata.get("cached")
-
-            tokens_str = f"{tokens_used:,}" if tokens_used else "N/A"
-            cost_str = f"${cost_usd:.4f}" if cost_usd else "N/A"
-            cached_str = " (cached)" if cached else ""
+            tokens_str = f"{result.tokens_used:,}" if result.tokens_used else "N/A"
+            cost_str = f"${result.cost_usd:.4f}" if result.cost_usd else "N/A"
+            cached_str = " (cached)" if result.cached else ""
             terminalreporter.write_line(
                 f"\nAI Insights generated{cached_str}: {tokens_str} tokens, {cost_str}"
             )
 
-        # Return dict with both summary and metadata
-        return {
-            "markdown_summary": markdown_summary,
-            "cost_usd": metadata.get("cost_usd"),
-            "tokens_used": metadata.get("tokens_used"),
-            "cached": metadata.get("cached", False),
-        }
+        return result
 
     except pytest.UsageError:
         # Re-raise configuration errors

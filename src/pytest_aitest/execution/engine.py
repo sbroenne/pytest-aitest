@@ -90,12 +90,6 @@ class AgentEngine:
                     )
                 )
 
-        # Filter tools if allowed_tools is specified
-        if self.agent.allowed_tools is not None:
-            allowed = set(self.agent.allowed_tools)
-            self._tools = [t for t in self._tools if t["function"]["name"] in allowed]
-            self._available_tools = [t for t in self._available_tools if t.name in allowed]
-
         # Build SkillInfo for AI analysis
         if self.agent.skill:
             self._skill_info = SkillInfo(

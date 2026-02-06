@@ -125,12 +125,12 @@ For LLMs, your API isn't functions and types — it's **tool descriptions, syste
 | `mcp` | MCP protocol | Server process management, tool discovery |
 | `pydantic` | Validation | Config validation (used sparingly) |
 | `pytest` | Test framework | Plugin system, fixtures, markers |
-| `jinja2` | Templates | HTML report generation |
+| `htpy` | Components | HTML report generation (Python-native) |
 
 ### Data Modeling
 - **Use `@dataclass(slots=True)`** for all data objects
 - **Use `frozen=True`** for immutable config (Wait, Provider)
-- **Use `TypedDict`** for template data contracts (see `data_contracts.py`)
+- **Use `TypedDict`** for template data contracts (see `components/types.py`)
 - **No Pydantic models** for core types - just dataclasses
 
 ```python
@@ -410,19 +410,23 @@ src/pytest_aitest/
 │   ├── run.py             # aitest_run fixture
 │   └── factories.py       # skill_factory (Skills only - agents created inline)
 ├── reporting/             # AI analysis & reports
-│   ├── collector.py       # Collects test results + ToolInfo + SkillInfo
-│   ├── aggregator.py      # Detects dimensions, groups results
-│   ├── data_contracts.py  # TypedDicts for template data shapes
-│   ├── data_builders.py   # Transforms raw data → contract structures
-│   ├── generator.py       # Generates HTML with AI insights
-│   └── insights.py        # AI analysis engine (mandatory)
-├── templates/             # Jinja2 templates for HTML reports
-│   ├── report.html        # Main report template
+│   ├── collector.py       # TestReport, SuiteReport dataclasses + build_suite_report()
+│   ├── generator.py       # generate_html(), generate_json(), generate_mermaid_sequence()
+│   ├── insights.py        # AI analysis engine (mandatory) → InsightsResult
+│   └── components/        # htpy report components
+│       ├── types.py       # TypedDicts for component data shapes
+│       ├── report.py      # Full report layout
+│       ├── agent_leaderboard.py  # Agent ranking table
+│       ├── agent_selector.py     # Agent comparison toggles
+│       ├── test_grid.py          # Test results grid
+│       ├── test_comparison.py    # Side-by-side agent comparison
+│       └── overlay.py            # Fullscreen expanded view
+├── templates/             # Static assets for HTML reports
 │   ├── input.css          # Source CSS (Tailwind input)
 │   ├── tailwind.config.js # Tailwind CSS configuration
-│   └── partials/          # Component templates
+│   └── partials/          # Static assets
 │       ├── tailwind.css   # Built CSS (generated - do not edit)
-│       ├── scripts.js     # JS (Mermaid, copy buttons, filtering)
+│       └── scripts.js     # JS (Mermaid, copy buttons, filtering)
 │       ├── agent_leaderboard.html  # Agent ranking table
 │       ├── agent_selector.html     # Agent comparison toggles
 │       ├── test_grid.html          # Test results grid
@@ -506,48 +510,42 @@ async def test_response_quality(aitest_run, weather_server, llm_assert):
 ### Report Generation Architecture
 
 The report pipeline flows:  
-**Test Execution → Collector → Aggregator → AI Insights → Generator → HTML/JSON**
+**Test Execution → Plugin (list[TestReport]) → build_suite_report() → AI Insights → generate_html()/generate_json() → HTML/JSON**
 
 ```
 src/pytest_aitest/reporting/
-├── collector.py       # Collects TestReport during pytest run → SuiteReport
-├── aggregator.py      # Detects dimensions (model/prompt/skill), groups tests
-├── insights.py        # AI analysis engine (mandatory) → AIInsights
-├── data_contracts.py  # TypedDicts defining template data shapes
-├── data_builders.py   # Transforms raw data → contract-compliant structures
-└── generator.py       # Renders Jinja2 templates → HTML/JSON
+├── collector.py       # TestReport, SuiteReport dataclasses + build_suite_report()
+├── insights.py        # AI analysis engine (mandatory) → InsightsResult
+├── generator.py       # generate_html(), generate_json() module-level functions
+└── components/        # htpy report components + types.py
 ```
 
 ### Data Contracts (IMPORTANT)
 
-Every template partial has a **typed data contract** in `data_contracts.py`. This is the explicit interface between Python and Jinja2:
+Every htpy component has a **typed data contract** in `components/types.py`. This is the explicit interface between Python and components:
 
 | Contract | Used By | Purpose |
 |----------|---------|---------|
-| `AgentData` | `agent_leaderboard.html`, `agent_selector.html` | Agent metrics: pass_rate, cost, tokens, is_winner |
-| `TestResultData` | `test_comparison.html`, `test_grid.html` | Per-agent test result: tool_calls, mermaid, outcome |
-| `TestData` | `test_grid.html` | Test with `results_by_agent` dict |
-| `TestGroupData` | `test_grid.html` | Session or standalone group containing tests |
-| `ReportContext` | `report.html` | Full template context with all data + helper functions |
+| `AgentData` | `agent_leaderboard.py`, `agent_selector.py` | Agent metrics: pass_rate, cost, tokens, is_winner |
+| `TestResultData` | `test_comparison.py`, `test_grid.py` | Per-agent test result: tool_calls, mermaid, outcome |
+| `TestData` | `test_grid.py` | Test with `results_by_agent` dict |
+| `TestGroupData` | `test_grid.py` | Session or standalone group containing tests |
+| `ReportContext` | `report.py` | Full report context with all data + helper functions |
 
-**Pattern**: When modifying templates, always check `data_contracts.py` for the expected shape. When adding template fields, add them to the contract first.
+**Pattern**: When modifying components, always check `components/types.py` for the expected shape. When adding component fields, add them to the contract first.
 
 ### Template Structure
 
 ```
 src/pytest_aitest/templates/
-├── report.html              # Main template - includes partials
 ├── tailwind.config.js       # Tailwind CSS configuration
 ├── input.css                # Source CSS (processed by Tailwind)
 └── partials/
     ├── tailwind.css         # Built CSS (DO NOT EDIT - generated)
-    ├── scripts.js           # JS: Mermaid, copy buttons, expand/collapse, agent filtering
-    ├── agent_leaderboard.html   # Ranked agent table with medals (🥇🥈🥉)
-    ├── agent_selector.html      # Toggle chips for agent comparison
-    ├── test_grid.html           # Session-grouped test list
-    ├── test_comparison.html     # Side-by-side agent results per test
-    └── overlay.html             # Fullscreen overlay for expanded views
+    └── scripts.js           # JS: Mermaid, copy buttons, expand/collapse, agent filtering
 ```
+
+**Note:** HTML rendering is handled by htpy components in `reporting/components/`, not by template files.
 
 ### CSS Development with Tailwind
 
@@ -654,11 +652,9 @@ This workflow is **instant and free** - no LLM calls, no API costs.
 
 | File | When to Modify |
 |------|----------------|
-| `reporting/data_contracts.py` | Adding new data fields for templates |
-| `reporting/data_builders.py` | Transforming raw data to contract shapes |
-| `reporting/generator.py` | Changing how context is built for templates |
-| `templates/report.html` | Main page layout, partial includes |
-| `templates/partials/*.html` | Individual UI components |
+| `reporting/components/types.py` | Adding new data fields for components |
+| `reporting/generator.py` | Changing how context is built for components |
+| `reporting/components/*.py` | Individual UI components (htpy) |
 | `templates/partials/scripts.js` | Interactivity, Mermaid diagrams |
 | `templates/input.css` | Base styles, custom CSS (then rebuild Tailwind) |
 | `cli.py` | CLI commands for report regeneration |

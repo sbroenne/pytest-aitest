@@ -21,10 +21,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from pytest_aitest.core.result import AgentResult, ToolCall, Turn
-from pytest_aitest.reporting.collector import SuiteReport as LegacySuiteReport
-from pytest_aitest.reporting.collector import TestReport as LegacyTestReport
-from pytest_aitest.reporting.generator import ReportGenerator
+from pytest_aitest.reporting.collector import SuiteReport
+from pytest_aitest.reporting.generator import generate_html
+from pytest_aitest.reporting.insights import InsightsResult
 
 _logger = logging.getLogger(__name__)
 
@@ -76,187 +75,83 @@ def get_config_value(key: str, cli_value: Any, env_var: str) -> Any:
 
 def load_suite_report(
     json_path: Path,
-) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
+) -> tuple[SuiteReport, InsightsResult | None]:
     """Load SuiteReport from JSON file.
 
-    Supports both v2.0 Pydantic schema and legacy formats.
-
     Returns:
-        Tuple of (SuiteReport, ai_summary string, insights dict or markdown string)
+        Tuple of (SuiteReport, InsightsResult or None)
     """
     data = json.loads(json_path.read_text(encoding="utf-8"))
 
-    # Check for v2.0+ schema (current is 3.0)
     schema_version = data.get("schema_version")
-    if schema_version and schema_version >= "2.0":
-        return _load_v2_report(data)
+    if not schema_version or schema_version < "2.0":
+        msg = (
+            f"Unsupported schema version: {schema_version!r}. "
+            "Only v2.0+ is supported. Re-run tests to generate a new JSON file."
+        )
+        raise ValueError(msg)
 
-    # Fall back to legacy format
-    return _load_legacy_report(data)
+    return _load_v2_report(data)
 
 
 def _load_v2_report(
     data: dict[str, Any],
-) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
+) -> tuple[SuiteReport, InsightsResult | None]:
     """Load report from v2.0 schema format (current format with dataclasses).
 
     Returns:
-        Tuple of (LegacySuiteReport, ai_summary string, insights dict or string)
+        Tuple of (SuiteReport, InsightsResult or None)
     """
-    # Load the SuiteReport from our current dataclass format
     from pytest_aitest.core.serialization import deserialize_suite_report
 
-    # Deserialize the report from dict format
     suite_report = deserialize_suite_report(data)
 
-    # Get insights - can be dict (new format) or string (legacy)
-    insights = data.get("insights")
-    ai_summary = None
-    if insights:
-        if isinstance(insights, str):
-            # Legacy format - insights is just markdown string
-            ai_summary = insights
-        elif isinstance(insights, dict) and insights.get("markdown_summary"):
-            # New format - insights is dict with markdown_summary and cost_usd
-            ai_summary = insights.get("markdown_summary")
-            # Keep insights as dict (don't extract just the string)
+    # Reconstruct InsightsResult from JSON
+    insights = None
+    raw_insights = data.get("insights")
+    if raw_insights:
+        if isinstance(raw_insights, dict) and raw_insights.get("markdown_summary"):
+            insights = InsightsResult(
+                markdown_summary=raw_insights["markdown_summary"],
+                model=raw_insights.get("model", "unknown"),
+                tokens_used=raw_insights.get("tokens_used", 0),
+                cost_usd=raw_insights.get("cost_usd", 0.0),
+                cached=raw_insights.get("cached", True),
+            )
+        elif isinstance(raw_insights, str) and raw_insights:
+            insights = InsightsResult(
+                markdown_summary=raw_insights,
+                model="unknown",
+                cached=True,
+            )
 
-    # deserialize_suite_report returns fully reconstructed SuiteReport with typed fields
-    return suite_report, ai_summary, insights
-
-
-def _load_legacy_report(
-    data: dict[str, Any],
-) -> tuple[LegacySuiteReport, str | None, dict[str, Any] | str | None]:
-    """Load report from legacy format (pre-v2.0).
-
-    Returns:
-        Tuple of (LegacySuiteReport, ai_summary string, insights markdown string)
-    """
-    # Extract AI summary if present
-    ai_summary = data.get("ai_summary")
-
-    # Check for insights - a plain markdown string
-    insights = data.get("insights")
-    if insights and isinstance(insights, str):
-        ai_summary = ai_summary or insights
-
-    # Deserialize tests
-    tests = [_deserialize_test(t) for t in data.get("tests", [])]
-
-    # Create SuiteReport
-    report = LegacySuiteReport(
-        name=data.get("name", "pytest-aitest"),
-        timestamp=data.get("timestamp", ""),
-        duration_ms=data.get("duration_ms", 0.0),
-        tests=tests,
-        passed=data.get("summary", {}).get("passed", data.get("passed", 0)),
-        failed=data.get("summary", {}).get("failed", data.get("failed", 0)),
-        skipped=data.get("summary", {}).get("skipped", data.get("skipped", 0)),
-    )
-
-    return report, ai_summary, insights
+    return suite_report, insights
 
 
-def _deserialize_test(data: dict[str, Any]) -> LegacyTestReport:
-    """Deserialize test from JSON dict."""
-    agent_result = None
-    if "agent_result" in data:
-        agent_result = _deserialize_agent_result(data["agent_result"])
-
-    # Read identity from typed fields
-    agent_id = data.get("agent_id", "")
-    agent_name = data.get("agent_name", "")
-    model = data.get("model", "")
-    system_prompt_name = data.get("system_prompt_name")
-    skill_name = data.get("skill_name")
-
-    return LegacyTestReport(
-        name=data.get("name", ""),
-        outcome=data.get("outcome", "unknown"),
-        duration_ms=data.get("duration_ms", 0.0),
-        agent_result=agent_result,
-        error=data.get("error"),
-        assertions=data.get("assertions", []),
-        docstring=data.get("docstring"),
-        agent_id=agent_id,
-        agent_name=agent_name,
-        model=model,
-        system_prompt_name=system_prompt_name,
-        skill_name=skill_name,
-    )
-
-
-def _deserialize_agent_result(data: dict[str, Any]) -> AgentResult:
-    """Deserialize AgentResult from JSON dict."""
-    turns = [_deserialize_turn(t) for t in data.get("turns", [])]
-
-    return AgentResult(
-        turns=turns,
-        success=data.get("success", False),
-        error=data.get("error"),
-        duration_ms=data.get("duration_ms", 0.0),
-        token_usage=data.get("token_usage", {}),
-        cost_usd=data.get("cost_usd", 0.0),
-    )
-
-
-def _deserialize_turn(data: dict[str, Any]) -> Turn:
-    """Deserialize Turn from JSON dict."""
-    tool_calls = [_deserialize_tool_call(tc) for tc in data.get("tool_calls", [])]
-
-    return Turn(
-        role=data.get("role", "user"),
-        content=data.get("content", ""),
-        tool_calls=tool_calls,
-    )
-
-
-def _deserialize_tool_call(data: dict[str, Any]) -> ToolCall:
-    """Deserialize ToolCall from JSON dict."""
-    return ToolCall(
-        name=data.get("name", ""),
-        arguments=data.get("arguments", {}),
-        result=data.get("result"),
-        error=data.get("error"),
-        duration_ms=data.get("duration_ms"),
-    )
-
-
-def generate_ai_summary(report: LegacySuiteReport, model: str) -> str:
-    """Generate AI summary for the report.
-
-    NOTE: This is a legacy wrapper. The new approach uses structured AIInsights.
-    This function generates a markdown summary for backward compatibility with
-    CLI regeneration.
+def generate_ai_summary(report: SuiteReport, model: str) -> InsightsResult:
+    """Generate AI insights for the report.
 
     Args:
         report: The suite report to summarize
         model: LiteLLM model string (e.g., azure/gpt-4.1)
 
     Returns:
-        Generated summary text (markdown)
+        InsightsResult with markdown summary and metadata
     """
     import asyncio
 
     from pytest_aitest.reporting.insights import generate_insights
 
-    # Convert legacy report to minimal format for insights
-    # Note: We don't have full tool/skill info in CLI context
-    async def _run():
-        insights, _metadata = await generate_insights(
+    async def _run() -> InsightsResult:
+        return await generate_insights(
             suite_report=report,
             tool_info=[],
             skill_info=[],
             prompts={},
             model=model,
         )
-        return insights
 
-    insights = asyncio.run(_run())
-
-    # Return the markdown summary (insights is already a string)
-    return insights if insights else ""
+    return asyncio.run(_run())
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -319,32 +214,26 @@ def main(argv: list[str] | None = None) -> int:
 
     # Load report from JSON
     try:
-        report, existing_summary, existing_insights = load_suite_report(args.json_file)
+        report, existing_insights = load_suite_report(args.json_file)
     except (json.JSONDecodeError, KeyError) as e:
         print(f"Error: Failed to parse JSON file: {e}", file=sys.stderr)
         return 1
 
     # Generate AI summary if requested
-    ai_summary = existing_summary
     insights = existing_insights
     if args.summary:
         print(f"Generating AI summary with {summary_model}...")
         try:
-            ai_summary = generate_ai_summary(report, summary_model)
-            # For new reports generated via CLI, create insights from summary
-            # Create insights dict if we have ai_summary
-            insights = {"markdown_summary": ai_summary} if ai_summary else None
+            insights = generate_ai_summary(report, summary_model)
             print("AI summary generated successfully.")
         except Exception as e:
             print(f"Warning: Failed to generate AI summary: {e}", file=sys.stderr)
-            ai_summary = existing_summary
+            insights = existing_insights
 
     # Generate reports
-    generator = ReportGenerator()
-
     if args.html:
         args.html.parent.mkdir(parents=True, exist_ok=True)
-        generator.generate_html(report, args.html, insights=insights)
+        generate_html(report, args.html, insights=insights)
         print(f"HTML report: {args.html}")
 
     return 0

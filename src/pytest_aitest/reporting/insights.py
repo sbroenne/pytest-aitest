@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -17,6 +18,22 @@ from pytest_aitest.core.auth import get_azure_ad_token_provider
 if TYPE_CHECKING:
     from pytest_aitest.core.result import SkillInfo, ToolInfo
     from pytest_aitest.reporting.collector import SuiteReport
+
+
+@dataclass(slots=True)
+class InsightsResult:
+    """Result of AI insights generation.
+
+    Contains the markdown analysis and metadata about the generation.
+    """
+
+    markdown_summary: str
+    model: str
+    tokens_used: int = 0
+    cost_usd: float = 0.0
+    duration_ms: float = 0.0
+    cached: bool = False
+
 
 _logger = logging.getLogger(__name__)
 
@@ -160,7 +177,7 @@ async def generate_insights(
     model: str = "azure/gpt-5-mini",
     cache_dir: Path | None = None,
     min_pass_rate: int | None = None,
-) -> tuple[str, dict[str, Any]]:
+) -> InsightsResult:
     """Generate AI insights markdown from test results.
 
     Args:
@@ -173,7 +190,7 @@ async def generate_insights(
         min_pass_rate: Minimum pass rate threshold for disqualifying agents
 
     Returns:
-        Tuple of (AIInsights, AnalysisMetadata)
+        InsightsResult with markdown summary and generation metadata.
 
     Raises:
         InsightsGenerationError: If AI analysis fails after retries
@@ -187,15 +204,13 @@ async def generate_insights(
     if cache_path and cache_path.exists():
         try:
             cached = json.loads(cache_path.read_text())
-            return (
-                cached.get("insights", ""),  # Plain markdown string
-                {
-                    "model": cached.get("model"),
-                    "tokens_used": cached.get("tokens_used"),
-                    "cost_usd": cached.get("cost_usd"),
-                    "duration_ms": cached.get("duration_ms"),
-                    "cached": True,
-                },
+            return InsightsResult(
+                markdown_summary=cached.get("insights", ""),
+                model=cached.get("model", model),
+                tokens_used=cached.get("tokens_used", 0),
+                cost_usd=cached.get("cost_usd", 0.0),
+                duration_ms=cached.get("duration_ms", 0.0),
+                cached=True,
             )
         except Exception:
             _logger.debug("Cache invalid, regenerating insights", exc_info=True)
@@ -249,19 +264,12 @@ async def generate_insights(
             markdown_content = response.choices[0].message.content or ""  # type: ignore[union-attr]
 
             duration_ms = (time.perf_counter() - start_time) * 1000
-            metadata = {
-                "model": model,
-                "tokens_used": total_tokens,
-                "cost_usd": total_cost,
-                "duration_ms": duration_ms,
-                "cached": False,
-            }
 
             # Save to cache
             if cache_path:
                 cache_path.parent.mkdir(parents=True, exist_ok=True)
                 cache_data = {
-                    "insights": markdown_content,  # Plain markdown string
+                    "insights": markdown_content,
                     "model": model,
                     "tokens_used": total_tokens,
                     "cost_usd": total_cost,
@@ -269,8 +277,14 @@ async def generate_insights(
                 }
                 cache_path.write_text(json.dumps(cache_data))
 
-            # Return markdown string directly, not dict
-            return markdown_content, metadata
+            return InsightsResult(
+                markdown_summary=markdown_content,
+                model=model,
+                tokens_used=total_tokens,
+                cost_usd=total_cost,
+                duration_ms=duration_ms,
+                cached=False,
+            )
 
         except RateLimitError as e:
             if attempt < 2:

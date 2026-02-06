@@ -77,9 +77,8 @@ class TestAddJunitProperties:
             turns=[],
             success=True,
             token_usage={
-                "prompt_tokens": 1250,
-                "completion_tokens": 89,
-                "total_tokens": 1339,
+                "prompt": 1250,
+                "completion": 89,
             },
         )
 
@@ -186,7 +185,7 @@ class TestAddJunitProperties:
             ],
             success=True,
             skill_info=SkillInfo(name="weather-expert", description="", instruction_content=""),
-            token_usage={"prompt_tokens": 500, "completion_tokens": 50, "total_tokens": 550},
+            token_usage={"prompt": 500, "completion": 50},
             cost_usd=0.00125,
         )
         agent = Agent(
@@ -260,7 +259,7 @@ class TestAddJunitProperties:
             ],
             success=True,
             skill_info=SkillInfo(name="weather-expert", description="", instruction_content=""),
-            token_usage={"prompt_tokens": 500, "completion_tokens": 50, "total_tokens": 550},
+            token_usage={"prompt": 500, "completion": 50},
             cost_usd=0.00125,
         )
         agent = Agent(

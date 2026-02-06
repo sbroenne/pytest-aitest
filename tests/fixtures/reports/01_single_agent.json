@@ -31,7 +31,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here's the current weather in Paris, France:\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or for a different city?",
+            "content": "Here's the current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or for a different city?",
             "tool_calls": []
           }
         ],
@@ -78,7 +78,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here's the current weather in Paris, France:\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or for a different city?"
+            "content": "Here's the current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or for a different city?"
           }
         ],
         "session_context_count": 0,
@@ -167,11 +167,11 @@
           "type": "llm",
           "passed": true,
           "message": "mentions the temperature in Celsius or Fahrenheit",
-          "details": "The content explicitly states temperature as 18\u00b0C and also provides 64\u00b0F."
+          "details": "The content explicitly states temperature as 18°C and also provides 64°F."
         }
       ],
       "docstring": "Basic weather lookup - should pass.",
-      "agent_id": "",
+      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
       "agent_name": "weather-agent",
       "model": "gpt-5-mini"
     },
@@ -204,7 +204,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the 3-day forecast for Tokyo:\n\n- Day 1\n  - High: 26\u00b0C (\u224879\u00b0F), Low: 18\u00b0C (\u224864\u00b0F)\n  - Conditions: Sunny\n  - Precipitation chance: 20%\n\n- Day 2\n  - High: 27\u00b0C (\u224881\u00b0F), Low: 19\u00b0C (\u224866\u00b0F)\n  - Conditions: Partly cloudy\n  - Precipitation chance: 30%\n\n- Day 3\n  - High: 28\u00b0C (\u224882\u00b0F), Low: 20\u00b0C (\u224868\u00b0F)\n  - Conditions: Cloudy\n  - Precipitation chance: 40%\n\nSummary: Warm and mostly dry, with increasing cloudiness and a rising chance of showers toward Day 3\u2014you might want a light umbrella or rain jacket then.",
+            "content": "Here’s the 3-day forecast for Tokyo:\n\n- Day 1\n  - High: 26°C (≈79°F), Low: 18°C (≈64°F)\n  - Conditions: Sunny\n  - Precipitation chance: 20%\n\n- Day 2\n  - High: 27°C (≈81°F), Low: 19°C (≈66°F)\n  - Conditions: Partly cloudy\n  - Precipitation chance: 30%\n\n- Day 3\n  - High: 28°C (≈82°F), Low: 20°C (≈68°F)\n  - Conditions: Cloudy\n  - Precipitation chance: 40%\n\nSummary: Warm and mostly dry, with increasing cloudiness and a rising chance of showers toward Day 3—you might want a light umbrella or rain jacket then.",
             "tool_calls": []
           }
         ],
@@ -251,7 +251,7 @@
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the 3-day forecast for Tokyo:\n\n- Day 1\n  - High: 26\u00b0C (\u224879\u00b0F), Low: 18\u00b0C (\u224864\u00b0F)\n  - Conditions: Sunny\n  - Precipitation chance: 20%\n\n- Day 2\n  - High: 27\u00b0C (\u224881\u00b0F), Low: 19\u00b0C (\u224866\u00b0F)\n  - Conditions: Partly cloudy\n  - Precipitation chance: 30%\n\n- Day 3\n  - High: 28\u00b0C (\u224882\u00b0F), Low: 20\u00b0C (\u224868\u00b0F)\n  - Conditions: Cloudy\n  - Precipitation chance: 40%\n\nSummary: Warm and mostly dry, with increasing cloudiness and a rising chance of showers toward Day 3\u2014you might want a light umbrella or rain jacket then."
+            "content": "Here’s the 3-day forecast for Tokyo:\n\n- Day 1\n  - High: 26°C (≈79°F), Low: 18°C (≈64°F)\n  - Conditions: Sunny\n  - Precipitation chance: 20%\n\n- Day 2\n  - High: 27°C (≈81°F), Low: 19°C (≈66°F)\n  - Conditions: Partly cloudy\n  - Precipitation chance: 30%\n\n- Day 3\n  - High: 28°C (≈82°F), Low: 20°C (≈68°F)\n  - Conditions: Cloudy\n  - Precipitation chance: 40%\n\nSummary: Warm and mostly dry, with increasing cloudiness and a rising chance of showers toward Day 3—you might want a light umbrella or rain jacket then."
           }
         ],
         "session_context_count": 0,
@@ -344,7 +344,7 @@
         }
       ],
       "docstring": "Multi-day forecast - tests get_forecast tool.",
-      "agent_id": "",
+      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
       "agent_name": "weather-agent",
       "model": "gpt-5-mini"
     },
@@ -377,7 +377,7 @@
           },
           {
             "role": "assistant",
-            "content": "Sydney is warmer today \u2014 about 26\u00b0C (79\u00b0F) vs Berlin\u2019s 16\u00b0C (61\u00b0F), so roughly 10\u00b0C (18\u00b0F) warmer. Sydney is sunny with 60% humidity and SE winds ~20 km/h; Berlin is overcast with 72% humidity and N winds ~10 km/h.",
+            "content": "Sydney is warmer today — about 26°C (79°F) vs Berlin’s 16°C (61°F), so roughly 10°C (18°F) warmer. Sydney is sunny with 60% humidity and SE winds ~20 km/h; Berlin is overcast with 72% humidity and N winds ~10 km/h.",
             "tool_calls": []
           }
         ],
@@ -424,7 +424,7 @@
           },
           {
             "role": "assistant",
-            "content": "Sydney is warmer today \u2014 about 26\u00b0C (79\u00b0F) vs Berlin\u2019s 16\u00b0C (61\u00b0F), so roughly 10\u00b0C (18\u00b0F) warmer. Sydney is sunny with 60% humidity and SE winds ~20 km/h; Berlin is overcast with 72% humidity and N winds ~10 km/h."
+            "content": "Sydney is warmer today — about 26°C (79°F) vs Berlin’s 16°C (61°F), so roughly 10°C (18°F) warmer. Sydney is sunny with 60% humidity and SE winds ~20 km/h; Berlin is overcast with 72% humidity and N winds ~10 km/h."
           }
         ],
         "session_context_count": 0,
@@ -513,11 +513,11 @@
           "type": "llm",
           "passed": true,
           "message": "compares temperatures for both cities",
-          "details": "Provides both cities' temperatures (26\u00b0C vs 16\u00b0C) and explicitly states the temperature difference (~10\u00b0C / 18\u00b0F)."
+          "details": "Provides both cities' temperatures (26°C vs 16°C) and explicitly states the temperature difference (~10°C / 18°F)."
         }
       ],
       "docstring": "Compare two cities - multiple tool calls.",
-      "agent_id": "",
+      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
       "agent_name": "weather-agent",
       "model": "gpt-5-mini"
     },
@@ -761,7 +761,7 @@
       "error": "      AssertionError: Agent exceeded turn limit - unable to process request for 5 cities (max_turns=1)\n      assert False",
       "assertions": [],
       "docstring": "Test that fails due to turn limit - for report variety.",
-      "agent_id": "",
+      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
       "agent_name": "weather-agent",
       "model": "gpt-5-mini"
     }
@@ -772,7 +772,7 @@
   "suite_docstring": "Single agent tests - basic report without comparison UI.",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: weather-agent (gpt-5-mini, default prompt)**\n\nAchieves **75% pass rate (3/4 tests)** at a **total cost of $0.003324**, with correct and consistent tool usage across all successful scenarios.\n\n**Reasoning:** All core functionality tests (single city, forecast, comparison) passed with correct tool selection and accurate synthesis. The single failure is due to a **test harness constraint (turn limit)** rather than incorrect tool use or model behavior. Cost is low and stable, with no retries or tool errors.\n\n**Alternatives:** None \u2013 only one configuration tested.\n\n## \u274c Failure Analysis\n\n### tests/fixtures/generate_scenarios.py::TestSingleAgent::test_expected_failure (weather-agent)\n- **Problem:** Test fails because the agent exceeds the configured `max_turns=1` when asked to fetch and compare weather for five cities.\n- **Root Cause:** The request inherently requires multiple tool calls. The system prompt instructs the agent to \u201cAlways use tools,\u201d but the test configuration allows only one turn, making the task impossible within constraints.\n- **Fix:** Adjust the test or prompt to align with turn limits.\n  - **Test fix (recommended):** Increase turn limit for this test.\n    ```python\n    max_turns=5\n    ```\n  - **Prompt fix (alternative):** Add explicit instruction to batch or refuse multi-city requests when constrained.\n    ```\n    If a request requires multiple tool calls and exceeds the allowed turns, explain the limitation and ask the user to narrow the request.\n    ```\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools are clearly described and correctly selected by the agent. No confusion or misuse observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 7 | Working well |\n| get_forecast | \u2705 | 1 | Working well |\n| compare_weather | \u2705 | 1 | Working well |\n| list_cities | \u2705 | 0 | Not needed in tests |\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~24 tokens\n- **Assessment:** Clear, concise, and effective. The instruction \u201cAlways use tools\u201d successfully prevents hallucination and drives correct behavior.\n- **Suggested change:** None required for current test scope. Only consider adding a turn-limit fallback if such constraints are common.\n\n## \ud83d\udca1 Optimizations\n\n1. **Multi-city comparison helper** (suggestion)\n   - Current: Agent must issue repeated `get_weather` calls and manually compare results.\n   - Change: Add a new MCP tool, e.g. `compare_multiple_cities`, that accepts a list of cities.\n   - Impact: Enables single-call handling of complex comparisons, preventing turn-limit failures and reducing cost for multi-city queries by eliminating 4 extra tool calls (~$0.0005\u2013$0.001 saved per request).\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~70 tokens per call\n- **Issues found:** Fields like `country`, `wind_direction`, and `humidity` are not always used in agent summaries or comparisons.\n- **Suggested optimization:** Provide an optional compact mode or remove unused fields for comparison-focused calls.\n- **Estimated savings:** ~20 tokens per call (~28% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~70 tokens)\n{\n  \"city\": \"Paris\",\n  \"country\": \"France\",\n  \"temperature_celsius\": 18,\n  \"temperature_fahrenheit\": 64,\n  \"humidity\": 65,\n  \"conditions\": \"Partly cloudy\",\n  \"wind_speed_kmh\": 12,\n  \"wind_direction\": \"SW\"\n}\n\n// Optimized (~50 tokens)\n{\n  \"city\": \"Paris\",\n  \"temperature_celsius\": 18,\n  \"conditions\": \"Partly cloudy\"\n}\n```\n\nThis optimization would be most beneficial in multi-city scenarios where responses are aggregated.",
+    "markdown_summary": "## 🎯 Recommendation\n\n**Deploy: weather-agent (gpt-5-mini, default prompt)**\n\nAchieves **75% pass rate (3/4 tests)** at a **total cost of $0.003324**, with correct and consistent tool usage across all successful scenarios.\n\n**Reasoning:** All core functionality tests (single city, forecast, comparison) passed with correct tool selection and accurate synthesis. The single failure is due to a **test harness constraint (turn limit)** rather than incorrect tool use or model behavior. Cost is low and stable, with no retries or tool errors.\n\n**Alternatives:** None – only one configuration tested.\n\n## ❌ Failure Analysis\n\n### tests/fixtures/generate_scenarios.py::TestSingleAgent::test_expected_failure (weather-agent)\n- **Problem:** Test fails because the agent exceeds the configured `max_turns=1` when asked to fetch and compare weather for five cities.\n- **Root Cause:** The request inherently requires multiple tool calls. The system prompt instructs the agent to “Always use tools,” but the test configuration allows only one turn, making the task impossible within constraints.\n- **Fix:** Adjust the test or prompt to align with turn limits.\n  - **Test fix (recommended):** Increase turn limit for this test.\n    ```python\n    max_turns=5\n    ```\n  - **Prompt fix (alternative):** Add explicit instruction to batch or refuse multi-city requests when constrained.\n    ```\n    If a request requires multiple tool calls and exceeds the allowed turns, explain the limitation and ask the user to narrow the request.\n    ```\n\n## 🔧 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools are clearly described and correctly selected by the agent. No confusion or misuse observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | ✅ | 7 | Working well |\n| get_forecast | ✅ | 1 | Working well |\n| compare_weather | ✅ | 1 | Working well |\n| list_cities | ✅ | 0 | Not needed in tests |\n\n## 📝 System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~24 tokens\n- **Assessment:** Clear, concise, and effective. The instruction “Always use tools” successfully prevents hallucination and drives correct behavior.\n- **Suggested change:** None required for current test scope. Only consider adding a turn-limit fallback if such constraints are common.\n\n## 💡 Optimizations\n\n1. **Multi-city comparison helper** (suggestion)\n   - Current: Agent must issue repeated `get_weather` calls and manually compare results.\n   - Change: Add a new MCP tool, e.g. `compare_multiple_cities`, that accepts a list of cities.\n   - Impact: Enables single-call handling of complex comparisons, preventing turn-limit failures and reducing cost for multi-city queries by eliminating 4 extra tool calls (~$0.0005–$0.001 saved per request).\n\n## 📦 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~70 tokens per call\n- **Issues found:** Fields like `country`, `wind_direction`, and `humidity` are not always used in agent summaries or comparisons.\n- **Suggested optimization:** Provide an optional compact mode or remove unused fields for comparison-focused calls.\n- **Estimated savings:** ~20 tokens per call (~28% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~70 tokens)\n{\n  \"city\": \"Paris\",\n  \"country\": \"France\",\n  \"temperature_celsius\": 18,\n  \"temperature_fahrenheit\": 64,\n  \"humidity\": 65,\n  \"conditions\": \"Partly cloudy\",\n  \"wind_speed_kmh\": 12,\n  \"wind_direction\": \"SW\"\n}\n\n// Optimized (~50 tokens)\n{\n  \"city\": \"Paris\",\n  \"temperature_celsius\": 18,\n  \"conditions\": \"Partly cloudy\"\n}\n```\n\nThis optimization would be most beneficial in multi-city scenarios where responses are aggregated.",
     "cost_usd": 0.0159376,
     "tokens_used": 4756,
     "cached": false

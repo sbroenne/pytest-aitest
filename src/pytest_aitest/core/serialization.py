@@ -10,10 +10,13 @@ if TYPE_CHECKING:
 
 
 def serialize_dataclass(obj: Any) -> Any:
-    """Convert dataclass to dict recursively, handling special types."""
+    """Convert dataclass to dict recursively, handling special types.
+
+    Excludes private fields (prefixed with _) from serialization.
+    """
     if is_dataclass(obj) and not isinstance(obj, type):
         data = asdict(obj)  # type: ignore[arg-type]
-        return {k: serialize_dataclass(v) for k, v in data.items()}
+        return {k: serialize_dataclass(v) for k, v in data.items() if not k.startswith("_")}
     elif isinstance(obj, (list, tuple)):
         return [serialize_dataclass(item) for item in obj]
     elif isinstance(obj, dict):

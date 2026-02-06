@@ -144,39 +144,6 @@ class SuiteReport:
         }
 
     @property
-    def cost_stats(self) -> dict[str, float]:
-        """Get min/max/avg cost in USD."""
-        costs = [
-            t.agent_result.cost_usd
-            for t in self.tests
-            if t.agent_result and t.agent_result.cost_usd > 0
-        ]
-        if not costs:
-            return {"min": 0.0, "max": 0.0, "avg": 0.0}
-        return {
-            "min": min(costs),
-            "max": max(costs),
-            "avg": sum(costs) / len(costs),
-        }
-
-    @property
-    def duration_stats(self) -> dict[str, float]:
-        """Get min/max/avg duration in ms."""
-        durations = [t.duration_ms for t in self.tests if t.duration_ms > 0]
-        if not durations:
-            return {"min": 0.0, "max": 0.0, "avg": 0.0}
-        return {
-            "min": min(durations),
-            "max": max(durations),
-            "avg": sum(durations) / len(durations),
-        }
-
-    @property
-    def tool_call_count(self) -> int:
-        """Total number of tool calls across all tests."""
-        return sum(len(t.agent_result.all_tool_calls) for t in self.tests if t.agent_result)
-
-    @property
     def test_files(self) -> list[str]:
         """Unique test file paths."""
         files = set()
@@ -188,118 +155,34 @@ class SuiteReport:
                 files.add(t.name)
         return sorted(files)
 
-    @property
-    def models_used(self) -> list[str]:
-        """Unique models used across tests."""
-        models = set()
-        for t in self.tests:
-            if t.model:
-                models.add(t.model)
-        return sorted(models)
 
-    @property
-    def prompts_used(self) -> list[str]:
-        """Unique system prompt names used across tests."""
-        prompts = set()
-        for t in self.tests:
-            if t.system_prompt_name:
-                prompts.add(t.system_prompt_name)
-        return sorted(prompts)
+def build_suite_report(
+    tests: list[TestReport],
+    name: str,
+    suite_docstring: str | None = None,
+) -> SuiteReport:
+    """Build final suite report from collected tests.
 
-
-@dataclass
-class SessionGroup:
-    """A group of tests that share conversation history (session).
-
-    Detected from test class names - tests in the same class with
-    is_session_continuation form a session workflow.
-    """
-
-    name: str  # Class name or "Standalone" for non-session tests
-    tests: list[TestReport]
-    is_session: bool = False  # True if tests share conversation context
-
-    @property
-    def total_messages(self) -> int:
-        """Total messages in the session (from last test)."""
-        if not self.tests:
-            return 0
-        last = self.tests[-1]
-        if last.agent_result:
-            return len(last.agent_result.messages)
-        return 0
-
-    @property
-    def passed(self) -> int:
-        return sum(1 for t in self.tests if t.outcome == "passed")
-
-    @property
-    def failed(self) -> int:
-        return sum(1 for t in self.tests if t.outcome == "failed")
-
-    @property
-    def all_passed(self) -> bool:
-        return self.failed == 0 and self.passed > 0
-
-    @property
-    def total_duration_ms(self) -> float:
-        """Total duration of all tests in session."""
-        return sum(t.duration_ms for t in self.tests)
-
-    @property
-    def total_tokens(self) -> int:
-        """Total tokens used across all tests in session."""
-        return sum(
-            (
-                t.agent_result.token_usage.get("prompt", 0)
-                + t.agent_result.token_usage.get("completion", 0)
-            )
-            for t in self.tests
-            if t.agent_result
-        )
-
-    @property
-    def total_cost(self) -> float:
-        """Total cost across all tests in session."""
-        return sum(t.agent_result.cost_usd for t in self.tests if t.agent_result)
-
-    @property
-    def total_tool_calls(self) -> int:
-        """Total tool calls across all tests in session."""
-        return sum(len(t.agent_result.all_tool_calls) for t in self.tests if t.agent_result)
-
-
-class ReportCollector:
-    """Collects test results during pytest run.
+    Args:
+        tests: List of test reports to include
+        name: Name for the test suite
+        suite_docstring: Optional docstring for the suite
 
     Example:
-        collector = ReportCollector()
-        collector.add_test(TestReport(name="test_foo", outcome="passed", ...))
-        report = collector.build_suite_report("my_tests")
+        report = build_suite_report(tests, "my_tests")
     """
+    passed = sum(1 for t in tests if t.outcome == "passed")
+    failed = sum(1 for t in tests if t.outcome == "failed")
+    skipped = sum(1 for t in tests if t.outcome == "skipped")
+    total_duration = sum(t.duration_ms for t in tests)
 
-    def __init__(self) -> None:
-        self.tests: list[TestReport] = []
-        self._start_time: float | None = None
-
-    def add_test(self, test: TestReport) -> None:
-        """Add a test result."""
-        self.tests.append(test)
-
-    def build_suite_report(self, name: str, suite_docstring: str | None = None) -> SuiteReport:
-        """Build final suite report from collected tests."""
-        passed = sum(1 for t in self.tests if t.outcome == "passed")
-        failed = sum(1 for t in self.tests if t.outcome == "failed")
-        skipped = sum(1 for t in self.tests if t.outcome == "skipped")
-        total_duration = sum(t.duration_ms for t in self.tests)
-
-        return SuiteReport(
-            name=name,
-            timestamp=datetime.now().isoformat(),
-            duration_ms=total_duration,
-            tests=self.tests,
-            passed=passed,
-            failed=failed,
-            skipped=skipped,
-            suite_docstring=suite_docstring,
-        )
+    return SuiteReport(
+        name=name,
+        timestamp=datetime.now().isoformat(),
+        duration_ms=total_duration,
+        tests=tests,
+        passed=passed,
+        failed=failed,
+        skipped=skipped,
+        suite_docstring=suite_docstring,
+    )
