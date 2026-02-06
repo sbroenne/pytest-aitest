@@ -226,7 +226,7 @@ if TYPE_CHECKING:
    - AI detects what varies (Model, Prompt, Skill, Server) to focus its analysis
 
 3. **Winning Criteria**: Highest pass rate → Lowest cost (tiebreaker)
-   - Use `--aitest-min-pass-rate=N` to disqualify agents below N%
+   - Use `--aitest-min-pass-rate=N` to fail the session if overall pass rate falls below N%
 
 4. **Multi-Turn Sessions**: Test conversations that build on context
    - Use `@pytest.mark.session("session-name")` on test class
@@ -238,7 +238,7 @@ if TYPE_CHECKING:
    - Skills inject structured knowledge into agent context
    - Reports analyze skill effectiveness and suggest improvements
 
-### AI-Powered Reports (KEY DIFFERENTIATOR)
+### AI Analysis (KEY DIFFERENTIATOR)
 
 Reports are **insights-first**, not metrics-first. AI analysis is **mandatory** when generating reports.
 
@@ -251,7 +251,7 @@ Reports include:
 - **⚡ Optimizations**: Reduce turns/tokens
 
 ```bash
-# Run tests with AI-powered report (mandatory --aitest-summary-model)
+# Run tests with AI analysis (mandatory --aitest-summary-model)
 pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5.2-chat
 
 # Regenerate report with new AI insights from existing JSON (no re-run)
@@ -409,7 +409,7 @@ src/pytest_aitest/
 ├── fixtures/              # Pytest fixtures
 │   ├── run.py             # aitest_run fixture
 │   └── factories.py       # skill_factory (Skills only - agents created inline)
-├── reporting/             # AI-powered reports
+├── reporting/             # AI analysis & reports
 │   ├── collector.py       # Collects test results + ToolInfo + SkillInfo
 │   ├── aggregator.py      # Detects dimensions, groups results
 │   ├── data_contracts.py  # TypedDicts for template data shapes

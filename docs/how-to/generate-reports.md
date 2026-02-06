@@ -46,22 +46,21 @@ pytest tests/ \
 | `--aitest-html=PATH` | Generate HTML report |
 | `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
 | `--aitest-summary-model=MODEL` | Model for AI insights (**required**) |
+| `--aitest-min-pass-rate=N` | Fail if pass rate below N% (e.g., `80`) |
 
 ## Report Regeneration
 
 Regenerate reports from saved JSON without re-running tests:
 
 ```bash
-# Regenerate HTML from saved JSON
+# Regenerate HTML from saved JSON (reuses existing AI insights)
 pytest-aitest-report aitest-reports/results.json \
-    --html report.html \
-    --summary-model azure/gpt-5.2-chat
+    --html report.html
 
-# Force regeneration with a different model
+# Regenerate with fresh AI insights from a different model
 pytest-aitest-report results.json \
     --html report.html \
-    --summary-model azure/gpt-4.1 \
-    --regenerate
+    --summary --summary-model azure/gpt-4.1
 ```
 
 This is useful for:
@@ -82,12 +81,6 @@ When you test multiple agents, the report shows an **Agent Leaderboard** ranking
 
 **Winning Agent = Highest pass rate → Lowest cost (tiebreaker)**
 
-Use `--aitest-min-pass-rate=N` to disqualify agents below N%:
-
-```bash
-pytest tests/ --aitest-min-pass-rate=95
-```
-
 ### Dimension Detection
 
 The AI detects *what varies* between agents to focus its analysis:
@@ -101,16 +94,6 @@ The AI detects *what varies* between agents to focus its analysis:
 
 **Winning = Highest pass rate → Lowest cost (tiebreaker)**
 
-### Threshold Filtering
-
-Disqualify agents below a minimum pass rate:
-
-```bash
-pytest tests/ --aitest-min-pass-rate=95
-```
-
-Agents below threshold are grayed out but still shown for reference.
-
 ### Leaderboard Ranking
 
 When comparing Agents, rankings are based on:
@@ -121,7 +104,7 @@ When comparing Agents, rankings are based on:
 
 ## AI Insights
 
-Reports include AI-powered analysis with actionable recommendations. For a detailed explanation of each insight section, see [AI-Powered Reports](../explanation/ai-reports.md).
+Reports include AI analysis with actionable recommendations. For a detailed explanation of each insight section, see [AI Analysis](../explanation/ai-reports.md).
 
 ### Recommended Models
 
@@ -140,7 +123,7 @@ Use the **most capable model you can afford** for quality analysis:
 
 ## Report Structure
 
-For details on the HTML report layout including header, leaderboard, and test details, see [Report Structure](../explanation/report-structure.md).
+For details on the HTML report layout including header, leaderboard, and test details, see [Report Structure](../contributing/report-structure.md).
 
 ## JSON Report Structure
 

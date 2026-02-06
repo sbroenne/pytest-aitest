@@ -5,9 +5,9 @@
 [![CI](https://github.com/sbroenne/pytest-aitest/actions/workflows/ci.yml/badge.svg)](https://github.com/sbroenne/pytest-aitest/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Test your AI interfaces. Get actionable AI-powered insights.
+# Test your AI interfaces. AI analyzes your results.
 
-A pytest plugin for validating whether language models can understand and operate your MCP servers, tools, prompts, and skills. Generates AI-powered insights & reports that tell you *what to fix*, not just *what failed*.
+A pytest plugin for validating whether language models can understand and operate your MCP servers, tools, prompts, and skills. AI analyzes your test results and tells you *what to fix*, not just *what failed*.
 
 ## The Problem
 
@@ -47,21 +47,10 @@ async def test_weather_comparison(aitest_run, weather_server):
 
 The agent runs your prompt, calls tools, and returns results. You assert on what happened. If the test fails, your tool descriptions need work — not your code.
 
-**What you're testing:**
-
-| Component | Question It Answers |
-|-----------|---------------------|
-| MCP Server | Can an LLM understand and use my tools? |
-| System Prompt | Does this behavior definition produce the results I want? |
-| Agent Skill | Does this domain knowledge help the agent perform? |
-
-See [Getting Started](docs/getting-started/index.md) for details on each component.
 
 ## What Makes This Different
 
-### AI-Powered Reports
-
-Reports don't just show pass/fail — they tell you **what to do**. Here's actual output analyzing 2 LLM models:
+AI analyzes your test results and tells you **what to fix**. Here's actual output analyzing 2 LLM models:
 
 > ## 🎯 Recommendation
 >
@@ -89,9 +78,9 @@ Reports don't just show pass/fail — they tell you **what to do**. Here's actua
 >
 > **Cost reduction opportunity:** Strengthen `compare_weather` description to encourage single-call logic instead of multiple `get_weather` calls. **Estimated impact: ~15–25% cost reduction** on comparison queries.
 
-*Generates [interactive HTML reports](https://sbroenne.github.io/pytest-aitest/docs/reports/02_multi_agent.html) with agent leaderboards, comparison tables, and sequence diagrams.*
+*Generates [interactive HTML reports](https://sbroenne.github.io/pytest-aitest/reports/02_multi_agent.html) with agent leaderboards, comparison tables, and sequence diagrams.*
 
-### Compare Configurations
+## Compare Configurations
 
 Use pytest parametrize to find what works best:
 
@@ -106,7 +95,7 @@ async def test_tool_usage(aitest_run, weather_server, model):
 
 Reports show which model/prompt/Agent Skill combination performs best.
 
-### Multi-Turn Sessions
+## Multi-Turn Sessions
 
 Test conversations that build on context:
 
@@ -132,8 +121,6 @@ uv add pytest-aitest
 # or
 pip install pytest-aitest
 
-# For Azure OpenAI with Entra ID authentication
-pip install pytest-aitest[azure]
 ```
 
 ### Configure
@@ -201,7 +188,7 @@ Reports with AI insights are generated automatically based on your `pyproject.to
 | **Threshold Filtering** | Disqualify agents below minimum pass rate |
 | **Multi-Turn Sessions** | `@pytest.mark.session` for conversations |
 | **AI Judge** | Semantic assertions via [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert) |
-| **AI-Powered Reports** | Actionable insights, not just metrics |
+| **AI Analysis** | Tells you what to fix, not just what failed |
 
 ## How Comparison Works
 
@@ -219,8 +206,6 @@ pytest-aitest auto-detects what varies between agents:
 | Multiple | Agent Leaderboard (all dimensions) |
 
 **Winning Agent:** Highest pass rate → Lowest cost (tiebreaker)
-
-Use `--aitest-min-pass-rate=95` to disqualify agents below 95%.
 
 **[→ See the complete example guide](docs/how-to/complete-example.md)**
 

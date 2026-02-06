@@ -51,7 +51,6 @@ The simplest tests verify the agent can use individual tools correctly.
 class TestBasicOperations:
     """Basic single-tool operations demonstrating core functionality."""
 
-    @pytest.mark.asyncio
     async def test_check_single_balance(self, aitest_run, banking_server):
         """Check balance of one account - simplest possible test."""
         agent = Agent(
@@ -81,7 +80,6 @@ Complex operations require coordinating multiple tools in sequence.
 class TestMultiToolWorkflows:
     """Complex workflows requiring coordination of multiple tools."""
 
-    @pytest.mark.asyncio
     async def test_complete_financial_snapshot(self, aitest_run, llm_assert, banking_server):
         """Get complete financial picture - accounts, budgets, and goals."""
         agent = Agent(
@@ -129,7 +127,6 @@ class TestVacationPlanningSession:
     - Turn 3: Ask "what was I saving for?" (only answerable from context)
     """
 
-    @pytest.mark.asyncio
     async def test_01_establish_goal_context(self, aitest_run, llm_assert, banking_server):
         """First turn: establish the Italy trip savings goal."""
         agent = Agent(
@@ -149,7 +146,6 @@ class TestVacationPlanningSession:
         assert result.success
         assert result.tool_was_called("get_savings_goals")
 
-    @pytest.mark.asyncio
     async def test_02_reference_without_naming(self, aitest_run, llm_assert, banking_server):
         """Second turn: reference 'that trip' without saying Italy."""
         agent = Agent(
@@ -186,7 +182,6 @@ BENCHMARK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"]
 class TestModelComparison:
     """Compare how different models handle complex financial advice."""
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("model", BENCHMARK_MODELS)
     async def test_financial_advice_quality(self, aitest_run, llm_assert, banking_server, model: str):
         """Compare models on providing comprehensive financial advice."""
@@ -255,7 +250,6 @@ ADVISOR_PROMPTS = load_prompts(Path(__file__).parent / "prompts")
 class TestPromptComparison:
     """Compare how different prompt styles affect financial advice."""
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("prompt", ADVISOR_PROMPTS, ids=lambda p: p.name)
     async def test_advice_style_comparison(self, aitest_run, llm_assert, banking_server, prompt):
         """Compare concise vs detailed vs friendly advisory styles."""
@@ -316,7 +310,6 @@ Then use it in tests:
 class TestSkillEnhancement:
     """Test how skills improve financial advice quality."""
 
-    @pytest.mark.asyncio
     async def test_with_financial_skill(
         self, aitest_run, llm_assert, banking_server, financial_advisor_skill
     ):
@@ -356,7 +349,6 @@ Test graceful recovery from invalid operations.
 class TestErrorHandling:
     """Test graceful handling of edge cases and errors."""
 
-    @pytest.mark.asyncio
     async def test_insufficient_funds_recovery(self, aitest_run, llm_assert, banking_server):
         """Agent should handle insufficient funds gracefully."""
         agent = Agent(

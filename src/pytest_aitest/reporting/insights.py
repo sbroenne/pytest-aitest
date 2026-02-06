@@ -37,9 +37,21 @@ def _build_analysis_input(
     tool_info: list[ToolInfo],
     skill_info: list[SkillInfo],
     prompts: dict[str, str],
+    *,
+    min_pass_rate: int | None = None,
 ) -> str:
     """Build the complete analysis input with all context."""
     sections = []
+
+    # Pass rate threshold
+    if min_pass_rate is not None:
+        sections.append(f"## Minimum Pass Rate Threshold: {min_pass_rate}%\n")
+        sections.append(
+            f"Agents with pass rate below {min_pass_rate}% are **disqualified**. "
+            "Exclude disqualified agents from your Recommendation. "
+            "Do not recommend a disqualified agent for deployment. "
+            "Still analyze their failures in the Failure Analysis section.\n"
+        )
 
     # Test results summary
     sections.append("## Test Results\n")
@@ -157,6 +169,7 @@ async def generate_insights(
     prompts: dict[str, str] | None = None,
     model: str = "azure/gpt-5-mini",
     cache_dir: Path | None = None,
+    min_pass_rate: int | None = None,
 ) -> tuple[str, dict[str, Any]]:
     """Generate AI insights markdown from test results.
 
@@ -167,6 +180,7 @@ async def generate_insights(
         prompts: Prompt variants by name (optional)
         model: LiteLLM model to use for analysis
         cache_dir: Directory for caching results (optional)
+        min_pass_rate: Minimum pass rate threshold for disqualifying agents
 
     Returns:
         Tuple of (AIInsights, AnalysisMetadata)
@@ -205,6 +219,7 @@ async def generate_insights(
         tool_info=tool_info or [],
         skill_info=skill_info or [],
         prompts=prompts or {},
+        min_pass_rate=min_pass_rate,
     )
 
     full_prompt = f"{prompt_template}\n\n---\n\n# Test Data\n\n{analysis_input}"

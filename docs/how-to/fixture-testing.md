@@ -79,7 +79,7 @@ class TestTwoAgents:
         assert llm_assert(result.final_response, "mentions London weather conditions")
 ```
 
-Each test runs on both models — AI-powered reports auto-generate leaderboard.
+Each test runs on both models — AI analysis auto-generates leaderboard.
 
 ### 3. TestMultiAgentSessions (6 tests)
 
@@ -141,8 +141,7 @@ With 3 agents, the report includes an interactive agent selector allowing users 
 Validate response quality using AI judgment:
 
 ```python
-from pytest_llm_assert import llm_assert
-
+# llm_assert is a pytest fixture — just add it to your test function signature
 # Does response mention expected content?
 assert llm_assert(result.final_response, "provides temperature in Celsius and Fahrenheit")
 
