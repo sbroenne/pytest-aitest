@@ -285,12 +285,11 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     # Build metadata from agent_result (source of truth) with fallback to parsing
     metadata = _extract_metadata_from_nodeid(item.nodeid)
 
-    # Override with actual values from agent_result if available
+    # Override with actual values from agent_result (source of truth)
     if agent_result:
-        if agent_result.agent_name:
-            metadata["agent_name"] = agent_result.agent_name
-        if agent_result.model:
-            metadata["model"] = agent_result.model
+        metadata["agent_id"] = agent_result.agent_id
+        metadata["agent_name"] = agent_result.agent_name
+        metadata["model"] = agent_result.model
         if agent_result.skill_info:
             metadata["skill"] = agent_result.skill_info.name
 

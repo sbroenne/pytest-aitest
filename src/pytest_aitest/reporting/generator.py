@@ -60,6 +60,15 @@ def _get_metadata_field(metadata: Any | dict | None, field: str) -> Any:
     return getattr(metadata, field, None)
 
 
+def _resolve_agent_id(test: Any) -> str:
+    """Get the agent ID from test metadata."""
+    agent_id = _get_metadata_field(test.metadata, "agent_id")
+    if not agent_id:
+        msg = f"Test {test.name!r} missing 'agent_id' in metadata"
+        raise ValueError(msg)
+    return agent_id
+
+
 class ReportGenerator:
     """Generates HTML and JSON reports using htpy components.
 
@@ -160,7 +169,14 @@ class ReportGenerator:
         # Build agents
         agents, agents_by_id = self._build_agents(report, min_pass_rate=min_pass_rate)
         all_agent_ids = [a.id for a in agents]
-        selected_agent_ids = [a.id for a in agents[:2]]
+
+        # Default selection: prefer agents with the most test coverage,
+        # then by pass rate and cost. This ensures the comparison view
+        # shows agents that ran the most tests, not 1-test-only agents.
+        agents_by_coverage = sorted(
+            agents, key=lambda a: (-a.total, a.disqualified, -a.pass_rate, a.cost)
+        )
+        selected_agent_ids = [a.id for a in agents_by_coverage[:2]]
 
         # Build test groups
         test_groups = self._build_test_groups_typed(report, all_agent_ids, agents_by_id)
@@ -202,6 +218,7 @@ class ReportGenerator:
                 "cost": 0.0,
                 "tokens": 0,
                 "duration_ms": 0,
+                "agent_name": None,
                 "skill": None,
                 "prompt_name": None,
                 "model": None,
@@ -209,18 +226,16 @@ class ReportGenerator:
         )
 
         for test in report.tests:
-            model = _get_metadata_field(test.metadata, "model") or "unknown"
-            skill = _get_metadata_field(test.metadata, "skill")
-            prompt_name = _get_metadata_field(test.metadata, "system_prompt")
+            agent_id = _resolve_agent_id(test)
 
-            agent_id = model
-            if skill:
-                agent_id += f"+{skill}"
-            if prompt_name:
-                agent_id += f"+{prompt_name}"
+            model = _get_metadata_field(test.metadata, "model") or "unknown"
+            agent_name = _get_metadata_field(test.metadata, "agent_name") or model
+            skill = _get_metadata_field(test.metadata, "skill")
+            prompt_name = _get_metadata_field(test.metadata, "prompt")
 
             stats = agent_stats[agent_id]
             stats["model"] = model
+            stats["agent_name"] = agent_name
             stats["skill"] = skill
             stats["prompt_name"] = prompt_name
             stats["total"] += 1
@@ -253,7 +268,7 @@ class ReportGenerator:
             agents.append(
                 AgentData(
                     id=agent_id,
-                    name=stats["model"],
+                    name=stats["agent_name"],
                     skill=stats["skill"],
                     prompt_name=stats["prompt_name"],
                     passed=passed,
@@ -330,15 +345,7 @@ class ReportGenerator:
                 first_test = test_variants[0] if test_variants else None
 
                 for test in test_variants:
-                    model = _get_metadata_field(test.metadata, "model") or "unknown"
-                    skill = _get_metadata_field(test.metadata, "skill")
-                    prompt_name = _get_metadata_field(test.metadata, "system_prompt")
-
-                    agent_id = model
-                    if skill:
-                        agent_id += f"+{skill}"
-                    if prompt_name:
-                        agent_id += f"+{prompt_name}"
+                    agent_id = _resolve_agent_id(test)
 
                     if agent_id in all_agent_ids:
                         outcome = test.outcome or "unknown"

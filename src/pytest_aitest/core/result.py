@@ -120,6 +120,7 @@ class AgentResult:
     effective_system_prompt: str = ""
 
     # Agent identity (captured from Agent at execution time)
+    agent_id: str = ""  # Agent.id (unique identity for report matching)
     agent_name: str = ""  # Agent.name or synthesized from model+skill
     model: str = ""  # Agent.provider.model (without provider prefix)
 

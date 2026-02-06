@@ -290,7 +290,16 @@ class TestMainCLI:
             "duration_ms": 100.0,
             "summary": {"passed": 1, "failed": 0, "skipped": 0},
             "tests": [
-                {"name": "test_a", "outcome": "passed", "duration_ms": 100.0, "metadata": {}}
+                {
+                    "name": "test_a",
+                    "outcome": "passed",
+                    "duration_ms": 100.0,
+                    "metadata": {
+                        "agent_id": "test-agent",
+                        "agent_name": "test-agent",
+                        "model": "test-model",
+                    },
+                }
             ],
         }
         json_path = tmp_path / "results.json"

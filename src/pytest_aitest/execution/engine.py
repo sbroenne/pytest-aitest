@@ -61,18 +61,9 @@ class AgentEngine:
         self._effective_system_prompt: str = ""
 
         # Agent identity
-        self._agent_name = self._compute_agent_name()
+        self._agent_id = self.agent.id
+        self._agent_name = self.agent.name or self._compute_model()
         self._model = self._compute_model()
-
-    def _compute_agent_name(self) -> str:
-        """Compute agent name (explicit or synthesized from model+skill)."""
-        if self.agent.name:
-            return self.agent.name
-        # Synthesize: model + skill
-        model = self.agent.provider.model.split("/")[-1]  # Remove provider prefix
-        if self.agent.skill:
-            return f"{model}+{self.agent.skill.name}"
-        return model
 
     def _compute_model(self) -> str:
         """Get model name (with provider prefix stripped for display)."""
@@ -249,6 +240,7 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                agent_id=self._agent_id,
                 agent_name=self._agent_name,
                 model=self._model,
             )
@@ -266,6 +258,7 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                agent_id=self._agent_id,
                 agent_name=self._agent_name,
                 model=self._model,
             )
@@ -283,6 +276,7 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                agent_id=self._agent_id,
                 agent_name=self._agent_name,
                 model=self._model,
             )
@@ -299,6 +293,7 @@ class AgentEngine:
             available_tools=self._available_tools,
             skill_info=self._skill_info,
             effective_system_prompt=self._effective_system_prompt,
+            agent_id=self._agent_id,
             agent_name=self._agent_name,
             model=self._model,
         )

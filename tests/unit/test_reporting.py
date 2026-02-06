@@ -230,12 +230,22 @@ class TestReportGenerator:
                     outcome="passed",
                     duration_ms=200.0,
                     agent_result=result,
+                    metadata={
+                        "agent_id": "test-agent",
+                        "agent_name": "test-agent",
+                        "model": "test-model",
+                    },
                 ),
                 TestReport(
                     name="test_failed",
                     outcome="failed",
                     duration_ms=300.0,
                     error="AssertionError: expected True",
+                    metadata={
+                        "agent_id": "test-agent",
+                        "agent_name": "test-agent",
+                        "model": "test-model",
+                    },
                 ),
             ],
             passed=1,

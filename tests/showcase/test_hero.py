@@ -32,9 +32,6 @@ DEFAULT_RPM = 10
 DEFAULT_TPM = 10000
 DEFAULT_MAX_TURNS = 8
 
-# Load prompts for system prompt comparison
-PROMPTS_DIR = Path(__file__).parent / "prompts"
-
 # Banking system prompt — used for ALL core tests (same prompt = fair comparison)
 BANKING_PROMPT = (
     "You are a personal finance assistant helping users manage their bank accounts. "
@@ -46,40 +43,72 @@ BANKING_PROMPT = (
 )
 
 # =============================================================================
-# Fixtures
+# Agents — defined once at module level, reused across tests.
+# Same Agent object = same UUID = correct grouping in reports.
 # =============================================================================
 
+BANKING_SERVER = MCPServer(
+    command=[sys.executable, "-u", "-m", "pytest_aitest.testing.banking_mcp"],
+    wait=Wait.for_tools(
+        [
+            "get_balance",
+            "get_all_balances",
+            "transfer",
+            "deposit",
+            "withdraw",
+            "get_transactions",
+        ]
+    ),
+)
 
-@pytest.fixture(scope="module")
-def banking_server():
-    """Banking MCP server - the ONLY server for all hero tests.
-
-    Provides a realistic banking scenario with:
-    - 2 accounts: checking ($1,500), savings ($3,000)
-    - Tools: get_balance, get_all_balances, transfer, deposit, withdraw, get_transactions
-    """
-    return MCPServer(
-        command=[sys.executable, "-u", "-m", "pytest_aitest.testing.banking_mcp"],
-        wait=Wait.for_tools(
-            [
-                "get_balance",
-                "get_all_balances",
-                "transfer",
-                "deposit",
-                "withdraw",
-                "get_transactions",
-            ]
-        ),
+# Core agents — one per model, same prompt → fair leaderboard
+CORE_AGENTS = [
+    Agent(
+        name=model,
+        provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+        mcp_servers=[BANKING_SERVER],
+        system_prompt=BANKING_PROMPT,
+        max_turns=DEFAULT_MAX_TURNS,
     )
+    for model in BENCHMARK_MODELS
+]
 
+# Prompt agents — model × prompt combinations
+PROMPTS_DIR = Path(__file__).parent / "prompts"
+ADVISOR_PROMPTS = load_system_prompts(PROMPTS_DIR) if PROMPTS_DIR.exists() else {}
 
-@pytest.fixture
-def financial_advisor_skill():
-    """Financial advisor skill with budgeting knowledge."""
-    skill_path = Path(__file__).parent / "skills" / "financial-advisor"
-    if skill_path.exists():
-        return Skill.from_path(skill_path)
-    return None
+PROMPT_AGENTS = [
+    Agent(
+        name=f"{model}+{prompt_name}",
+        provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+        mcp_servers=[BANKING_SERVER],
+        system_prompt=system_prompt,
+        prompt_name=prompt_name,
+        max_turns=DEFAULT_MAX_TURNS,
+    )
+    for model in BENCHMARK_MODELS
+    for prompt_name, system_prompt in ADVISOR_PROMPTS.items()
+]
+
+# Skill agents — core agent + financial advisor skill
+_SKILL_PATH = Path(__file__).parent / "skills" / "financial-advisor"
+_FINANCIAL_SKILL = Skill.from_path(_SKILL_PATH) if _SKILL_PATH.exists() else None
+
+SKILL_AGENTS = (
+    [
+        Agent(
+            name=f"{model}+financial-advisor",
+            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[BANKING_SERVER],
+            system_prompt=BANKING_PROMPT,
+            skill=_FINANCIAL_SKILL,
+            max_turns=DEFAULT_MAX_TURNS,
+        )
+        for model in BENCHMARK_MODELS
+    ]
+    if _FINANCIAL_SKILL
+    else []
+)
 
 
 # =============================================================================
@@ -88,55 +117,34 @@ def financial_advisor_skill():
 
 
 class TestCoreOperations:
-    """Core banking tests — parametrized across all benchmark models.
+    """Core banking tests — parametrized across all benchmark agents.
 
-    Every model runs the same tests with the same prompt, so the
+    Every agent runs the same tests with the same prompt, so the
     leaderboard comparison is fair.
     """
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_check_single_balance(self, aitest_run, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_check_single_balance(self, aitest_run, agent):
         """Check balance of one account."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(agent, "What's my checking account balance?")
 
         assert result.success
         assert result.tool_was_called("get_balance")
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_view_all_balances(self, aitest_run, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_view_all_balances(self, aitest_run, agent):
         """View all account balances."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(agent, "Show me all my account balances.")
 
         assert result.success
         assert result.tool_was_called("get_all_balances")
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_transfer_and_verify(self, aitest_run, llm_assert, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_transfer_and_verify(self, aitest_run, llm_assert, agent):
         """Transfer money and verify the result with balance check."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "Transfer $100 from checking to savings, then show me my new balances.",
@@ -148,16 +156,9 @@ class TestCoreOperations:
         assert llm_assert(result.final_response, "shows updated balances after transfer")
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_transaction_analysis(self, aitest_run, llm_assert, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_transaction_analysis(self, aitest_run, llm_assert, agent):
         """Get transaction history and summarize spending."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "Show me my recent transactions and summarize my spending patterns.",
@@ -167,16 +168,9 @@ class TestCoreOperations:
         assert result.tool_was_called("get_transactions")
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_financial_advice(self, aitest_run, llm_assert, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_financial_advice(self, aitest_run, llm_assert, agent):
         """Provide financial advice based on account data."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "I have some money in checking. Should I move some to savings? "
@@ -191,16 +185,9 @@ class TestCoreOperations:
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_insufficient_funds(self, aitest_run, llm_assert, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_insufficient_funds(self, aitest_run, llm_assert, agent):
         """Handle insufficient funds gracefully."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "Transfer $50,000 from my checking to savings.",
@@ -230,17 +217,9 @@ class TestSavingsPlanningSession:
     """
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_01_establish_context(self, aitest_run, llm_assert, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_01_establish_context(self, aitest_run, llm_assert, agent):
         """First turn: check balances and discuss savings goals."""
-        agent = Agent(
-            name="savings-01",
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "I want to save more money. Can you check my accounts and suggest "
@@ -252,17 +231,9 @@ class TestSavingsPlanningSession:
         assert llm_assert(result.final_response, "provides savings suggestion based on balances")
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_02_reference_previous(self, aitest_run, llm_assert, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_02_reference_previous(self, aitest_run, llm_assert, agent):
         """Second turn: reference previous context."""
-        agent = Agent(
-            name="savings-02",
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "That sounds good. Let's start by moving $200 to savings right now.",
@@ -272,17 +243,9 @@ class TestSavingsPlanningSession:
         assert result.tool_was_called("transfer")
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_03_verify_result(self, aitest_run, llm_assert, banking_server, model):
+    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
+    async def test_03_verify_result(self, aitest_run, llm_assert, agent):
         """Third turn: verify the transfer worked."""
-        agent = Agent(
-            name="savings-03",
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "Great! Can you show me my new savings balance?",
@@ -297,17 +260,7 @@ class TestSavingsPlanningSession:
 # =============================================================================
 
 
-def _load_advisor_prompts():
-    """Load financial advisor prompts."""
-    if PROMPTS_DIR.exists():
-        return load_system_prompts(PROMPTS_DIR)
-    return {}
-
-
-ADVISOR_PROMPTS = _load_advisor_prompts()
-
-
-@pytest.mark.skipif(len(ADVISOR_PROMPTS) == 0, reason="No prompts found")
+@pytest.mark.skipif(not PROMPT_AGENTS, reason="No prompts found")
 class TestPromptComparison:
     """Compare how different prompt styles affect responses.
 
@@ -315,19 +268,9 @@ class TestPromptComparison:
     """
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    @pytest.mark.parametrize("prompt_name,system_prompt", ADVISOR_PROMPTS.items())
-    async def test_advice_style_comparison(
-        self, aitest_run, llm_assert, banking_server, model, prompt_name, system_prompt
-    ):
+    @pytest.mark.parametrize("agent", PROMPT_AGENTS, ids=lambda a: a.name)
+    async def test_advice_style_comparison(self, aitest_run, llm_assert, agent):
         """Compare concise vs detailed vs friendly advisory styles."""
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=system_prompt,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "I'm worried about my spending. Can you check my accounts "
@@ -343,26 +286,14 @@ class TestPromptComparison:
 # =============================================================================
 
 
+@pytest.mark.skipif(not SKILL_AGENTS, reason="Financial advisor skill not found")
 class TestSkillEnhancement:
     """Test how skills improve advice quality."""
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("model", BENCHMARK_MODELS)
-    async def test_with_financial_skill(
-        self, aitest_run, llm_assert, banking_server, financial_advisor_skill, model
-    ):
+    @pytest.mark.parametrize("agent", SKILL_AGENTS, ids=lambda a: a.name)
+    async def test_with_financial_skill(self, aitest_run, llm_assert, agent):
         """Agent with financial advisor skill should give better advice."""
-        if financial_advisor_skill is None:
-            pytest.skip("Financial advisor skill not found")
-
-        agent = Agent(
-            provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[banking_server],
-            system_prompt=BANKING_PROMPT,
-            skill=financial_advisor_skill,
-            max_turns=DEFAULT_MAX_TURNS,
-        )
-
         result = await aitest_run(
             agent,
             "I have $1500 in checking. Should I keep it there or move some to savings? "
