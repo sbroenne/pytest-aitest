@@ -1,4 +1,4 @@
-![1770295361060](image/ai_summary/1770295361060.png)# pytest-aitest Report Analysis
+# pytest-aitest Report Analysis
 
 You are analyzing test results for **pytest-aitest**, a framework that uses AI agents to test MCP servers, CLI tools, system prompts, and skills.
 

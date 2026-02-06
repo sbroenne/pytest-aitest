@@ -143,20 +143,6 @@ def todo_server():
 
 
 @pytest.fixture(scope="module")
-def keyvalue_server():
-    """KeyValue MCP server - simple key-value store."""
-    return MCPServer(
-        command=[
-            sys.executable,
-            "-u",
-            "-m",
-            "pytest_aitest.testing.mcp_server",
-        ],
-        wait=Wait.for_tools(["get", "set", "list_keys"]),
-    )
-
-
-@pytest.fixture(scope="module")
 def banking_server():
     """Banking MCP server - realistic banking scenario.
 
