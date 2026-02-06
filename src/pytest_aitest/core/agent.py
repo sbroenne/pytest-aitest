@@ -211,6 +211,13 @@ class Agent:
         @pytest.mark.parametrize("agent", agents, ids=lambda a: a.name)
         async def test_query(aitest_run, agent):
             result = await aitest_run(agent, "What's the weather?")
+
+    Filtering tools:
+        Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            mcp_servers=[excel_server],
+            allowed_tools=["read_cell", "write_cell"],  # Only expose these tools
+        )
     """
 
     provider: Provider
@@ -220,3 +227,4 @@ class Agent:
     system_prompt: str | None = None
     max_turns: int = 10
     skill: Skill | None = None
+    allowed_tools: list[str] | None = None  # Filter to specific tools (None = all)

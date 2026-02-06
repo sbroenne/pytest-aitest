@@ -87,6 +87,12 @@ class AgentEngine:
         # Collect ToolInfo for AI analysis
         self._available_tools = self.server_manager.get_tools_info()
 
+        # Filter tools if allowed_tools is specified
+        if self.agent.allowed_tools:
+            allowed = set(self.agent.allowed_tools)
+            self._tools = [t for t in self._tools if t.get("function", {}).get("name") in allowed]
+            self._available_tools = [t for t in self._available_tools if t.name in allowed]
+
         # Add skill reference tools if skill has references
         if self.agent.skill and self.agent.skill.has_references:
             skill_tools = get_skill_tools_schema(self.agent.skill)
@@ -102,6 +108,12 @@ class AgentEngine:
                         server_name="skill",
                     )
                 )
+
+        # Filter tools if allowed_tools is specified
+        if self.agent.allowed_tools is not None:
+            allowed = set(self.agent.allowed_tools)
+            self._tools = [t for t in self._tools if t["function"]["name"] in allowed]
+            self._available_tools = [t for t in self._available_tools if t.name in allowed]
 
         # Build SkillInfo for AI analysis
         if self.agent.skill:
