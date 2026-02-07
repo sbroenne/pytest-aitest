@@ -59,6 +59,33 @@ WEATHER_SKILL = None
 if (SKILLS_DIR / "weather-expert").exists():
     WEATHER_SKILL = Skill.from_path(SKILLS_DIR / "weather-expert")
 
+BANKING_PROMPT = (
+    "You are a helpful banking assistant. Use tools to help users manage their accounts."
+)
+
+
+def _make_weather_agent(
+    name: str, model: str, *, weather_server, skill=None, max_turns: int = 5
+) -> Agent:
+    return Agent(
+        name=name,
+        provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+        mcp_servers=[weather_server],
+        system_prompt=WEATHER_PROMPT,
+        skill=skill,
+        max_turns=max_turns,
+    )
+
+
+def _make_banking_agent(name: str, model: str, *, banking_server) -> Agent:
+    return Agent(
+        name=name,
+        provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+        mcp_servers=[banking_server],
+        system_prompt=BANKING_PROMPT,
+        max_turns=5,
+    )
+
 
 # =============================================================================
 # Fixture 01: Single Agent
@@ -71,16 +98,22 @@ class TestSingleAgent:
     Tests pass/fail, assertions, tool calls, mermaid diagrams.
     """
 
+    _agent: Agent | None = None
+
+    @pytest.fixture
+    def agent(self, weather_server):
+        """Cached agent instance - same UUID across all tests."""
+        if TestSingleAgent._agent is None:
+            TestSingleAgent._agent = _make_weather_agent(
+                "weather-agent",
+                DEFAULT_MODEL,
+                weather_server=weather_server,
+            )
+        return TestSingleAgent._agent
+
     @pytest.mark.asyncio
-    async def test_simple_weather_query(self, aitest_run, weather_server, llm_assert):
+    async def test_simple_weather_query(self, aitest_run, agent, llm_assert):
         """Basic weather lookup - should pass."""
-        agent = Agent(
-            name="weather-agent",
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            max_turns=5,
-        )
         result = await aitest_run(agent, "What's the weather in Paris?")
         assert result.success
         assert result.tool_was_called("get_weather")
@@ -91,15 +124,8 @@ class TestSingleAgent:
         assert result.cost_usd < 0.05
 
     @pytest.mark.asyncio
-    async def test_forecast_query(self, aitest_run, weather_server, llm_assert):
+    async def test_forecast_query(self, aitest_run, agent, llm_assert):
         """Multi-day forecast - tests get_forecast tool."""
-        agent = Agent(
-            name="weather-agent",
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            max_turns=5,
-        )
         result = await aitest_run(agent, "Give me a 3-day forecast for Tokyo")
         assert result.success
         assert result.tool_was_called("get_forecast")
@@ -107,18 +133,11 @@ class TestSingleAgent:
         assert llm_assert(result.final_response, "provides weather information for multiple days")
 
     @pytest.mark.asyncio
-    async def test_city_comparison(self, aitest_run, weather_server, llm_assert):
+    async def test_city_comparison(self, aitest_run, agent, llm_assert):
         """Compare two cities - multiple tool calls."""
-        agent = Agent(
-            name="weather-agent",
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            max_turns=8,
-        )
+        agent.max_turns = 8
         result = await aitest_run(agent, "Which is warmer today, Berlin or Sydney?")
         assert result.success
-        # Should call get_weather at least twice or use compare_weather
         assert result.tool_call_count("get_weather") >= 2 or result.tool_was_called(
             "compare_weather"
         )
@@ -131,15 +150,9 @@ class TestSingleAgent:
         assert llm_assert(result.final_response, "compares temperatures for both cities")
 
     @pytest.mark.asyncio
-    async def test_expected_failure(self, aitest_run, weather_server, llm_assert):
+    async def test_expected_failure(self, aitest_run, agent, llm_assert):
         """Test that fails due to turn limit - for report variety."""
-        agent = Agent(
-            name="weather-agent",
-            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            max_turns=1,  # Force failure
-        )
+        agent.max_turns = 1
         result = await aitest_run(
             agent, "Get weather for Paris, Tokyo, London, Berlin, Sydney, and compare them all"
         )
@@ -161,54 +174,43 @@ class TestTwoAgents:
     Agents: gpt-5-mini, gpt-4.1-mini
     """
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
+    _agents: dict[str, Agent] = {}
+
+    @pytest.fixture
+    def agent(self, weather_server, agent_config):
+        """Cached agent - same UUID for same name across parametrized tests."""
+        name = agent_config["name"]
+        if name not in TestTwoAgents._agents:
+            TestTwoAgents._agents[name] = _make_weather_agent(
+                name,
+                agent_config["model"],
+                weather_server=weather_server,
+                skill=agent_config["skill"],
+            )
+        return TestTwoAgents._agents[name]
+
+    @pytest.fixture(
+        params=[
             {"name": "gpt-5-mini", "model": DEFAULT_MODEL, "skill": None},
             {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL, "skill": None},
         ],
         ids=["gpt-5-mini", "gpt-4.1-mini"],
     )
+    def agent_config(self, request):
+        return request.param
+
     @pytest.mark.asyncio
-    async def test_simple_weather(self, aitest_run, weather_server, agent_config, llm_assert):
+    async def test_simple_weather(self, aitest_run, agent, llm_assert):
         """Basic weather query - all agents should pass."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            skill=agent_config["skill"],
-            max_turns=5,
-        )
         result = await aitest_run(agent, "What's the weather in London?")
         assert result.success
         assert result.tool_was_called("get_weather")
         assert result.tool_call_arg("get_weather", "city") == "London"
         assert llm_assert(result.final_response, "describes the current weather conditions")
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
-            {"name": "gpt-5-mini", "model": DEFAULT_MODEL, "skill": None},
-            {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL, "skill": None},
-        ],
-        ids=["gpt-5-mini", "gpt-4.1-mini"],
-    )
     @pytest.mark.asyncio
-    async def test_forecast(self, aitest_run, weather_server, agent_config, llm_assert):
+    async def test_forecast(self, aitest_run, agent, llm_assert):
         """Forecast query - tests tool selection."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            skill=agent_config["skill"],
-            max_turns=5,
-        )
         result = await aitest_run(agent, "5-day forecast for New York please")
         assert result.success
         assert result.tool_was_called("get_forecast")
@@ -217,27 +219,10 @@ class TestTwoAgents:
         assert llm_assert(result.final_response, "provides a 5-day forecast with daily conditions")
         assert result.duration_ms < 30000
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
-            {"name": "gpt-5-mini", "model": DEFAULT_MODEL, "skill": None},
-            {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL, "skill": None},
-        ],
-        ids=["gpt-5-mini", "gpt-4.1-mini"],
-    )
     @pytest.mark.asyncio
-    async def test_comparison(self, aitest_run, weather_server, agent_config, llm_assert):
+    async def test_comparison(self, aitest_run, agent, llm_assert):
         """City comparison - multi-step reasoning."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            skill=agent_config["skill"],
-            max_turns=8,
-        )
+        agent.max_turns = 8
         result = await aitest_run(
             agent, "Compare Paris and Tokyo weather - which is better for a picnic?"
         )
@@ -269,52 +254,42 @@ class TestMultiAgentSessions:
     Tests session grouping and agent comparison together.
     """
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
+    _agents: dict[str, Agent] = {}
+
+    @pytest.fixture
+    def agent(self, banking_server, agent_config):
+        """Cached agent - same UUID for same name across parametrized tests."""
+        name = agent_config["name"]
+        if name not in TestMultiAgentSessions._agents:
+            TestMultiAgentSessions._agents[name] = _make_banking_agent(
+                name,
+                agent_config["model"],
+                banking_server=banking_server,
+            )
+        return TestMultiAgentSessions._agents[name]
+
+    @pytest.fixture(
+        params=[
             {"name": "gpt-5-mini", "model": DEFAULT_MODEL},
             {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL},
         ],
         ids=["gpt-5-mini", "gpt-4.1-mini"],
     )
+    def agent_config(self, request):
+        return request.param
+
     @pytest.mark.asyncio
-    async def test_check_balance(self, aitest_run, banking_server, agent_config, llm_assert):
+    async def test_check_balance(self, aitest_run, agent, llm_assert):
         """First turn: check account balance."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[banking_server],
-            system_prompt="You are a helpful banking assistant. Use tools to help users manage their accounts.",
-            max_turns=5,
-        )
         result = await aitest_run(agent, "What's my checking account balance?")
         assert result.success
         assert result.tool_was_called("get_balance")
         assert result.tool_call_arg("get_balance", "account") == "checking"
         assert llm_assert(result.final_response, "states the checking account balance amount")
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
-            {"name": "gpt-5-mini", "model": DEFAULT_MODEL},
-            {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL},
-        ],
-        ids=["gpt-5-mini", "gpt-4.1-mini"],
-    )
     @pytest.mark.asyncio
-    async def test_transfer_funds(self, aitest_run, banking_server, agent_config, llm_assert):
+    async def test_transfer_funds(self, aitest_run, agent, llm_assert):
         """Second turn: transfer money."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[banking_server],
-            system_prompt="You are a helpful banking assistant. Use tools to help users manage their accounts.",
-            max_turns=5,
-        )
         result = await aitest_run(agent, "Transfer $100 from checking to savings")
         assert result.success
         assert result.tool_was_called("transfer")
@@ -327,26 +302,9 @@ class TestMultiAgentSessions:
             "confirms the transfer of $100 from checking to savings",
         )
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
-            {"name": "gpt-5-mini", "model": DEFAULT_MODEL},
-            {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL},
-        ],
-        ids=["gpt-5-mini", "gpt-4.1-mini"],
-    )
     @pytest.mark.asyncio
-    async def test_verify_transfer(self, aitest_run, banking_server, agent_config, llm_assert):
+    async def test_verify_transfer(self, aitest_run, agent, llm_assert):
         """Third turn: verify the transfer."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[banking_server],
-            system_prompt="You are a helpful banking assistant. Use tools to help users manage their accounts.",
-            max_turns=5,
-        )
         result = await aitest_run(agent, "Show me all my account balances now")
         assert result.success
         assert result.tool_was_called("get_all_balances") or result.tool_was_called("get_balance")
@@ -366,28 +324,35 @@ class TestAgentSelector:
     Agents: gpt-5-mini, gpt-4.1-mini, gpt-5-mini+skill
     """
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
+    _agents: dict[str, Agent] = {}
+
+    @pytest.fixture
+    def agent(self, weather_server, agent_config):
+        """Cached agent - same UUID for same name across parametrized tests."""
+        name = agent_config["name"]
+        if name not in TestAgentSelector._agents:
+            TestAgentSelector._agents[name] = _make_weather_agent(
+                name,
+                agent_config["model"],
+                weather_server=weather_server,
+                skill=agent_config["skill"],
+            )
+        return TestAgentSelector._agents[name]
+
+    @pytest.fixture(
+        params=[
             {"name": "gpt-5-mini", "model": DEFAULT_MODEL, "skill": None},
             {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL, "skill": None},
             {"name": "gpt-5-mini+skill", "model": DEFAULT_MODEL, "skill": WEATHER_SKILL},
         ],
         ids=["gpt-5-mini", "gpt-4.1-mini", "gpt-5-mini+skill"],
     )
+    def agent_config(self, request):
+        return request.param
+
     @pytest.mark.asyncio
-    async def test_weather_query(self, aitest_run, weather_server, agent_config, llm_assert):
+    async def test_weather_query(self, aitest_run, agent, llm_assert):
         """Basic weather query - all agents should pass."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            skill=agent_config["skill"],
-            max_turns=5,
-        )
         result = await aitest_run(agent, "What's the weather in Berlin?")
         assert result.success
         assert result.tool_was_called("get_weather")
@@ -397,28 +362,10 @@ class TestAgentSelector:
             "provides the current temperature and conditions for Berlin",
         )
 
-    @pytest.mark.parametrize(
-        "agent_config",
-        [
-            {"name": "gpt-5-mini", "model": DEFAULT_MODEL, "skill": None},
-            {"name": "gpt-4.1-mini", "model": SECONDARY_MODEL, "skill": None},
-            {"name": "gpt-5-mini+skill", "model": DEFAULT_MODEL, "skill": WEATHER_SKILL},
-        ],
-        ids=["gpt-5-mini", "gpt-4.1-mini", "gpt-5-mini+skill"],
-    )
     @pytest.mark.asyncio
-    async def test_multi_city(self, aitest_run, weather_server, agent_config, llm_assert):
+    async def test_multi_city(self, aitest_run, agent, llm_assert):
         """Multiple cities - tests differentiation between agents."""
-        agent = Agent(
-            name=agent_config["name"],
-            provider=Provider(
-                model=f"azure/{agent_config['model']}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM
-            ),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            skill=agent_config["skill"],
-            max_turns=8,
-        )
+        agent.max_turns = 8
         result = await aitest_run(agent, "Compare weather in Rome, Madrid, and Athens")
         assert result.success
         assert result.tool_call_count("get_weather") >= 3

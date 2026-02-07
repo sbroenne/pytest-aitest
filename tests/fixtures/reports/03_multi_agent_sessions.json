@@ -1,12 +1,12 @@
 {
   "name": "pytest-aitest",
-  "timestamp": "2026-02-06T10:17:15.204363",
-  "duration_ms": 55356.46690000431,
+  "timestamp": "2026-02-07T07:31:22.304591",
+  "duration_ms": 58181.34649998683,
   "tests": [
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_check_balance[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 10994.032499998866,
+      "duration_ms": 11592.438300009235,
       "agent_result": {
         "turns": [
           {
@@ -25,19 +25,19 @@
                 },
                 "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
                 "error": null,
-                "duration_ms": 3.6485999953583814
+                "duration_ms": 3.939900008845143
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with this account (transfer, withdraw, view transactions)?",
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything with that account (transfer, withdraw, view recent transactions)?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 4181.72919999779,
+        "duration_ms": 5037.3956999974325,
         "token_usage": {
           "prompt": 845,
           "completion": 58
@@ -61,7 +61,7 @@
                   "arguments": "{\"account\":\"checking\"}",
                   "name": "get_balance"
                 },
-                "id": "call_z4Mv84J5R442zTZCmE55xdYh",
+                "id": "call_VpgTjQcSGHbrBQAcMoSbcr6Z",
                 "type": "function"
               }
             ],
@@ -73,12 +73,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_z4Mv84J5R442zTZCmE55xdYh",
+            "tool_call_id": "call_VpgTjQcSGHbrBQAcMoSbcr6Z",
             "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with this account (transfer, withdraw, view transactions)?"
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything with that account (transfer, withdraw, view recent transactions)?"
           }
         ],
         "session_context_count": 0,
@@ -226,9 +226,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts.",
-        "agent_name": "gpt-5-mini",
-        "model": "gpt-5-mini"
+        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts."
       },
       "error": null,
       "assertions": [
@@ -240,14 +238,16 @@
         }
       ],
       "docstring": "First turn: check account balance.",
-      "agent_id": "7b30ec34-446c-584e-87f8-402c4f37931d",
+      "agent_id": "81c810da-434a-42c8-847b-2c57141ed0d8",
       "agent_name": "gpt-5-mini",
-      "model": "gpt-5-mini"
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_check_balance[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 7109.551000001375,
+      "duration_ms": 6300.371699995594,
       "agent_result": {
         "turns": [
           {
@@ -266,24 +266,24 @@
                 },
                 "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
                 "error": null,
-                "duration_ms": 1.8550000022514723
+                "duration_ms": 1.7943999991985038
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. How else can I assist you?",
+            "content": "Your checking account balance is $1,500.00. Is there anything else you would like to do?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 2252.5969999987865,
+        "duration_ms": 1544.3573000084143,
         "token_usage": {
           "prompt": 671,
-          "completion": 36
+          "completion": 39
         },
-        "cost_usd": 0.000326,
+        "cost_usd": 0.00033079999999999996,
         "_messages": [
           {
             "role": "system",
@@ -302,7 +302,7 @@
                   "arguments": "{\"account\":\"checking\"}",
                   "name": "get_balance"
                 },
-                "id": "call_m5jCUVcMLzYKk8gl0O1tGPD9",
+                "id": "call_zvWhWVm33egTCL1EsjOD4Wry",
                 "type": "function"
               }
             ],
@@ -314,12 +314,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_m5jCUVcMLzYKk8gl0O1tGPD9",
+            "tool_call_id": "call_zvWhWVm33egTCL1EsjOD4Wry",
             "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. How else can I assist you?"
+            "content": "Your checking account balance is $1,500.00. Is there anything else you would like to do?"
           }
         ],
         "session_context_count": 0,
@@ -467,9 +467,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts.",
-        "agent_name": "gpt-4.1-mini",
-        "model": "gpt-4.1-mini"
+        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts."
       },
       "error": null,
       "assertions": [
@@ -481,14 +479,16 @@
         }
       ],
       "docstring": "First turn: check account balance.",
-      "agent_id": "931c3b4d-f486-5473-bdb1-fdf2487294d2",
+      "agent_id": "688c1219-1e23-44e6-a1c0-f66161cda92b",
       "agent_name": "gpt-4.1-mini",
-      "model": "gpt-4.1-mini"
+      "model": "gpt-4.1-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_transfer_funds[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 8100.443399998767,
+      "duration_ms": 8345.523199997842,
       "agent_result": {
         "turns": [
           {
@@ -509,24 +509,24 @@
                 },
                 "result": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 100, \"amount_formatted\": \"$100.00\", \"new_balance_from\": 1400.0, \"new_balance_to\": 3100.0, \"message\": \"Successfully transferred $100.00 from checking to savings.\"}",
                 "error": null,
-                "duration_ms": 2.4114999978337437
+                "duration_ms": 2.559000000474043
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Done — $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?",
+            "content": "Done \u2014 I transferred $100.00 from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else you'd like to do?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 2558.0020999987028,
+        "duration_ms": 3397.6186999934725,
         "token_usage": {
           "prompt": 1113,
-          "completion": 149
+          "completion": 211
         },
-        "cost_usd": 0.0005762499999999999,
+        "cost_usd": 0.0007002499999999999,
         "_messages": [
           {
             "role": "system",
@@ -545,7 +545,7 @@
                   "arguments": "{\"account\":\"checking\"}",
                   "name": "get_balance"
                 },
-                "id": "call_z4Mv84J5R442zTZCmE55xdYh",
+                "id": "call_VpgTjQcSGHbrBQAcMoSbcr6Z",
                 "type": "function"
               }
             ],
@@ -557,12 +557,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_z4Mv84J5R442zTZCmE55xdYh",
+            "tool_call_id": "call_VpgTjQcSGHbrBQAcMoSbcr6Z",
             "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with this account (transfer, withdraw, view transactions)?"
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything with that account (transfer, withdraw, view recent transactions)?"
           },
           {
             "role": "user",
@@ -577,7 +577,7 @@
                   "arguments": "{\"from_account\":\"checking\",\"to_account\":\"savings\",\"amount\":100}",
                   "name": "transfer"
                 },
-                "id": "call_NG6gVnvqL5y0ubv4fRyKdG60",
+                "id": "call_FrF7B9MHkGD0zmMxXIQ9KYGK",
                 "type": "function"
               }
             ],
@@ -589,12 +589,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_NG6gVnvqL5y0ubv4fRyKdG60",
+            "tool_call_id": "call_FrF7B9MHkGD0zmMxXIQ9KYGK",
             "content": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 100, \"amount_formatted\": \"$100.00\", \"new_balance_from\": 1400.0, \"new_balance_to\": 3100.0, \"message\": \"Successfully transferred $100.00 from checking to savings.\"}"
           },
           {
             "role": "assistant",
-            "content": "Done — $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?"
+            "content": "Done \u2014 I transferred $100.00 from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else you'd like to do?"
           }
         ],
         "session_context_count": 5,
@@ -742,9 +742,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts.",
-        "agent_name": "gpt-5-mini",
-        "model": "gpt-5-mini"
+        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts."
       },
       "error": null,
       "assertions": [
@@ -752,18 +750,20 @@
           "type": "llm",
           "passed": true,
           "message": "confirms the transfer of $100 from checking to savings",
-          "details": "Text explicitly states a $100.00 transfer from checking to savings and shows updated balances for both accounts."
+          "details": "The content explicitly states 'I transferred $100.00 from checking to savings' and provides updated account balances, confirming the $100 transfer."
         }
       ],
       "docstring": "Second turn: transfer money.",
-      "agent_id": "7b30ec34-446c-584e-87f8-402c4f37931d",
+      "agent_id": "81c810da-434a-42c8-847b-2c57141ed0d8",
       "agent_name": "gpt-5-mini",
-      "model": "gpt-5-mini"
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_transfer_funds[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 8426.006700006837,
+      "duration_ms": 7185.146199990413,
       "agent_result": {
         "turns": [
           {
@@ -784,24 +784,24 @@
                 },
                 "result": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 100, \"amount_formatted\": \"$100.00\", \"new_balance_from\": 1400.0, \"new_balance_to\": 3100.0, \"message\": \"Successfully transferred $100.00 from checking to savings.\"}",
                 "error": null,
-                "duration_ms": 2.35170000087237
+                "duration_ms": 2.3274999985005707
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Successfully transferred $100.00 from your checking account to your savings account. Your new checking balance is $1,400.00 and your new savings balance is $3,100.00. Is there anything else you would like to do?",
+            "content": "I have successfully transferred $100 from your checking account to your savings account. Your new checking account balance is $1,400. Would you like to do anything else?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 2584.535300004063,
+        "duration_ms": 2204.0294999897014,
         "token_usage": {
-          "prompt": 901,
-          "completion": 76
+          "prompt": 907,
+          "completion": 61
         },
-        "cost_usd": 0.000482,
+        "cost_usd": 0.00046039999999999997,
         "_messages": [
           {
             "role": "system",
@@ -820,7 +820,7 @@
                   "arguments": "{\"account\":\"checking\"}",
                   "name": "get_balance"
                 },
-                "id": "call_m5jCUVcMLzYKk8gl0O1tGPD9",
+                "id": "call_zvWhWVm33egTCL1EsjOD4Wry",
                 "type": "function"
               }
             ],
@@ -832,12 +832,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_m5jCUVcMLzYKk8gl0O1tGPD9",
+            "tool_call_id": "call_zvWhWVm33egTCL1EsjOD4Wry",
             "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. How else can I assist you?"
+            "content": "Your checking account balance is $1,500.00. Is there anything else you would like to do?"
           },
           {
             "role": "user",
@@ -852,7 +852,7 @@
                   "arguments": "{\"from_account\":\"checking\",\"to_account\":\"savings\",\"amount\":100}",
                   "name": "transfer"
                 },
-                "id": "call_zHZdEsJ6zisJBxP6LdOIYg26",
+                "id": "call_v184lvMA9AePf1dadRCsLI2n",
                 "type": "function"
               }
             ],
@@ -864,12 +864,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_zHZdEsJ6zisJBxP6LdOIYg26",
+            "tool_call_id": "call_v184lvMA9AePf1dadRCsLI2n",
             "content": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 100, \"amount_formatted\": \"$100.00\", \"new_balance_from\": 1400.0, \"new_balance_to\": 3100.0, \"message\": \"Successfully transferred $100.00 from checking to savings.\"}"
           },
           {
             "role": "assistant",
-            "content": "Successfully transferred $100.00 from your checking account to your savings account. Your new checking balance is $1,400.00 and your new savings balance is $3,100.00. Is there anything else you would like to do?"
+            "content": "I have successfully transferred $100 from your checking account to your savings account. Your new checking account balance is $1,400. Would you like to do anything else?"
           }
         ],
         "session_context_count": 5,
@@ -1017,9 +1017,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts.",
-        "agent_name": "gpt-4.1-mini",
-        "model": "gpt-4.1-mini"
+        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts."
       },
       "error": null,
       "assertions": [
@@ -1027,18 +1025,20 @@
           "type": "llm",
           "passed": true,
           "message": "confirms the transfer of $100 from checking to savings",
-          "details": "The content explicitly states a successful transfer of $100.00 from checking to savings and provides updated balances for both accounts."
+          "details": "The message explicitly states that $100 was successfully transferred from checking to savings and provides the updated checking balance, thus confirming the transfer."
         }
       ],
       "docstring": "Second turn: transfer money.",
-      "agent_id": "931c3b4d-f486-5473-bdb1-fdf2487294d2",
+      "agent_id": "688c1219-1e23-44e6-a1c0-f66161cda92b",
       "agent_name": "gpt-4.1-mini",
-      "model": "gpt-4.1-mini"
+      "model": "gpt-4.1-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_verify_transfer[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 12681.556000003184,
+      "duration_ms": 15535.067799995886,
       "agent_result": {
         "turns": [
           {
@@ -1055,24 +1055,48 @@
                 "arguments": {},
                 "result": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}",
                 "error": null,
-                "duration_ms": 1.5807000017957762
+                "duration_ms": 2.8476999868871644
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here are your current balances:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I previously confirmed a $100 transfer and reported new balances of Checking $1,400.00 / Savings $3,100.00, which differs from the totals above. Sorry for the confusion — would you like me to:\n- Refresh balances again,\n- Show recent transactions (to confirm the transfer), or\n- Reconcile and investigate the discrepancy?\n\nWhich would you like me to do?",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_balance",
+                "arguments": {
+                  "account": "checking"
+                },
+                "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
+                "error": null,
+                "duration_ms": 1.968299999134615
+              },
+              {
+                "name": "get_balance",
+                "arguments": {
+                  "account": "savings"
+                },
+                "result": "{\"account\": \"savings\", \"balance\": 3000.0, \"formatted\": \"$3,000.00\"}",
+                "error": null,
+                "duration_ms": 0.9666999976616353
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Here are your current balances in the system right now:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I also see a recent transfer confirmation I posted earlier that showed a transfer of $100 and different balances (checking $1,400 / savings $3,100). Sorry \u2014 those results conflict. Would you like me to:\n- Check your recent transactions to confirm the transfer, or\n- Re-fetch balances again and reconcile, or\n- Do something else?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 7856.5833999964525,
+        "duration_ms": 10249.934200008283,
         "token_usage": {
-          "prompt": 1460,
-          "completion": 533
+          "prompt": 2347,
+          "completion": 906
         },
-        "cost_usd": 0.001431,
+        "cost_usd": 0.00239875,
         "_messages": [
           {
             "role": "system",
@@ -1091,7 +1115,7 @@
                   "arguments": "{\"account\":\"checking\"}",
                   "name": "get_balance"
                 },
-                "id": "call_z4Mv84J5R442zTZCmE55xdYh",
+                "id": "call_VpgTjQcSGHbrBQAcMoSbcr6Z",
                 "type": "function"
               }
             ],
@@ -1103,12 +1127,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_z4Mv84J5R442zTZCmE55xdYh",
+            "tool_call_id": "call_VpgTjQcSGHbrBQAcMoSbcr6Z",
             "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with this account (transfer, withdraw, view transactions)?"
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything with that account (transfer, withdraw, view recent transactions)?"
           },
           {
             "role": "user",
@@ -1123,7 +1147,7 @@
                   "arguments": "{\"from_account\":\"checking\",\"to_account\":\"savings\",\"amount\":100}",
                   "name": "transfer"
                 },
-                "id": "call_NG6gVnvqL5y0ubv4fRyKdG60",
+                "id": "call_FrF7B9MHkGD0zmMxXIQ9KYGK",
                 "type": "function"
               }
             ],
@@ -1135,12 +1159,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_NG6gVnvqL5y0ubv4fRyKdG60",
+            "tool_call_id": "call_FrF7B9MHkGD0zmMxXIQ9KYGK",
             "content": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 100, \"amount_formatted\": \"$100.00\", \"new_balance_from\": 1400.0, \"new_balance_to\": 3100.0, \"message\": \"Successfully transferred $100.00 from checking to savings.\"}"
           },
           {
             "role": "assistant",
-            "content": "Done — $100.00 has been transferred from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else I can do for you?"
+            "content": "Done \u2014 I transferred $100.00 from checking to savings. Your new balances are:\n- Checking: $1,400.00\n- Savings: $3,100.00\n\nAnything else you'd like to do?"
           },
           {
             "role": "user",
@@ -1155,7 +1179,7 @@
                   "arguments": "{}",
                   "name": "get_all_balances"
                 },
-                "id": "call_Dt9QW0zdfvL2DbuWCXrOvCWM",
+                "id": "call_yNrCHPfbeGw6CrYhtu3F4FAc",
                 "type": "function"
               }
             ],
@@ -1167,12 +1191,49 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_Dt9QW0zdfvL2DbuWCXrOvCWM",
+            "tool_call_id": "call_yNrCHPfbeGw6CrYhtu3F4FAc",
             "content": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}"
           },
           {
+            "content": null,
             "role": "assistant",
-            "content": "Here are your current balances:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I previously confirmed a $100 transfer and reported new balances of Checking $1,400.00 / Savings $3,100.00, which differs from the totals above. Sorry for the confusion — would you like me to:\n- Refresh balances again,\n- Show recent transactions (to confirm the transfer), or\n- Reconcile and investigate the discrepancy?\n\nWhich would you like me to do?"
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"account\": \"checking\"}",
+                  "name": "get_balance"
+                },
+                "id": "call_FPU2mvv5nOHU1H5dpHPZmACR",
+                "type": "function"
+              },
+              {
+                "function": {
+                  "arguments": "{\"account\": \"savings\"}",
+                  "name": "get_balance"
+                },
+                "id": "call_49ssJqXRE8daJ7Ix54WP3nX0",
+                "type": "function"
+              }
+            ],
+            "function_call": null,
+            "provider_specific_fields": {
+              "refusal": null
+            },
+            "annotations": []
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_FPU2mvv5nOHU1H5dpHPZmACR",
+            "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_49ssJqXRE8daJ7Ix54WP3nX0",
+            "content": "{\"account\": \"savings\", \"balance\": 3000.0, \"formatted\": \"$3,000.00\"}"
+          },
+          {
+            "role": "assistant",
+            "content": "Here are your current balances in the system right now:\n- Checking: $1,500.00\n- Savings: $3,000.00\n- Total: $4,500.00\n\nNote: I also see a recent transfer confirmation I posted earlier that showed a transfer of $100 and different balances (checking $1,400 / savings $3,100). Sorry \u2014 those results conflict. Would you like me to:\n- Check your recent transactions to confirm the transfer, or\n- Re-fetch balances again and reconcile, or\n- Do something else?"
           }
         ],
         "session_context_count": 9,
@@ -1320,9 +1381,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts.",
-        "agent_name": "gpt-5-mini",
-        "model": "gpt-5-mini"
+        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts."
       },
       "error": null,
       "assertions": [
@@ -1330,18 +1389,20 @@
           "type": "llm",
           "passed": true,
           "message": "shows balances for multiple accounts",
-          "details": "The content lists balances for multiple accounts (Checking and Savings) and a combined total, satisfying the criterion."
+          "details": "Content lists balances for multiple accounts (Checking and Savings) and a total, so it meets the criterion."
         }
       ],
       "docstring": "Third turn: verify the transfer.",
-      "agent_id": "7b30ec34-446c-584e-87f8-402c4f37931d",
+      "agent_id": "81c810da-434a-42c8-847b-2c57141ed0d8",
       "agent_name": "gpt-5-mini",
-      "model": "gpt-5-mini"
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestMultiAgentSessions::test_verify_transfer[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 8044.877299995278,
+      "duration_ms": 9222.79929999786,
       "agent_result": {
         "turns": [
           {
@@ -1358,24 +1419,24 @@
                 "arguments": {},
                 "result": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}",
                 "error": null,
-                "duration_ms": 2.5269999969168566
+                "duration_ms": 2.584700006991625
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Your current balances are:\n- Checking: $1,500.00\n- Savings: $3,000.00\nThe total balance across all accounts is $4,500.00. How else may I assist you?",
+            "content": "Your current account balances are:\n- Checking: $1,500.00\n- Savings: $3,000.00\nThe total balance across all accounts is $4,500.00.\n\n(Note: The displayed balances seem to reflect the previous state before the latest transfer. Your updated new balances after the transfer were $1,400 in checking and $3,100 in savings.)\n\nWould you like me to re-check the balances to confirm the latest amounts?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 2258.432199996605,
+        "duration_ms": 1973.092700005509,
         "token_usage": {
-          "prompt": 1236,
-          "completion": 61
+          "prompt": 1212,
+          "completion": 108
         },
-        "cost_usd": 0.000592,
+        "cost_usd": 0.0006575999999999999,
         "_messages": [
           {
             "role": "system",
@@ -1394,7 +1455,7 @@
                   "arguments": "{\"account\":\"checking\"}",
                   "name": "get_balance"
                 },
-                "id": "call_m5jCUVcMLzYKk8gl0O1tGPD9",
+                "id": "call_zvWhWVm33egTCL1EsjOD4Wry",
                 "type": "function"
               }
             ],
@@ -1406,12 +1467,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_m5jCUVcMLzYKk8gl0O1tGPD9",
+            "tool_call_id": "call_zvWhWVm33egTCL1EsjOD4Wry",
             "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Your checking account balance is $1,500.00. How else can I assist you?"
+            "content": "Your checking account balance is $1,500.00. Is there anything else you would like to do?"
           },
           {
             "role": "user",
@@ -1426,7 +1487,7 @@
                   "arguments": "{\"from_account\":\"checking\",\"to_account\":\"savings\",\"amount\":100}",
                   "name": "transfer"
                 },
-                "id": "call_zHZdEsJ6zisJBxP6LdOIYg26",
+                "id": "call_v184lvMA9AePf1dadRCsLI2n",
                 "type": "function"
               }
             ],
@@ -1438,12 +1499,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_zHZdEsJ6zisJBxP6LdOIYg26",
+            "tool_call_id": "call_v184lvMA9AePf1dadRCsLI2n",
             "content": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 100, \"amount_formatted\": \"$100.00\", \"new_balance_from\": 1400.0, \"new_balance_to\": 3100.0, \"message\": \"Successfully transferred $100.00 from checking to savings.\"}"
           },
           {
             "role": "assistant",
-            "content": "Successfully transferred $100.00 from your checking account to your savings account. Your new checking balance is $1,400.00 and your new savings balance is $3,100.00. Is there anything else you would like to do?"
+            "content": "I have successfully transferred $100 from your checking account to your savings account. Your new checking account balance is $1,400. Would you like to do anything else?"
           },
           {
             "role": "user",
@@ -1458,7 +1519,7 @@
                   "arguments": "{}",
                   "name": "get_all_balances"
                 },
-                "id": "call_IgzEBfg8YNMlAQsEQJjz6lJz",
+                "id": "call_EQy6q34ZQWIliDfqtjOfy7E1",
                 "type": "function"
               }
             ],
@@ -1470,12 +1531,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_IgzEBfg8YNMlAQsEQJjz6lJz",
+            "tool_call_id": "call_EQy6q34ZQWIliDfqtjOfy7E1",
             "content": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Your current balances are:\n- Checking: $1,500.00\n- Savings: $3,000.00\nThe total balance across all accounts is $4,500.00. How else may I assist you?"
+            "content": "Your current account balances are:\n- Checking: $1,500.00\n- Savings: $3,000.00\nThe total balance across all accounts is $4,500.00.\n\n(Note: The displayed balances seem to reflect the previous state before the latest transfer. Your updated new balances after the transfer were $1,400 in checking and $3,100 in savings.)\n\nWould you like me to re-check the balances to confirm the latest amounts?"
           }
         ],
         "session_context_count": 9,
@@ -1623,9 +1684,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts.",
-        "agent_name": "gpt-4.1-mini",
-        "model": "gpt-4.1-mini"
+        "effective_system_prompt": "You are a helpful banking assistant. Use tools to help users manage their accounts."
       },
       "error": null,
       "assertions": [
@@ -1633,13 +1692,15 @@
           "type": "llm",
           "passed": true,
           "message": "shows balances for multiple accounts",
-          "details": "Content lists balances for multiple accounts (Checking and Savings) and gives a total balance."
+          "details": "Content lists balances for multiple accounts (Checking and Savings) and even provides updated amounts and a total."
         }
       ],
       "docstring": "Third turn: verify the transfer.",
-      "agent_id": "931c3b4d-f486-5473-bdb1-fdf2487294d2",
+      "agent_id": "688c1219-1e23-44e6-a1c0-f66161cda92b",
       "agent_name": "gpt-4.1-mini",
-      "model": "gpt-4.1-mini"
+      "model": "gpt-4.1-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     }
   ],
   "passed": 6,
@@ -1648,9 +1709,9 @@
   "suite_docstring": "Multi-turn banking session with 2 agents.",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## 🎯 Recommendation\n\n**Deploy: gpt-4.1-mini**\n\nAchieves 100% pass rate across all session tests at **~46% lower total cost** than gpt-5-mini with consistently lower latency and token usage.\n\n**Reasoning:** Both models passed all tests, so cost is the deciding factor. Across the three-turn session, gpt-4.1-mini cost **$0.00140 total vs $0.00233** for gpt-5-mini (~46% cheaper) while also using ~35% fewer tokens. Response quality was comparable, and gpt-4.1-mini avoided unnecessary meta-commentary in the final verification step.\n\n**Alternatives:**  \n- **gpt-5-mini**: Higher cost and token usage with no accuracy benefit. Only advantage observed was proactive discrepancy explanation, which is not required by tests and increased cost.\n\n## 🔧 MCP Tool Feedback\n\n### pytest_aitest.testing.banking_mcp\nOverall, tools are clearly named and correctly invoked by both models. No tool confusion observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_balance | ✅ | 2 | Working well |\n| transfer | ✅ | 2 | Working well |\n| get_all_balances | ✅ | 2 | Working well |\n| deposit | ✅ | 0 | Not exercised in tests |\n| withdraw | ✅ | 0 | Not exercised in tests |\n| get_transactions | ✅ | 0 | Not exercised in tests |\n\n## 📦 Tool Response Optimization\n\n### get_balance (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~18 tokens\n- **Issues found:** Redundant dual representation of balance (`balance` and `formatted`). The agent always uses the formatted string in responses.\n- **Suggested optimization:** Remove the raw numeric `balance` field or make `formatted` optional.\n- **Estimated savings:** ~4 tokens per call (~22% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~18 tokens)\n{\"account\":\"checking\",\"balance\":1500.0,\"formatted\":\"$1,500.00\"}\n\n// Optimized (~14 tokens)\n{\"account\":\"checking\",\"formatted\":\"$1,500.00\"}\n```\n\n### transfer (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~45 tokens\n- **Issues found:** Multiple redundant fields: `type`, `amount` vs `amount_formatted`, and verbose `message` duplicate the same information.\n- **Suggested optimization:** Keep IDs and post-transfer balances; drop `type`, raw `amount`, and `message`.\n- **Estimated savings:** ~15–18 tokens per call (~35–40% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~45 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"type\":\"transfer\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount\":100,\n  \"amount_formatted\":\"$100.00\",\n  \"new_balance_from\":1400.0,\n  \"new_balance_to\":3100.0,\n  \"message\":\"Successfully transferred $100.00 from checking to savings.\"\n}\n\n// Optimized (~27 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount_formatted\":\"$100.00\",\n  \"new_balance_from\":1400.0,\n  \"new_balance_to\":3100.0\n}\n```\n\n### get_all_balances (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~34 tokens\n- **Issues found:** Redundant `balance` and `formatted` pairs for each account plus duplicated `total` and `total_formatted`.\n- **Suggested optimization:** Return only formatted strings, or only numeric values plus a single formatting hint.\n- **Estimated savings:** ~10–12 tokens per call (~30% reduction)\n\n## 💡 Optimizations\n\n1. **Remove redundant formatted fields from MCP responses** (recommended)\n   - Current: Tools return both numeric and formatted values plus verbose messages.\n   - Change: Standardize on formatted strings for user-facing tests, drop raw duplicates.\n   - Impact: **~30–40% cost reduction on tool-heavy tests**, fewer tokens per turn.\n\n2. **Discourage unnecessary discrepancy explanations in system prompt** (suggestion)\n   - Current: gpt-5-mini added a long reconciliation explanation in `test_verify_transfer` despite test passing.\n   - Change: Append to prompt:  \n     > “Do not speculate or reconcile discrepancies unless the user explicitly asks.”\n   - Impact: **~20–25% cost reduction** in multi-turn sessions by avoiding extra reasoning text.\n\n## 📝 System Prompt Feedback\n\n### default (mixed)\n- **Token count:** 13\n- **Problem:** Lacks guidance on verbosity and speculation, leading to unnecessary explanations in some models (notably gpt-5-mini).\n- **Suggested change:** Replace with:\n  ```\n  You are a helpful banking assistant. Use tools to help users manage their accounts.\n  Be concise. Do not speculate, explain discrepancies, or add follow-up options unless the user asks.\n  ```\n",
-    "cost_usd": 0.0198121,
-    "tokens_used": 5255,
+    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-4.1-mini + default system prompt**\n\nAchieves **100% pass rate at ~55% lower total cost** than gpt-5-mini while producing equally correct tool usage and cleaner multi-turn behavior.\n\n**Reasoning:**  \nBoth agents passed all tests, so cost is the deciding factor. Across the three-step session, **gpt-4.1-mini cost ~$0.00145 total vs ~$0.00343 for gpt-5-mini (~58% cheaper)** with fewer tokens and faster responses. Response quality is comparable, and gpt-4.1-mini avoided redundant tool calls in the final verification step.\n\n**Alternatives:**  \n- **gpt-5-mini**: Higher verbosity and redundant tool calls led to ~2.3\u00d7 higher cost with no correctness gains. Only consider if its more conversational tone or explicit conflict explanation is desired despite the cost.\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.banking_mcp\nOverall, tools are clearly named and correctly invoked. The main issue is **redundant usage** encouraged by ambiguous expectations around freshness and session state.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_balance | \u26a0\ufe0f | 3 | Redundant calls after `get_all_balances` in `test_verify_transfer[gpt-5-mini]` |\n| get_all_balances | \u2705 | 2 | Working well; sufficient for verification |\n| transfer | \u2705 | 2 | Working well |\n| deposit | \u2705 | 0 | Not exercised in this test suite |\n| withdraw | \u2705 | 0 | Not exercised in this test suite |\n| get_transactions | \u2705 | 0 | Not exercised; relevant to reconciliation flow |\n\n**Suggested rewrite for `get_all_balances`:**\n> Get balances for all accounts at once, including total. This call reflects the current authoritative state and does not require follow-up `get_balance` calls for individual accounts.\n\nThis explicitly discourages redundant follow-ups.\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (mixed)\n- **Token count:** ~11 tokens\n- **Problem:** The prompt does not instruct how to handle **conflicting state across turns**, leading gpt-5-mini to over-fetch and apologize unnecessarily in `test_verify_transfer[gpt-5-mini]`.\n- **Suggested change (exact rewrite):**\n```\nYou are a helpful banking assistant. Use tools to help users manage their accounts.\nWhen a tool returns authoritative data, prefer it over prior conversational context and avoid redundant tool calls unless the user explicitly asks to re-check.\n```\n\nThis keeps the prompt lightweight while guiding tool strategy.\n\n## \ud83d\udca1 Optimizations\n\n1. **Avoid redundant balance checks after aggregate calls** (recommended)\n   - Current: In `test_verify_transfer[gpt-5-mini]`, the agent calls `get_all_balances` and then calls `get_balance` twice.\n   - Change: Rely solely on `get_all_balances` unless the user asks for a specific account after.\n   - Impact: ~35\u201340% cost reduction for that step (~1,200 tokens saved, ~$0.001/test).\n\n2. **Clarify session authority rules** (suggestion)\n   - Current: Agents verbally reconcile conflicting balances instead of trusting the latest tool output.\n   - Change: Prompt addition above to treat tool output as source of truth.\n   - Impact: Eliminates unnecessary explanations and follow-up offers, saving ~10\u201315% cost per multi-turn session.\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_all_balances (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~90 tokens\n- **Issues found:** Nested objects with duplicated `formatted` fields that the agent simply echoes.\n- **Suggested optimization:** Remove `formatted` fields and let the agent format amounts if needed.\n- **Estimated savings:** ~30 tokens per call (~33% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~90 tokens)\n{\n  \"accounts\": {\n    \"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"},\n    \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}\n  },\n  \"total\": 4500.0,\n  \"total_formatted\": \"$4,500.00\"\n}\n\n// Optimized (~60 tokens)\n{\n  \"accounts\": {\n    \"checking\": 1500.0,\n    \"savings\": 3000.0\n  },\n  \"total\": 4500.0\n}\n```\n\nThis format is sufficient for all observed agent responses and reduces tool token overhead.",
+    "cost_usd": 0.021239749999999998,
+    "tokens_used": 5277,
     "cached": false
   }
 }

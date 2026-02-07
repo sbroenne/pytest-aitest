@@ -1,12 +1,12 @@
 {
   "name": "pytest-aitest",
-  "timestamp": "2026-02-06T12:01:59.585967",
-  "duration_ms": 43601.12670000672,
+  "timestamp": "2026-02-07T07:35:04.701082",
+  "duration_ms": 43112.542599992594,
   "tests": [
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_simple_weather_query",
       "outcome": "passed",
-      "duration_ms": 11304.69119999907,
+      "duration_ms": 11051.680599994143,
       "agent_result": {
         "turns": [
           {
@@ -25,24 +25,24 @@
                 },
                 "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
                 "error": null,
-                "duration_ms": 2.3739999960525893
+                "duration_ms": 2.996000010170974
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here's the current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or for a different city?",
+            "content": "Here's the current weather for Paris, France:\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 4788.527299999259,
+        "duration_ms": 4963.523099999293,
         "token_usage": {
           "prompt": 698,
-          "completion": 88
+          "completion": 71
         },
-        "cost_usd": 0.0003505,
+        "cost_usd": 0.0003165,
         "_messages": [
           {
             "role": "system",
@@ -61,7 +61,7 @@
                   "arguments": "{\"city\":\"Paris\"}",
                   "name": "get_weather"
                 },
-                "id": "call_Qy5KbLhkthSZ6PPBl43pKUH2",
+                "id": "call_LsJ7H3qJxfv3HbJfh3ORqZOT",
                 "type": "function"
               }
             ],
@@ -73,12 +73,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_Qy5KbLhkthSZ6PPBl43pKUH2",
+            "tool_call_id": "call_LsJ7H3qJxfv3HbJfh3ORqZOT",
             "content": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}"
           },
           {
             "role": "assistant",
-            "content": "Here's the current weather in Paris, France:\n- Temperature: 18°C (64°F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or for a different city?"
+            "content": "Here's the current weather for Paris, France:\n- Temperature: 18\u00b0C (64\u00b0F)\n- Conditions: Partly cloudy\n- Humidity: 65%\n- Wind: 12 km/h from the SW"
           }
         ],
         "session_context_count": 0,
@@ -157,9 +157,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.",
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
+        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
       },
       "error": null,
       "assertions": [
@@ -167,18 +165,20 @@
           "type": "llm",
           "passed": true,
           "message": "mentions the temperature in Celsius or Fahrenheit",
-          "details": "The content explicitly states temperature as 18°C and also provides 64°F."
+          "details": "The content explicitly states the temperature as 18\u00b0C and also provides 64\u00b0F."
         }
       ],
       "docstring": "Basic weather lookup - should pass.",
-      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
+      "agent_id": "8de2311d-21c8-4918-8d05-71b0bc189bb5",
       "agent_name": "weather-agent",
-      "model": "gpt-5-mini"
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_forecast_query",
       "outcome": "passed",
-      "duration_ms": 12261.174800005392,
+      "duration_ms": 12169.52909999236,
       "agent_result": {
         "turns": [
           {
@@ -198,24 +198,24 @@
                 },
                 "result": "[{\"day\": 1, \"city\": \"Tokyo\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"Tokyo\", \"high_celsius\": 27, \"low_celsius\": 19, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"Tokyo\", \"high_celsius\": 28, \"low_celsius\": 20, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}]",
                 "error": null,
-                "duration_ms": 2.594599995063618
+                "duration_ms": 3.4700000105658546
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here’s the 3-day forecast for Tokyo:\n\n- Day 1\n  - High: 26°C (≈79°F), Low: 18°C (≈64°F)\n  - Conditions: Sunny\n  - Precipitation chance: 20%\n\n- Day 2\n  - High: 27°C (≈81°F), Low: 19°C (≈66°F)\n  - Conditions: Partly cloudy\n  - Precipitation chance: 30%\n\n- Day 3\n  - High: 28°C (≈82°F), Low: 20°C (≈68°F)\n  - Conditions: Cloudy\n  - Precipitation chance: 40%\n\nSummary: Warm and mostly dry, with increasing cloudiness and a rising chance of showers toward Day 3—you might want a light umbrella or rain jacket then.",
+            "content": "Here\u2019s the 3-day forecast for Tokyo (starting today, 2026-02-07):\n\n- 2026-02-07 (Day 1): Sunny. High 26\u00b0C (79\u00b0F), low 18\u00b0C (64\u00b0F). Precip chance 20%. Light jacket in the morning, pleasant daytime.\n- 2026-02-08 (Day 2): Partly cloudy. High 27\u00b0C (81\u00b0F), low 19\u00b0C (66\u00b0F). Precip chance 30%. Mostly dry but keep a light umbrella handy just in case.\n- 2026-02-09 (Day 3): Cloudy. High 28\u00b0C (82\u00b0F), low 20\u00b0C (68\u00b0F). Precip chance 40%. Cooler mornings/evenings\u2014consider a layer and an umbrella if you\u2019ll be out.\n\nIf you want hourly details, wind info, or an extended forecast, I can fetch that.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 6600.275600001623,
+        "duration_ms": 7458.550800001831,
         "token_usage": {
           "prompt": 788,
-          "completion": 534
+          "completion": 616
         },
-        "cost_usd": 0.001265,
+        "cost_usd": 0.001429,
         "_messages": [
           {
             "role": "system",
@@ -234,7 +234,7 @@
                   "arguments": "{\"city\":\"Tokyo\",\"days\":3}",
                   "name": "get_forecast"
                 },
-                "id": "call_EQ2kVJvx9LCTqS7KLDIbkgi3",
+                "id": "call_fzcddkvWTkDsOZxQUCku5Eq8",
                 "type": "function"
               }
             ],
@@ -246,12 +246,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_EQ2kVJvx9LCTqS7KLDIbkgi3",
+            "tool_call_id": "call_fzcddkvWTkDsOZxQUCku5Eq8",
             "content": "[{\"day\": 1, \"city\": \"Tokyo\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"Tokyo\", \"high_celsius\": 27, \"low_celsius\": 19, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"Tokyo\", \"high_celsius\": 28, \"low_celsius\": 20, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}]"
           },
           {
             "role": "assistant",
-            "content": "Here’s the 3-day forecast for Tokyo:\n\n- Day 1\n  - High: 26°C (≈79°F), Low: 18°C (≈64°F)\n  - Conditions: Sunny\n  - Precipitation chance: 20%\n\n- Day 2\n  - High: 27°C (≈81°F), Low: 19°C (≈66°F)\n  - Conditions: Partly cloudy\n  - Precipitation chance: 30%\n\n- Day 3\n  - High: 28°C (≈82°F), Low: 20°C (≈68°F)\n  - Conditions: Cloudy\n  - Precipitation chance: 40%\n\nSummary: Warm and mostly dry, with increasing cloudiness and a rising chance of showers toward Day 3—you might want a light umbrella or rain jacket then."
+            "content": "Here\u2019s the 3-day forecast for Tokyo (starting today, 2026-02-07):\n\n- 2026-02-07 (Day 1): Sunny. High 26\u00b0C (79\u00b0F), low 18\u00b0C (64\u00b0F). Precip chance 20%. Light jacket in the morning, pleasant daytime.\n- 2026-02-08 (Day 2): Partly cloudy. High 27\u00b0C (81\u00b0F), low 19\u00b0C (66\u00b0F). Precip chance 30%. Mostly dry but keep a light umbrella handy just in case.\n- 2026-02-09 (Day 3): Cloudy. High 28\u00b0C (82\u00b0F), low 20\u00b0C (68\u00b0F). Precip chance 40%. Cooler mornings/evenings\u2014consider a layer and an umbrella if you\u2019ll be out.\n\nIf you want hourly details, wind info, or an extended forecast, I can fetch that."
           }
         ],
         "session_context_count": 0,
@@ -330,9 +330,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.",
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
+        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
       },
       "error": null,
       "assertions": [
@@ -340,18 +338,20 @@
           "type": "llm",
           "passed": true,
           "message": "provides weather information for multiple days",
-          "details": "The content gives a 3-day forecast for Tokyo with temperatures, conditions, and precipitation chances for each day, satisfying the requirement for multiple-day weather information."
+          "details": "The content gives a 3-day forecast (dates, conditions, highs/lows, precipitation chances and advice) for Tokyo, satisfying the multiple-days weather information criterion."
         }
       ],
       "docstring": "Multi-day forecast - tests get_forecast tool.",
-      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
+      "agent_id": "8de2311d-21c8-4918-8d05-71b0bc189bb5",
       "agent_name": "weather-agent",
-      "model": "gpt-5-mini"
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_city_comparison",
       "outcome": "passed",
-      "duration_ms": 11578.085300003295,
+      "duration_ms": 10237.138700002106,
       "agent_result": {
         "turns": [
           {
@@ -371,24 +371,24 @@
                 },
                 "result": "{\"city1\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"city2\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
                 "error": null,
-                "duration_ms": 2.064300002530217
+                "duration_ms": 1.64309999672696
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Sydney is warmer today — about 26°C (79°F) vs Berlin’s 16°C (61°F), so roughly 10°C (18°F) warmer. Sydney is sunny with 60% humidity and SE winds ~20 km/h; Berlin is overcast with 72% humidity and N winds ~10 km/h.",
+            "content": "Sydney is warmer today. Temperature: Sydney 26\u00b0C (79\u00b0F) vs Berlin 16\u00b0C (61\u00b0F) \u2014 a 10\u00b0C difference. Sydney is sunny with 60% humidity and a SE wind ~20 km/h; Berlin is overcast with 72% humidity and a N wind ~10 km/h.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 5723.716300002707,
+        "duration_ms": 5185.660599992843,
         "token_usage": {
           "prompt": 797,
-          "completion": 427
+          "completion": 298
         },
-        "cost_usd": 0.00105325,
+        "cost_usd": 0.00079525,
         "_messages": [
           {
             "role": "system",
@@ -407,7 +407,7 @@
                   "arguments": "{\"city1\":\"Berlin\",\"city2\":\"Sydney\"}",
                   "name": "compare_weather"
                 },
-                "id": "call_5NjjQZlX5PGI8ZZ7rYDyU8M8",
+                "id": "call_t8Emud12rksQpjCQx2CbK65S",
                 "type": "function"
               }
             ],
@@ -419,12 +419,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_5NjjQZlX5PGI8ZZ7rYDyU8M8",
+            "tool_call_id": "call_t8Emud12rksQpjCQx2CbK65S",
             "content": "{\"city1\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"city2\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}"
           },
           {
             "role": "assistant",
-            "content": "Sydney is warmer today — about 26°C (79°F) vs Berlin’s 16°C (61°F), so roughly 10°C (18°F) warmer. Sydney is sunny with 60% humidity and SE winds ~20 km/h; Berlin is overcast with 72% humidity and N winds ~10 km/h."
+            "content": "Sydney is warmer today. Temperature: Sydney 26\u00b0C (79\u00b0F) vs Berlin 16\u00b0C (61\u00b0F) \u2014 a 10\u00b0C difference. Sydney is sunny with 60% humidity and a SE wind ~20 km/h; Berlin is overcast with 72% humidity and a N wind ~10 km/h."
           }
         ],
         "session_context_count": 0,
@@ -503,9 +503,7 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.",
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
+        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
       },
       "error": null,
       "assertions": [
@@ -513,18 +511,20 @@
           "type": "llm",
           "passed": true,
           "message": "compares temperatures for both cities",
-          "details": "Provides both cities' temperatures (26°C vs 16°C) and explicitly states the temperature difference (~10°C / 18°F)."
+          "details": "The content lists temperatures for both Sydney (26\u00b0C/79\u00b0F) and Berlin (16\u00b0C/61\u00b0F) and explicitly compares them, noting the 10\u00b0C difference and that Sydney is warmer."
         }
       ],
       "docstring": "Compare two cities - multiple tool calls.",
-      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
+      "agent_id": "8de2311d-21c8-4918-8d05-71b0bc189bb5",
       "agent_name": "weather-agent",
-      "model": "gpt-5-mini"
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     },
     {
       "name": "tests/fixtures/generate_scenarios.py::TestSingleAgent::test_expected_failure",
       "outcome": "failed",
-      "duration_ms": 8457.17539999896,
+      "duration_ms": 9654.194200003985,
       "agent_result": {
         "turns": [
           {
@@ -543,7 +543,7 @@
                 },
                 "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
                 "error": null,
-                "duration_ms": 1.979399996344
+                "duration_ms": 3.8539999950444326
               },
               {
                 "name": "get_weather",
@@ -552,7 +552,7 @@
                 },
                 "result": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}",
                 "error": null,
-                "duration_ms": 1.739100000122562
+                "duration_ms": 2.3904999980004504
               },
               {
                 "name": "get_weather",
@@ -561,7 +561,7 @@
                 },
                 "result": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}",
                 "error": null,
-                "duration_ms": 1.3429000027826987
+                "duration_ms": 2.7701999933924526
               },
               {
                 "name": "get_weather",
@@ -570,7 +570,7 @@
                 },
                 "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
                 "error": null,
-                "duration_ms": 1.080100002582185
+                "duration_ms": 1.8509999936213717
               },
               {
                 "name": "get_weather",
@@ -579,19 +579,28 @@
                 },
                 "result": "{\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}",
                 "error": null,
-                "duration_ms": 1.1543999935383908
+                "duration_ms": 2.44609999936074
+              },
+              {
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Berlin"
+                },
+                "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
+                "error": null,
+                "duration_ms": 1.5954999980749562
               }
             ]
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 4020.67420000094,
+        "duration_ms": 7024.869600005331,
         "token_usage": {
           "prompt": 317,
-          "completion": 288
+          "completion": 622
         },
-        "cost_usd": 0.00065525,
+        "cost_usd": 0.0013232499999999998,
         "_messages": [
           {
             "role": "system",
@@ -610,7 +619,7 @@
                   "arguments": "{\"city\": \"Paris\"}",
                   "name": "get_weather"
                 },
-                "id": "call_NV8D5wjnFCLL6P7ED1i6e4Uc",
+                "id": "call_SXaQgPClTt5DbPAKG6sztkC1",
                 "type": "function"
               },
               {
@@ -618,7 +627,7 @@
                   "arguments": "{\"city\": \"Tokyo\"}",
                   "name": "get_weather"
                 },
-                "id": "call_70GSMVy9A1jDoA1nvjUC4n2e",
+                "id": "call_9dI5w95K3A0CdJgpXCjoH0Bo",
                 "type": "function"
               },
               {
@@ -626,7 +635,7 @@
                   "arguments": "{\"city\": \"London\"}",
                   "name": "get_weather"
                 },
-                "id": "call_KW0CPOiCH4JVw0Kt7cCpOSDq",
+                "id": "call_p37QrZajam65dZlDAhRgUvwN",
                 "type": "function"
               },
               {
@@ -634,7 +643,7 @@
                   "arguments": "{\"city\": \"Berlin\"}",
                   "name": "get_weather"
                 },
-                "id": "call_ZEM8VYQOsxj72ay5dwz1sdTo",
+                "id": "call_YOLst1FKsI3TcCayRXHnYVrj",
                 "type": "function"
               },
               {
@@ -642,7 +651,15 @@
                   "arguments": "{\"city\": \"Sydney\"}",
                   "name": "get_weather"
                 },
-                "id": "call_i1wVPpJuuv3UeyuSW1LdQXMn",
+                "id": "call_CyfOliEMzEneRl7hqrOOnNXi",
+                "type": "function"
+              },
+              {
+                "function": {
+                  "arguments": "{\"city\": \"Berlin\"}",
+                  "name": "get_weather"
+                },
+                "id": "call_JWXKo21DhgIIZzOKZyozckqS",
                 "type": "function"
               }
             ],
@@ -654,28 +671,33 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_NV8D5wjnFCLL6P7ED1i6e4Uc",
+            "tool_call_id": "call_SXaQgPClTt5DbPAKG6sztkC1",
             "content": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_70GSMVy9A1jDoA1nvjUC4n2e",
+            "tool_call_id": "call_9dI5w95K3A0CdJgpXCjoH0Bo",
             "content": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_KW0CPOiCH4JVw0Kt7cCpOSDq",
+            "tool_call_id": "call_p37QrZajam65dZlDAhRgUvwN",
             "content": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_ZEM8VYQOsxj72ay5dwz1sdTo",
+            "tool_call_id": "call_YOLst1FKsI3TcCayRXHnYVrj",
             "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_i1wVPpJuuv3UeyuSW1LdQXMn",
+            "tool_call_id": "call_CyfOliEMzEneRl7hqrOOnNXi",
             "content": "{\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}"
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_JWXKo21DhgIIZzOKZyozckqS",
+            "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
           }
         ],
         "session_context_count": 0,
@@ -754,16 +776,16 @@
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data.",
-        "agent_name": "weather-agent",
-        "model": "gpt-5-mini"
+        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
       },
-      "error": "      AssertionError: Agent exceeded turn limit - unable to process request for 5 cities (max_turns=1)\n      assert False",
+      "error": "      AssertionError: Agent exceeded turn limit - unable to process request for 5 cities (max_turns=1)",
       "assertions": [],
       "docstring": "Test that fails due to turn limit - for report variety.",
-      "agent_id": "833690a9-b6c7-5fee-842c-056a717c5bfc",
+      "agent_id": "8de2311d-21c8-4918-8d05-71b0bc189bb5",
       "agent_name": "weather-agent",
-      "model": "gpt-5-mini"
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
     }
   ],
   "passed": 3,
@@ -772,9 +794,9 @@
   "suite_docstring": "Single agent tests - basic report without comparison UI.",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## 🎯 Recommendation\n\n**Deploy: weather-agent (gpt-5-mini, default prompt)**\n\nAchieves **75% pass rate (3/4 tests)** at a **total cost of $0.003324**, with correct and consistent tool usage across all successful scenarios.\n\n**Reasoning:** All core functionality tests (single city, forecast, comparison) passed with correct tool selection and accurate synthesis. The single failure is due to a **test harness constraint (turn limit)** rather than incorrect tool use or model behavior. Cost is low and stable, with no retries or tool errors.\n\n**Alternatives:** None – only one configuration tested.\n\n## ❌ Failure Analysis\n\n### tests/fixtures/generate_scenarios.py::TestSingleAgent::test_expected_failure (weather-agent)\n- **Problem:** Test fails because the agent exceeds the configured `max_turns=1` when asked to fetch and compare weather for five cities.\n- **Root Cause:** The request inherently requires multiple tool calls. The system prompt instructs the agent to “Always use tools,” but the test configuration allows only one turn, making the task impossible within constraints.\n- **Fix:** Adjust the test or prompt to align with turn limits.\n  - **Test fix (recommended):** Increase turn limit for this test.\n    ```python\n    max_turns=5\n    ```\n  - **Prompt fix (alternative):** Add explicit instruction to batch or refuse multi-city requests when constrained.\n    ```\n    If a request requires multiple tool calls and exceeds the allowed turns, explain the limitation and ask the user to narrow the request.\n    ```\n\n## 🔧 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools are clearly described and correctly selected by the agent. No confusion or misuse observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | ✅ | 7 | Working well |\n| get_forecast | ✅ | 1 | Working well |\n| compare_weather | ✅ | 1 | Working well |\n| list_cities | ✅ | 0 | Not needed in tests |\n\n## 📝 System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~24 tokens\n- **Assessment:** Clear, concise, and effective. The instruction “Always use tools” successfully prevents hallucination and drives correct behavior.\n- **Suggested change:** None required for current test scope. Only consider adding a turn-limit fallback if such constraints are common.\n\n## 💡 Optimizations\n\n1. **Multi-city comparison helper** (suggestion)\n   - Current: Agent must issue repeated `get_weather` calls and manually compare results.\n   - Change: Add a new MCP tool, e.g. `compare_multiple_cities`, that accepts a list of cities.\n   - Impact: Enables single-call handling of complex comparisons, preventing turn-limit failures and reducing cost for multi-city queries by eliminating 4 extra tool calls (~$0.0005–$0.001 saved per request).\n\n## 📦 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~70 tokens per call\n- **Issues found:** Fields like `country`, `wind_direction`, and `humidity` are not always used in agent summaries or comparisons.\n- **Suggested optimization:** Provide an optional compact mode or remove unused fields for comparison-focused calls.\n- **Estimated savings:** ~20 tokens per call (~28% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~70 tokens)\n{\n  \"city\": \"Paris\",\n  \"country\": \"France\",\n  \"temperature_celsius\": 18,\n  \"temperature_fahrenheit\": 64,\n  \"humidity\": 65,\n  \"conditions\": \"Partly cloudy\",\n  \"wind_speed_kmh\": 12,\n  \"wind_direction\": \"SW\"\n}\n\n// Optimized (~50 tokens)\n{\n  \"city\": \"Paris\",\n  \"temperature_celsius\": 18,\n  \"conditions\": \"Partly cloudy\"\n}\n```\n\nThis optimization would be most beneficial in multi-city scenarios where responses are aggregated.",
-    "cost_usd": 0.0159376,
-    "tokens_used": 4756,
+    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: weather-agent (gpt-5-mini, default prompt)**\n\nAchieves **75% pass rate (3/4)** at **very low cost ($0.00386 total)** with correct tool usage and high-quality responses on all supported scenarios.\n\n**Reasoning:** All core capabilities (current weather, forecast, comparison) pass reliably and use the correct MCP tools. The single failure is due to a **test harness constraint (turn limit)** rather than incorrect tool usage or hallucination. Cost is already minimal, and no alternative configurations were tested for comparison.\n\n**Alternatives:** None \u2013 only one configuration tested.\n\n## \u274c Failure Analysis\n\n### tests/fixtures/generate_scenarios.py::TestSingleAgent::test_expected_failure (weather-agent)\n- **Problem:** Test fails with `AssertionError: Agent exceeded turn limit` when asked to fetch and compare weather for 5 cities.\n- **Root Cause:** The test enforces `max_turns=1`, but the task inherently requires multiple tool calls (one per city). The agent correctly attempts sequential `get_weather` calls, exceeding the allowed turn budget. This is a **test configuration limitation**, not an agent or tool failure.\n- **Fix:** Adjust the test or tooling to allow batching or higher turn limits. Two concrete options:\n  1. **Increase turn limit** for this test:\n     ```python\n     max_turns=6\n     ```\n  2. **Add a batch tool** and update the test to use it:\n     ```text\n     New tool description:\n     \"Get current weather for multiple cities in a single call. Accepts a list of city names and returns an array of weather objects.\"\n     ```\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools are discoverable and used correctly. Naming is clear, and the agent consistently selects the right tool.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 7 | Working well, but verbose response |\n| get_forecast | \u2705 | 1 | Working well |\n| compare_weather | \u2705 | 1 | Working well |\n| list_cities | \u274c | 0 | Never used in any test |\n\n**Suggested rewrite for `list_cities`:**\n> \"List all cities with available weather data. Use this tool when the user asks what cities are supported or available.\"\n\nThis makes its intended usage explicit and increases the chance the agent will select it.\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~23 tokens\n- **Assessment:** Clear, concise, and effective. The instruction \u201cAlways use tools \u2013 never make up weather data\u201d is followed in all tests.\n- **Suggested change:** None. Prompt is already minimal and performant.\n\n## \ud83d\udca1 Optimizations\n\n1. **Add multi-city weather tool** (recommended)\n   - Current: Agent must call `get_weather` once per city, causing turn-limit failures and higher cost.\n   - Change: Introduce a `get_weather_batch(cities: string[])` tool and update tests to allow/expect its usage.\n   - Impact: Enables currently failing test to pass; **~40\u201360% cost reduction** for multi-city queries due to fewer turns and tool calls.\n\n2. **Reduce duplicate tool calls in agent logic** (suggestion)\n   - Current: In the failing test, `get_weather` for Berlin is called twice.\n   - Change: Add agent-side instruction or test assertion to avoid re-fetching the same city within one request.\n   - Impact: Small cost reduction (~5\u201310%) and cleaner execution traces.\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~70\u201380 tokens per call\n- **Issues found:** Returns fields not always used by the agent (e.g., `temperature_fahrenheit` when Celsius is already present, verbose key names).\n- **Suggested optimization:** Remove redundant units and shorten keys.\n\n**Example current vs optimized:**\n```json\n// Current (~75 tokens)\n{\n  \"city\": \"Paris\",\n  \"country\": \"France\",\n  \"temperature_celsius\": 18,\n  \"temperature_fahrenheit\": 64,\n  \"humidity\": 65,\n  \"conditions\": \"Partly cloudy\",\n  \"wind_speed_kmh\": 12,\n  \"wind_direction\": \"SW\"\n}\n\n// Optimized (~40 tokens)\n{\n  \"city\": \"Paris\",\n  \"temp_c\": 18,\n  \"humidity\": 65,\n  \"conditions\": \"Partly cloudy\",\n  \"wind_kmh\": 12,\n  \"wind_dir\": \"SW\"\n}\n```\n- **Estimated savings:** ~35 tokens per call (**~45\u201350% reduction**), compounding significantly in multi-city queries.",
+    "cost_usd": 0.021196,
+    "tokens_used": 4993,
     "cached": false
   }
 }
