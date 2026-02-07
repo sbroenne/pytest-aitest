@@ -2,3 +2,5 @@
 
 # Re-export pytest_configure so llm_assert uses Azure instead of OpenAI
 from tests.integration.conftest import pytest_configure  # noqa: F401
+
+__all__ = ["pytest_configure"]

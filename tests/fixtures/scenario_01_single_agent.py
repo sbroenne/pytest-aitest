@@ -79,7 +79,7 @@ async def test_transaction_history(aitest_run, llm_assert):
 async def test_expected_failure(aitest_run):
     """Test that fails due to turn limit — for report variety."""
     agent.max_turns = 1
-    result = await aitest_run(
+    await aitest_run(
         agent,
         "Check all balances, transfer $500 from checking to savings, then show me updated balances and transaction history",
     )
