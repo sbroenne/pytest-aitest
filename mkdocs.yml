@@ -87,6 +87,7 @@ nav:
   - Reference:
     - Overview: reference/index.md
     - API: reference/api.md
+    - Assertions Cookbook: reference/assertions.md
     - CLI Options: reference/cli.md
     - AgentResult: reference/result.md
     - Configuration: reference/configuration.md
