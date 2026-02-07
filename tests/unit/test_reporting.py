@@ -14,6 +14,12 @@ from pytest_aitest.reporting import (
     generate_html,
     generate_mermaid_sequence,
 )
+from pytest_aitest.reporting.insights import InsightsResult
+
+_TEST_INSIGHTS = InsightsResult(
+    markdown_summary="Test insights.",
+    model="test-model",
+)
 
 
 class TestTestReport:
@@ -211,7 +217,7 @@ class TestReportGenerator:
 
     def test_generate_html(self, sample_suite: SuiteReport, tmp_path: Path) -> None:
         output = tmp_path / "report.html"
-        generate_html(sample_suite, output)
+        generate_html(sample_suite, output, insights=_TEST_INSIGHTS)
 
         assert output.exists()
         html = output.read_text(encoding="utf-8")
@@ -226,7 +232,7 @@ class TestReportGenerator:
         self, sample_suite: SuiteReport, tmp_path: Path
     ) -> None:
         output = tmp_path / "report.html"
-        generate_html(sample_suite, output)
+        generate_html(sample_suite, output, insights=_TEST_INSIGHTS)
 
         html = output.read_text(encoding="utf-8")
         # Should contain Mermaid sequence diagram
@@ -320,9 +326,8 @@ class TestGenerateMermaidSequence:
         assert "'hello'" in mermaid
 
 
-@pytest.mark.skip(reason="Template v3 uses Agent Leaderboard instead of Model Leaderboard")
-class TestModelRankingSortOrder:
-    """Tests for model leaderboard sorting logic.
+class TestAgentLeaderboardSortOrder:
+    """Tests for agent leaderboard sorting logic.
 
     Sorting priority:
     1. Pass rate (descending) - higher pass rate wins
@@ -397,11 +402,11 @@ class TestModelRankingSortOrder:
         )
 
         output = tmp_path / "report.html"
-        generate_html(report, output)
+        generate_html(report, output, insights=_TEST_INSIGHTS)
         html = output.read_text(encoding="utf-8")
 
         # Find the leaderboard section
-        leaderboard_start = html.find("Model Leaderboard")
+        leaderboard_start = html.find("Agent Leaderboard")
         assert leaderboard_start > 0, "Leaderboard section not found"
         leaderboard_html = html[leaderboard_start : leaderboard_start + 2000]
 
@@ -418,11 +423,11 @@ class TestModelRankingSortOrder:
         )
 
         output = tmp_path / "report.html"
-        generate_html(report, output)
+        generate_html(report, output, insights=_TEST_INSIGHTS)
         html = output.read_text(encoding="utf-8")
 
         # Find the leaderboard section
-        leaderboard_start = html.find("Model Leaderboard")
+        leaderboard_start = html.find("Agent Leaderboard")
         assert leaderboard_start > 0, "Leaderboard section not found"
         leaderboard_html = html[leaderboard_start : leaderboard_start + 2000]
 
@@ -439,11 +444,11 @@ class TestModelRankingSortOrder:
         )
 
         output = tmp_path / "report.html"
-        generate_html(report, output)
+        generate_html(report, output, insights=_TEST_INSIGHTS)
         html = output.read_text(encoding="utf-8")
 
         # Find the leaderboard section
-        leaderboard_start = html.find("Model Leaderboard")
+        leaderboard_start = html.find("Agent Leaderboard")
         assert leaderboard_start > 0, "Leaderboard section not found"
         leaderboard_html = html[leaderboard_start : leaderboard_start + 2000]
 
@@ -464,11 +469,11 @@ class TestModelRankingSortOrder:
         )
 
         output = tmp_path / "report.html"
-        generate_html(report, output)
+        generate_html(report, output, insights=_TEST_INSIGHTS)
         html = output.read_text(encoding="utf-8")
 
         # Find the leaderboard section
-        leaderboard_start = html.find("Model Leaderboard")
+        leaderboard_start = html.find("Agent Leaderboard")
         assert leaderboard_start > 0, "Leaderboard section not found"
         leaderboard_html = html[leaderboard_start : leaderboard_start + 2000]
 

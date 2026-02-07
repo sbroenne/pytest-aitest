@@ -219,6 +219,13 @@ class TestMainCLI:
                     "model": "test-model",
                 }
             ],
+            "insights": {
+                "markdown_summary": "All tests passed.",
+                "model": "test-model",
+                "tokens_used": 100,
+                "cost_usd": 0.001,
+                "cached": True,
+            },
         }
         json_path = tmp_path / "results.json"
         json_path.write_text(json.dumps(json_data), encoding="utf-8")
@@ -229,3 +236,33 @@ class TestMainCLI:
         assert result == 0
         assert html_path.exists()
         assert "test-suite" in html_path.read_text(encoding="utf-8")
+
+    def test_no_insights_returns_error(self, tmp_path: Path) -> None:
+        """Report generation fails when JSON has no AI insights."""
+        json_data = {
+            "schema_version": "3.0",
+            "name": "test-suite",
+            "timestamp": "2026-01-31T12:00:00Z",
+            "duration_ms": 100.0,
+            "passed": 1,
+            "failed": 0,
+            "skipped": 0,
+            "tests": [
+                {
+                    "name": "test_a",
+                    "outcome": "passed",
+                    "duration_ms": 100.0,
+                    "agent_id": "test-agent",
+                    "agent_name": "test-agent",
+                    "model": "test-model",
+                }
+            ],
+        }
+        json_path = tmp_path / "results.json"
+        json_path.write_text(json.dumps(json_data), encoding="utf-8")
+        html_path = tmp_path / "report.html"
+
+        result = main([str(json_path), "--html", str(html_path)])
+
+        assert result == 1
+        assert not html_path.exists()

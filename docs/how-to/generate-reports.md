@@ -48,6 +48,7 @@ pytest tests/ \
 | Option | Description |
 |--------|-------------|
 | `--aitest-html=PATH` | Generate HTML report |
+| `--aitest-md=PATH` | Generate Markdown report |
 | `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
 | `--aitest-summary-model=MODEL` | Model for AI insights (**required**) |
 | `--aitest-min-pass-rate=N` | Fail if pass rate below N% (e.g., `80`) |
@@ -60,6 +61,15 @@ Regenerate reports from saved JSON without re-running tests:
 # Regenerate HTML from saved JSON (reuses existing AI insights)
 pytest-aitest-report aitest-reports/results.json \
     --html report.html
+
+# Generate Markdown report
+pytest-aitest-report aitest-reports/results.json \
+    --md report.md
+
+# Generate both HTML and Markdown
+pytest-aitest-report results.json \
+    --html report.html \
+    --md report.md
 
 # Regenerate with fresh AI insights from a different model
 pytest-aitest-report results.json \
@@ -107,7 +117,7 @@ When comparing Agents, rankings are based on:
 
 ## AI Insights
 
-Reports include AI analysis with actionable recommendations. For a detailed explanation of each insight section, see [AI Analysis](../explanation/ai-reports.md).
+Reports include AI analysis with actionable recommendations. For a detailed explanation of each insight section, see [AI Analysis](../explanation/ai-analysis.md).
 
 ### Recommended Models
 
@@ -171,6 +181,7 @@ pytest tests/ \
 |--------|---------|----------|
 | `--junitxml` | Pass/fail tracking, test history | GitHub Actions, Azure Pipelines, Jenkins |
 | `--aitest-html` | AI insights, tool analysis | Human review |
+| `--aitest-md` | Documentation, wikis | mkdocs, GitHub wikis, READMEs |
 | `--aitest-json` | Raw data for custom tooling | Scripts, dashboards |
 
 ### JUnit XML Properties

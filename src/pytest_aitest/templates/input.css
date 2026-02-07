@@ -262,12 +262,6 @@
   .tag {
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
   }
-  .tag-skill {
-    @apply bg-purple-500/15 text-purple-300 border border-purple-500/30;
-  }
-  .tag-prompt {
-    @apply bg-blue-500/15 text-blue-300 border border-blue-500/30;
-  }
   .tag-default {
     @apply bg-white/5 text-text-muted border border-white/10;
   }

@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from pytest_aitest.reporting.collector import SuiteReport
-from pytest_aitest.reporting.generator import generate_html
+from pytest_aitest.reporting.generator import generate_html, generate_md
 from pytest_aitest.reporting.insights import InsightsResult
 
 _logger = logging.getLogger(__name__)
@@ -175,6 +175,13 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     parser.add_argument(
+        "--md",
+        metavar="PATH",
+        type=Path,
+        help="Generate Markdown report to given path",
+    )
+
+    parser.add_argument(
         "--summary",
         action="store_true",
         help="Generate AI-powered summary (requires --summary-model)",
@@ -197,8 +204,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: JSON file not found: {args.json_file}", file=sys.stderr)
         return 1
 
-    if not args.html:
-        print("Error: --html is required to generate HTML report", file=sys.stderr)
+    if not args.html and not args.md:
+        print("Error: at least one of --html or --md is required", file=sys.stderr)
         return 1
 
     if args.summary and not summary_model:
@@ -230,11 +237,26 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Warning: Failed to generate AI summary: {e}", file=sys.stderr)
             insights = existing_insights
 
+    # AI insights are mandatory for all report formats
+    if insights is None:
+        print(
+            "Error: AI insights are required for report generation. "
+            "Use --summary --summary-model to generate them, "
+            "or use a JSON file that already contains insights.",
+            file=sys.stderr,
+        )
+        return 1
+
     # Generate reports
     if args.html:
         args.html.parent.mkdir(parents=True, exist_ok=True)
         generate_html(report, args.html, insights=insights)
         print(f"HTML report: {args.html}")
+
+    if args.md:
+        args.md.parent.mkdir(parents=True, exist_ok=True)
+        generate_md(report, args.md, insights=insights)
+        print(f"Markdown report: {args.md}")
 
     return 0
 

@@ -61,6 +61,17 @@ async def test_weather_query(aitest_run):
 
 If this fails, your MCP server's tool descriptions or schemas need work.
 
+## The Workflow
+
+This is test-driven development for AI interfaces:
+
+1. **Write a test** — describe what a user would say
+2. **Run it** — the LLM tries to use your tools
+3. **Fix the interface** — improve descriptions, schemas, or prompts until it passes
+4. **Generate a report** — AI analysis tells you what else to optimize
+
+You iterate on your tool descriptions the same way you iterate on code. See [TDD for AI Interfaces](../explanation/tdd-for-ai.md) for the full concept.
+
 ## Running the Test
 
 ```bash

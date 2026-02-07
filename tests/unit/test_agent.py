@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from pytest_aitest.core.agent import Agent, MCPServer, Provider, Wait
 
 
@@ -9,10 +11,10 @@ class TestAgent:
     """Tests for Agent dataclass."""
 
     def test_minimal_agent(self) -> None:
-        """Agent requires only provider."""
+        """Agent requires only provider; name auto-constructed from model."""
         agent = Agent(provider=Provider(model="azure/gpt-5-mini"))
         assert agent.provider.model == "azure/gpt-5-mini"
-        assert agent.name is None
+        assert agent.name == "gpt-5-mini"
         assert agent.mcp_servers == []
         assert agent.cli_servers == []
         assert agent.system_prompt is None
@@ -56,6 +58,64 @@ class TestAgent:
         assert agent.system_prompt == "Be helpful."
         assert agent.max_turns == 5
         assert agent.allowed_tools == ["get_weather"]
+
+    def test_auto_name_model_only(self) -> None:
+        """Auto-name strips provider prefix."""
+        agent = Agent(provider=Provider(model="azure/gpt-4.1"))
+        assert agent.name == "gpt-4.1"
+
+    def test_auto_name_with_prompt(self) -> None:
+        """Auto-name includes system_prompt_name dimension."""
+        agent = Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            system_prompt_name="concise",
+        )
+        assert agent.name == "gpt-5-mini + concise"
+
+    def test_auto_name_with_skill(self) -> None:
+        """Auto-name includes skill dimension."""
+        from pytest_aitest.core.skill import Skill, SkillMetadata
+
+        skill = Skill(
+            path=Path("skills/financial-advisor"),
+            metadata=SkillMetadata(name="financial-advisor", description="Financial advice"),
+            content="Be helpful.",
+        )
+        agent = Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            skill=skill,
+        )
+        assert agent.name == "gpt-5-mini + financial-advisor"
+
+    def test_auto_name_with_all_dimensions(self) -> None:
+        """Auto-name includes all dimensions."""
+        from pytest_aitest.core.skill import Skill, SkillMetadata
+
+        skill = Skill(
+            path=Path("skills/weather-expert"),
+            metadata=SkillMetadata(name="weather-expert", description="Weather expertise"),
+            content="Know weather.",
+        )
+        agent = Agent(
+            provider=Provider(model="azure/gpt-4.1"),
+            system_prompt_name="detailed",
+            skill=skill,
+        )
+        assert agent.name == "gpt-4.1 + detailed + weather-expert"
+
+    def test_explicit_name_not_overridden(self) -> None:
+        """Explicit name is preserved — not overridden by auto-construction."""
+        agent = Agent(
+            name="my-custom-agent",
+            provider=Provider(model="azure/gpt-5-mini"),
+            system_prompt_name="concise",
+        )
+        assert agent.name == "my-custom-agent"
+
+    def test_auto_name_no_provider_prefix(self) -> None:
+        """Auto-name works without provider prefix."""
+        agent = Agent(provider=Provider(model="gpt-4o"))
+        assert agent.name == "gpt-4o"
 
 
 class TestProvider:

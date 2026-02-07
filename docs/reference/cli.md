@@ -24,6 +24,7 @@ Then just `pytest tests/` — reports are generated automatically.
 |--------|-------------|----------|
 | `--aitest-summary-model=MODEL` | Model for AI insights | Yes (for reports) |
 | `--aitest-html=PATH` | Generate HTML report | No |
+| `--aitest-md=PATH` | Generate Markdown report | No |
 | `--aitest-json=PATH` | Custom JSON path | No (default: `aitest-reports/results.json`) |
 | `--aitest-min-pass-rate=N` | Fail if overall pass rate below N% | No |
 
@@ -34,6 +35,11 @@ Then just `pytest tests/` — reports are generated automatically.
 pytest tests/ \
     --aitest-summary-model=azure/gpt-5.2-chat \
     --aitest-html=report.html
+
+# Run tests with Markdown report
+pytest tests/ \
+    --aitest-summary-model=azure/gpt-5.2-chat \
+    --aitest-md=report.md
 
 # With JSON output
 pytest tests/ \
@@ -52,7 +58,8 @@ pytest-aitest-report <json-file> [options]
 
 | Option | Description | Required |
 |--------|-------------|----------|
-| `--html PATH` | Generate HTML report | Yes |
+| `--html PATH` | Generate HTML report | At least one of `--html` or `--md` |
+| `--md PATH` | Generate Markdown report | At least one of `--html` or `--md` |
 | `--summary` | Generate AI-powered summary | No |
 | `--summary-model MODEL` | Model for AI insights | Required with `--summary` |
 
@@ -63,6 +70,12 @@ pytest-aitest-report <json-file> [options]
 ```bash
 # Regenerate HTML from existing JSON (uses insights already in JSON)
 pytest-aitest-report results.json --html report.html
+
+# Generate Markdown report
+pytest-aitest-report results.json --md report.md
+
+# Generate both formats
+pytest-aitest-report results.json --html report.html --md report.md
 
 # Generate with fresh AI analysis
 pytest-aitest-report results.json \

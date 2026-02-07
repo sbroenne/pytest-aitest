@@ -4,6 +4,7 @@ from pytest_aitest.reporting.collector import SuiteReport, TestReport, build_sui
 from pytest_aitest.reporting.generator import (
     generate_html,
     generate_json,
+    generate_md,
     generate_mermaid_sequence,
 )
 from pytest_aitest.reporting.insights import (
@@ -20,6 +21,7 @@ __all__ = [
     # Generation
     "generate_html",
     "generate_json",
+    "generate_md",
     "generate_mermaid_sequence",
     # Insights generation
     "generate_insights",

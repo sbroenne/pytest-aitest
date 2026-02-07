@@ -217,7 +217,7 @@ class Agent:
     """
 
     provider: Provider
-    name: str | None = None
+    name: str = ""
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     mcp_servers: list[MCPServer] = field(default_factory=list)
     cli_servers: list[CLIServer] = field(default_factory=list)
@@ -226,3 +226,15 @@ class Agent:
     skill: Skill | None = None
     allowed_tools: list[str] | None = None  # Filter to specific tools (None = all)
     system_prompt_name: str | None = None  # Label for system prompt (for report grouping)
+
+    def __post_init__(self) -> None:
+        """Auto-construct name from dimensions if not explicitly set."""
+        if not self.name:
+            model = self.provider.model
+            display_model = model.split("/")[-1] if "/" in model else model
+            parts = [display_model]
+            if self.system_prompt_name:
+                parts.append(self.system_prompt_name)
+            if self.skill:
+                parts.append(self.skill.name)
+            self.name = " + ".join(parts)

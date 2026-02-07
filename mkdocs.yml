@@ -93,7 +93,8 @@ nav:
   - Explanation:
     - Overview: explanation/index.md
     - Agents: explanation/agents.md
-    - AI Analysis: explanation/ai-reports.md
+    - TDD for AI Interfaces: explanation/tdd-for-ai.md
+    - AI Analysis: explanation/ai-analysis.md
   - Contributing:
     - Overview: contributing/index.md
     - Architecture: contributing/architecture.md

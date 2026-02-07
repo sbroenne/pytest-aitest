@@ -64,7 +64,6 @@ BANKING_SERVER = MCPServer(
 # Core agents — one per model, same prompt → fair leaderboard
 CORE_AGENTS = [
     Agent(
-        name=model,
         provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
         mcp_servers=[BANKING_SERVER],
         system_prompt=BANKING_PROMPT,
@@ -79,7 +78,6 @@ ADVISOR_PROMPTS = load_system_prompts(PROMPTS_DIR) if PROMPTS_DIR.exists() else 
 
 PROMPT_AGENTS = [
     Agent(
-        name=f"{model}+{prompt_name}",
         provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
         mcp_servers=[BANKING_SERVER],
         system_prompt=system_prompt,
@@ -97,7 +95,6 @@ _FINANCIAL_SKILL = Skill.from_path(_SKILL_PATH) if _SKILL_PATH.exists() else Non
 SKILL_AGENTS = (
     [
         Agent(
-            name=f"{model}+financial-advisor",
             provider=Provider(model=f"azure/{model}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             mcp_servers=[BANKING_SERVER],
             system_prompt=BANKING_PROMPT,
