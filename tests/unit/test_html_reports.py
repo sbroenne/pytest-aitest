@@ -313,11 +313,7 @@ class TestAgentSelectorLeaderboard:
         assert "leaderboard-table" in agent_selector_html
 
     def test_leaderboard_has_3_agents(self, agent_selector_html: str) -> None:
-        tbody_start = agent_selector_html.find("<tbody")
-        tbody_end = agent_selector_html.find("</tbody>", tbody_start)
-        tbody_content = agent_selector_html[tbody_start:tbody_end]
-        row_count = tbody_content.count("<tr")
-        assert row_count == 3
+        assert _leaderboard_row_count(agent_selector_html) == 3
 
     def test_leaderboard_has_medals(self, agent_selector_html: str) -> None:
         assert "🥇" in agent_selector_html

@@ -33,8 +33,11 @@
               'description': 'str',
               'input_schema': dict({
                 'properties': dict({
-                  'city': dict({
+                  'account': dict({
                     'description': 'str',
+                    'enum': list([
+                      'str',
+                    ]),
                     'type': 'str',
                   }),
                 }),
@@ -124,8 +127,11 @@
               'description': 'str',
               'input_schema': dict({
                 'properties': dict({
-                  'city': dict({
+                  'account': dict({
                     'description': 'str',
+                    'enum': list([
+                      'str',
+                    ]),
                     'type': 'str',
                   }),
                 }),
@@ -309,8 +315,11 @@
               'description': 'str',
               'input_schema': dict({
                 'properties': dict({
-                  'city': dict({
+                  'account': dict({
                     'description': 'str',
+                    'enum': list([
+                      'str',
+                    ]),
                     'type': 'str',
                   }),
                 }),
@@ -388,6 +397,7 @@
           'available_tools': list([
             '<empty>',
           ]),
+          'clarification_stats': 'NoneType',
           'cost_usd': 'float',
           'duration_ms': 'float',
           'effective_system_prompt': 'str',
@@ -453,6 +463,7 @@
           'available_tools': list([
             '<empty>',
           ]),
+          'clarification_stats': 'NoneType',
           'cost_usd': 'float',
           'duration_ms': 'float',
           'effective_system_prompt': 'str',
@@ -518,6 +529,7 @@
           'available_tools': list([
             '<empty>',
           ]),
+          'clarification_stats': 'NoneType',
           'cost_usd': 'float',
           'duration_ms': 'float',
           'effective_system_prompt': 'str',
@@ -583,6 +595,7 @@
           'available_tools': list([
             '<empty>',
           ]),
+          'clarification_stats': 'NoneType',
           'cost_usd': 'float',
           'duration_ms': 'float',
           'effective_system_prompt': 'str',
