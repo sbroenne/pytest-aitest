@@ -1,12 +1,12 @@
 {
   "name": "pytest-aitest",
-  "timestamp": "2026-02-07T07:29:52.401062",
-  "duration_ms": 69475.56790000817,
+  "timestamp": "2026-02-07T08:01:29.181129",
+  "duration_ms": 81107.78550000396,
   "tests": [
     {
-      "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_simple_weather[gpt-5-mini]",
+      "name": "tests/fixtures/scenario_02_multi_agent.py::test_simple_weather[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 13037.356899993028,
+      "duration_ms": 15155.725600008736,
       "agent_result": {
         "turns": [
           {
@@ -25,24 +25,24 @@
                 },
                 "result": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}",
                 "error": null,
-                "duration_ms": 3.649800011771731
+                "duration_ms": 2.2979000059422106
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the current weather in London, UK:\n- Conditions: Rainy\n- Temperature: 14\u00b0C (57\u00b0F)\n- Humidity: 80%\n- Wind: 18 km/h from the west\n\nWould you like a forecast for the next few days or any weather alerts for London?",
+            "content": "Current weather in London, UK:\n- Temperature: 14\u00b0C (57\u00b0F)\n- Conditions: Rainy\n- Humidity: 80%\n- Wind: 18 km/h from the west\n\nWould you like a forecast for the next few days or any weather alerts?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 5072.453000000678,
+        "duration_ms": 6653.476099992986,
         "token_usage": {
           "prompt": 697,
-          "completion": 89
+          "completion": 84
         },
-        "cost_usd": 0.00035224999999999997,
+        "cost_usd": 0.00034225,
         "_messages": [
           {
             "role": "system",
@@ -61,7 +61,7 @@
                   "arguments": "{\"city\":\"London\"}",
                   "name": "get_weather"
                 },
-                "id": "call_2zf6LP3xcEgWqgUBEploiLol",
+                "id": "call_zncqEYy1zRvhWa2eGmOemets",
                 "type": "function"
               }
             ],
@@ -73,12 +73,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_2zf6LP3xcEgWqgUBEploiLol",
+            "tool_call_id": "call_zncqEYy1zRvhWa2eGmOemets",
             "content": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}"
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the current weather in London, UK:\n- Conditions: Rainy\n- Temperature: 14\u00b0C (57\u00b0F)\n- Humidity: 80%\n- Wind: 18 km/h from the west\n\nWould you like a forecast for the next few days or any weather alerts for London?"
+            "content": "Current weather in London, UK:\n- Temperature: 14\u00b0C (57\u00b0F)\n- Conditions: Rainy\n- Humidity: 80%\n- Wind: 18 km/h from the west\n\nWould you like a forecast for the next few days or any weather alerts?"
           }
         ],
         "session_context_count": 0,
@@ -165,20 +165,20 @@
           "type": "llm",
           "passed": true,
           "message": "describes the current weather conditions",
-          "details": "The content explicitly states current conditions (Rainy), temperature, humidity, and wind, which together describe the current weather conditions for London."
+          "details": "The content gives current local weather details (temperature, conditions, humidity, wind) for London, which directly describes the current weather conditions."
         }
       ],
-      "docstring": "Basic weather query - all agents should pass.",
-      "agent_id": "247773a6-acf7-4dde-9039-ad2b52077850",
+      "docstring": "Basic weather query \u2014 all agents should pass.",
+      "agent_id": "10cbce8b-26cc-48cb-961a-0f797d34e149",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_simple_weather[gpt-4.1-mini]",
+      "name": "tests/fixtures/scenario_02_multi_agent.py::test_simple_weather[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 7995.443200008594,
+      "duration_ms": 7907.646599996951,
       "agent_result": {
         "turns": [
           {
@@ -197,7 +197,7 @@
                 },
                 "result": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}",
                 "error": null,
-                "duration_ms": 2.1256000036373734
+                "duration_ms": 2.891199997975491
               }
             ]
           },
@@ -209,7 +209,7 @@
         ],
         "success": true,
         "error": null,
-        "duration_ms": 2125.841000000946,
+        "duration_ms": 2316.9435000017984,
         "token_usage": {
           "prompt": 523,
           "completion": 56
@@ -233,7 +233,7 @@
                   "arguments": "{\"city\":\"London\"}",
                   "name": "get_weather"
                 },
-                "id": "call_rLlF3PCvvsGeOxbKfl8cQ6La",
+                "id": "call_mXIsORfJYR5ngoPenlYzYhde",
                 "type": "function"
               }
             ],
@@ -245,7 +245,7 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_rLlF3PCvvsGeOxbKfl8cQ6La",
+            "tool_call_id": "call_mXIsORfJYR5ngoPenlYzYhde",
             "content": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}"
           },
           {
@@ -337,20 +337,20 @@
           "type": "llm",
           "passed": true,
           "message": "describes the current weather conditions",
-          "details": "The content clearly states current conditions\u2014precipitation (rainy), temperature (14\u00b0C/57\u00b0F), humidity (80%), and wind direction and speed (westward at 18 km/h)\u2014so it describes the current weather."
+          "details": "The content explicitly states current conditions (rainy), temperature, humidity, and wind direction/speed, which are standard current weather details."
         }
       ],
-      "docstring": "Basic weather query - all agents should pass.",
-      "agent_id": "3ef1a91a-dfc7-4003-a0c6-c79463320f58",
+      "docstring": "Basic weather query \u2014 all agents should pass.",
+      "agent_id": "ceed1998-61b8-4b4e-99a6-cd3cbde6364d",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_forecast[gpt-5-mini]",
+      "name": "tests/fixtures/scenario_02_multi_agent.py::test_forecast[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 15051.067899999907,
+      "duration_ms": 19145.2724999981,
       "agent_result": {
         "turns": [
           {
@@ -370,24 +370,24 @@
                 },
                 "result": "[{\"day\": 1, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"New York\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}, {\"day\": 4, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Rainy\", \"precipitation_chance\": 50}, {\"day\": 5, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Clear\", \"precipitation_chance\": 60}]",
                 "error": null,
-                "duration_ms": 2.7584999916143715
+                "duration_ms": 7.89690000237897
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the 5-day forecast for New York (dates shown start today, 2026-02-07):\n\n- 2026-02-07 (Day 1): Sunny \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 20%.\n- 2026-02-08 (Day 2): Partly cloudy \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 30%.\n- 2026-02-09 (Day 3): Cloudy \u2014 High 26\u00b0C (79\u00b0F), Low 18\u00b0C (64\u00b0F). Precip chance 40%.\n- 2026-02-10 (Day 4): Rainy \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 50%.\n- 2026-02-11 (Day 5): Clear \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 60%.\n\nQuick tips: mornings will be cooler\u2014bring a light layer. Expect the best chance of rain around Feb 10\u201311, so consider an umbrella or rain jacket then. Would you like hourly forecasts for any of these days?",
+            "content": "Here\u2019s the 5\u2011day forecast for New York (covering Feb 7\u201311, 2026):\n\n- Sat Feb 7 \u2014 Sunny  \n  High: 24\u00b0C (75\u00b0F), Low: 16\u00b0C (61\u00b0F) \u2014 Precip chance: 20%\n\n- Sun Feb 8 \u2014 Partly cloudy  \n  High: 25\u00b0C (77\u00b0F), Low: 17\u00b0C (63\u00b0F) \u2014 Precip chance: 30%\n\n- Mon Feb 9 \u2014 Cloudy  \n  High: 26\u00b0C (79\u00b0F), Low: 18\u00b0C (64\u00b0F) \u2014 Precip chance: 40%\n\n- Tue Feb 10 \u2014 Rainy  \n  High: 24\u00b0C (75\u00b0F), Low: 16\u00b0C (61\u00b0F) \u2014 Precip chance: 50% (plan for wet conditions)\n\n- Wed Feb 11 \u2014 Clear  \n  High: 25\u00b0C (77\u00b0F), Low: 17\u00b0C (63\u00b0F) \u2014 Precip chance: 60% (forecast shows a high precipitation chance despite \u201cClear\u201d conditions \u2014 you may want to carry a light rain layer or check an updated forecast before heading out)\n\nWant hourly details for any of these days or an alert if rain is expected?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 8245.391300006304,
+        "duration_ms": 12014.934300008463,
         "token_usage": {
           "prompt": 879,
-          "completion": 683
+          "completion": 1000
         },
-        "cost_usd": 0.0015857500000000001,
+        "cost_usd": 0.00221975,
         "_messages": [
           {
             "role": "system",
@@ -406,7 +406,7 @@
                   "arguments": "{\"city\":\"New York\",\"days\":5}",
                   "name": "get_forecast"
                 },
-                "id": "call_Sqip5gvXLxAGwG2t0t1gBqMg",
+                "id": "call_IiisELJRqBHfuD7o0LRnesGT",
                 "type": "function"
               }
             ],
@@ -418,12 +418,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_Sqip5gvXLxAGwG2t0t1gBqMg",
+            "tool_call_id": "call_IiisELJRqBHfuD7o0LRnesGT",
             "content": "[{\"day\": 1, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"New York\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}, {\"day\": 4, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Rainy\", \"precipitation_chance\": 50}, {\"day\": 5, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Clear\", \"precipitation_chance\": 60}]"
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the 5-day forecast for New York (dates shown start today, 2026-02-07):\n\n- 2026-02-07 (Day 1): Sunny \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 20%.\n- 2026-02-08 (Day 2): Partly cloudy \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 30%.\n- 2026-02-09 (Day 3): Cloudy \u2014 High 26\u00b0C (79\u00b0F), Low 18\u00b0C (64\u00b0F). Precip chance 40%.\n- 2026-02-10 (Day 4): Rainy \u2014 High 24\u00b0C (75\u00b0F), Low 16\u00b0C (61\u00b0F). Precip chance 50%.\n- 2026-02-11 (Day 5): Clear \u2014 High 25\u00b0C (77\u00b0F), Low 17\u00b0C (63\u00b0F). Precip chance 60%.\n\nQuick tips: mornings will be cooler\u2014bring a light layer. Expect the best chance of rain around Feb 10\u201311, so consider an umbrella or rain jacket then. Would you like hourly forecasts for any of these days?"
+            "content": "Here\u2019s the 5\u2011day forecast for New York (covering Feb 7\u201311, 2026):\n\n- Sat Feb 7 \u2014 Sunny  \n  High: 24\u00b0C (75\u00b0F), Low: 16\u00b0C (61\u00b0F) \u2014 Precip chance: 20%\n\n- Sun Feb 8 \u2014 Partly cloudy  \n  High: 25\u00b0C (77\u00b0F), Low: 17\u00b0C (63\u00b0F) \u2014 Precip chance: 30%\n\n- Mon Feb 9 \u2014 Cloudy  \n  High: 26\u00b0C (79\u00b0F), Low: 18\u00b0C (64\u00b0F) \u2014 Precip chance: 40%\n\n- Tue Feb 10 \u2014 Rainy  \n  High: 24\u00b0C (75\u00b0F), Low: 16\u00b0C (61\u00b0F) \u2014 Precip chance: 50% (plan for wet conditions)\n\n- Wed Feb 11 \u2014 Clear  \n  High: 25\u00b0C (77\u00b0F), Low: 17\u00b0C (63\u00b0F) \u2014 Precip chance: 60% (forecast shows a high precipitation chance despite \u201cClear\u201d conditions \u2014 you may want to carry a light rain layer or check an updated forecast before heading out)\n\nWant hourly details for any of these days or an alert if rain is expected?"
           }
         ],
         "session_context_count": 0,
@@ -510,20 +510,20 @@
           "type": "llm",
           "passed": true,
           "message": "provides a 5-day forecast with daily conditions",
-          "details": "Content lists five consecutive dates with daily conditions, highs/lows, and precipitation chances\u2014meeting the 5-day forecast requirement."
+          "details": "The content lists five consecutive days (Feb 7\u201311) with a daily condition label, high/low temperatures, and precipitation chances for each day, satisfying the 5-day forecast requirement."
         }
       ],
-      "docstring": "Forecast query - tests tool selection.",
-      "agent_id": "247773a6-acf7-4dde-9039-ad2b52077850",
+      "docstring": "Forecast query \u2014 tests tool selection.",
+      "agent_id": "10cbce8b-26cc-48cb-961a-0f797d34e149",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_forecast[gpt-4.1-mini]",
+      "name": "tests/fixtures/scenario_02_multi_agent.py::test_forecast[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 9709.078900006716,
+      "duration_ms": 9735.436100003426,
       "agent_result": {
         "turns": [
           {
@@ -543,24 +543,24 @@
                 },
                 "result": "[{\"day\": 1, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"New York\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}, {\"day\": 4, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Rainy\", \"precipitation_chance\": 50}, {\"day\": 5, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Clear\", \"precipitation_chance\": 60}]",
                 "error": null,
-                "duration_ms": 2.4400999973295256
+                "duration_ms": 3.038499999092892
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here is the 5-day weather forecast for New York:\n\nDay 1: Sunny with a high of 24\u00b0C and a low of 16\u00b0C. There is a 20% chance of precipitation.\nDay 2: Partly cloudy with a high of 25\u00b0C and a low of 17\u00b0C. There is a 30% chance of precipitation.\nDay 3: Cloudy with a high of 26\u00b0C and a low of 18\u00b0C. There is a 40% chance of precipitation.\nDay 4: Rainy with a high of 24\u00b0C and a low of 16\u00b0C. There is a 50% chance of precipitation.\nDay 5: Clear with a high of 25\u00b0C and a low of 17\u00b0C. There is a 60% chance of precipitation.\n\nIf you need more details or information about a specific day, let me know!",
+            "content": "Here is the 5-day forecast for New York:\n\nDay 1: Sunny, high of 24\u00b0C, low of 16\u00b0C, 20% chance of precipitation.\nDay 2: Partly cloudy, high of 25\u00b0C, low of 17\u00b0C, 30% chance of precipitation.\nDay 3: Cloudy, high of 26\u00b0C, low of 18\u00b0C, 40% chance of precipitation.\nDay 4: Rainy, high of 24\u00b0C, low of 16\u00b0C, 50% chance of precipitation.\nDay 5: Clear, high of 25\u00b0C, low of 17\u00b0C, 60% chance of precipitation.\n\nLet me know if you need more details!",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 4176.866200010409,
+        "duration_ms": 4027.1472000022186,
         "token_usage": {
           "prompt": 705,
-          "completion": 205
+          "completion": 172
         },
-        "cost_usd": 0.0006100000000000001,
+        "cost_usd": 0.0005572,
         "_messages": [
           {
             "role": "system",
@@ -579,7 +579,7 @@
                   "arguments": "{\"city\":\"New York\",\"days\":5}",
                   "name": "get_forecast"
                 },
-                "id": "call_DbevDrKCoKRUcMlu4xEHF9Zb",
+                "id": "call_0ShtHB1AFJBde7pl6cNxsfCl",
                 "type": "function"
               }
             ],
@@ -591,12 +591,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_DbevDrKCoKRUcMlu4xEHF9Zb",
+            "tool_call_id": "call_0ShtHB1AFJBde7pl6cNxsfCl",
             "content": "[{\"day\": 1, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"New York\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}, {\"day\": 4, \"city\": \"New York\", \"high_celsius\": 24, \"low_celsius\": 16, \"conditions\": \"Rainy\", \"precipitation_chance\": 50}, {\"day\": 5, \"city\": \"New York\", \"high_celsius\": 25, \"low_celsius\": 17, \"conditions\": \"Clear\", \"precipitation_chance\": 60}]"
           },
           {
             "role": "assistant",
-            "content": "Here is the 5-day weather forecast for New York:\n\nDay 1: Sunny with a high of 24\u00b0C and a low of 16\u00b0C. There is a 20% chance of precipitation.\nDay 2: Partly cloudy with a high of 25\u00b0C and a low of 17\u00b0C. There is a 30% chance of precipitation.\nDay 3: Cloudy with a high of 26\u00b0C and a low of 18\u00b0C. There is a 40% chance of precipitation.\nDay 4: Rainy with a high of 24\u00b0C and a low of 16\u00b0C. There is a 50% chance of precipitation.\nDay 5: Clear with a high of 25\u00b0C and a low of 17\u00b0C. There is a 60% chance of precipitation.\n\nIf you need more details or information about a specific day, let me know!"
+            "content": "Here is the 5-day forecast for New York:\n\nDay 1: Sunny, high of 24\u00b0C, low of 16\u00b0C, 20% chance of precipitation.\nDay 2: Partly cloudy, high of 25\u00b0C, low of 17\u00b0C, 30% chance of precipitation.\nDay 3: Cloudy, high of 26\u00b0C, low of 18\u00b0C, 40% chance of precipitation.\nDay 4: Rainy, high of 24\u00b0C, low of 16\u00b0C, 50% chance of precipitation.\nDay 5: Clear, high of 25\u00b0C, low of 17\u00b0C, 60% chance of precipitation.\n\nLet me know if you need more details!"
           }
         ],
         "session_context_count": 0,
@@ -683,20 +683,20 @@
           "type": "llm",
           "passed": true,
           "message": "provides a 5-day forecast with daily conditions",
-          "details": "The content lists five consecutive days with daily conditions (weather description), high and low temperatures, and precipitation chances for each day, satisfying the 5-day forecast requirement."
+          "details": "The content lists forecasts for five days with daily conditions (sky description), high/low temperatures, and precipitation chances for each day."
         }
       ],
-      "docstring": "Forecast query - tests tool selection.",
-      "agent_id": "3ef1a91a-dfc7-4003-a0c6-c79463320f58",
+      "docstring": "Forecast query \u2014 tests tool selection.",
+      "agent_id": "ceed1998-61b8-4b4e-99a6-cd3cbde6364d",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_comparison[gpt-5-mini]",
+      "name": "tests/fixtures/scenario_02_multi_agent.py::test_comparison[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 13749.691599994549,
+      "duration_ms": 15491.254699998535,
       "agent_result": {
         "turns": [
           {
@@ -716,24 +716,24 @@
                 },
                 "result": "{\"city1\": {\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}, \"city2\": {\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}, \"temperature_difference_celsius\": 6, \"warmer_city\": \"Tokyo\", \"humidity_difference\": 5}",
                 "error": null,
-                "duration_ms": 2.4941999872680753
+                "duration_ms": 2.020800005993806
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s a quick comparison from current conditions:\n\n- Paris: 18\u00b0C (64\u00b0F), partly cloudy, humidity 65%, wind 12 km/h SW.  \n- Tokyo: 24\u00b0C (75\u00b0F), sunny, humidity 70%, wind 8 km/h E.\n\nWhich is better for a picnic?\n- Tokyo is the better choice right now: warmer by about 6\u00b0C and sunny, so conditions feel pleasant for an outdoor meal.  \n- Paris is cooler and a bit breezier; still perfectly fine if you prefer milder weather or some cloud cover.\n\nNotes and tips\n- Humidity in Tokyo is a bit higher but still comfortable.  \n- If you\u2019re sensitive to sun, bring sunscreen for Tokyo. If you picnic in Paris, a light windward anchor for your blanket may help.  \n- Both cities look picnic-friendly; if you want a specific recommendation for a time of day or an hourly forecast, I can fetch an hourly forecast for either city. Which would you like?",
+            "content": "Here\u2019s a quick comparison of the current conditions I just checked:\n\n- Paris: 18\u00b0C (64\u00b0F), partly cloudy, humidity 65%, wind 12 km/h from the SW.  \n- Tokyo: 24\u00b0C (75\u00b0F), sunny, humidity 70%, wind 8 km/h from the E.\n\nWhich is better for a picnic?\n- Tokyo is overall more picnic\u2011friendly right now: warmer and sunny with lighter wind.  \n- Paris is cooler and partly cloudy; if you prefer milder temperatures or less direct sun, Paris could be more comfortable.\n\nNotes and caveats:\n- Humidity is slightly higher in Tokyo (70% vs 65%), but the difference is small.  \n- Wind in Paris (12 km/h) is a bit stronger which could bother lightweight items.  \n- I only checked current conditions \u2014 if you need a picnic planned for a specific day/time, I can pull a multi\u2011day/hourly forecast (and check rain chances) for either city.\n\nWould you like me to fetch a forecast for a particular date or check both cities\u2019 rain chances for the next few days?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 7548.872900006245,
+        "duration_ms": 9312.985800002934,
         "token_usage": {
           "prompt": 806,
-          "completion": 563
+          "completion": 587
         },
-        "cost_usd": 0.0013275,
+        "cost_usd": 0.0013755,
         "_messages": [
           {
             "role": "system",
@@ -752,7 +752,7 @@
                   "arguments": "{\"city1\":\"Paris\",\"city2\":\"Tokyo\"}",
                   "name": "compare_weather"
                 },
-                "id": "call_zwz2w6CY6DGgfREZGln6jHci",
+                "id": "call_KIukuj1IXWXlgw048HnRTYOW",
                 "type": "function"
               }
             ],
@@ -764,12 +764,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_zwz2w6CY6DGgfREZGln6jHci",
+            "tool_call_id": "call_KIukuj1IXWXlgw048HnRTYOW",
             "content": "{\"city1\": {\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}, \"city2\": {\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}, \"temperature_difference_celsius\": 6, \"warmer_city\": \"Tokyo\", \"humidity_difference\": 5}"
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s a quick comparison from current conditions:\n\n- Paris: 18\u00b0C (64\u00b0F), partly cloudy, humidity 65%, wind 12 km/h SW.  \n- Tokyo: 24\u00b0C (75\u00b0F), sunny, humidity 70%, wind 8 km/h E.\n\nWhich is better for a picnic?\n- Tokyo is the better choice right now: warmer by about 6\u00b0C and sunny, so conditions feel pleasant for an outdoor meal.  \n- Paris is cooler and a bit breezier; still perfectly fine if you prefer milder weather or some cloud cover.\n\nNotes and tips\n- Humidity in Tokyo is a bit higher but still comfortable.  \n- If you\u2019re sensitive to sun, bring sunscreen for Tokyo. If you picnic in Paris, a light windward anchor for your blanket may help.  \n- Both cities look picnic-friendly; if you want a specific recommendation for a time of day or an hourly forecast, I can fetch an hourly forecast for either city. Which would you like?"
+            "content": "Here\u2019s a quick comparison of the current conditions I just checked:\n\n- Paris: 18\u00b0C (64\u00b0F), partly cloudy, humidity 65%, wind 12 km/h from the SW.  \n- Tokyo: 24\u00b0C (75\u00b0F), sunny, humidity 70%, wind 8 km/h from the E.\n\nWhich is better for a picnic?\n- Tokyo is overall more picnic\u2011friendly right now: warmer and sunny with lighter wind.  \n- Paris is cooler and partly cloudy; if you prefer milder temperatures or less direct sun, Paris could be more comfortable.\n\nNotes and caveats:\n- Humidity is slightly higher in Tokyo (70% vs 65%), but the difference is small.  \n- Wind in Paris (12 km/h) is a bit stronger which could bother lightweight items.  \n- I only checked current conditions \u2014 if you need a picnic planned for a specific day/time, I can pull a multi\u2011day/hourly forecast (and check rain chances) for either city.\n\nWould you like me to fetch a forecast for a particular date or check both cities\u2019 rain chances for the next few days?"
           }
         ],
         "session_context_count": 0,
@@ -856,20 +856,20 @@
           "type": "llm",
           "passed": true,
           "message": "recommends which city is better for a picnic based on weather",
-          "details": "The content compares current weather for Paris and Tokyo and explicitly recommends Tokyo as the better choice for a picnic right now, with supporting details (warmer and sunny) and caveats for Paris and humidity/sun precautions."
+          "details": "Content explicitly recommends Tokyo as more picnic-friendly based on current weather (warmer, sunny, lighter wind) and contrasts Paris, with clear supporting details and caveats."
         }
       ],
-      "docstring": "City comparison - multi-step reasoning.",
-      "agent_id": "247773a6-acf7-4dde-9039-ad2b52077850",
+      "docstring": "City comparison \u2014 multi-step reasoning.",
+      "agent_id": "10cbce8b-26cc-48cb-961a-0f797d34e149",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/generate_scenarios.py::TestTwoAgents::test_comparison[gpt-4.1-mini]",
+      "name": "tests/fixtures/scenario_02_multi_agent.py::test_comparison[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 9932.929400005378,
+      "duration_ms": 13672.449999998207,
       "agent_result": {
         "turns": [
           {
@@ -888,7 +888,7 @@
                 },
                 "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
                 "error": null,
-                "duration_ms": 1.9948999979533255
+                "duration_ms": 2.7974999975413084
               },
               {
                 "name": "get_weather",
@@ -897,24 +897,24 @@
                 },
                 "result": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}",
                 "error": null,
-                "duration_ms": 1.2411000061547384
+                "duration_ms": 1.4823000092292204
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "The current weather in Paris is partly cloudy with a temperature of 18\u00b0C (64\u00b0F), humidity at 65%, and a wind speed of 12 km/h from the southwest. In Tokyo, the weather is sunny with a temperature of 24\u00b0C (75\u00b0F), humidity at 70%, and a gentler wind speed of 8 km/h from the east.\n\nFor a picnic, Tokyo's sunny weather and warmer temperature might be more pleasant and comfortable compared to the partly cloudy and cooler weather in Paris. However, both cities have mild enough weather that could work depending on your preference for sunshine versus partial clouds. Would you like information on the forecast for the next few days in either city to plan further?",
+            "content": "Currently, Paris has partly cloudy weather with a temperature of 18\u00b0C (64\u00b0F), humidity at 65%, and a southwest wind at 12 km/h. Tokyo is sunny with a warmer temperature of 24\u00b0C (75\u00b0F), higher humidity at 70%, and an east wind at 8 km/h.\n\nFor a picnic, Tokyo's sunny and warmer weather might be more pleasant and ideal, while Paris's partly cloudy condition is cooler and slightly breezier but still comfortable. If you prefer warmer and sunny conditions for a picnic, Tokyo is better; if you prefer cooler with some clouds, Paris could also be nice.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 4232.82589999144,
+        "duration_ms": 4210.121100011747,
         "token_usage": {
           "prompt": 628,
-          "completion": 190
+          "completion": 173
         },
-        "cost_usd": 0.0005551999999999999,
+        "cost_usd": 0.0005279999999999999,
         "_messages": [
           {
             "role": "system",
@@ -933,7 +933,7 @@
                   "arguments": "{\"city\": \"Paris\"}",
                   "name": "get_weather"
                 },
-                "id": "call_94LPItX0rDRhwMJfC3TI4VNk",
+                "id": "call_4yamJ0ULHoJrq0KAl5jKr0Qv",
                 "type": "function"
               },
               {
@@ -941,7 +941,7 @@
                   "arguments": "{\"city\": \"Tokyo\"}",
                   "name": "get_weather"
                 },
-                "id": "call_9PkbTrCVBH753cCi1aPAQBL5",
+                "id": "call_08jh1YLU4ihyu4QOW8Yzoh5I",
                 "type": "function"
               }
             ],
@@ -953,17 +953,17 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_94LPItX0rDRhwMJfC3TI4VNk",
+            "tool_call_id": "call_4yamJ0ULHoJrq0KAl5jKr0Qv",
             "content": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_9PkbTrCVBH753cCi1aPAQBL5",
+            "tool_call_id": "call_08jh1YLU4ihyu4QOW8Yzoh5I",
             "content": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}"
           },
           {
             "role": "assistant",
-            "content": "The current weather in Paris is partly cloudy with a temperature of 18\u00b0C (64\u00b0F), humidity at 65%, and a wind speed of 12 km/h from the southwest. In Tokyo, the weather is sunny with a temperature of 24\u00b0C (75\u00b0F), humidity at 70%, and a gentler wind speed of 8 km/h from the east.\n\nFor a picnic, Tokyo's sunny weather and warmer temperature might be more pleasant and comfortable compared to the partly cloudy and cooler weather in Paris. However, both cities have mild enough weather that could work depending on your preference for sunshine versus partial clouds. Would you like information on the forecast for the next few days in either city to plan further?"
+            "content": "Currently, Paris has partly cloudy weather with a temperature of 18\u00b0C (64\u00b0F), humidity at 65%, and a southwest wind at 12 km/h. Tokyo is sunny with a warmer temperature of 24\u00b0C (75\u00b0F), higher humidity at 70%, and an east wind at 8 km/h.\n\nFor a picnic, Tokyo's sunny and warmer weather might be more pleasant and ideal, while Paris's partly cloudy condition is cooler and slightly breezier but still comfortable. If you prefer warmer and sunny conditions for a picnic, Tokyo is better; if you prefer cooler with some clouds, Paris could also be nice."
           }
         ],
         "session_context_count": 0,
@@ -1050,11 +1050,11 @@
           "type": "llm",
           "passed": true,
           "message": "recommends which city is better for a picnic based on weather",
-          "details": "The content explicitly compares weather and recommends Tokyo as more pleasant for a picnic (sunny and warmer), while noting both are acceptable\u2014thus it meets the criterion."
+          "details": "The content compares weather conditions and explicitly recommends Tokyo as better for a picnic if you prefer sunny, warmer weather, while noting Paris as a viable alternative for cooler, cloudier preferences\u2014meeting the criterion."
         }
       ],
-      "docstring": "City comparison - multi-step reasoning.",
-      "agent_id": "3ef1a91a-dfc7-4003-a0c6-c79463320f58",
+      "docstring": "City comparison \u2014 multi-step reasoning.",
+      "agent_id": "ceed1998-61b8-4b4e-99a6-cd3cbde6364d",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini",
       "system_prompt_name": null,
@@ -1064,12 +1064,12 @@
   "passed": 6,
   "failed": 0,
   "skipped": 0,
-  "suite_docstring": "Two agents compared side-by-side.",
+  "suite_docstring": "Fixture 02: Two agents \u2014 leaderboard, comparison (no selector).",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-4.1-mini + default system prompt**\n\nAchieves **100% pass rate at ~48% lower total cost** than gpt-5-mini with equal tool correctness and comparable response quality.\n\n**Reasoning:**  \nBoth configurations passed all tests (100% pass rate). Cost is the differentiator:  \n- **gpt-4.1-mini total cost:** $0.001464  \n- **gpt-5-mini total cost:** $0.003265  \nThis is a **~55% cost reduction overall** (and ~40\u201345% fewer tokens per test on average) with no observed loss in correctness. Tool usage was consistent and appropriate across all scenarios, and responses met test expectations.\n\n**Alternatives:**  \n- **gpt-5-mini:** Higher verbosity and more detailed explanations, but at **>2\u00d7 the cost** for these tests. Not justified unless richer narrative output is explicitly required.\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools are well-discovered and used correctly by both models. The agent consistently selected the appropriate tool for each task.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 5 | Working well |\n| get_forecast | \u2705 | 2 | Working well |\n| compare_weather | \u2705 | 1 | Working well |\n| list_cities | \u26a0\ufe0f | 0 | Not exercised in tests |\n\n**Notes:**  \n- `compare_weather` was correctly preferred by gpt-5-mini in `test_comparison`, reducing tool calls versus two `get_weather` calls.  \n- gpt-4.1-mini solved the same task with two `get_weather` calls, which is acceptable but slightly less efficient.\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~27 tokens\n- **Assessment:** Clear, concise, and consistently followed by both models.\n- **Observed behavior:**  \n  - No hallucinated weather data  \n  - Tools always used before answering  \n- **Change:** None recommended. The prompt is already minimal and effective.\n\n## \ud83d\udca1 Optimizations\n\n1. **Prefer lower-cost model for weather queries** (recommended)\n   - Current: Mixed evaluation of gpt-5-mini and gpt-4.1-mini.\n   - Change: Standardize on **gpt-4.1-mini** for this agent.\n   - Impact: **~55% cost reduction** across the test suite with no loss in pass rate or tool correctness.\n\n2. **Encourage `compare_weather` usage explicitly** (suggestion)\n   - Current: Only gpt-5-mini selected `compare_weather` in `test_comparison`; gpt-4.1-mini used two `get_weather` calls.\n   - Change: Add one line to the system prompt:\n     ```\n     When comparing two cities, prefer the compare_weather tool if available.\n     ```\n   - Impact: Minor cost and latency reduction (1 tool call instead of 2) for comparison queries.\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~70\u201380 tokens per call\n- **Issues found:**  \n  - Both Celsius and Fahrenheit returned, but agents always restate both only because they are present.  \n  - `country` is not used in reasoning, only for display.\n- **Suggested optimization:**  \n  - Make `temperature_fahrenheit` optional or remove it.  \n  - Omit `country` unless explicitly requested.\n\n**Example current vs optimized:**\n```json\n// Current (~78 tokens)\n{\n  \"city\": \"London\",\n  \"country\": \"UK\",\n  \"temperature_celsius\": 14,\n  \"temperature_fahrenheit\": 57,\n  \"humidity\": 80,\n  \"conditions\": \"Rainy\",\n  \"wind_speed_kmh\": 18,\n  \"wind_direction\": \"W\"\n}\n\n// Optimized (~45 tokens)\n{\n  \"city\": \"London\",\n  \"temperature_celsius\": 14,\n  \"humidity\": 80,\n  \"conditions\": \"Rainy\",\n  \"wind_speed_kmh\": 18,\n  \"wind_direction\": \"W\"\n}\n```\n- **Estimated savings:** ~30\u201335 tokens per call (**~40% reduction**)\n\n### get_forecast (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~300+ tokens for 5 days\n- **Issues found:**  \n  - Repeats `city` for every day entry.  \n- **Suggested optimization:**  \n  - Return `city` once at the top level and only per-day weather details in the list.\n- **Estimated savings:** ~10\u201315 tokens per forecast day (**~50\u201375 tokens per call**)\n\nThese optimizations would further favor the lower-cost model and reduce total spend without changing agent behavior.",
-    "cost_usd": 0.02287425,
-    "tokens_used": 5812,
+    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-4.1-mini + default system prompt**\n\nAchieves **100% pass rate at ~63% lower total cost** than gpt-5-mini with faster response times and lower token usage.\n\n**Reasoning:**  \nBoth configurations passed all tests (simple weather, forecast, and comparison). With equal pass rates, cost is the deciding factor. Across all tests, **gpt-4.1-mini costs $0.001911 total vs $0.003937 for gpt-5-mini (~51% cheaper)** and uses ~43% fewer tokens. Response quality is comparable and tool usage is correct in all cases.\n\n**Alternatives:**  \n- **gpt-5-mini**: Higher verbosity and richer formatting, but at ~2\u00d7 the cost and slower latency. Not justified given identical correctness.\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools are well-described and correctly invoked by both models. Tool discoverability is good; no hallucinated data observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 4 | Working well |\n| get_forecast | \u2705 | 2 | Working well |\n| compare_weather | \u2705 | 1 | Working well |\n| list_cities | \u26a0\ufe0f | 0 | Never called in any test |\n\n**Notes:**\n- `compare_weather` was correctly preferred by gpt-5-mini in `test_comparison`, but gpt-4.1-mini decomposed the task into two `get_weather` calls. Both approaches are valid given the prompt and schemas.\n- If you want to **force use of `compare_weather`**, the system prompt or tool description must be more explicit (see Optimizations).\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~27 tokens\n- **Assessment:** Clear, minimal, and effective. Both models consistently used tools and never fabricated data.\n- **No change required.**\n\n## \ud83d\udca1 Optimizations\n\n1. **Encourage specialized comparison tool usage** (suggestion)\n   - Current: In `test_comparison[gpt-4.1-mini]`, the agent used two `get_weather` calls instead of `compare_weather`.\n   - Change: Update system prompt to explicitly prefer comparison tools:\n     > **Replace:**  \n     > `Use the available tools to answer questions about weather.`  \n     > **With:**  \n     > `Use the most specific available tool for the task (e.g., use compare_weather for city comparisons).`\n   - Impact: Minor cost reduction in multi-city comparisons (1 call instead of 2), ~10\u201320% tool-call cost savings for comparison-style queries.\n\n2. **Reduce verbose forecast narration** (info)\n   - Current: gpt-5-mini adds dates, commentary, and extra prose not required by tests.\n   - Change: Add a formatting constraint if brevity matters:\n     > `Provide concise answers without additional commentary unless requested.`\n   - Impact: For verbose models, up to **40% cost reduction** on forecast-style responses.\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~70\u201380 tokens per call\n- **Issues found:**  \n  - Redundant fields for many test purposes (`temperature_fahrenheit` always derivable).  \n  - Verbose key names increase token count.\n- **Suggested optimization:**  \n  - Remove `temperature_fahrenheit` or make it optional.  \n  - Shorten key names for LLM consumption.\n\n**Example current vs optimized:**\n```json\n// Current (~78 tokens)\n{\n  \"city\": \"London\",\n  \"country\": \"UK\",\n  \"temperature_celsius\": 14,\n  \"temperature_fahrenheit\": 57,\n  \"humidity\": 80,\n  \"conditions\": \"Rainy\",\n  \"wind_speed_kmh\": 18,\n  \"wind_direction\": \"W\"\n}\n\n// Optimized (~45 tokens)\n{\n  \"city\": \"London\",\n  \"temp_c\": 14,\n  \"humidity\": 80,\n  \"conditions\": \"Rainy\",\n  \"wind_kmh\": 18,\n  \"wind_dir\": \"W\"\n}\n```\n- **Estimated savings:** ~30\u201335 tokens per call (~40% reduction).\n\n### get_forecast (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** Large array with repeated `\"city\"` field per day.\n- **Issues found:** Repetition of invariant fields (`city`) across entries.\n- **Suggested optimization:** Hoist invariant fields to top-level object.\n- **Estimated savings:** ~20\u201325% token reduction per forecast call.\n\nThese optimizations would compound into meaningful cost savings, especially when combined with the lower-cost **gpt-4.1-mini** deployment.",
+    "cost_usd": 0.022609999999999998,
+    "tokens_used": 5752,
     "cached": false
   }
 }

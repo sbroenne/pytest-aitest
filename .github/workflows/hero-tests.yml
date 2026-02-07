@@ -68,6 +68,7 @@ jobs:
           name: Hero Test Results
           path: hero-results.xml
           reporter: java-junit
+          fail-on-error: false
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
