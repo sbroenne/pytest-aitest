@@ -74,15 +74,15 @@ def aitest_run(
 
     Session continuity with @pytest.mark.session:
 
-        @pytest.mark.session("weather_session")
-        async def test_ask_weather(aitest_run):
-            result = await aitest_run(agent, "What's the weather in Paris?")
+        @pytest.mark.session("banking_session")
+        async def test_check_balance(aitest_run):
+            result = await aitest_run(agent, "What's my checking balance?")
             assert result.success
 
-        @pytest.mark.session("weather_session")
-        async def test_followup_question(aitest_run):
+        @pytest.mark.session("banking_session")
+        async def test_followup_transfer(aitest_run):
             # Messages from previous test are automatically injected
-            result = await aitest_run(agent, "What about tomorrow?")
+            result = await aitest_run(agent, "Transfer $100 to savings")
             assert result.success
     """
     engines: list[AgentEngine] = []

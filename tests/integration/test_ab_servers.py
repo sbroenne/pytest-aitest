@@ -20,11 +20,11 @@ import pytest
 from pytest_aitest import Agent, MCPServer, Provider, Wait
 
 from .conftest import (
+    BANKING_PROMPT,
     DEFAULT_MAX_TURNS,
     DEFAULT_MODEL,
     DEFAULT_RPM,
     DEFAULT_TPM,
-    WEATHER_PROMPT,
 )
 
 pytestmark = [pytest.mark.integration, pytest.mark.abtest]
@@ -36,16 +36,25 @@ pytestmark = [pytest.mark.integration, pytest.mark.abtest]
 
 
 @pytest.fixture(scope="module")
-def weather_server_v1():
-    """Weather server version 1 - original implementation."""
+def banking_server_v1():
+    """Banking server version 1 - original implementation."""
     return MCPServer(
         command=[
             sys.executable,
             "-u",
             "-m",
-            "pytest_aitest.testing.weather_mcp",
+            "pytest_aitest.testing.banking_mcp",
         ],
-        wait=Wait.for_tools(["get_weather", "get_forecast", "list_cities"]),
+        wait=Wait.for_tools(
+            [
+                "get_balance",
+                "get_all_balances",
+                "transfer",
+                "deposit",
+                "withdraw",
+                "get_transactions",
+            ]
+        ),
     )
 
 
@@ -85,56 +94,55 @@ class TestServerABComparison:
 
     @pytest.mark.parametrize("server_version", ["v1-verbose", "v1-terse"])
     @pytest.mark.asyncio
-    async def test_weather_simple_query(self, aitest_run, weather_server_v1, server_version):
-        """Simple weather query across different prompt styles."""
+    async def test_banking_simple_query(self, aitest_run, banking_server_v1, server_version):
+        """Simple balance query across different prompt styles."""
         # Simulate A/B by varying system prompt (in real scenario, use different servers)
         if server_version == "v1-verbose":
-            system_prompt = WEATHER_PROMPT
+            system_prompt = BANKING_PROMPT
         else:
-            system_prompt = "You help with weather. Use tools to get data."
+            system_prompt = "You help with banking. Use tools to get data."
 
         agent = Agent(
-            name=f"weather-{server_version}",
+            name=f"banking-{server_version}",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server_v1],
+            mcp_servers=[banking_server_v1],
             system_prompt=system_prompt,
             max_turns=DEFAULT_MAX_TURNS,
         )
 
-        result = await aitest_run(agent, "What's the weather in Paris?")
+        result = await aitest_run(agent, "What's my checking account balance?")
 
         assert result.success
-        assert result.tool_was_called("get_weather")
+        assert result.tool_was_called("get_balance")
 
     @pytest.mark.parametrize("server_version", ["v1-verbose", "v1-terse"])
     @pytest.mark.asyncio
-    async def test_weather_comparison_query(self, aitest_run, weather_server_v1, server_version):
-        """City comparison across different prompt styles.
+    async def test_banking_transfer_query(self, aitest_run, banking_server_v1, server_version):
+        """Transfer operation across different prompt styles.
 
         This tests whether the prompt style affects the agent's ability
         to handle more complex queries.
         """
         if server_version == "v1-verbose":
-            system_prompt = WEATHER_PROMPT
+            system_prompt = BANKING_PROMPT
         else:
-            system_prompt = "You help with weather. Use tools to get data."
+            system_prompt = "You help with banking. Use tools to get data."
 
         agent = Agent(
-            name=f"weather-compare-{server_version}",
+            name=f"banking-transfer-{server_version}",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server_v1],
+            mcp_servers=[banking_server_v1],
             system_prompt=system_prompt,
             max_turns=8,
         )
 
         result = await aitest_run(
             agent,
-            "Which city is warmer right now: Tokyo or Berlin?",
+            "Transfer $100 from checking to savings and show me the updated balances.",
         )
 
         assert result.success
-        # Should gather weather data for comparison
-        assert result.tool_was_called("get_weather") or result.tool_was_called("compare_weather")
+        assert result.tool_was_called("transfer")
 
 
 class TestToolDescriptionImpact:
@@ -150,13 +158,13 @@ class TestToolDescriptionImpact:
     @pytest.mark.parametrize("description_quality", ["good", "minimal"])
     @pytest.mark.asyncio
     async def test_ambiguous_query_handling(
-        self, aitest_run, weather_server_v1, description_quality
+        self, aitest_run, banking_server_v1, description_quality
     ):
         """Test how description quality affects ambiguous query handling.
 
         With good descriptions, the agent should:
-        - Know which cities are available
-        - Handle unknown cities gracefully
+        - Know which accounts are available
+        - Handle impossible operations gracefully
         - Suggest alternatives when needed
 
         With minimal descriptions, the agent may fail to use tools properly.
@@ -164,30 +172,32 @@ class TestToolDescriptionImpact:
         """
         if description_quality == "good":
             system_prompt = (
-                "You are a weather assistant. The weather system has data for specific "
-                "cities only. Use list_cities to discover available locations. "
-                "If a city isn't available, suggest alternatives from the list."
+                "You are a banking assistant. The system manages checking and savings "
+                "accounts. Use get_all_balances to discover available accounts. "
+                "If an operation fails, explain why and suggest alternatives."
             )
         else:
-            system_prompt = "You get weather data."
+            system_prompt = "You manage bank accounts."
 
         agent = Agent(
             name=f"ambiguous-{description_quality}",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server_v1],
+            mcp_servers=[banking_server_v1],
             system_prompt=system_prompt,
             max_turns=8,
         )
 
         result = await aitest_run(
             agent,
-            "What's the weather in a European city?",
+            "Show me my account overview.",
         )
 
         assert result.success
 
         # Count tool usage
-        tool_calls = result.tool_call_count("get_weather") + result.tool_call_count("list_cities")
+        tool_calls = result.tool_call_count("get_balance") + result.tool_call_count(
+            "get_all_balances"
+        )
 
         if description_quality == "good":
             # Good descriptions should lead to tool usage

@@ -27,19 +27,19 @@ def single_agent_suite() -> SuiteReport:
     """Suite with a single agent, one pass and one fail."""
     result_pass = AgentResult(
         turns=[
-            Turn(role="user", content="What's the weather?"),
+            Turn(role="user", content="What's my checking balance?"),
             Turn(
                 role="assistant",
                 content="",
                 tool_calls=[
                     ToolCall(
-                        name="get_weather",
-                        arguments={"city": "Paris"},
-                        result='{"temp": 22}',
+                        name="get_balance",
+                        arguments={"account": "checking"},
+                        result='{"balance": 1500}',
                     )
                 ],
             ),
-            Turn(role="assistant", content="It's 22°C in Paris."),
+            Turn(role="assistant", content="Your checking balance is $1,500."),
         ],
         success=True,
         duration_ms=1500.0,
@@ -57,28 +57,28 @@ def single_agent_suite() -> SuiteReport:
         cost_usd=0.001,
     )
     return SuiteReport(
-        name="weather-tests",
+        name="banking-tests",
         timestamp="2026-02-07T10:00:00Z",
         duration_ms=2300.0,
         tests=[
             TestReport(
-                name="TestWeather::test_get_weather",
+                name="TestBanking::test_check_balance",
                 outcome="passed",
                 duration_ms=1500.0,
                 agent_result=result_pass,
                 agent_id="agent-1",
-                agent_name="weather-bot",
+                agent_name="banking-bot",
                 model="gpt-5-mini",
-                docstring="Get weather for a city",
+                docstring="Check account balance",
             ),
             TestReport(
-                name="TestWeather::test_transfer_fail",
+                name="TestBanking::test_transfer_fail",
                 outcome="failed",
                 duration_ms=800.0,
                 agent_result=result_fail,
                 error="AssertionError: expected tool call",
                 agent_id="agent-1",
-                agent_name="weather-bot",
+                agent_name="banking-bot",
                 model="gpt-5-mini",
             ),
         ],
@@ -176,7 +176,7 @@ class TestGenerateMd:
         output = tmp_path / "report.md"
         generate_md(single_agent_suite, output, insights=insights)
         md = output.read_text(encoding="utf-8")
-        assert "# weather-tests" in md
+        assert "# banking-tests" in md
 
     def test_contains_summary_stats(
         self, single_agent_suite: SuiteReport, insights: InsightsResult, tmp_path: Path
@@ -231,7 +231,7 @@ class TestGenerateMd:
         generate_md(single_agent_suite, output, insights=insights)
         md = output.read_text(encoding="utf-8")
         assert "**Tool Calls:**" in md
-        assert "`get_weather`" in md
+        assert "`get_balance`" in md
 
     def test_contains_collapsible_details(
         self, single_agent_suite: SuiteReport, insights: InsightsResult, tmp_path: Path
@@ -266,7 +266,7 @@ class TestGenerateMd:
         output = tmp_path / "report.md"
         generate_md(single_agent_suite, output, insights=insights)
         md = output.read_text(encoding="utf-8")
-        assert "Get weather for a city" in md
+        assert "Check account balance" in md
 
 
 class TestGenerateMdMultiAgent:

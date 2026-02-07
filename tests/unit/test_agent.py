@@ -41,8 +41,8 @@ class TestAgent:
     def test_agent_with_all_options(self) -> None:
         """Agent with all configuration options."""
         server = MCPServer(
-            command=["python", "-m", "weather_server"],
-            wait=Wait.for_tools(["get_weather"]),
+            command=["python", "-m", "banking_server"],
+            wait=Wait.for_tools(["get_balance"]),
         )
         agent = Agent(
             name="test-agent",
@@ -50,14 +50,14 @@ class TestAgent:
             mcp_servers=[server],
             system_prompt="Be helpful.",
             max_turns=5,
-            allowed_tools=["get_weather"],
+            allowed_tools=["get_balance"],
         )
         assert agent.name == "test-agent"
         assert agent.provider.temperature == 0.7
         assert len(agent.mcp_servers) == 1
         assert agent.system_prompt == "Be helpful."
         assert agent.max_turns == 5
-        assert agent.allowed_tools == ["get_weather"]
+        assert agent.allowed_tools == ["get_balance"]
 
     def test_auto_name_model_only(self) -> None:
         """Auto-name strips provider prefix."""
@@ -92,16 +92,16 @@ class TestAgent:
         from pytest_aitest.core.skill import Skill, SkillMetadata
 
         skill = Skill(
-            path=Path("skills/weather-expert"),
-            metadata=SkillMetadata(name="weather-expert", description="Weather expertise"),
-            content="Know weather.",
+            path=Path("skills/financial-advisor"),
+            metadata=SkillMetadata(name="financial-advisor", description="Financial advice"),
+            content="Know finance.",
         )
         agent = Agent(
             provider=Provider(model="azure/gpt-4.1"),
             system_prompt_name="detailed",
             skill=skill,
         )
-        assert agent.name == "gpt-4.1 + detailed + weather-expert"
+        assert agent.name == "gpt-4.1 + detailed + financial-advisor"
 
     def test_explicit_name_not_overridden(self) -> None:
         """Explicit name is preserved — not overridden by auto-construction."""
@@ -152,8 +152,8 @@ class TestMCPServer:
     def test_server_with_wait_for_tools(self) -> None:
         """MCPServer with Wait.for_tools()."""
         server = MCPServer(
-            command=["python", "-m", "weather"],
-            wait=Wait.for_tools(["get_weather", "get_forecast"]),
+            command=["python", "-m", "banking"],
+            wait=Wait.for_tools(["get_balance", "transfer"]),
         )
         assert server.wait.strategy.value == "tools"
-        assert server.wait.tools == ("get_weather", "get_forecast")
+        assert server.wait.tools == ("get_balance", "transfer")

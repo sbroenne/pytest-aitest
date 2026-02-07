@@ -14,15 +14,15 @@ class Prompt:
     """A loadable prompt configuration.
 
     Example YAML:
-        name: weather-assistant
+        name: banking-assistant
         version: "1.0"
-        description: Concise weather responses
+        description: Concise banking responses
         system_prompt: |
-          You are a weather assistant.
-          Be brief and always include temperature in Celsius.
+          You are a banking assistant.
+          Be brief and always include account balances.
 
     Example usage:
-        prompt = Prompt.from_yaml("prompts/weather.yaml")
+        prompt = Prompt.from_yaml("prompts/banking.yaml")
         agent = Agent(system_prompt=prompt.system_prompt, ...)
     """
 

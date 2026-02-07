@@ -45,16 +45,16 @@ class TestAddJunitProperties:
             turns=[],
             success=True,
             skill_info=SkillInfo(
-                name="weather-expert",
-                description="Weather knowledge",
-                instruction_content="Expert weather advice",
+                name="financial-advisor",
+                description="Financial advice",
+                instruction_content="Expert financial advice",
             ),
         )
 
         _add_junit_properties(report, result, None)
 
         props = dict(report.user_properties)
-        assert props["aitest.skill"] == "weather-expert"
+        assert props["aitest.skill"] == "financial-advisor"
 
     def test_prompt_from_agent(self) -> None:
         """Test system prompt name from agent."""
@@ -129,15 +129,22 @@ class TestAddJunitProperties:
                     role="assistant",
                     content="",
                     tool_calls=[
-                        ToolCall(name="get_weather", arguments={"city": "Paris"}),
-                        ToolCall(name="get_forecast", arguments={"city": "Paris"}),
+                        ToolCall(name="get_balance", arguments={"account": "checking"}),
+                        ToolCall(
+                            name="transfer",
+                            arguments={
+                                "from_account": "checking",
+                                "to_account": "savings",
+                                "amount": 100,
+                            },
+                        ),
                     ],
                 ),
                 Turn(
                     role="assistant",
                     content="",
                     tool_calls=[
-                        ToolCall(name="get_weather", arguments={"city": "London"}),
+                        ToolCall(name="get_balance", arguments={"account": "savings"}),
                     ],
                 ),
             ],
@@ -148,7 +155,7 @@ class TestAddJunitProperties:
 
         props = dict(report.user_properties)
         # Should be unique and sorted
-        assert props["aitest.tools.called"] == "get_forecast,get_weather"
+        assert props["aitest.tools.called"] == "get_balance,transfer"
 
     def test_failure_status(self) -> None:
         """Test failed agent shows false."""
@@ -179,17 +186,17 @@ class TestAddJunitProperties:
             turns=[
                 Turn(
                     role="assistant",
-                    content="Weather in Paris: 18°C",
-                    tool_calls=[ToolCall(name="get_weather", arguments={"city": "Paris"})],
+                    content="Checking balance: $1,500",
+                    tool_calls=[ToolCall(name="get_balance", arguments={"account": "checking"})],
                 ),
             ],
             success=True,
-            skill_info=SkillInfo(name="weather-expert", description="", instruction_content=""),
+            skill_info=SkillInfo(name="financial-advisor", description="", instruction_content=""),
             token_usage={"prompt": 500, "completion": 50},
             cost_usd=0.00125,
         )
         agent = Agent(
-            name="weather-agent",
+            name="banking-agent",
             provider=Provider(model="azure/gpt-5-mini"),
             system_prompt_name="detailed",
         )
@@ -197,16 +204,16 @@ class TestAddJunitProperties:
         _add_junit_properties(report, result, agent)
 
         props = dict(report.user_properties)
-        assert props["aitest.agent.name"] == "weather-agent"
+        assert props["aitest.agent.name"] == "banking-agent"
         assert props["aitest.model"] == "gpt-5-mini"
-        assert props["aitest.skill"] == "weather-expert"
+        assert props["aitest.skill"] == "financial-advisor"
         assert props["aitest.prompt"] == "detailed"
         assert props["aitest.tokens.input"] == "500"
         assert props["aitest.tokens.output"] == "50"
         assert props["aitest.tokens.total"] == "550"
         assert props["aitest.cost_usd"] == "0.001250"
         assert props["aitest.turns"] == "1"
-        assert props["aitest.tools.called"] == "get_weather"
+        assert props["aitest.tools.called"] == "get_balance"
         assert props["aitest.success"] == "true"
 
     def test_mcp_servers(self) -> None:
@@ -217,8 +224,8 @@ class TestAddJunitProperties:
             provider=Provider(model="azure/gpt-5-mini"),
             mcp_servers=[
                 MCPServer(
-                    command=["python", "-m", "weather_mcp"],
-                    wait=Wait.for_tools(["get_weather"]),
+                    command=["python", "-m", "banking_mcp"],
+                    wait=Wait.for_tools(["get_balance"]),
                 ),
                 MCPServer(
                     command=["python", "-m", "calendar_mcp"],
@@ -230,7 +237,7 @@ class TestAddJunitProperties:
         _add_junit_properties(report, result, agent)
 
         props = dict(report.user_properties)
-        assert props["aitest.servers"] == "weather_mcp,calendar_mcp"
+        assert props["aitest.servers"] == "banking_mcp,calendar_mcp"
 
     def test_allowed_tools(self) -> None:
         """Test allowed_tools filter is added from agent config."""
@@ -238,13 +245,13 @@ class TestAddJunitProperties:
         result = AgentResult(turns=[], success=True)
         agent = Agent(
             provider=Provider(model="azure/gpt-5-mini"),
-            allowed_tools=["get_weather", "get_forecast"],
+            allowed_tools=["get_balance", "transfer"],
         )
 
         _add_junit_properties(report, result, agent)
 
         props = dict(report.user_properties)
-        assert props["aitest.allowed_tools"] == "get_forecast,get_weather"
+        assert props["aitest.allowed_tools"] == "get_balance,transfer"
 
     def test_full_example_with_agent(self) -> None:
         """Test complete example with agent config included."""
@@ -253,30 +260,30 @@ class TestAddJunitProperties:
             turns=[
                 Turn(
                     role="assistant",
-                    content="Weather in Paris: 18°C",
-                    tool_calls=[ToolCall(name="get_weather", arguments={"city": "Paris"})],
+                    content="Checking balance: $1,500",
+                    tool_calls=[ToolCall(name="get_balance", arguments={"account": "checking"})],
                 ),
             ],
             success=True,
-            skill_info=SkillInfo(name="weather-expert", description="", instruction_content=""),
+            skill_info=SkillInfo(name="financial-advisor", description="", instruction_content=""),
             token_usage={"prompt": 500, "completion": 50},
             cost_usd=0.00125,
         )
         agent = Agent(
-            name="weather-agent",
+            name="banking-agent",
             provider=Provider(model="azure/gpt-5-mini"),
             system_prompt_name="detailed",
             mcp_servers=[
-                MCPServer(command=["python", "-m", "weather_mcp"], wait=Wait.ready()),
+                MCPServer(command=["python", "-m", "banking_mcp"], wait=Wait.ready()),
             ],
-            allowed_tools=["get_weather", "get_forecast"],
+            allowed_tools=["get_balance", "transfer"],
         )
 
         _add_junit_properties(report, result, agent)
 
         props = dict(report.user_properties)
-        assert props["aitest.agent.name"] == "weather-agent"
+        assert props["aitest.agent.name"] == "banking-agent"
         assert props["aitest.model"] == "gpt-5-mini"
-        assert props["aitest.servers"] == "weather_mcp"
-        assert props["aitest.allowed_tools"] == "get_forecast,get_weather"
+        assert props["aitest.servers"] == "banking_mcp"
+        assert props["aitest.allowed_tools"] == "get_balance,transfer"
         assert props["aitest.success"] == "true"

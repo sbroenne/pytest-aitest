@@ -1,5 +1,5 @@
 ---
-description: "Built-in Weather, Todo, and Banking MCP test servers for validating agent behavior without external dependencies."
+description: "Built-in Todo and Banking MCP test servers for validating agent behavior without external dependencies."
 ---
 
 # Test Harnesses
@@ -10,79 +10,8 @@ Built-in MCP servers for testing agent behavior without external dependencies.
 
 | Server | Use Case | State |
 |--------|----------|-------|
-| `WeatherStore` | Basic tool usage | Stateless |
 | `TodoStore` | CRUD operations | Stateful |
-| `BankingService` | Multi-turn sessions | Stateful |
-
-## WeatherStore
-
-Mock weather data for testing natural language → tool usage.
-
-### Use Case
-
-- "Hello world" tests
-- Testing tool selection
-- Simple prompt → response validation
-
-### Tools
-
-| Tool | Description |
-|------|-------------|
-| `get_weather` | Get current weather for a city |
-| `get_forecast` | Get multi-day forecast |
-| `compare_weather` | Compare weather between cities |
-| `list_cities` | List available cities |
-
-### Available Cities
-
-Paris, Tokyo, New York, Berlin, London, Sydney
-
-### Example
-
-```python
-import sys
-from pytest_aitest import Agent, Provider, MCPServer, Wait
-from pytest_aitest.testing import WeatherStore
-
-@pytest.fixture(scope="module")
-def weather_server():
-    return MCPServer(
-        command=[sys.executable, "-m", "pytest_aitest.testing.weather_mcp"],
-        wait=Wait.for_tools(["get_weather", "get_forecast", "list_cities"]),
-    )
-
-@pytest.fixture
-def weather_agent(weather_server):
-    return Agent(
-        name="weather",
-        provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
-    )
-
-async def test_weather(aitest_run, weather_agent):
-    result = await aitest_run(
-        weather_agent,
-        "What's the weather in Paris?"
-    )
-    
-    assert result.success
-    assert result.tool_was_called("get_weather")
-```
-
-### Direct Usage
-
-```python
-from pytest_aitest.testing import WeatherStore
-
-store = WeatherStore()
-
-result = store.get_weather("Paris")
-assert result.success
-print(result.value)  # {"city": "Paris", "temperature_celsius": 18, ...}
-
-result = store.get_forecast("Tokyo", days=3)
-assert result.success
-```
+| `BankingService` | Multi-turn sessions, financial workflows | Stateful |
 
 ## TodoStore
 
@@ -323,5 +252,5 @@ async def test_my_tool(aitest_run, agent_with_my_server):
 
 | Server | Best For | Avoid |
 |--------|----------|-------|
-| `WeatherStore` | Quick tests, demos | State-dependent tests |
 | `TodoStore` | CRUD workflows | Extremely complex logic |
+| `BankingService` | Financial workflows, sessions | Stateless tests |

@@ -74,7 +74,7 @@ Your MCP server passes all unit tests. Then an LLM tries to use it and:
 
 For LLMs, your API isn't functions and types — it's **tool descriptions, system prompts, skills, and schemas**. These are what the LLM actually sees. Traditional tests can't validate them.
 
-**The key insight: your test is a prompt.** You write what a user would say ("What's the weather in Paris?"), and the LLM figures out how to use your tools. If it can't, your AI interface needs work.
+**The key insight: your test is a prompt.** You write what a user would say ("What's my checking balance?"), and the LLM figures out how to use your tools. If it can't, your AI interface needs work.
 
 ## CRITICAL: HTML Report Development Workflow
 
@@ -175,8 +175,8 @@ class AgentResult:
 
 ```python
 # Tests are async by default (asyncio_mode = "auto" in pyproject.toml)
-async def test_weather(aitest_run, weather_server):
-    result = await aitest_run(agent, "What's the weather?")
+async def test_balance(aitest_run, banking_server):
+    result = await aitest_run(agent, "What's my balance?")
     assert result.success
 ```
 
@@ -289,7 +289,7 @@ agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
     mcp_servers=[my_server],
     system_prompt="You are helpful...",
-    skill=Skill.from_path("skills/weather-expert"),  # Optional domain knowledge
+    skill=Skill.from_path("skills/financial-advisor"),  # Optional domain knowledge
     max_turns=10,
 )
 
@@ -329,13 +329,13 @@ prompts = load_system_prompts(Path("prompts/"))
 
 # Use with pytest parametrize
 @pytest.mark.parametrize("prompt_name,system_prompt", prompts.items())
-async def test_with_prompt(aitest_run, weather_server, prompt_name, system_prompt):
+async def test_with_prompt(aitest_run, banking_server, prompt_name, system_prompt):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
         system_prompt=system_prompt,
     )
-    result = await aitest_run(agent, "What's the weather?")
+    result = await aitest_run(agent, "What's my balance?")
     assert result.success
 ```
 
@@ -357,7 +357,7 @@ This is a testing framework that uses LLMs to test tools, prompts, and skills. T
 ### What TO do:
 - Write integration tests that call real Azure OpenAI / OpenAI models
 - Use the cheapest available model (check Azure subscription first)
-- Test with the Weather or Todo MCP server (built-in test harnesses)
+- Test with the Banking or Todo MCP server (built-in test harnesses)
 - Verify actual tool calls happen and produce expected results
 - Accept that integration tests take 5-30+ seconds per test
 
@@ -454,11 +454,9 @@ src/pytest_aitest/
 │       ├── test_comparison.html    # Side-by-side agent comparison
 │       └── overlay.html            # Fullscreen expanded view
 └── testing/               # Test harnesses
-    ├── weather.py         # WeatherStore for demos
-    ├── weather_mcp.py     # Weather MCP server
     ├── todo.py            # TodoStore for CRUD tests
     ├── todo_mcp.py        # Todo MCP server
-    ├── banking.py         # BankingService for sessions
+    ├── banking.py         # BankingService for financial tests
     └── banking_mcp.py     # Banking MCP server
 
 tests/
@@ -493,7 +491,7 @@ DEFAULT_TPM = 10000
 # Turn limits
 DEFAULT_MAX_TURNS = 5
 
-# Server fixtures: weather_server, todo_server, banking_server
+# Server fixtures: todo_server, banking_server
 # Agents are created INLINE in each test using these constants
 ```
 
@@ -502,14 +500,14 @@ DEFAULT_MAX_TURNS = 5
 from pytest_aitest import Agent, Provider
 from .conftest import DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM, DEFAULT_MAX_TURNS
 
-async def test_weather(aitest_run, weather_server):
+async def test_balance(aitest_run, banking_server):
     agent = Agent(
         provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-        mcp_servers=[weather_server],
-        system_prompt="You are a weather assistant.",
+        mcp_servers=[banking_server],
+        system_prompt="You are a banking assistant.",
         max_turns=DEFAULT_MAX_TURNS,
     )
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 
@@ -518,12 +516,12 @@ async def test_weather(aitest_run, weather_server):
 Use the `llm_assert` fixture from `pytest-llm-assert` for AI-powered assertions:
 
 ```python
-async def test_response_quality(aitest_run, weather_server, llm_assert):
+async def test_response_quality(aitest_run, banking_server, llm_assert):
     agent = Agent(...)
-    result = await aitest_run(agent, "Compare Paris and London weather")
+    result = await aitest_run(agent, "Show me my account balances and recent transactions")
     
     # Semantic assertion - AI evaluates if condition is met
-    assert llm_assert(result.final_response, "compares temperatures of both cities")
+    assert llm_assert(result.final_response, "includes account balances and transaction details")
 ```
 
 ## CRITICAL: Report Development
@@ -625,7 +623,7 @@ pytest tests/showcase/ -v --aitest-html=docs/demo/hero-report.html
 uv run pytest tests/unit/ -v
 
 # 2. Run ONE integration test to verify changes
-uv run pytest tests/integration/test_basic_usage.py::TestWeatherWorkflows::test_trip_planning_compare_destinations -v
+uv run pytest tests/integration/test_basic_usage.py::TestBankingWorkflows::test_balance_check_and_transfer -v
 
 # 3. Run failed tests only (if any)
 uv run pytest --lf tests/integration/ -v
@@ -685,7 +683,7 @@ This workflow is **instant and free** - no LLM calls, no API costs.
 - **Material Design** - Match mkdocs-material indigo theme
 - **Roboto fonts** - Via Google Fonts
 - **Test details expanded by default** - Users want to see results immediately
-- **Human-readable names everywhere** - All user-facing reports (HTML, Markdown) must use human-readable names, not internal IDs. Use docstrings or humanize function names for tests. Use `agent_name` (not `agent_id`) for agents. Use `system_prompt_name` (not raw keys). If a human-readable name isn't available, humanize the ID (e.g., `test_weather_paris` → `Test weather paris`).
+- **Human-readable names everywhere** - All user-facing reports (HTML, Markdown) must use human-readable names, not internal IDs. Use docstrings or humanize function names for tests. Use `agent_name` (not `agent_id`) for agents. Use `system_prompt_name` (not raw keys). If a human-readable name isn't available, humanize the ID (e.g., `test_check_balance` → `Test check balance`).
 - **Assertions visible** - Show tool_was_called, semantic assertions
 - **Mermaid diagrams readable** - Use neutral theme with good contrast
 - **AI insights prominent** - Verdict section at top with clear recommendation

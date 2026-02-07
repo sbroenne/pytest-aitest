@@ -131,14 +131,14 @@ See [Test CLI Tools](../how-to/test-cli-tools.md) for complete options.
 The main fixture for running tests:
 
 ```python
-async def test_weather(aitest_run):
+async def test_banking(aitest_run):
     agent = Agent(
-        name="weather",
+        name="banking",
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
     )
     
-    result = await aitest_run(agent, "What's the weather?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 

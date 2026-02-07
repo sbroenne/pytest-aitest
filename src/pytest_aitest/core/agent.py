@@ -195,9 +195,9 @@ class Agent:
 
     Example:
         Agent(
-            name="weather-fast",
+            name="banking-fast",
             provider=Provider(model="azure/gpt-5-mini"),
-            mcp_servers=[weather_server],
+            mcp_servers=[banking_server],
             system_prompt="Be concise.",
         )
 
@@ -206,7 +206,7 @@ class Agent:
 
         @pytest.mark.parametrize("agent", agents, ids=lambda a: a.name)
         async def test_query(aitest_run, agent):
-            result = await aitest_run(agent, "What's the weather?")
+            result = await aitest_run(agent, "What's my balance?")
 
     Filtering tools:
         Agent(

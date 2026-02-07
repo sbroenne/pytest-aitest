@@ -17,13 +17,13 @@ Agent = Model + System Prompt + Skill + Server(s)
 ```python
 from pytest_aitest import Agent, Provider, MCPServer, Skill
 
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
 agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
     system_prompt="Be concise.",
-    skill=Skill.from_path("skills/weather"),  # Optional
+    skill=Skill.from_path("skills/financial-advisor"),  # Optional
 )
 ```
 
@@ -46,7 +46,7 @@ The Agent is the **test harness** that bundles an LLM with the configuration you
 | Provider | ✓ | `Provider(model="azure/gpt-5-mini")` |
 | MCP Servers | Optional | `MCPServer(command=["python", "server.py"])` |
 | System Prompt | Optional | `"Be concise and direct."` |
-| Skill | Optional | `Skill.from_path("skills/weather")` |
+| Skill | Optional | `Skill.from_path("skills/financial-advisor")` |
 
 ## Agent Leaderboard
 
@@ -59,17 +59,17 @@ from pathlib import Path
 import pytest
 from pytest_aitest import Agent, Provider, MCPServer, load_system_prompts
 
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 PROMPTS = load_system_prompts(Path("prompts/"))
 
 @pytest.mark.parametrize("prompt_name,system_prompt", PROMPTS.items())
-async def test_weather(aitest_run, prompt_name, system_prompt):
+async def test_banking(aitest_run, prompt_name, system_prompt):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
         system_prompt=system_prompt,
     )
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 
@@ -106,15 +106,15 @@ This is for **AI analysis only** - the leaderboard always appears when multiple 
 
 ```python
 MODELS = ["azure/gpt-5-mini", "azure/gpt-4.1"]
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
 @pytest.mark.parametrize("model", MODELS)
 async def test_with_model(aitest_run, model):
     agent = Agent(
         provider=Provider(model=model),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
     )
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 
@@ -125,16 +125,16 @@ from pathlib import Path
 from pytest_aitest import load_system_prompts
 
 PROMPTS = load_system_prompts(Path("prompts/"))
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
 @pytest.mark.parametrize("prompt_name,system_prompt", PROMPTS.items())
 async def test_with_prompt(aitest_run, prompt_name, system_prompt):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
         system_prompt=system_prompt,
     )
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 
@@ -143,17 +143,17 @@ async def test_with_prompt(aitest_run, prompt_name, system_prompt):
 ```python
 MODELS = ["gpt-5-mini", "gpt-4.1"]
 PROMPTS = load_system_prompts(Path("prompts/"))
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
 @pytest.mark.parametrize("model", MODELS)
 @pytest.mark.parametrize("prompt_name,system_prompt", PROMPTS.items())
 async def test_combinations(aitest_run, model, prompt_name, system_prompt):
     agent = Agent(
         provider=Provider(model=f"azure/{model}"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
         system_prompt=system_prompt,
     )
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 

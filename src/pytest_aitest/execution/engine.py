@@ -40,7 +40,7 @@ class AgentEngine:
     Example:
         engine = AgentEngine(agent, server_manager)
         await engine.initialize()
-        result = await engine.run("What's the weather?")
+        result = await engine.run("What's my checking balance?")
         await engine.shutdown()
     """
 

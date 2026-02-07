@@ -1,17 +1,17 @@
 {
   "name": "pytest-aitest",
-  "timestamp": "2026-02-07T13:58:05.732266",
-  "duration_ms": 47307.17389995698,
+  "timestamp": "2026-02-07T19:19:20.752801",
+  "duration_ms": 37155.369799991604,
   "tests": [
     {
-      "name": "tests/fixtures/scenario_01_single_agent.py::test_simple_weather_query",
+      "name": "tests/fixtures/scenario_01_single_agent.py::test_check_balance",
       "outcome": "passed",
-      "duration_ms": 15560.913399996934,
+      "duration_ms": 13733.995100017637,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "What's the weather in Paris?",
+            "content": "What's my checking account balance?",
             "tool_calls": []
           },
           {
@@ -19,38 +19,38 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "get_weather",
+                "name": "get_balance",
                 "arguments": {
-                  "city": "Paris"
+                  "account": "checking"
                 },
-                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
                 "error": null,
-                "duration_ms": 3.1399000145029277
+                "duration_ms": 2.604199980851263
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the current weather for Paris, France:\n- Conditions: Partly cloudy\n- Temperature: 18\u00b0C (64\u00b0F)\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or anything else?",
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with your accounts (transfer, withdraw, deposit, see transactions)?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 8267.67140001175,
+        "duration_ms": 6761.116799985757,
         "token_usage": {
-          "prompt": 698,
-          "completion": 87
+          "prompt": 871,
+          "completion": 60
         },
-        "cost_usd": 0.00034849999999999996,
+        "cost_usd": 0.00033775,
         "_messages": [
           {
             "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "What's the weather in Paris?"
+            "content": "What's my checking account balance?"
           },
           {
             "content": null,
@@ -58,10 +58,10 @@
             "tool_calls": [
               {
                 "function": {
-                  "arguments": "{\"city\":\"Paris\"}",
-                  "name": "get_weather"
+                  "arguments": "{\"account\":\"checking\"}",
+                  "name": "get_balance"
                 },
-                "id": "call_4qpYayuybJrzb2jZsNmWnJV8",
+                "id": "call_Ogy8RPciQCXreayeWqHZyoN5",
                 "type": "function"
               }
             ],
@@ -73,118 +73,187 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_4qpYayuybJrzb2jZsNmWnJV8",
-            "content": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}"
+            "tool_call_id": "call_Ogy8RPciQCXreayeWqHZyoN5",
+            "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the current weather for Paris, France:\n- Conditions: Partly cloudy\n- Temperature: 18\u00b0C (64\u00b0F)\n- Humidity: 65%\n- Wind: 12 km/h from the SW\n\nWould you like a forecast for the next few days or anything else?"
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with your accounts (transfer, withdraw, deposit, see transactions)?"
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
       "error": null,
       "assertions": [
         {
           "type": "llm",
           "passed": true,
-          "message": "mentions the temperature in Celsius or Fahrenheit",
-          "details": "The content explicitly states the temperature as 18\u00b0C (64\u00b0F), so it mentions temperature in both Celsius and Fahrenheit."
+          "message": "mentions the checking account balance amount",
+          "details": "The content explicitly states the checking account balance as $1,500.00."
         }
       ],
-      "docstring": "Basic weather lookup \u2014 should pass.",
+      "docstring": "Basic balance check \u2014 should pass.",
       "class_docstring": null,
-      "agent_id": "20413b54-4c79-41e3-8707-621c67918c0a",
-      "agent_name": "weather-agent",
+      "agent_id": "8fa82e98-35c0-4a0d-b3c3-8f81e3669c46",
+      "agent_name": "banking-agent",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/scenario_01_single_agent.py::test_forecast_query",
+      "name": "tests/fixtures/scenario_01_single_agent.py::test_transfer_between_accounts",
       "outcome": "passed",
-      "duration_ms": 11197.225799987791,
+      "duration_ms": 7056.472500000382,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "Give me a 3-day forecast for Tokyo",
+            "content": "Transfer $200 from checking to savings",
             "tool_calls": []
           },
           {
@@ -192,39 +261,40 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "get_forecast",
+                "name": "transfer",
                 "arguments": {
-                  "city": "Tokyo",
-                  "days": 3
+                  "from_account": "checking",
+                  "to_account": "savings",
+                  "amount": 200
                 },
-                "result": "[{\"day\": 1, \"city\": \"Tokyo\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"Tokyo\", \"high_celsius\": 27, \"low_celsius\": 19, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"Tokyo\", \"high_celsius\": 28, \"low_celsius\": 20, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}]",
+                "result": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 200, \"amount_formatted\": \"$200.00\", \"new_balance_from\": 1300.0, \"new_balance_to\": 3200.0, \"message\": \"Successfully transferred $200.00 from checking to savings.\"}",
                 "error": null,
-                "duration_ms": 2.6138000248465687
+                "duration_ms": 2.9747000080533326
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the 3-day forecast for Tokyo:\n\n- Day 1 (today): Sunny \u2014 High 26\u00b0C / Low 18\u00b0C. 20% chance of precipitation.  \n- Day 2: Partly cloudy \u2014 High 27\u00b0C / Low 19\u00b0C. 30% chance of precipitation.  \n- Day 3: Cloudy \u2014 High 28\u00b0C / Low 20\u00b0C. 40% chance of precipitation.\n\nQuick note: chances of rain increase through the period \u2014 you may want to have an umbrella available by Day 3.",
+            "content": "Done \u2014 I transferred $200 from your checking to savings. Your new balances:\n- Checking: $1,300.00\n- Savings: $3,200.00\n\nWould you like a receipt or anything else?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 6169.461599987699,
+        "duration_ms": 2019.8448000010103,
         "token_usage": {
-          "prompt": 788,
-          "completion": 344
+          "prompt": 941,
+          "completion": 83
         },
-        "cost_usd": 0.0008849999999999999,
+        "cost_usd": 0.00040125,
         "_messages": [
           {
             "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "Give me a 3-day forecast for Tokyo"
+            "content": "Transfer $200 from checking to savings"
           },
           {
             "content": null,
@@ -232,10 +302,10 @@
             "tool_calls": [
               {
                 "function": {
-                  "arguments": "{\"city\":\"Tokyo\",\"days\":3}",
-                  "name": "get_forecast"
+                  "arguments": "{\"from_account\":\"checking\",\"to_account\":\"savings\",\"amount\":200}",
+                  "name": "transfer"
                 },
-                "id": "call_S4zesy6ey9dsl18836cpk81l",
+                "id": "call_hwX7egtt5Uz40ONlk3oppWxO",
                 "type": "function"
               }
             ],
@@ -247,118 +317,187 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_S4zesy6ey9dsl18836cpk81l",
-            "content": "[{\"day\": 1, \"city\": \"Tokyo\", \"high_celsius\": 26, \"low_celsius\": 18, \"conditions\": \"Sunny\", \"precipitation_chance\": 20}, {\"day\": 2, \"city\": \"Tokyo\", \"high_celsius\": 27, \"low_celsius\": 19, \"conditions\": \"Partly cloudy\", \"precipitation_chance\": 30}, {\"day\": 3, \"city\": \"Tokyo\", \"high_celsius\": 28, \"low_celsius\": 20, \"conditions\": \"Cloudy\", \"precipitation_chance\": 40}]"
+            "tool_call_id": "call_hwX7egtt5Uz40ONlk3oppWxO",
+            "content": "{\"transaction_id\": \"TX0001\", \"type\": \"transfer\", \"from_account\": \"checking\", \"to_account\": \"savings\", \"amount\": 200, \"amount_formatted\": \"$200.00\", \"new_balance_from\": 1300.0, \"new_balance_to\": 3200.0, \"message\": \"Successfully transferred $200.00 from checking to savings.\"}"
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the 3-day forecast for Tokyo:\n\n- Day 1 (today): Sunny \u2014 High 26\u00b0C / Low 18\u00b0C. 20% chance of precipitation.  \n- Day 2: Partly cloudy \u2014 High 27\u00b0C / Low 19\u00b0C. 30% chance of precipitation.  \n- Day 3: Cloudy \u2014 High 28\u00b0C / Low 20\u00b0C. 40% chance of precipitation.\n\nQuick note: chances of rain increase through the period \u2014 you may want to have an umbrella available by Day 3."
+            "content": "Done \u2014 I transferred $200 from your checking to savings. Your new balances:\n- Checking: $1,300.00\n- Savings: $3,200.00\n\nWould you like a receipt or anything else?"
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
       "error": null,
       "assertions": [
         {
           "type": "llm",
           "passed": true,
-          "message": "provides weather information for multiple days",
-          "details": "The content gives a 3-day weather forecast for Tokyo with conditions, high/low temperatures, and precipitation chances for each day."
+          "message": "confirms the transfer was completed",
+          "details": "The message explicitly states the transfer was completed ('Done \u2014 I transferred $200...') and provides updated account balances, confirming completion."
         }
       ],
-      "docstring": "Multi-day forecast \u2014 tests get_forecast tool.",
+      "docstring": "Transfer money \u2014 tests the transfer tool.",
       "class_docstring": null,
-      "agent_id": "20413b54-4c79-41e3-8707-621c67918c0a",
-      "agent_name": "weather-agent",
+      "agent_id": "8fa82e98-35c0-4a0d-b3c3-8f81e3669c46",
+      "agent_name": "banking-agent",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/scenario_01_single_agent.py::test_city_comparison",
+      "name": "tests/fixtures/scenario_01_single_agent.py::test_transaction_history",
       "outcome": "passed",
-      "duration_ms": 12762.588699988555,
+      "duration_ms": 11859.495099983178,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "Which is warmer today, Berlin or Sydney?",
+            "content": "Show me recent transactions for all accounts",
             "tool_calls": []
           },
           {
@@ -366,39 +505,38 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "compare_weather",
+                "name": "get_transactions",
                 "arguments": {
-                  "city1": "Berlin",
-                  "city2": "Sydney"
+                  "limit": 20
                 },
-                "result": "{\"city1\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"city2\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}",
+                "result": "{\"transactions\": [], \"count\": 0, \"filter\": null}",
                 "error": null,
-                "duration_ms": 1.8348000012338161
+                "duration_ms": 2.1896999969612807
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Sydney is warmer today.\n\nCurrent conditions:\n- Berlin: 16\u00b0C (61\u00b0F), overcast, 72% humidity, N wind 10 km/h.\n- Sydney: 26\u00b0C (79\u00b0F), sunny, 60% humidity, SE wind 20 km/h.\n\nTemperature difference: Sydney is 10\u00b0C (18\u00b0F) warmer than Berlin.\n\nWould you like a multi-day forecast for either city?",
+            "content": "I checked your recent transactions (up to 20) across all accounts and found none. That means there are no posted transactions in the timeframe queried.\n\nWould you like to:\n- Show current balances for all accounts?\n- Check transactions for a specific account (checking or savings) or a different number of transactions?\n- Look for pending transactions?\n- Make a deposit, withdrawal, or transfer?\n\nTell me which option and any details (account, amount, or how many transactions to retrieve) and I\u2019ll take care of it.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 6415.104799991241,
+        "duration_ms": 5212.757599976612,
         "token_usage": {
-          "prompt": 797,
-          "completion": 444
+          "prompt": 863,
+          "completion": 459
         },
-        "cost_usd": 0.0010872500000000001,
+        "cost_usd": 0.0011337499999999998,
         "_messages": [
           {
             "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "Which is warmer today, Berlin or Sydney?"
+            "content": "Show me recent transactions for all accounts"
           },
           {
             "content": null,
@@ -406,10 +544,10 @@
             "tool_calls": [
               {
                 "function": {
-                  "arguments": "{\"city1\":\"Berlin\",\"city2\":\"Sydney\"}",
-                  "name": "compare_weather"
+                  "arguments": "{\"limit\":20}",
+                  "name": "get_transactions"
                 },
-                "id": "call_PePRsOidSlkVfJkRyblS4cr6",
+                "id": "call_Z9pe84bKu6dOzK3fZrh7hdyb",
                 "type": "function"
               }
             ],
@@ -421,105 +559,174 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_PePRsOidSlkVfJkRyblS4cr6",
-            "content": "{\"city1\": {\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}, \"city2\": {\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}, \"temperature_difference_celsius\": 10, \"warmer_city\": \"Sydney\", \"humidity_difference\": 12}"
+            "tool_call_id": "call_Z9pe84bKu6dOzK3fZrh7hdyb",
+            "content": "{\"transactions\": [], \"count\": 0, \"filter\": null}"
           },
           {
             "role": "assistant",
-            "content": "Sydney is warmer today.\n\nCurrent conditions:\n- Berlin: 16\u00b0C (61\u00b0F), overcast, 72% humidity, N wind 10 km/h.\n- Sydney: 26\u00b0C (79\u00b0F), sunny, 60% humidity, SE wind 20 km/h.\n\nTemperature difference: Sydney is 10\u00b0C (18\u00b0F) warmer than Berlin.\n\nWould you like a multi-day forecast for either city?"
+            "content": "I checked your recent transactions (up to 20) across all accounts and found none. That means there are no posted transactions in the timeframe queried.\n\nWould you like to:\n- Show current balances for all accounts?\n- Check transactions for a specific account (checking or savings) or a different number of transactions?\n- Look for pending transactions?\n- Make a deposit, withdrawal, or transfer?\n\nTell me which option and any details (account, amount, or how many transactions to retrieve) and I\u2019ll take care of it."
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
       "error": null,
       "assertions": [
         {
           "type": "llm",
           "passed": true,
-          "message": "compares temperatures for both cities",
-          "details": "The content gives both cities' temperatures (Berlin 16\u00b0C, Sydney 26\u00b0C) and explicitly states the 10\u00b0C (18\u00b0F) difference, so it compares the temperatures."
+          "message": "shows transaction or balance information",
+          "details": "The content reports transaction information by stating that a query for up to 20 recent transactions returned none (i.e., no posted transactions in the timeframe), which meets the criterion."
         }
       ],
-      "docstring": "Compare two cities \u2014 multiple tool calls.",
+      "docstring": "View transactions \u2014 multiple tool calls possible.",
       "class_docstring": null,
-      "agent_id": "20413b54-4c79-41e3-8707-621c67918c0a",
-      "agent_name": "weather-agent",
+      "agent_id": "8fa82e98-35c0-4a0d-b3c3-8f81e3669c46",
+      "agent_name": "banking-agent",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
@@ -527,12 +734,12 @@
     {
       "name": "tests/fixtures/scenario_01_single_agent.py::test_expected_failure",
       "outcome": "failed",
-      "duration_ms": 7786.445999983698,
+      "duration_ms": 4505.407099990407,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "Get weather for Paris, Tokyo, London, Berlin, Sydney, and compare them all",
+            "content": "Check all balances, transfer $500 from checking to savings, then show me updated balances and transaction history",
             "tool_calls": []
           },
           {
@@ -540,78 +747,31 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Paris"
-                },
-                "result": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}",
+                "name": "get_all_balances",
+                "arguments": {},
+                "result": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}",
                 "error": null,
-                "duration_ms": 2.3213000094983727
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Tokyo"
-                },
-                "result": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}",
-                "error": null,
-                "duration_ms": 1.6874000139068812
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "London"
-                },
-                "result": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}",
-                "error": null,
-                "duration_ms": 0.7832999981474131
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Berlin"
-                },
-                "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
-                "error": null,
-                "duration_ms": 0.913399999262765
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Sydney"
-                },
-                "result": "{\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}",
-                "error": null,
-                "duration_ms": 0.6319999811239541
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Berlin"
-                },
-                "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
-                "error": null,
-                "duration_ms": 0.8803000091575086
+                "duration_ms": 3.116700012469664
               }
             ]
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 4431.442600005539,
+        "duration_ms": 1177.7184999955352,
         "token_usage": {
-          "prompt": 317,
-          "completion": 302
+          "prompt": 423,
+          "completion": 86
         },
-        "cost_usd": 0.0006832499999999999,
+        "cost_usd": 0.00027775,
         "_messages": [
           {
             "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "Get weather for Paris, Tokyo, London, Berlin, Sydney, and compare them all"
+            "content": "Check all balances, transfer $500 from checking to savings, then show me updated balances and transaction history"
           },
           {
             "content": null,
@@ -619,50 +779,10 @@
             "tool_calls": [
               {
                 "function": {
-                  "arguments": "{\"city\": \"Paris\"}",
-                  "name": "get_weather"
+                  "arguments": "{}",
+                  "name": "get_all_balances"
                 },
-                "id": "call_JS9OVXSFH3lqDDxDBa5tg83g",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Tokyo\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_OnJdbk0jdujCc1fEBjnC9PeE",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"London\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_yHToLFTYkq37j66rFMMMPpdD",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Berlin\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_yu4QVcTGJFm3N3IR7uD3QspV",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Sydney\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_vkEbsB2CvlhEPikRp9JtHeeK",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Berlin\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_wAouK83yq2EjBE4FD82Lf01T",
+                "id": "call_aTjoBUMpRKyC04zrsaFfoOpZ",
                 "type": "function"
               }
             ],
@@ -674,119 +794,163 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_JS9OVXSFH3lqDDxDBa5tg83g",
-            "content": "{\"city\": \"Paris\", \"country\": \"France\", \"temperature_celsius\": 18, \"temperature_fahrenheit\": 64, \"humidity\": 65, \"conditions\": \"Partly cloudy\", \"wind_speed_kmh\": 12, \"wind_direction\": \"SW\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_OnJdbk0jdujCc1fEBjnC9PeE",
-            "content": "{\"city\": \"Tokyo\", \"country\": \"Japan\", \"temperature_celsius\": 24, \"temperature_fahrenheit\": 75, \"humidity\": 70, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 8, \"wind_direction\": \"E\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_yHToLFTYkq37j66rFMMMPpdD",
-            "content": "{\"city\": \"London\", \"country\": \"UK\", \"temperature_celsius\": 14, \"temperature_fahrenheit\": 57, \"humidity\": 80, \"conditions\": \"Rainy\", \"wind_speed_kmh\": 18, \"wind_direction\": \"W\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_yu4QVcTGJFm3N3IR7uD3QspV",
-            "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_vkEbsB2CvlhEPikRp9JtHeeK",
-            "content": "{\"city\": \"Sydney\", \"country\": \"Australia\", \"temperature_celsius\": 26, \"temperature_fahrenheit\": 79, \"humidity\": 60, \"conditions\": \"Sunny\", \"wind_speed_kmh\": 20, \"wind_direction\": \"SE\"}"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_wAouK83yq2EjBE4FD82Lf01T",
-            "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
+            "tool_call_id": "call_aTjoBUMpRKyC04zrsaFfoOpZ",
+            "content": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}"
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
-      "error": "      AssertionError: Agent exceeded turn limit - unable to process request for 5 cities (max_turns=1)",
+      "error": "      AssertionError: Agent exceeded turn limit - unable to process multi-step request (max_turns=1)",
       "assertions": [],
       "docstring": "Test that fails due to turn limit \u2014 for report variety.",
       "class_docstring": null,
-      "agent_id": "20413b54-4c79-41e3-8707-621c67918c0a",
-      "agent_name": "weather-agent",
+      "agent_id": "8fa82e98-35c0-4a0d-b3c3-8f81e3669c46",
+      "agent_name": "banking-agent",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
@@ -798,9 +962,9 @@
   "suite_docstring": "Single agent tests - basic report without comparison UI.",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: weather-agent (gpt-5-mini, default prompt)**\n\nAchieves **75% pass rate (3/4 tests)** at **$0.00230 total cost**, with correct tool usage and high-quality, grounded responses in all passing cases.\n\n**Reasoning:**  \nAll functional weather queries (single city, forecast, comparison) passed with correct tool selection and clean summaries. Cost is very low (sub\u2011$0.003 total), and failures are due to **test harness constraints (turn limit)** rather than incorrect reasoning or tool misuse.\n\n**Alternatives:** None \u2014 only one configuration tested.\n\n## \u274c Failure Analysis\n\n### Test that fails due to turn limit \u2014 for report variety. (weather-agent)\n- **Problem:** The agent exceeded the `max_turns=1` limit when asked to fetch and compare weather for five cities.\n- **Root Cause:** The request requires **multiple sequential tool calls**, but the test enforces a single-turn limit. The agent correctly attempted to gather all required data, but the harness constraint made the task impossible.\n- **Fix:**  \n  **Test-level fix (recommended):**\n  - Increase turn limit to allow multi-call aggregation:\n    ```python\n    max_turns=6\n    ```\n  **OR prompt-level fix (alternative):**\n  - Add explicit instruction to batch or refuse oversized requests:\n    ```\n    If a request requires more tool calls than allowed in the current turn limit, ask the user to narrow the request.\n    ```\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools are **well-described and correctly selected** by the agent. No confusion between tools observed.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 7 | Working well |\n| get_forecast | \u2705 | 1 | Working well |\n| compare_weather | \u2705 | 1 | Working well |\n| list_cities | \u26a0\ufe0f | 0 | Never invoked; not discoverable in tests |\n\n**Suggested rewrite for `list_cities`:**\n> List all cities that can be queried with get_weather or get_forecast. Use this tool when the user asks what locations are supported.\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (mixed)\n- **Token count:** ~27\n- **Problem:** Lacks guidance for **multi-city or complex aggregation requests under turn limits**, leading to unavoidable failures in constrained tests.\n- **Suggested change:** Replace prompt with:\n  ```\n  You are a helpful weather assistant.\n  Use the available tools to answer questions about weather.\n  Always use tools\u2014never make up weather data.\n  If a request requires many cities or tool calls, summarize first or ask the user to narrow the scope.\n  ```\n\n## \ud83d\udca1 Optimizations\n\n1. **Avoid redundant tool calls** (recommended)\n   - Current: In the failing test, `get_weather` for Berlin was called twice.\n   - Change: Track cities already fetched within the same request and reuse results.\n   - Impact: ~15% cost reduction on multi-city queries (fewer tool calls and responses).\n\n2. **Prefer compare_weather when applicable** (suggestion)\n   - Current: Multi-city comparisons default to repeated `get_weather` calls.\n   - Change: Extend logic (or tests) to chain `compare_weather` iteratively when asking \u201cwhich is warmer.\u201d\n   - Impact: Lower tool-call count; modest cost savings (~5\u201310%).\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~85 tokens\n- **Issues found:** Includes both Celsius and Fahrenheit, plus wind direction spelled out, even when not always used.\n- **Suggested optimization:** Return only metric values by default; let the agent derive comparisons.\n- **Estimated savings:** ~25 tokens per call (~30% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~85 tokens)\n{\"city\":\"Paris\",\"country\":\"France\",\"temperature_celsius\":18,\"temperature_fahrenheit\":64,\"humidity\":65,\"conditions\":\"Partly cloudy\",\"wind_speed_kmh\":12,\"wind_direction\":\"SW\"}\n\n// Optimized (~60 tokens)\n{\"city\":\"Paris\",\"temp_c\":18,\"humidity\":65,\"conditions\":\"Partly cloudy\",\"wind_kmh\":12}\n```\n\nThis optimization would materially reduce cost in multi-city scenarios without affecting test correctness.",
-    "cost_usd": 0.0198765,
-    "tokens_used": 4869,
+    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: banking-agent (gpt-5-mini, default prompt)**\n\n**Reasoning:** Achieves a 75% pass rate (3/4) at very low cost ($0.002151 total across all tests). All core single-step banking actions (balance, transfer, transactions) pass reliably and use tools correctly. The only failure is due to a configured turn limit, not tool misuse or model behavior.\n\n**Alternatives:** None \u2014 only one configuration tested.\n\n## \u274c Failure Analysis\n\n### Test that fails due to turn limit \u2014 for report variety. (banking-agent)\n- **Problem:** The agent could not complete a multi-step request (check balances \u2192 transfer \u2192 show updated balances \u2192 show transactions) because the test enforces `max_turns=1`.\n- **Root Cause:** Test configuration limits the session to a single turn, but the user request explicitly requires multiple tool calls and responses. The agent correctly initiated the first step (`get_all_balances`) but was blocked before completing the sequence.\n- **Fix:** Increase allowed turns for this test.\n  - **Exact change:** Set `max_turns` from `1` to `4` (or higher) for this test case.\n  - **Alternative fix (if max_turns must remain 1):** Split into separate tests:\n    1. \u201cCheck all balances \u2014 should pass\u201d\n    2. \u201cTransfer $500 from checking to savings \u2014 should pass\u201d\n    3. \u201cShow updated balances and transaction history \u2014 should pass\u201d\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.banking_mcp\nOverall, tools are discoverable and used correctly. Naming is clear and aligned with user intents.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_balance | \u2705 | 1 | Working well |\n| transfer | \u2705 | 1 | Working well |\n| get_transactions | \u2705 | 1 | Working well |\n| get_all_balances | \u26a0\ufe0f | 1 | Tool works, but multi-step usage blocked by test turn limit |\n| deposit | \u2705 | 0 | Not exercised in tests |\n| withdraw | \u2705 | 0 | Not exercised in tests |\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (mixed)\n- **Token count:** ~24 tokens\n- **Problem:** The prompt does not address multi-step planning or constraints like turn limits. In multi-action requests, the agent attempts to proceed sequentially, which conflicts with tests that cap turns.\n- **Suggested change:** Add an explicit instruction to batch tool usage when possible.\n  - **Exact text to append:**\n    ```\n    If a user request requires multiple actions and turn limits may apply, plan all required tool calls up front and execute them in the minimum number of turns.\n    ```\n\n## \ud83d\udca1 Optimizations\n\n1. **Align test turn limits with realistic user tasks** (recommended)\n   - Current: Complex, multi-action requests are tested with `max_turns=1`.\n   - Change: Allow 3\u20134 turns for composite banking workflows or decompose them into atomic tests.\n   - Impact: Prevents false negatives; improves effective pass rate from 75% to 100% with no additional model cost.\n\n2. **Reduce verbose assistant follow-ups** (suggestion)\n   - Current: Assistant frequently asks multiple follow-up questions after completing tasks.\n   - Change: Add instruction to ask at most one follow-up question or offer a concise menu.\n   - Impact: Minor cost reduction (~5\u201310% fewer tokens per test).\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_balance (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~18 tokens\n- **Issues found:** Redundant formatted string duplicates numeric balance.\n- **Suggested optimization:** Omit `formatted` and let the assistant format.\n- **Estimated savings:** ~6 tokens per call (~33% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~18 tokens)\n{\"account\":\"checking\",\"balance\":1500.0,\"formatted\":\"$1,500.00\"}\n\n// Optimized (~12 tokens)\n{\"account\":\"checking\",\"balance\":1500.0}\n```\n\n### transfer (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~45 tokens\n- **Issues found:** Both `message` and formatted fields duplicate information already present in structured fields.\n- **Suggested optimization:** Remove `message` and `amount_formatted`.\n- **Estimated savings:** ~15 tokens per call (~33% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~45 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"type\":\"transfer\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount\":200,\n  \"amount_formatted\":\"$200.00\",\n  \"new_balance_from\":1300.0,\n  \"new_balance_to\":3200.0,\n  \"message\":\"Successfully transferred $200.00 from checking to savings.\"\n}\n\n// Optimized (~30 tokens)\n{\n  \"transaction_id\":\"TX0001\",\n  \"from_account\":\"checking\",\n  \"to_account\":\"savings\",\n  \"amount\":200,\n  \"new_balance_from\":1300.0,\n  \"new_balance_to\":3200.0\n}\n```\n\n### get_transactions (from pytest_aitest.testing.banking_mcp)\n- **Current response size:** ~14 tokens\n- **Issues found:** Includes `filter: null`, which is unused.\n- **Suggested optimization:** Omit null fields.\n- **Estimated savings:** ~2 tokens per call (~14% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~14 tokens)\n{\"transactions\":[],\"count\":0,\"filter\":null}\n\n// Optimized (~12 tokens)\n{\"transactions\":[],\"count\":0}\n```",
+    "cost_usd": 0.0234675,
+    "tokens_used": 4856,
     "cached": false
   }
 }

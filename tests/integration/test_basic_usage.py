@@ -13,102 +13,99 @@ import pytest
 from pytest_aitest import Agent, Provider
 
 from .conftest import (
+    BANKING_PROMPT,
     DEFAULT_MODEL,
     DEFAULT_RPM,
     DEFAULT_TPM,
     TODO_PROMPT,
-    WEATHER_PROMPT,
 )
 
 pytestmark = [pytest.mark.integration, pytest.mark.basic]
 
 
 # =============================================================================
-# Weather Server - Multi-step Workflows
+# Banking Server - Multi-step Workflows
 # =============================================================================
 
 
-class TestWeatherWorkflows:
-    """Multi-step weather workflows that test real-world usage patterns."""
+class TestBankingWorkflows:
+    """Multi-step banking workflows that test real-world usage patterns."""
 
     @pytest.mark.asyncio
-    async def test_trip_planning_compare_destinations(self, aitest_run, weather_server, llm_assert):
-        """Plan a trip: get forecasts for two cities and recommend the better one.
+    async def test_balance_check_and_transfer(self, aitest_run, banking_server, llm_assert):
+        """Check balance, transfer funds, verify — classic multi-step workflow.
 
         This tests:
-        - Multiple forecast calls (one per city)
+        - Multiple sequential tool calls
         - Reasoning across retrieved data
-        - Synthesizing a recommendation
+        - Verification after mutation
         - AI judge for semantic validation
         """
         agent = Agent(
-            name="trip-planner",
+            name="balance-transfer",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
             max_turns=10,
         )
 
         result = await aitest_run(
             agent,
-            "I'm planning a trip next week and can't decide between Paris and Sydney. "
-            "Get me a 3-day forecast for both cities and recommend which has better "
-            "weather for sightseeing. I prefer sunny weather.",
+            "Check my checking account balance, then transfer $200 to savings. "
+            "Show me both balances after the transfer.",
         )
 
         assert result.success
-        # Should get forecasts for both cities
-        assert result.tool_call_count("get_forecast") >= 2
-        # Should synthesize an answer mentioning both cities
+        # Should check balance first, then transfer, then verify
+        assert result.tool_was_called("get_balance") or result.tool_was_called("get_all_balances")
+        assert result.tool_was_called("transfer")
+        # Should synthesize an answer mentioning both accounts
         response_lower = result.final_response.lower()
-        assert "paris" in response_lower
-        assert "sydney" in response_lower
-        # AI judge validates recommendation quality
+        assert "checking" in response_lower
+        assert "savings" in response_lower
+        # AI judge validates the workflow
         assert llm_assert(
             result.final_response,
             """
-            - Compares weather between two cities
-            - Makes a recommendation for one destination
-            - Justifies the choice based on weather data
+            - Shows account balances
+            - Confirms the transfer was completed
+            - Reports updated balances
         """,
         )
 
     @pytest.mark.asyncio
-    async def test_packing_advice_workflow(self, aitest_run, weather_server):
-        """Check multiple cities and provide packing advice.
+    async def test_deposit_and_withdrawal_workflow(self, aitest_run, banking_server):
+        """Deposit money, then withdraw a different amount.
 
         This tests:
-        - Gathering data from multiple sources
-        - Conditional reasoning (rain → umbrella)
-        - Practical advice generation
+        - Sequential state-changing operations
+        - Different tool usage (deposit vs withdraw)
+        - Balance awareness across operations
         """
         agent = Agent(
-            name="packing-advisor",
+            name="deposit-withdraw",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
             max_turns=10,
         )
 
         result = await aitest_run(
             agent,
-            "I'm traveling to London and Berlin this week. Check the weather in both "
-            "cities and tell me if I should pack an umbrella or rain jacket.",
+            "Deposit $500 into my checking account, then withdraw $100 from it. "
+            "What's the final balance?",
         )
 
         assert result.success
-        # Should check weather for both cities
-        weather_calls = result.tool_call_count("get_weather")
-        compare_calls = result.tool_call_count("compare_weather")
-        assert weather_calls >= 2 or compare_calls >= 1
-        # London has "Rainy" conditions, should mention umbrella
+        assert result.tool_was_called("deposit")
+        assert result.tool_was_called("withdraw")
+        # Should mention the final balance
         response_lower = result.final_response.lower()
-        assert "london" in response_lower
-        assert any(word in response_lower for word in ["umbrella", "rain", "wet"])
+        assert any(word in response_lower for word in ["balance", "$", "1,900", "1900"])
 
     @pytest.mark.asyncio
-    async def test_discovery_then_query_workflow(self, aitest_run, weather_server):
-        """Discover available cities, then query the warmest one.
+    async def test_discovery_then_action_workflow(self, aitest_run, banking_server):
+        """Discover all accounts, then act on the largest one.
 
         This tests:
         - Discovery phase (list available resources)
@@ -116,90 +113,84 @@ class TestWeatherWorkflows:
         - Follow-up action based on analysis
         """
         agent = Agent(
-            name="city-explorer",
+            name="account-explorer",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
-            max_turns=15,
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=10,
         )
 
         result = await aitest_run(
             agent,
-            "What cities can you get weather for? Then find the warmest one and "
-            "give me its 5-day forecast.",
+            "Show me all my accounts. Which one has the most money? "
+            "Deposit $100 into that account.",
         )
 
         assert result.success
-        # Should discover cities first
-        assert result.tool_was_called("list_cities")
-        # Should then get weather for multiple cities to compare
-        assert result.tool_was_called("get_weather") or result.tool_was_called("get_forecast")
-        # Sydney is warmest (26°C) - should mention it
-        assert "sydney" in result.final_response.lower()
+        # Should discover accounts first
+        assert result.tool_was_called("get_all_balances")
+        # Should then deposit into savings (largest: $3,000)
+        assert result.tool_was_called("deposit")
+        assert "savings" in result.final_response.lower()
 
     @pytest.mark.asyncio
-    async def test_comparative_analysis_three_cities(self, aitest_run, weather_server):
-        """Compare weather across three cities and rank them.
+    async def test_transaction_history_analysis(self, aitest_run, banking_server):
+        """Make transactions then review history.
 
         This tests:
-        - Multiple tool calls (3+ cities)
-        - Comparative reasoning
-        - Structured output (ranking)
+        - Multiple mutations followed by read
+        - Data aggregation and analysis
+        - Structured output from transaction log
         """
         agent = Agent(
-            name="weather-ranker",
+            name="transaction-analyst",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
             max_turns=12,
         )
 
         result = await aitest_run(
             agent,
-            "Compare the current weather in Tokyo, Berlin, and New York. "
-            "Rank them from warmest to coldest and explain the conditions.",
+            "Transfer $50 from savings to checking, then deposit $200 into checking. "
+            "Show me the checking account transaction history.",
         )
 
         assert result.success
-        # Should gather data for all three cities
-        total_calls = result.tool_call_count("get_weather") + result.tool_call_count(
-            "compare_weather"
-        )
-        assert total_calls >= 2  # At minimum, needs data from 3 cities
-        # Response should mention all three cities
+        assert result.tool_was_called("transfer")
+        assert result.tool_was_called("deposit")
+        assert result.tool_was_called("get_transactions")
         response_lower = result.final_response.lower()
-        assert "tokyo" in response_lower
-        assert "berlin" in response_lower
-        assert "new york" in response_lower
+        assert "checking" in response_lower
 
     @pytest.mark.asyncio
-    async def test_error_recovery_workflow(self, aitest_run, weather_server):
-        """Handle an invalid city gracefully and provide alternatives.
+    async def test_error_recovery_workflow(self, aitest_run, banking_server):
+        """Handle insufficient funds gracefully and provide alternatives.
 
         This tests:
         - Error handling from tool
-        - Recovery behavior (suggest alternatives)
+        - Recovery behavior
         - Graceful degradation
         """
         agent = Agent(
             name="error-handler",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
             max_turns=8,
         )
 
         result = await aitest_run(
             agent,
-            "Get me the weather for Atlantis. If that city isn't available, "
-            "list what cities you do support and give me weather for the first one.",
+            "Withdraw $50,000 from my checking account. If that fails, "
+            "show me my actual balance so I know how much I can withdraw.",
         )
 
         assert result.success
-        # Should try the invalid city first
-        assert result.tool_was_called("get_weather")
-        # Should recover by listing cities or getting a valid city's weather
-        assert result.tool_was_called("list_cities") or result.tool_call_count("get_weather") >= 2
+        # Should try the withdrawal first
+        assert result.tool_was_called("withdraw")
+        # Should recover by checking balance
+        assert result.tool_was_called("get_balance") or result.tool_was_called("get_all_balances")
 
 
 # =============================================================================
@@ -398,7 +389,7 @@ class TestAdvancedPatterns:
     """Tests for more complex agent behaviors."""
 
     @pytest.mark.asyncio
-    async def test_ambiguous_request_clarification(self, aitest_run, weather_server):
+    async def test_ambiguous_request_clarification(self, aitest_run, banking_server):
         """Handle ambiguous requests intelligently.
 
         This tests:
@@ -409,24 +400,22 @@ class TestAdvancedPatterns:
         agent = Agent(
             name="ambiguity-handler",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
             max_turns=8,
         )
 
         result = await aitest_run(
             agent,
-            "What's the weather like in Europe?",
+            "How much money do I have?",
         )
 
         assert result.success
-        # Agent should either:
-        # 1. Pick European cities and report on them, or
-        # 2. Ask for clarification, or
-        # 3. List available European cities
+        # Agent should check balances for the user
+        assert result.tool_was_called("get_all_balances") or result.tool_was_called("get_balance")
+        # Should mention at least one account
         response_lower = result.final_response.lower()
-        # Should mention at least one European city (Paris, Berlin, London)
-        assert any(city in response_lower for city in ["paris", "berlin", "london"])
+        assert any(acct in response_lower for acct in ["checking", "savings"])
 
     @pytest.mark.asyncio
     async def test_conditional_logic_workflow(self, aitest_run, todo_server):

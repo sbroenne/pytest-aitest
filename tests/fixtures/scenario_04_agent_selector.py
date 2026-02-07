@@ -20,41 +20,43 @@ from pytest_aitest import Agent, MCPServer, Provider, Skill, Wait
 
 pytestmark = [pytest.mark.integration]
 
-WEATHER_PROMPT = """You are a helpful weather assistant.
-Use the available tools to answer questions about weather.
-Always use tools - never make up weather data."""
+BANKING_PROMPT = """You are a helpful banking assistant.
+Use the available tools to manage accounts and transactions.
+Always use tools - never make up balances or account data."""
 
-weather_server = MCPServer(
-    command=[sys.executable, "-u", "-m", "pytest_aitest.testing.weather_mcp"],
-    wait=Wait.for_tools(["get_weather", "get_forecast", "list_cities"]),
+banking_server = MCPServer(
+    command=[sys.executable, "-u", "-m", "pytest_aitest.testing.banking_mcp"],
+    wait=Wait.for_tools(
+        ["get_balance", "get_all_balances", "transfer", "deposit", "withdraw", "get_transactions"]
+    ),
 )
 
 # Load skill for agent variation
-SKILLS_DIR = Path(__file__).parent.parent / "integration" / "skills"
-WEATHER_SKILL = (
-    Skill.from_path(SKILLS_DIR / "weather-expert")
-    if (SKILLS_DIR / "weather-expert").exists()
+SKILLS_DIR = Path(__file__).parent.parent / "showcase" / "skills"
+FINANCIAL_SKILL = (
+    Skill.from_path(SKILLS_DIR / "financial-advisor")
+    if (SKILLS_DIR / "financial-advisor").exists()
     else None
 )
 
 AGENTS = [
     Agent(
         provider=Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000),
-        mcp_servers=[weather_server],
-        system_prompt=WEATHER_PROMPT,
+        mcp_servers=[banking_server],
+        system_prompt=BANKING_PROMPT,
         max_turns=5,
     ),
     Agent(
         provider=Provider(model="azure/gpt-4.1-mini", rpm=10, tpm=10000),
-        mcp_servers=[weather_server],
-        system_prompt=WEATHER_PROMPT,
+        mcp_servers=[banking_server],
+        system_prompt=BANKING_PROMPT,
         max_turns=5,
     ),
     Agent(
         provider=Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000),
-        mcp_servers=[weather_server],
-        system_prompt=WEATHER_PROMPT,
-        skill=WEATHER_SKILL,
+        mcp_servers=[banking_server],
+        system_prompt=BANKING_PROMPT,
+        skill=FINANCIAL_SKILL,
         max_turns=5,
     ),
 ]
@@ -69,23 +71,26 @@ def _reset_agents():
 
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_weather_query(aitest_run, agent, llm_assert):
-    """Basic weather query — all agents should pass."""
-    result = await aitest_run(agent, "What's the weather in Berlin?")
+async def test_balance_query(aitest_run, agent, llm_assert):
+    """Basic balance query — all agents should pass."""
+    result = await aitest_run(agent, "What's my checking account balance?")
     assert result.success
-    assert result.tool_was_called("get_weather")
-    assert result.tool_call_arg("get_weather", "city") == "Berlin"
+    assert result.tool_was_called("get_balance")
+    assert result.tool_call_arg("get_balance", "account") == "checking"
     assert llm_assert(
         result.final_response,
-        "provides the current temperature and conditions for Berlin",
+        "provides the current checking account balance amount",
     )
 
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_multi_city(aitest_run, agent, llm_assert):
-    """Multiple cities — tests differentiation between agents."""
+async def test_financial_planning(aitest_run, agent, llm_assert):
+    """Financial advice — tests differentiation between agents (skill vs no skill)."""
     agent.max_turns = 8
-    result = await aitest_run(agent, "Compare weather in Rome, Madrid, and Athens")
+    result = await aitest_run(
+        agent,
+        "I have money in checking and savings. How should I allocate my funds?",
+    )
     assert result.success
-    assert result.tool_call_count("get_weather") >= 3
-    assert llm_assert(result.final_response, "mentions weather for Rome, Madrid, and Athens")
+    assert result.tool_was_called("get_all_balances") or result.tool_was_called("get_balance")
+    assert llm_assert(result.final_response, "provides financial advice about fund allocation")

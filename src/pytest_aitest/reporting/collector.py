@@ -15,7 +15,7 @@ class TestReport:
     """Report data for a single test.
 
     Attributes:
-        name: Full test node ID (e.g., "test_weather[gpt-4o-PROMPT_V1]")
+        name: Full test node ID (e.g., "test_balance[gpt-4o-PROMPT_V1]")
         outcome: Test outcome - "passed", "failed", or "skipped"
         duration_ms: Test duration in milliseconds
         agent_result: Optional AgentResult from aitest_run

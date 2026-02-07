@@ -107,16 +107,16 @@ class TestSkillWithAgent:
         """Skills with references/ should inject virtual tools."""
         skill = load_skill(SKILLS_DIR / "math-helper")
 
-        weather_server = MCPServer(
-            command=[sys.executable, "-u", "-m", "pytest_aitest.testing.weather_mcp"],
-            wait=Wait.for_tools(["get_weather"]),
+        banking_server = MCPServer(
+            command=[sys.executable, "-u", "-m", "pytest_aitest.testing.banking_mcp"],
+            wait=Wait.for_tools(["get_balance"]),
         )
 
         agent = Agent(
             name="skill-references-test",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
             skill=skill,
-            mcp_servers=[weather_server],
+            mcp_servers=[banking_server],
             system_prompt=(
                 "You MUST use the available tools to look up formulas. "
                 "Start by listing available references, then read the formulas file."

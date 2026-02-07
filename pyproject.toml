@@ -129,7 +129,7 @@ addopts = """
 markers = [
     "integration: marks tests as integration tests (require LLM credentials)",
     "aitest: AI agent tests",
-    "basic: basic usage tests (weather and todo)",
+    "basic: basic usage tests (banking and todo)",
     "model: tests with multiple models",
     "sysprompt: tests with multiple system prompts",
     "skill: tests with skills",
