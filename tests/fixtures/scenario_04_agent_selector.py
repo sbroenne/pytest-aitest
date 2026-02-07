@@ -39,21 +39,18 @@ WEATHER_SKILL = (
 
 AGENTS = [
     Agent(
-        name="gpt-5-mini",
         provider=Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000),
         mcp_servers=[weather_server],
         system_prompt=WEATHER_PROMPT,
         max_turns=5,
     ),
     Agent(
-        name="gpt-4.1-mini",
         provider=Provider(model="azure/gpt-4.1-mini", rpm=10, tpm=10000),
         mcp_servers=[weather_server],
         system_prompt=WEATHER_PROMPT,
         max_turns=5,
     ),
     Agent(
-        name="gpt-5-mini+skill",
         provider=Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000),
         mcp_servers=[weather_server],
         system_prompt=WEATHER_PROMPT,

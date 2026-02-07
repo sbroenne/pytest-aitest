@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "./report.html",
     "./partials/**/*.html",
+    "../reporting/components/**/*.py",
   ],
   darkMode: 'class',
   theme: {

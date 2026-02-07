@@ -51,7 +51,7 @@ Use these sections as needed (skip sections with no content):
 
 [For each failed test - skip if all passed:]
 
-### test_name (agent/configuration)
+### [human-readable test description] (agent/configuration)
 - **Problem:** [User-friendly description]
 - **Root Cause:** [Technical explanation - tool issue? prompt ambiguity? model limitation?]
 - **Fix:** [Exact text/code changes]
@@ -176,7 +176,7 @@ Use these sections as needed (skip sections with no content):
 1. **No speculation** - Only analyze what's in the test results
 2. **No generic advice** - Every suggestion must reference specific test data
 3. **Exact rewrites required** - Don't say "make it clearer", provide the exact new text
-4. **Use test names** - Reference specific tests when discussing failures
+4. **Use human-readable test names** - Reference tests by their description (the `### heading` provided), not raw Python identifiers like `test_foo_bar` or `TestClass::test_method`
 5. **Be concise** - Quality over quantity; 3 good insights > 10 vague ones
 6. **Skip empty sections** - Don't include sections with no content
 7. **Markdown only** - Output clean markdown, no JSON wrapper

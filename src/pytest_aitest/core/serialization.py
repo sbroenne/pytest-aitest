@@ -93,6 +93,7 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
             error=test_data.get("error"),
             assertions=test_data.get("assertions", []),
             docstring=test_data.get("docstring"),
+            class_docstring=test_data.get("class_docstring"),
             agent_id=agent_id,
             agent_name=agent_name,
             model=model,

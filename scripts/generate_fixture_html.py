@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Generate HTML reports from JSON test fixtures.
+"""Generate HTML and Markdown reports from JSON test fixtures.
 
-This script generates HTML reports from all JSON fixtures in tests/fixtures/reports/
-to verify template rendering across different scenarios.
+This script generates HTML and Markdown reports from all JSON fixtures in
+tests/fixtures/reports/ to verify template rendering across different scenarios.
 
 Usage:
     python scripts/generate_fixture_html.py              # Generate all
@@ -23,30 +23,46 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from pytest_aitest.cli import load_suite_report  # noqa: E402
 from pytest_aitest.reporting.generator import generate_html as _generate_html  # noqa: E402
+from pytest_aitest.reporting.generator import generate_md as _generate_md  # noqa: E402
 
 FIXTURES_DIR = ROOT / "tests" / "fixtures" / "reports"
 # Output to docs/reports for public viewing (tracked in git)
 OUTPUT_DIR = ROOT / "docs" / "reports"
 
 
-def generate_fixture_html(json_path: Path, output_dir: Path) -> Path:
-    """Generate HTML from a JSON fixture.
+def generate_fixture_html(json_path: Path, output_dir: Path) -> list[Path]:
+    """Generate HTML and Markdown from a JSON fixture.
 
     Args:
         json_path: Path to JSON fixture
-        output_dir: Directory to write HTML
+        output_dir: Directory to write reports
 
     Returns:
-        Path to generated HTML file
+        List of paths to generated files (HTML and MD)
+
+    Raises:
+        ValueError: If insights are missing from the JSON fixture
     """
     # Load the fixture (returns 2-tuple: report, insights)
     report, insights = load_suite_report(json_path)
 
-    # Generate HTML
-    output_path = output_dir / f"{json_path.stem}.html"
-    _generate_html(report, output_path, insights=insights)
+    if not insights:
+        msg = f"Fixture {json_path.name} has no AI insights — insights are mandatory for reports"
+        raise ValueError(msg)
 
-    return output_path
+    generated = []
+
+    # Generate HTML
+    html_path = output_dir / f"{json_path.stem}.html"
+    _generate_html(report, html_path, insights=insights)
+    generated.append(html_path)
+
+    # Generate Markdown
+    md_path = output_dir / f"{json_path.stem}.md"
+    _generate_md(report, md_path, insights=insights)
+    generated.append(md_path)
+
+    return generated
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -94,9 +110,10 @@ def main(argv: list[str] | None = None) -> int:
     for json_path in fixtures:
         print(f"  {json_path.name}...", end=" ")
         try:
-            html_path = generate_fixture_html(json_path, args.output)
-            print(f"OK -> {html_path.name}")
-            generated.append(html_path)
+            paths = generate_fixture_html(json_path, args.output)
+            names = ", ".join(p.name for p in paths)
+            print(f"OK -> {names}")
+            generated.extend(paths)
         except Exception as e:
             import traceback
 
@@ -111,10 +128,11 @@ def main(argv: list[str] | None = None) -> int:
         for path, error in errors:
             print(f"  {path.name}: {error}")
 
-    # Open in browser if requested
+    # Open in browser if requested (HTML files only)
     if args.open and generated:
-        print(f"\nOpening {len(generated)} file(s) in browser...")
-        for html_path in generated:
+        html_files = [p for p in generated if p.suffix == ".html"]
+        print(f"\nOpening {len(html_files)} HTML file(s) in browser...")
+        for html_path in html_files:
             if sys.platform == "win32":
                 subprocess.run(["start", str(html_path)])
             elif sys.platform == "darwin":

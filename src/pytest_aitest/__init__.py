@@ -82,4 +82,6 @@ __all__ = [  # noqa: RUF022
     "generate_json",
 ]
 
-__version__ = "0.2.0"
+from importlib.metadata import version as _get_version  # noqa: E402
+
+__version__ = _get_version("pytest-aitest")

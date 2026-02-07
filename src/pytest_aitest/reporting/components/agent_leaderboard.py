@@ -31,19 +31,6 @@ def _medal(rank: int) -> str:
     return medals.get(rank, str(rank))
 
 
-def _agent_tags(agent: AgentData) -> Node:
-    """Render skill/prompt tags for an agent."""
-    tags = []
-    if agent.skill:
-        tags.append(span(".tag.tag-skill")[f"📚 {agent.skill}"])
-    if agent.system_prompt_name:
-        tags.append(span(".tag.tag-prompt")[f"📝 {agent.system_prompt_name}"])
-
-    if not tags:
-        return None
-    return div(".flex.flex-wrap.gap-1.5.mt-1")[tags]
-
-
 def _leaderboard_row(agent: AgentData, rank: int) -> Node:
     """Render a single leaderboard row."""
     if agent.disqualified:
@@ -58,7 +45,7 @@ def _leaderboard_row(agent: AgentData, rank: int) -> Node:
     return tr(class_=row_class)[
         # Rank medal or disqualified icon
         td(".text-center.text-xl")[rank_display],
-        # Agent name + tags
+        # Agent name
         td[
             div(".font-medium.text-text-light")[
                 span(class_="line-through" if agent.disqualified else "")[agent.name],
@@ -68,7 +55,6 @@ def _leaderboard_row(agent: AgentData, rank: int) -> Node:
                     else None
                 ),
             ],
-            _agent_tags(agent),
         ],
         # Tests passed/total
         td(".text-center.tabular-nums")[
@@ -115,19 +101,9 @@ def _single_agent_card(agent: AgentData) -> Node:
     """Render a single agent summary card."""
     status_class = "text-green-400" if agent.pass_rate == 100 else "text-red-400"
 
-    skill_tag = span(".tag.tag-skill")[f"📚 {agent.skill}"] if agent.skill else None
-    prompt_name = agent.system_prompt_name
-    prompt_tag = span(".tag.tag-prompt")[f"📝 {prompt_name}"] if prompt_name else None
-
     return div(".card.p-5")[
         div(".flex.items-center.justify-between")[
-            div[
-                div(".text-lg.font-medium.text-text-light")[agent.name],
-                div(".flex.flex-wrap.gap-1.5.mt-2")[
-                    skill_tag,
-                    prompt_tag,
-                ],
-            ],
+            div(".text-lg.font-medium.text-text-light")[agent.name],
             div(".text-right")[
                 div(class_=f"{status_class} text-2xl font-semibold tabular-nums")[
                     f"{agent.passed}/{agent.total}"

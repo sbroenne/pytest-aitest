@@ -8,7 +8,13 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from pytest_aitest.reporting import TestReport, build_suite_report, generate_html, generate_json
+from pytest_aitest.reporting import (
+    TestReport,
+    build_suite_report,
+    generate_html,
+    generate_json,
+    generate_md,
+)
 
 if TYPE_CHECKING:
     from _pytest.config import Config
@@ -151,6 +157,12 @@ def pytest_addoption(parser: Parser) -> None:
         help="Generate JSON report to given path (e.g., results.json)",
     )
     group.addoption(
+        "--aitest-md",
+        metavar="PATH",
+        default=None,
+        help="Generate Markdown report to given path (e.g., report.md)",
+    )
+    group.addoption(
         "--aitest-min-pass-rate",
         metavar="N",
         type=int,
@@ -238,36 +250,50 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     if func is not None and func.__doc__:
         docstring = func.__doc__
 
+    # Get test class docstring if available
+    class_docstring = None
+    parent = getattr(item, "parent", None)
+    if parent is not None:
+        parent_obj = getattr(parent, "obj", None)
+        if parent_obj is not None and hasattr(parent_obj, "__doc__") and parent_obj.__doc__:
+            # Only use class docstrings (not module docstrings)
+            import inspect
+
+            if inspect.isclass(parent_obj):
+                class_docstring = parent_obj.__doc__
+
     # Extract assertions recorded by the llm_assert fixture
     assertions = getattr(item, "_aitest_assertions", [])
 
-    # Capture error message - extract just the assertion error, not the whole traceback
+    # Capture error message — just the assertion/exception, never raw tracebacks.
+    # Tracebacks contain file paths, line numbers, and nodeids that pollute
+    # AI analysis and user-facing reports.
     error_msg = None
     if report.failed:
         error_text = str(report.longrepr)
-
-        # Try to extract just the AssertionError line (starts with "E       ")
         error_lines = error_text.split("\n")
-        assertion_lines = [line for line in error_lines if line.strip().startswith("E ")]
 
-        if assertion_lines:
-            # Found assertion lines - use those (without the "E       " prefix)
-            error_msg = "\n".join(line.strip()[2:] for line in assertion_lines)
+        # Extract lines starting with "E " — pytest's assertion/exception lines
+        e_lines = [line.strip()[2:] for line in error_lines if line.strip().startswith("E ")]
+
+        if e_lines:
+            error_msg = "\n".join(e_lines)
         else:
-            # Fallback: truncate full traceback
-            if len(error_text) > 300:
-                error_msg = error_text[:300] + "\n... (see full traceback in test output)"
-            else:
-                error_msg = error_text
+            # No E-lines: grab the last non-empty line (typically "ExceptionType: message")
+            for line in reversed(error_lines):
+                stripped = line.strip()
+                if stripped:
+                    error_msg = stripped
+                    break
 
     # Build agent identity from the Agent object
-    def _display_model(model: str) -> str:
-        """Strip provider prefix for display (azure/gpt-5-mini → gpt-5-mini)."""
-        return model.split("/")[-1] if "/" in model else model
-
     agent_id = agent.id if agent else ""
-    model = _display_model(agent.provider.model) if agent else ""
-    agent_name = agent.name or model if agent else ""
+    if agent:
+        raw = agent.provider.model
+        model = raw.split("/")[-1] if "/" in raw else raw
+    else:
+        model = ""
+    agent_name = agent.name if agent else ""
     system_prompt_name = agent.system_prompt_name if agent else None
     skill_name = agent.skill.name if agent and agent.skill else None
 
@@ -280,6 +306,7 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         error=error_msg,
         assertions=assertions,
         docstring=docstring,
+        class_docstring=class_docstring,
         agent_id=agent_id,
         agent_name=agent_name,
         model=model,
@@ -322,8 +349,7 @@ def _add_junit_properties(
     if agent:
         model = agent.provider.model
         display_model = model.split("/")[-1] if "/" in model else model
-        agent_name = agent.name or display_model
-        props.append(("aitest.agent.name", agent_name))
+        props.append(("aitest.agent.name", agent.name))
         props.append(("aitest.model", display_model))
         if agent.system_prompt_name:
             props.append(("aitest.prompt", agent.system_prompt_name))
@@ -394,6 +420,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
     html_path = config.getoption("--aitest-html")
     json_path = config.getoption("--aitest-json")
+    md_path = config.getoption("--aitest-md")
     min_pass_rate: int | None = config.getoption("--aitest-min-pass-rate")
 
     # Extract suite docstring from first test's parent class/module
@@ -427,11 +454,13 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         "report.html", test_name=suite_report.name, default_dir=default_dir
     )
 
-    # Generate AI insights if HTML report requested OR summary model specified
+    # Generate AI insights if HTML/MD report requested OR summary model specified
     summary_model = config.getoption("--aitest-summary-model")
     insights = None
-    if html_path or summary_model:
-        insights = _generate_structured_insights(config, suite_report, required=bool(html_path))
+    if html_path or md_path or summary_model:
+        insights = _generate_structured_insights(
+            config, suite_report, required=bool(html_path or md_path)
+        )
 
     # Always generate JSON report (to default or custom path)
     json_output_path = Path(json_path) if json_path else default_json_path
@@ -447,8 +476,21 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     if insights is None:
         insights = _generate_structured_insights(config, suite_report, required=True)
 
+    assert insights is not None  # guaranteed by required=True above
     generate_html(suite_report, html_output_path, insights=insights, min_pass_rate=min_pass_rate)
     _log_report_path(config, "HTML", html_output_path)
+
+    # Generate Markdown report if requested
+    if md_path:
+        md_output_path = Path(md_path)
+        md_output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if insights is None:
+            insights = _generate_structured_insights(config, suite_report, required=True)
+
+        assert insights is not None  # guaranteed by required=True above
+        generate_md(suite_report, md_output_path, insights=insights, min_pass_rate=min_pass_rate)
+        _log_report_path(config, "Markdown", md_output_path)
 
     # Enforce minimum pass rate threshold
     if min_pass_rate is not None:

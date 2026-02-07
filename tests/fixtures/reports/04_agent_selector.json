@@ -1,12 +1,12 @@
 {
   "name": "pytest-aitest",
-  "timestamp": "2026-02-07T08:05:03.233287",
-  "duration_ms": 90135.20100001188,
+  "timestamp": "2026-02-07T14:02:59.373972",
+  "duration_ms": 82350.75300000608,
   "tests": [
     {
       "name": "tests/fixtures/scenario_04_agent_selector.py::test_weather_query[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 13592.711300007068,
+      "duration_ms": 15247.36129998928,
       "agent_result": {
         "turns": [
           {
@@ -25,24 +25,24 @@
                 },
                 "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
                 "error": null,
-                "duration_ms": 3.041399992071092
+                "duration_ms": 3.114799998002127
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the current weather for Berlin, Germany:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Conditions: Overcast\n- Humidity: 72%\n- Wind: 10 km/h from the north\n\nWould you like a forecast for the next few days or any weather alerts?",
+            "content": "Current weather in Berlin:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Conditions: Overcast\n- Humidity: 72%\n- Wind: N at 10 km/h\n\nLooks cool and cloudy \u2014 a light jacket is a good idea. Would you like a multi-day forecast or the weather for a different city?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 5679.33460000495,
+        "duration_ms": 8446.109099983005,
         "token_usage": {
           "prompt": 697,
-          "completion": 87
+          "completion": 292
         },
-        "cost_usd": 0.00034825,
+        "cost_usd": 0.00075825,
         "_messages": [
           {
             "role": "system",
@@ -61,7 +61,7 @@
                   "arguments": "{\"city\":\"Berlin\"}",
                   "name": "get_weather"
                 },
-                "id": "call_sSOSOLDR9DW0QTHjggwbw0zq",
+                "id": "call_A65a0Z2A97RaRxZ1Jqb0IcQq",
                 "type": "function"
               }
             ],
@@ -73,12 +73,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_sSOSOLDR9DW0QTHjggwbw0zq",
+            "tool_call_id": "call_A65a0Z2A97RaRxZ1Jqb0IcQq",
             "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
           },
           {
             "role": "assistant",
-            "content": "Here\u2019s the current weather for Berlin, Germany:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Conditions: Overcast\n- Humidity: 72%\n- Wind: 10 km/h from the north\n\nWould you like a forecast for the next few days or any weather alerts?"
+            "content": "Current weather in Berlin:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Conditions: Overcast\n- Humidity: 72%\n- Wind: N at 10 km/h\n\nLooks cool and cloudy \u2014 a light jacket is a good idea. Would you like a multi-day forecast or the weather for a different city?"
           }
         ],
         "session_context_count": 0,
@@ -165,11 +165,12 @@
           "type": "llm",
           "passed": true,
           "message": "provides the current temperature and conditions for Berlin",
-          "details": "The content explicitly gives Berlin's current temperature (16\u00b0C/61\u00b0F) and conditions (Overcast), satisfying the criterion."
+          "details": "The content explicitly gives the current temperature (16\u00b0C/61\u00b0F) and current conditions (Overcast) for Berlin, satisfying the criterion."
         }
       ],
       "docstring": "Basic weather query \u2014 all agents should pass.",
-      "agent_id": "13318b7f-5ad7-4f3d-b2d2-ff4457ab6218",
+      "class_docstring": null,
+      "agent_id": "d57f2c46-f4b5-4a49-8839-5144c9ec2dc6",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
@@ -178,7 +179,7 @@
     {
       "name": "tests/fixtures/scenario_04_agent_selector.py::test_weather_query[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 11299.374800000805,
+      "duration_ms": 7740.648400009377,
       "agent_result": {
         "turns": [
           {
@@ -197,24 +198,24 @@
                 },
                 "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
                 "error": null,
-                "duration_ms": 3.7053999985801056
+                "duration_ms": 1.7549000040162355
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "The current weather in Berlin is overcast with a temperature of 16\u00b0C (61\u00b0F). The humidity is at 72%, and there is a north wind blowing at 10 km/h. Would you like to know the forecast for the next few days?",
+            "content": "The current weather in Berlin is overcast with a temperature of 16\u00b0C (61\u00b0F). The humidity is at 72%, and there is a north wind blowing at 10 km/h.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 5433.545299994876,
+        "duration_ms": 2116.092399985064,
         "token_usage": {
           "prompt": 523,
-          "completion": 69
+          "completion": 56
         },
-        "cost_usd": 0.00031959999999999996,
+        "cost_usd": 0.0002988,
         "_messages": [
           {
             "role": "system",
@@ -233,7 +234,7 @@
                   "arguments": "{\"city\":\"Berlin\"}",
                   "name": "get_weather"
                 },
-                "id": "call_5PRkMi02ekeVQ6bBd5HsNhdx",
+                "id": "call_EACwtV9rD2uJEiePRbHVh8CI",
                 "type": "function"
               }
             ],
@@ -245,12 +246,12 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_5PRkMi02ekeVQ6bBd5HsNhdx",
+            "tool_call_id": "call_EACwtV9rD2uJEiePRbHVh8CI",
             "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
           },
           {
             "role": "assistant",
-            "content": "The current weather in Berlin is overcast with a temperature of 16\u00b0C (61\u00b0F). The humidity is at 72%, and there is a north wind blowing at 10 km/h. Would you like to know the forecast for the next few days?"
+            "content": "The current weather in Berlin is overcast with a temperature of 16\u00b0C (61\u00b0F). The humidity is at 72%, and there is a north wind blowing at 10 km/h."
           }
         ],
         "session_context_count": 0,
@@ -337,20 +338,21 @@
           "type": "llm",
           "passed": true,
           "message": "provides the current temperature and conditions for Berlin",
-          "details": "The content explicitly states the current temperature (16\u00b0C/61\u00b0F) and current conditions (overcast) for Berlin, plus additional details (humidity and wind)."
+          "details": "Content states the current temperature (16\u00b0C / 61\u00b0F) and describes conditions (overcast, humidity 72%, north wind 10 km/h) for Berlin."
         }
       ],
       "docstring": "Basic weather query \u2014 all agents should pass.",
-      "agent_id": "80fe6e0d-cbd7-49c1-90cd-2aafc2ea6b48",
+      "class_docstring": null,
+      "agent_id": "c0685315-dea6-4652-a275-e7dc177f27e4",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_weather_query[gpt-5-mini+skill]",
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_weather_query[gpt-5-mini + weather-expert]",
       "outcome": "passed",
-      "duration_ms": 15682.336900004884,
+      "duration_ms": 18732.554399990477,
       "agent_result": {
         "turns": [
           {
@@ -367,7 +369,7 @@
                 "arguments": {},
                 "result": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]",
                 "error": null,
-                "duration_ms": 1.9440000032773241
+                "duration_ms": 1.794499985408038
               }
             ]
           },
@@ -382,24 +384,52 @@
                 },
                 "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
                 "error": null,
-                "duration_ms": 2.685999992536381
+                "duration_ms": 2.204299991717562
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Current conditions in Berlin:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Sky: Overcast\n- Humidity: 72%\n- Wind: 10 km/h (\u22486 mph) from the N\n\nPractical advice\n- Wear: long\u2011sleeve T\u2011shirt + a light sweater or fleece, and a light waterproof jacket (packable rain shell). 16\u00b0C/61\u00b0F is cool but not cold \u2014 a midweight layer will keep you comfortable.\n- Bottoms & shoes: jeans or chinos and closed shoes/sneakers. If you plan to walk a lot, wear comfortable, water\u2011resistant shoes.\n- Extras: a small umbrella or packable rain jacket is wise because it\u2019s overcast (no precipitation probability in the current report). A light scarf can help with the breeze.\n- Activity notes: wind is light (10 km/h) so outdoor activities are fine. If you want to be sure about rain or evening temperatures, I can pull a short forecast.\n\nWould you like a 3\u2011day forecast or packing suggestions for a trip?",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "list_skill_references",
+                "arguments": {},
+                "result": "Available reference documents:\n- clothing-guide.md",
+                "error": null,
+                "duration_ms": 0.022899999748915434
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "read_skill_reference",
+                "arguments": {
+                  "filename": "clothing-guide.md"
+                },
+                "result": "# Weather Clothing Guide\n\n## Temperature-Based Clothing\n\n### Cold (< 40\u00b0F / 4\u00b0C)\n- Heavy winter coat or down jacket\n- Gloves and hat/beanie\n- Scarf or neck warmer\n- Thermal underlayers\n- Warm boots\n\n### Cool (40-55\u00b0F / 4-13\u00b0C)\n- Medium jacket or fleece\n- Long pants\n- Light sweater or hoodie\n- Closed-toe shoes\n\n### Mild (55-70\u00b0F / 13-21\u00b0C)\n- Light jacket (for mornings/evenings)\n- Long pants or jeans\n- T-shirt or light long-sleeve\n- Optional: light cardigan\n\n### Warm (70-85\u00b0F / 21-29\u00b0C)\n- T-shirt or light blouse\n- Shorts or lightweight pants\n- Sandals or breathable shoes\n- Sunglasses\n\n### Hot (> 85\u00b0F / 29\u00b0C)\n- Loose, light-colored clothing\n- Shorts and tank top\n- Hat for sun protection\n- Plenty of water\n\n## UV Index Guidelines\n\n| UV Index | Risk Level | Recommendations |\n|----------|------------|-----------------|\n| 0-2 | Low | Minimal protection needed |\n| 3-5 | Moderate | Wear sunglasses, use SPF 30 |\n| 6-7 | High | SPF 30+, seek shade during midday |\n| 8-10 | Very High | SPF 50+, avoid midday sun, wear a hat |\n| 11+ | Extreme | Take all precautions, limit outdoor exposure |\n\n## Precipitation Preparation\n\n- **20-40% chance**: Bring compact umbrella just in case\n- **40-60% chance**: Waterproof jacket recommended\n- **60-80% chance**: Full rain gear, waterproof shoes\n- **80%+ chance**: Plan indoor alternatives, waterproof everything\n\n## Wind Considerations\n\n- **10-20 mph**: Light jacket for wind chill\n- **20-30 mph**: Windbreaker essential, secure loose items\n- **30+ mph**: Consider rescheduling outdoor activities\n",
+                "error": null,
+                "duration_ms": 0.014899997040629387
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Current conditions in Berlin: 16\u00b0C (61\u00b0F), overcast, humidity 72%, wind N at 10 km/h (\u22486 mph).\n\nWhat to wear / bring (specific):\n- Outer layer: light jacket or windbreaker (16\u00b0C/61\u00b0F is mild but overcast and slightly damp).  \n- Base layer: T\u2011shirt or light long\u2011sleeve; bring a light sweater or cardigan for cooler moments.  \n- Bottoms: long pants or jeans.  \n- Shoes: closed\u2011toe shoes (sneakers); consider water\u2011resistant shoes if you expect damp sidewalks.  \n- Extras: compact umbrella or packable rain jacket if you prefer to be cautious with the overcast sky; the current report lists clouds but no precipitation.  \n- If you'll be out for several hours: a breathable layer (so you can remove the jacket indoors) and consider a hat \u2014 humidity 72% can make it feel a bit chillier.\n\nWind/comfort note:\n- Wind is light (~6 mph), so wind chill is minimal \u2014 no heavy windproof gear needed.\n\nWant more?\n- I can pull a 3\u20137 day forecast if you\u2019re staying longer or want a packing list for a trip.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 9498.44499999017,
+        "duration_ms": 13065.78360000276,
         "token_usage": {
-          "prompt": 2395,
-          "completion": 915
+          "prompt": 4664,
+          "completion": 1239
         },
-        "cost_usd": 0.00242875,
+        "cost_usd": 0.0036439999999999997,
         "_messages": [
           {
             "role": "system",
@@ -418,7 +448,7 @@
                   "arguments": "{}",
                   "name": "list_cities"
                 },
-                "id": "call_1S9qLGzSUiISC7eyIv6Ah5gk",
+                "id": "call_LwEsdsFh3eXgz4ugQNrTrsub",
                 "type": "function"
               }
             ],
@@ -430,7 +460,7 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_1S9qLGzSUiISC7eyIv6Ah5gk",
+            "tool_call_id": "call_LwEsdsFh3eXgz4ugQNrTrsub",
             "content": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]"
           },
           {
@@ -442,7 +472,7 @@
                   "arguments": "{\"city\":\"Berlin\"}",
                   "name": "get_weather"
                 },
-                "id": "call_9ppecaWWsYKWXiz0copBDy3W",
+                "id": "call_3pUVjRcmnDUgQYE5Hm03dDUr",
                 "type": "function"
               }
             ],
@@ -454,12 +484,60 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_9ppecaWWsYKWXiz0copBDy3W",
+            "tool_call_id": "call_3pUVjRcmnDUgQYE5Hm03dDUr",
             "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
           },
           {
+            "content": null,
             "role": "assistant",
-            "content": "Current conditions in Berlin:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Sky: Overcast\n- Humidity: 72%\n- Wind: 10 km/h (\u22486 mph) from the N\n\nPractical advice\n- Wear: long\u2011sleeve T\u2011shirt + a light sweater or fleece, and a light waterproof jacket (packable rain shell). 16\u00b0C/61\u00b0F is cool but not cold \u2014 a midweight layer will keep you comfortable.\n- Bottoms & shoes: jeans or chinos and closed shoes/sneakers. If you plan to walk a lot, wear comfortable, water\u2011resistant shoes.\n- Extras: a small umbrella or packable rain jacket is wise because it\u2019s overcast (no precipitation probability in the current report). A light scarf can help with the breeze.\n- Activity notes: wind is light (10 km/h) so outdoor activities are fine. If you want to be sure about rain or evening temperatures, I can pull a short forecast.\n\nWould you like a 3\u2011day forecast or packing suggestions for a trip?"
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{}",
+                  "name": "list_skill_references"
+                },
+                "id": "call_frfpT0McsYGlRnXchxCevX6V",
+                "type": "function"
+              }
+            ],
+            "function_call": null,
+            "provider_specific_fields": {
+              "refusal": null
+            },
+            "annotations": []
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_frfpT0McsYGlRnXchxCevX6V",
+            "content": "Available reference documents:\n- clothing-guide.md"
+          },
+          {
+            "content": null,
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"filename\":\"clothing-guide.md\"}",
+                  "name": "read_skill_reference"
+                },
+                "id": "call_6pSkxJyV2xt5IKYO1fmK4lXL",
+                "type": "function"
+              }
+            ],
+            "function_call": null,
+            "provider_specific_fields": {
+              "refusal": null
+            },
+            "annotations": []
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_6pSkxJyV2xt5IKYO1fmK4lXL",
+            "content": "# Weather Clothing Guide\n\n## Temperature-Based Clothing\n\n### Cold (< 40\u00b0F / 4\u00b0C)\n- Heavy winter coat or down jacket\n- Gloves and hat/beanie\n- Scarf or neck warmer\n- Thermal underlayers\n- Warm boots\n\n### Cool (40-55\u00b0F / 4-13\u00b0C)\n- Medium jacket or fleece\n- Long pants\n- Light sweater or hoodie\n- Closed-toe shoes\n\n### Mild (55-70\u00b0F / 13-21\u00b0C)\n- Light jacket (for mornings/evenings)\n- Long pants or jeans\n- T-shirt or light long-sleeve\n- Optional: light cardigan\n\n### Warm (70-85\u00b0F / 21-29\u00b0C)\n- T-shirt or light blouse\n- Shorts or lightweight pants\n- Sandals or breathable shoes\n- Sunglasses\n\n### Hot (> 85\u00b0F / 29\u00b0C)\n- Loose, light-colored clothing\n- Shorts and tank top\n- Hat for sun protection\n- Plenty of water\n\n## UV Index Guidelines\n\n| UV Index | Risk Level | Recommendations |\n|----------|------------|-----------------|\n| 0-2 | Low | Minimal protection needed |\n| 3-5 | Moderate | Wear sunglasses, use SPF 30 |\n| 6-7 | High | SPF 30+, seek shade during midday |\n| 8-10 | Very High | SPF 50+, avoid midday sun, wear a hat |\n| 11+ | Extreme | Take all precautions, limit outdoor exposure |\n\n## Precipitation Preparation\n\n- **20-40% chance**: Bring compact umbrella just in case\n- **40-60% chance**: Waterproof jacket recommended\n- **60-80% chance**: Full rain gear, waterproof shoes\n- **80%+ chance**: Plan indoor alternatives, waterproof everything\n\n## Wind Considerations\n\n- **10-20 mph**: Light jacket for wind chill\n- **20-30 mph**: Windbreaker essential, secure loose items\n- **30+ mph**: Consider rescheduling outdoor activities\n"
+          },
+          {
+            "role": "assistant",
+            "content": "Current conditions in Berlin: 16\u00b0C (61\u00b0F), overcast, humidity 72%, wind N at 10 km/h (\u22486 mph).\n\nWhat to wear / bring (specific):\n- Outer layer: light jacket or windbreaker (16\u00b0C/61\u00b0F is mild but overcast and slightly damp).  \n- Base layer: T\u2011shirt or light long\u2011sleeve; bring a light sweater or cardigan for cooler moments.  \n- Bottoms: long pants or jeans.  \n- Shoes: closed\u2011toe shoes (sneakers); consider water\u2011resistant shoes if you expect damp sidewalks.  \n- Extras: compact umbrella or packable rain jacket if you prefer to be cautious with the overcast sky; the current report lists clouds but no precipitation.  \n- If you'll be out for several hours: a breathable layer (so you can remove the jacket indoors) and consider a hat \u2014 humidity 72% can make it feel a bit chillier.\n\nWind/comfort note:\n- Wind is light (~6 mph), so wind chill is minimal \u2014 no heavy windproof gear needed.\n\nWant more?\n- I can pull a 3\u20137 day forecast if you\u2019re staying longer or want a packing list for a trip."
           }
         ],
         "session_context_count": 0,
@@ -580,12 +658,13 @@
           "type": "llm",
           "passed": true,
           "message": "provides the current temperature and conditions for Berlin",
-          "details": "The content explicitly gives the current temperature (16\u00b0C / 61\u00b0F) and current conditions for Berlin (overcast sky, humidity, wind speed and direction), satisfying the criterion."
+          "details": "The content explicitly states the current temperature for Berlin (16\u00b0C / 61\u00b0F) and accompanying conditions (overcast, humidity 72%, wind N at 10 km/h), satisfying the criterion."
         }
       ],
       "docstring": "Basic weather query \u2014 all agents should pass.",
-      "agent_id": "d6d5e553-93d6-4eeb-918a-3c5ec8243648",
-      "agent_name": "gpt-5-mini+skill",
+      "class_docstring": null,
+      "agent_id": "2c371f05-9731-49c2-b57d-cd4543cc5568",
+      "agent_name": "gpt-5-mini + weather-expert",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": "weather-expert"
@@ -593,7 +672,7 @@
     {
       "name": "tests/fixtures/scenario_04_agent_selector.py::test_multi_city[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 19900.654099998064,
+      "duration_ms": 17944.35540001723,
       "agent_result": {
         "turns": [
           {
@@ -612,7 +691,7 @@
                 },
                 "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 3.2728999940445647
+                "duration_ms": 2.339600003324449
               },
               {
                 "name": "get_weather",
@@ -621,7 +700,7 @@
                 },
                 "result": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 1.7374000017298386
+                "duration_ms": 1.6926999960560352
               },
               {
                 "name": "get_weather",
@@ -630,24 +709,37 @@
                 },
                 "result": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 1.311499989242293
+                "duration_ms": 0.9802000131458044
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "I\u2019m sorry \u2014 those city names aren\u2019t in my data source. I tried to fetch weather for Rome, Madrid, and Athens but only the following cities are available: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nHow would you like to proceed? Options:\n- Choose up to three from the available list and I\u2019ll compare their current weather.\n- Ask for a multi-day forecast (1\u20137 days) for any of the available cities.\n- Provide different city names (if you can, pick from a different source) and I\u2019ll try again.\n\nTell me which cities (and whether you want current conditions or a forecast and for how many days) and I\u2019ll fetch the data.",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "list_cities",
+                "arguments": {},
+                "result": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]",
+                "error": null,
+                "duration_ms": 2.2409000084735453
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "I can\u2019t fetch live weather for Rome, Madrid, or Athens \u2014 those cities aren\u2019t in the available data set. The cities I can retrieve now are: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nWhat would you like to do next?\n- Pick any two or three from the available list for a live comparison (I can fetch current weather or a multi-day forecast).\n- Or, if you want Rome, Madrid, and Athens specifically, I can provide a general (non-live) climatological comparison instead \u2014 does that work?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 11938.595899991924,
+        "duration_ms": 10831.641099997796,
         "token_usage": {
-          "prompt": 766,
-          "completion": 861
+          "prompt": 1268,
+          "completion": 787
         },
-        "cost_usd": 0.0019134999999999998,
+        "cost_usd": 0.0018909999999999999,
         "_messages": [
           {
             "role": "system",
@@ -666,7 +758,7 @@
                   "arguments": "{\"city\": \"Rome\"}",
                   "name": "get_weather"
                 },
-                "id": "call_ancrS0mQE7559hnyyS8Rm3ke",
+                "id": "call_soITwHugZprKbvCy2TR3l04U",
                 "type": "function"
               },
               {
@@ -674,7 +766,7 @@
                   "arguments": "{\"city\": \"Madrid\"}",
                   "name": "get_weather"
                 },
-                "id": "call_P5nK0BkA0I2oa1QoJaGp90eG",
+                "id": "call_KRcaiwJLSS2vh3l68YBo7Kk9",
                 "type": "function"
               },
               {
@@ -682,7 +774,7 @@
                   "arguments": "{\"city\": \"Athens\"}",
                   "name": "get_weather"
                 },
-                "id": "call_Sdwly1eqozOlDeITTB3CsLXm",
+                "id": "call_e5jBEnnZSXNOo0bEeCZknWgT",
                 "type": "function"
               }
             ],
@@ -694,22 +786,46 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_ancrS0mQE7559hnyyS8Rm3ke",
+            "tool_call_id": "call_soITwHugZprKbvCy2TR3l04U",
             "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_P5nK0BkA0I2oa1QoJaGp90eG",
+            "tool_call_id": "call_KRcaiwJLSS2vh3l68YBo7Kk9",
             "content": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_Sdwly1eqozOlDeITTB3CsLXm",
+            "tool_call_id": "call_e5jBEnnZSXNOo0bEeCZknWgT",
             "content": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
           },
           {
+            "content": null,
             "role": "assistant",
-            "content": "I\u2019m sorry \u2014 those city names aren\u2019t in my data source. I tried to fetch weather for Rome, Madrid, and Athens but only the following cities are available: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nHow would you like to proceed? Options:\n- Choose up to three from the available list and I\u2019ll compare their current weather.\n- Ask for a multi-day forecast (1\u20137 days) for any of the available cities.\n- Provide different city names (if you can, pick from a different source) and I\u2019ll try again.\n\nTell me which cities (and whether you want current conditions or a forecast and for how many days) and I\u2019ll fetch the data."
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{}",
+                  "name": "list_cities"
+                },
+                "id": "call_NyACdyh8TMcdEAfJ1lWFZXaO",
+                "type": "function"
+              }
+            ],
+            "function_call": null,
+            "provider_specific_fields": {
+              "refusal": null
+            },
+            "annotations": []
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_NyACdyh8TMcdEAfJ1lWFZXaO",
+            "content": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]"
+          },
+          {
+            "role": "assistant",
+            "content": "I can\u2019t fetch live weather for Rome, Madrid, or Athens \u2014 those cities aren\u2019t in the available data set. The cities I can retrieve now are: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nWhat would you like to do next?\n- Pick any two or three from the available list for a live comparison (I can fetch current weather or a multi-day forecast).\n- Or, if you want Rome, Madrid, and Athens specifically, I can provide a general (non-live) climatological comparison instead \u2014 does that work?"
           }
         ],
         "session_context_count": 0,
@@ -796,11 +912,12 @@
           "type": "llm",
           "passed": true,
           "message": "mentions weather for Rome, Madrid, and Athens",
-          "details": "The text explicitly references attempting to fetch weather for Rome, Madrid, and Athens (\"I tried to fetch weather for Rome, Madrid, and Athens\"), so it mentions weather for those three cities."
+          "details": "The text explicitly references Rome, Madrid, and Athens in the context of fetching live weather (stating it can\u2019t fetch live weather for those cities), so it mentions weather for all three."
         }
       ],
       "docstring": "Multiple cities \u2014 tests differentiation between agents.",
-      "agent_id": "13318b7f-5ad7-4f3d-b2d2-ff4457ab6218",
+      "class_docstring": null,
+      "agent_id": "d57f2c46-f4b5-4a49-8839-5144c9ec2dc6",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
@@ -809,7 +926,7 @@
     {
       "name": "tests/fixtures/scenario_04_agent_selector.py::test_multi_city[gpt-4.1-mini]",
       "outcome": "passed",
-      "duration_ms": 12097.307799995178,
+      "duration_ms": 9318.411699990975,
       "agent_result": {
         "turns": [
           {
@@ -828,7 +945,7 @@
                 },
                 "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 8.948999995482154
+                "duration_ms": 2.525399992009625
               },
               {
                 "name": "get_weather",
@@ -837,7 +954,7 @@
                 },
                 "result": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 3.8241000002017245
+                "duration_ms": 1.570799999171868
               },
               {
                 "name": "get_weather",
@@ -846,24 +963,24 @@
                 },
                 "result": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 3.4174999891547486
+                "duration_ms": 2.0585999882314354
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "I currently have weather data available only for the cities: Paris, Tokyo, New York, Berlin, London, and Sydney. Unfortunately, I cannot provide the weather comparison for Rome, Madrid, and Athens. Would you like me to compare the weather for any of the available cities instead?",
+            "content": "Currently, I do not have weather data available for Rome, Madrid, and Athens. The cities I can provide weather information for are Paris, Tokyo, New York, Berlin, London, and Sydney. Would you like me to compare the weather in any of these cities instead?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 3574.4350000022678,
+        "duration_ms": 2789.7455999918748,
         "token_usage": {
           "prompt": 592,
-          "completion": 119
+          "completion": 117
         },
-        "cost_usd": 0.0004272,
+        "cost_usd": 0.000424,
         "_messages": [
           {
             "role": "system",
@@ -882,7 +999,7 @@
                   "arguments": "{\"city\": \"Rome\"}",
                   "name": "get_weather"
                 },
-                "id": "call_60peYFNFCd5tegDfoHW1w3jJ",
+                "id": "call_q7oJ1BatfY0fwbeo8kWnxWUA",
                 "type": "function"
               },
               {
@@ -890,7 +1007,7 @@
                   "arguments": "{\"city\": \"Madrid\"}",
                   "name": "get_weather"
                 },
-                "id": "call_QlekWhEegaDQiGcN11FgOqzC",
+                "id": "call_I7rVP8ROwYUOnjTEpkJpyBeu",
                 "type": "function"
               },
               {
@@ -898,7 +1015,7 @@
                   "arguments": "{\"city\": \"Athens\"}",
                   "name": "get_weather"
                 },
-                "id": "call_svGQxYBYGrvzrew4tjb1enCw",
+                "id": "call_NTzAf8hXCzg5s8kTOjPkUk4N",
                 "type": "function"
               }
             ],
@@ -910,22 +1027,22 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_60peYFNFCd5tegDfoHW1w3jJ",
+            "tool_call_id": "call_q7oJ1BatfY0fwbeo8kWnxWUA",
             "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_QlekWhEegaDQiGcN11FgOqzC",
+            "tool_call_id": "call_I7rVP8ROwYUOnjTEpkJpyBeu",
             "content": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
           },
           {
             "role": "tool",
-            "tool_call_id": "call_svGQxYBYGrvzrew4tjb1enCw",
+            "tool_call_id": "call_NTzAf8hXCzg5s8kTOjPkUk4N",
             "content": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
           },
           {
             "role": "assistant",
-            "content": "I currently have weather data available only for the cities: Paris, Tokyo, New York, Berlin, London, and Sydney. Unfortunately, I cannot provide the weather comparison for Rome, Madrid, and Athens. Would you like me to compare the weather for any of the available cities instead?"
+            "content": "Currently, I do not have weather data available for Rome, Madrid, and Athens. The cities I can provide weather information for are Paris, Tokyo, New York, Berlin, London, and Sydney. Would you like me to compare the weather in any of these cities instead?"
           }
         ],
         "session_context_count": 0,
@@ -1012,20 +1129,21 @@
           "type": "llm",
           "passed": true,
           "message": "mentions weather for Rome, Madrid, and Athens",
-          "details": "The text explicitly mentions Rome, Madrid, and Athens in the context of weather, stating it cannot provide comparisons for those cities."
+          "details": "The content explicitly names Rome, Madrid, and Athens in the context of weather data (stating it does not have weather data for those cities)."
         }
       ],
       "docstring": "Multiple cities \u2014 tests differentiation between agents.",
-      "agent_id": "80fe6e0d-cbd7-49c1-90cd-2aafc2ea6b48",
+      "class_docstring": null,
+      "agent_id": "c0685315-dea6-4652-a275-e7dc177f27e4",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_multi_city[gpt-5-mini+skill]",
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_multi_city[gpt-5-mini + weather-expert]",
       "outcome": "failed",
-      "duration_ms": 17562.816100005875,
+      "duration_ms": 13367.421800008742,
       "agent_result": {
         "turns": [
           {
@@ -1038,6 +1156,13 @@
             "content": "",
             "tool_calls": [
               {
+                "name": "list_cities",
+                "arguments": {},
+                "result": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]",
+                "error": null,
+                "duration_ms": 1.9120000069960952
+              },
+              {
                 "name": "compare_weather",
                 "arguments": {
                   "city1": "Rome",
@@ -1045,7 +1170,7 @@
                 },
                 "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 3.5986000002594665
+                "duration_ms": 1.036100002238527
               },
               {
                 "name": "compare_weather",
@@ -1055,7 +1180,7 @@
                 },
                 "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 1.8742000102065504
+                "duration_ms": 2.069400012260303
               },
               {
                 "name": "compare_weather",
@@ -1065,37 +1190,24 @@
                 },
                 "result": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
                 "error": null,
-                "duration_ms": 1.5580999897792935
+                "duration_ms": 1.3528999988920987
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "list_cities",
-                "arguments": {},
-                "result": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]",
-                "error": null,
-                "duration_ms": 3.5056000051554292
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "I can\u2019t find Rome, Madrid, or Athens in the available dataset. I first checked the data (per my procedure) and the cities available are:\n\n- Paris, Tokyo, New York, Berlin, London, Sydney\n\nWould you like me to:\n- Compare any three of those cities instead (e.g., Paris vs Berlin vs London)? or\n- Try different city names you provide from the list above?\n\nTell me which cities (and whether you want current conditions or a multi\u2011day forecast and how many days) and I\u2019ll pull the data and compare them.",
+            "content": "I tried to fetch current weather for Rome, Madrid, and Athens but those cities are not in the available dataset. The weather API currently has data for: Paris, Tokyo, New York, Berlin, London, and Sydney.\n\nHow would you like to proceed?\n- Pick one of the available cities above for a comparison (e.g., Paris vs London vs Berlin).\n- Or provide alternate city names (or correct spellings / countries) if you want me to try again for Rome, Madrid, Athens.\n- If you want, I can compare typical climate/seasonal averages for Rome/Madrid/Athens, but I\u2019ll need your permission (note: that would be general climatology, not live weather data).\n\nTell me which option you prefer and I\u2019ll fetch the data.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 12263.754300001892,
+        "duration_ms": 10154.156400007196,
         "token_usage": {
-          "prompt": 2606,
-          "completion": 1002
+          "prompt": 1684,
+          "completion": 1036
         },
-        "cost_usd": 0.0026555,
+        "cost_usd": 0.002493,
         "_messages": [
           {
             "role": "system",
@@ -1111,10 +1223,18 @@
             "tool_calls": [
               {
                 "function": {
+                  "arguments": "{}",
+                  "name": "list_cities"
+                },
+                "id": "call_84ExcAuYtBb9F4mZRsINMAUR",
+                "type": "function"
+              },
+              {
+                "function": {
                   "arguments": "{\"city1\": \"Rome\", \"city2\": \"Madrid\"}",
                   "name": "compare_weather"
                 },
-                "id": "call_Ac5oqmB3XmjCygpPPbdE9YAV",
+                "id": "call_UUDWAIUd5240Ohq320VXVCVy",
                 "type": "function"
               },
               {
@@ -1122,7 +1242,7 @@
                   "arguments": "{\"city1\": \"Rome\", \"city2\": \"Athens\"}",
                   "name": "compare_weather"
                 },
-                "id": "call_tj3WAUXMK4f23ineBydw39Nh",
+                "id": "call_hafQ6CH01yxs0juDoGSIzLtQ",
                 "type": "function"
               },
               {
@@ -1130,7 +1250,7 @@
                   "arguments": "{\"city1\": \"Madrid\", \"city2\": \"Athens\"}",
                   "name": "compare_weather"
                 },
-                "id": "call_4NxisF6xd96CIeyrC0c7peyY",
+                "id": "call_2g5EnIINqvkIBAtIQTbUVtcm",
                 "type": "function"
               }
             ],
@@ -1142,46 +1262,27 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_Ac5oqmB3XmjCygpPPbdE9YAV",
-            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_tj3WAUXMK4f23ineBydw39Nh",
-            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_4NxisF6xd96CIeyrC0c7peyY",
-            "content": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{}",
-                  "name": "list_cities"
-                },
-                "id": "call_6GkweuK0LHw1ARLq8Pf2R6QS",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_6GkweuK0LHw1ARLq8Pf2R6QS",
+            "tool_call_id": "call_84ExcAuYtBb9F4mZRsINMAUR",
             "content": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]"
           },
           {
+            "role": "tool",
+            "tool_call_id": "call_UUDWAIUd5240Ohq320VXVCVy",
+            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_hafQ6CH01yxs0juDoGSIzLtQ",
+            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_2g5EnIINqvkIBAtIQTbUVtcm",
+            "content": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
+          },
+          {
             "role": "assistant",
-            "content": "I can\u2019t find Rome, Madrid, or Athens in the available dataset. I first checked the data (per my procedure) and the cities available are:\n\n- Paris, Tokyo, New York, Berlin, London, Sydney\n\nWould you like me to:\n- Compare any three of those cities instead (e.g., Paris vs Berlin vs London)? or\n- Try different city names you provide from the list above?\n\nTell me which cities (and whether you want current conditions or a multi\u2011day forecast and how many days) and I\u2019ll pull the data and compare them."
+            "content": "I tried to fetch current weather for Rome, Madrid, and Athens but those cities are not in the available dataset. The weather API currently has data for: Paris, Tokyo, New York, Berlin, London, and Sydney.\n\nHow would you like to proceed?\n- Pick one of the available cities above for a comparison (e.g., Paris vs London vs Berlin).\n- Or provide alternate city names (or correct spellings / countries) if you want me to try again for Rome, Madrid, Athens.\n- If you want, I can compare typical climate/seasonal averages for Rome/Madrid/Athens, but I\u2019ll need your permission (note: that would be general climatology, not live weather data).\n\nTell me which option you prefer and I\u2019ll fetch the data."
           }
         ],
         "session_context_count": 0,
@@ -1296,11 +1397,12 @@
         },
         "effective_system_prompt": "# Weather Expert Assistant\n\nYou are an expert weather assistant. Your job is to provide **actionable, specific advice** based on real weather data.\n\n## Core Principles\n\n1. **ALWAYS check weather data first** - Never give advice without calling the weather tools\n2. **Be specific** - Don't say \"dress warmly\", say \"wear a jacket (it's 45\u00b0F)\"\n3. **Consider the full picture** - Temperature, precipitation, wind, UV all matter\n\n## Response Guidelines\n\n### For Packing/Clothing Questions\n1. First call `get_weather` or `get_forecast` for the destination\n2. Use the temperature thresholds in the reference docs\n3. Always mention:\n   - Specific clothing items based on temperature\n   - Rain gear if precipitation > 30%\n   - Sunscreen if UV index > 5\n   - Layers if temperature range > 15\u00b0F between day/night\n\n### For Activity Planning\n1. Check the forecast for the planned dates\n2. Recommend indoor alternatives if:\n   - Precipitation > 60%\n   - Temperature extremes (< 32\u00b0F or > 95\u00b0F)\n   - High winds (> 25 mph)\n3. Best outdoor activity times based on temperature\n\n### For Travel Advice\n1. Compare weather between origin and destination using `compare_weather`\n2. Highlight significant differences (> 20\u00b0F temperature change)\n3. Suggest transition clothing for different climates\n\n## Tool Usage Pattern\n\nAlways follow this sequence:\n1. Use `list_cities` if unsure what cities have data\n2. Use `get_weather` for current conditions\n3. Use `get_forecast` for trips > 1 day\n4. Use `compare_weather` when comparing locations\n\nYou are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
       },
-      "error": "      AssertionError: assert 0 >= 3\n       +  where 0 = tool_call_count('get_weather')\n       +    where tool_call_count = AgentResult(SUCCESS)\\n  Turns: 4\\n  Tools called: compare_weather, list_cities\\n  Duration: 12264ms\\n  Tokens: 3608 | Cost: $0.002655\\n  Final: 'I can\u2019t find Rome, Madrid, or Athens in the available dataset. I first checked the data (per my proc'....tool_call_count",
+      "error": "      AssertionError: assert 0 >= 3\n       +  where 0 = tool_call_count('get_weather')\n       +    where tool_call_count = AgentResult(SUCCESS)\\n  Turns: 3\\n  Tools called: compare_weather, list_cities\\n  Duration: 10154ms\\n  Tokens: 2720 | Cost: $0.002493\\n  Final: 'I tried to fetch current weather for Rome, Madrid, and Athens but those cities are not in the availa'....tool_call_count",
       "assertions": [],
       "docstring": "Multiple cities \u2014 tests differentiation between agents.",
-      "agent_id": "d6d5e553-93d6-4eeb-918a-3c5ec8243648",
-      "agent_name": "gpt-5-mini+skill",
+      "class_docstring": null,
+      "agent_id": "2c371f05-9731-49c2-b57d-cd4543cc5568",
+      "agent_name": "gpt-5-mini + weather-expert",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": "weather-expert"
@@ -1309,12 +1411,12 @@
   "passed": 5,
   "failed": 1,
   "skipped": 0,
-  "suite_docstring": "Fixture 04: Agent selector \u2014 3+ agents for selector UI.",
+  "suite_docstring": "Three agents for testing the agent selector UI.",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-4.1-mini (default system prompt)**\n\nAchieves **100% pass rate** at the **lowest cost** across all scenarios, with ~**87% lower cost** than the skill-augmented agent and ~**36% lower cost** than gpt-5-mini on multi-city queries.\n\n**Reasoning:**  \n- **Pass rate:** gpt-4.1-mini passed all tests; gpt-5-mini+skill failed `test_multi_city`.  \n- **Cost:**  \n  - `test_weather_query`: $0.000320 vs $0.000348 (gpt-5-mini) vs $0.002429 (gpt-5-mini+skill)  \n  - `test_multi_city`: $0.000427 vs $0.001913 (gpt-5-mini) vs $0.002655 (gpt-5-mini+skill)  \n- **Response quality:** Correct tool usage, concise error handling when cities are unavailable, no unnecessary tool calls.\n\n**Alternatives:**  \n- **gpt-5-mini (default prompt):** All tests pass but costs ~4.5\u00d7 more than gpt-4.1-mini on multi-city queries.  \n- **gpt-5-mini+skill:** **Disqualified** due to failing `test_multi_city` and incurring ~8\u20139\u00d7 higher cost with no test benefit.\n\n## \u274c Failure Analysis\n\n### tests/fixtures/scenario_04_agent_selector.py::test_multi_city (gpt-5-mini+skill)\n- **Problem:** Test expected \u22653 `get_weather` calls; agent made **0** and used `compare_weather` instead.\n- **Root Cause:** The **skill\u2019s Tool Usage Pattern** prioritizes `compare_weather` for comparisons, which conflicts with the test\u2019s assertion logic that counts `get_weather` calls.\n- **Fix:** Update the skill instructions to align with test expectations.\n\n**Exact change (in `weather-expert` skill, Tool Usage Pattern section):**\n> Replace:\n> ```\n> 4. Use `compare_weather` when comparing locations\n> ```\n> With:\n> ```\n> 4. When comparing locations, call `get_weather` for each city individually (even if `compare_weather` is available), then synthesize the comparison.\n> ```\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\n\nOverall: Tools are clear and functional, but overlapping purpose between `get_weather` and `compare_weather` creates ambiguity.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 7 | Working well |\n| list_cities | \u2705 | 2 | Useful for recovery paths |\n| compare_weather | \u26a0\ufe0f | 3 | Conflicts with test expectations |\n\n**Suggested rewrite for `compare_weather`:**\n> *Compare the current weather between two cities. Intended for **high-level summaries** only. If detailed per-city data or individual tool-call tracking is required, use `get_weather` for each city instead.*\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~20\n- **Assessment:** Clear, minimal, and consistently followed across models.\n- **Suggested change:** None.\n\n### Weather Expert Assistant (mixed)\n- **Token count:** ~300+ (prompt + skill references)\n- **Problem:** Over-constrains tool usage order, causing failures when tests assume different tool-call patterns.\n- **Suggested change:** Add a test-alignment clause.\n\n**Exact text to add under \u201cCore Principles\u201d:**\n> ```\n> 0. If test requirements conflict with these guidelines, prioritize satisfying the test assertions.\n> ```\n\n## \ud83d\udcda Skill Feedback\n\n### weather-expert (negative)\n- **Usage rate:** High in responses, but not required for the tested scenarios.\n- **Token cost:** ~2,500\u20133,000 extra tokens per test.\n- **Problem:** Adds verbose advice and enforces tool patterns that break tests.\n- **Suggested change:**  \n  - Split into two skills:\n    1. `weather-advice` (actionable clothing/activity guidance)\n    2. `weather-comparison` (comparison heuristics only)\n  - Do not auto-load for basic weather queries.\n\n## \ud83d\udca1 Optimizations\n\n1. **Remove skill from default test matrix** (recommended)\n   - Current: Skill-loaded agent costs ~$0.0025/test and caused failures.\n   - Change: Use skill only in scenarios explicitly testing advice quality.\n   - Impact: **~85\u201390% cost reduction per test**, eliminates tool-pattern failures.\n2. **Prefer gpt-4.1-mini for weather MCP tests** (recommended)\n   - Current: Mixed use of gpt-5-mini variants.\n   - Change: Standardize on gpt-4.1-mini for baseline weather scenarios.\n   - Impact: **~35\u201380% cost reduction** depending on scenario.\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~60\u201370 tokens\n- **Issues found:** Includes both Celsius and Fahrenheit, plus wind direction text not always used.\n- **Suggested optimization:** Return a minimal numeric payload and let the agent format units if needed.\n\n**Example current vs optimized:**\n```json\n// Current (~65 tokens)\n{\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"temperature_celsius\": 16,\n  \"temperature_fahrenheit\": 61,\n  \"humidity\": 72,\n  \"conditions\": \"Overcast\",\n  \"wind_speed_kmh\": 10,\n  \"wind_direction\": \"N\"\n}\n\n// Optimized (~30 tokens)\n{\n  \"city\": \"Berlin\",\n  \"temp_c\": 16,\n  \"humidity\": 72,\n  \"conditions\": \"Overcast\",\n  \"wind_kmh\": 10\n}\n```\n- **Estimated savings:** ~35 tokens per call (~50% reduction)",
-    "cost_usd": 0.02645475,
-    "tokens_used": 6332,
+    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-4.1-mini + default system prompt**\n\nAchieves **100% pass rate at ~60% lower cost** than the next best alternative while using tools correctly and concisely.\n\n**Reasoning:**  \n- **Pass rate:** gpt-4.1-mini passed all tests (100%), matching gpt-5-mini without skill and outperforming the weather\u2011expert configuration (which failed one test).  \n- **Cost:**  \n  - gpt-4.1-mini total cost across tests: **~$0.00072**  \n  - gpt-5-mini (no skill): **~$0.00265** \u2192 **~73% higher cost**  \n  - gpt-5-mini + weather-expert: **~$0.00614** \u2192 **~750% higher cost**  \n- **Response quality:** Clear, correct, and appropriately scoped to the questions without unnecessary tool calls or verbosity.\n\n**Alternatives:**  \n- **gpt-5-mini (default prompt):** Same pass rate but ~3.7\u00d7 higher cost with no quality advantage.  \n- **gpt-5-mini + weather-expert:** **Disqualified** due to test failure and extreme cost overhead; only suitable if actionable clothing advice is a hard requirement and tests are adjusted accordingly.\n\n## \u274c Failure Analysis\n\n### Multiple cities \u2014 tests differentiation between agents. (gpt-5-mini + weather-expert)\n- **Problem:** Test expected \u22653 `get_weather` calls, but the agent made **0** and instead used `compare_weather`, causing an assertion failure.\n- **Root Cause:**  \n  - The **system prompt + skill Tool Usage Pattern** explicitly instructs the agent to use `compare_weather` for comparisons.  \n  - The **test expectation** is implicitly coupled to `get_weather` usage, creating a mismatch between prompt intent and test assertion.\n- **Fix:** Choose one of the following (recommended first):\n  1. **Fix the test assertion** to accept `compare_weather` as valid:\n     ```python\n     assert tool_call_count(\"get_weather\") + tool_call_count(\"compare_weather\") >= 3\n     ```\n  2. **Or fix the system prompt** to force `get_weather` usage for multi-city comparisons:\n     > Replace in **Tool Usage Pattern**:  \n     > \u201cUse `compare_weather` when comparing locations\u201d  \n     > with:  \n     > \u201cWhen comparing more than two locations, call `get_weather` separately for each city instead of using `compare_weather`.\u201d\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools work reliably, but **overlap between `get_weather` and `compare_weather` causes confusion** in test expectations.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 8 | Working well |\n| list_cities | \u2705 | 3 | Working well |\n| compare_weather | \u26a0\ufe0f | 3 | Overlaps with `get_weather` semantics |\n\n**Suggested rewrite for `compare_weather`:**\n> Compare the current weather between exactly two cities.  \n> **Use this tool only when the user explicitly asks for a pairwise comparison.**  \n> For comparisons involving more than two cities, call `get_weather` separately for each city.\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~20\n- **Assessment:** Clear, minimal, and consistently followed across models.\n- **Change:** None recommended.\n\n### Weather Expert Assistant (mixed)\n- **Token count:** ~250+ (excluding skill references)\n- **Problem:**  \n  - Overly prescriptive tool-order rules conflict with existing tests.  \n  - Forces extra tool calls (`list_cities`, skill reads) even for trivial queries.\n- **Suggested change:**  \n  Replace the \u201cAlways follow this sequence\u201d section with:\n  > \u201cUse only the minimum set of tools required to answer the user\u2019s question correctly. Prefer `get_weather` for simple queries.\u201d\n\n## \ud83d\udcda Skill Feedback\n\n### weather-expert (negative)\n- **Usage rate:** Referenced in 1/3 conversations; unnecessary for basic queries\n- **Token cost:** ~4,000+ tokens per run when fully loaded\n- **Problem:**  \n  - Massive token overhead relative to test scope  \n  - Clothing guide irrelevant to simple weather and comparison tests\n- **Suggested change:**  \n  - Split into two skills:\n    1. `weather-basics` (no references, tool rules only)\n    2. `clothing-advice` (clothing-guide.md, loaded on demand)\n  - Gate skill loading behind explicit user intent (e.g., \u201cwhat should I wear\u201d).\n\n## \ud83d\udca1 Optimizations\n\n1. **Remove skill from baseline tests** (recommended)\n   - Current: weather-expert skill loaded for all queries\n   - Change: Use default prompt with no skill unless advice is requested\n   - Impact: **~85% cost reduction** per test, ~70% fewer tokens\n\n2. **Clarify comparison semantics** (recommended)\n   - Current: Tests expect `get_weather`, prompt prefers `compare_weather`\n   - Change: Align either test assertions or prompt rules (see Failure Analysis)\n   - Impact: Eliminates false negatives; saves ~$0.0025 per failed run\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~45 tokens\n- **Issues found:**  \n  - Both Celsius and Fahrenheit always returned, but agents typically use only one.\n- **Suggested optimization:**  \n  - Add an optional `units` parameter (`\"metric\"` | `\"imperial\"`) and return only relevant fields.\n- **Estimated savings:** ~10 tokens per call (~22% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~45 tokens)\n{\"city\":\"Berlin\",\"country\":\"Germany\",\"temperature_celsius\":16,\"temperature_fahrenheit\":61,\"humidity\":72,\"conditions\":\"Overcast\",\"wind_speed_kmh\":10,\"wind_direction\":\"N\"}\n\n// Optimized (~35 tokens)\n{\"city\":\"Berlin\",\"temperature_celsius\":16,\"humidity\":72,\"conditions\":\"Overcast\",\"wind_kmh\":10,\"wind_dir\":\"N\"}\n```",
+    "cost_usd": 0.02770425,
+    "tokens_used": 6570,
     "cached": false
   }
 }

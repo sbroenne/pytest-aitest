@@ -23,8 +23,6 @@ class AgentData:
     cost: float
     tokens: int
     duration_s: float
-    skill: str | None = None
-    system_prompt_name: str | None = None
     is_winner: bool = False
     disqualified: bool = False
 
@@ -109,7 +107,7 @@ class ReportMetadata:
     duration_ms: float
     total_cost_usd: float
     suite_docstring: str | None = None
-    analysis_cost_usd: float | None = None
+    analysis_cost_usd: float = 0.0
     test_files: list[str] = field(default_factory=list)
     token_min: int = 0
     token_max: int = 0
@@ -133,4 +131,4 @@ class ReportContext:
     selected_agent_ids: list[str]
     test_groups: list[TestGroupData]
     total_tests: int
-    insights: AIInsightsData | None = None
+    insights: AIInsightsData

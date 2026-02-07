@@ -161,4 +161,4 @@ async def test_combinations(aitest_run, model, prompt_name, system_prompt):
 
 - [Comparing Configurations](../getting-started/comparing.md) — More comparison patterns
 - [A/B Testing Servers](../getting-started/ab-testing-servers.md) — Test server versions
-- [AI Analysis](ai-reports.md) — What the AI evaluation produces
+- [AI Analysis](ai-analysis.md) — What the AI evaluation produces

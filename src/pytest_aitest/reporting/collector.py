@@ -22,6 +22,7 @@ class TestReport:
         error: Error message if test failed
         assertions: List of assertion results
         docstring: Test function's docstring (first line) for human-readable description
+        class_docstring: Test class docstring (first line) for human-readable group name
         agent_id: Agent UUID (from Agent.id)
         agent_name: Display name for the agent
         model: LLM model name (without provider prefix)
@@ -36,6 +37,7 @@ class TestReport:
     error: str | None = None
     assertions: list[dict[str, Any]] = field(default_factory=list)
     docstring: str | None = None
+    class_docstring: str | None = None
 
     # Agent identity (populated by plugin from Agent object)
     agent_id: str = ""

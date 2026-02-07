@@ -32,14 +32,12 @@ banking_server = MCPServer(
 
 AGENTS = [
     Agent(
-        name="gpt-5-mini",
         provider=Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000),
         mcp_servers=[banking_server],
         system_prompt=BANKING_PROMPT,
         max_turns=5,
     ),
     Agent(
-        name="gpt-4.1-mini",
         provider=Provider(model="azure/gpt-4.1-mini", rpm=10, tpm=10000),
         mcp_servers=[banking_server],
         system_prompt=BANKING_PROMPT,

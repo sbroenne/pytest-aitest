@@ -685,7 +685,7 @@ This workflow is **instant and free** - no LLM calls, no API costs.
 - **Material Design** - Match mkdocs-material indigo theme
 - **Roboto fonts** - Via Google Fonts
 - **Test details expanded by default** - Users want to see results immediately
-- **Human-readable test names** - Use docstrings or humanize function names
+- **Human-readable names everywhere** - All user-facing reports (HTML, Markdown) must use human-readable names, not internal IDs. Use docstrings or humanize function names for tests. Use `agent_name` (not `agent_id`) for agents. Use `system_prompt_name` (not raw keys). If a human-readable name isn't available, humanize the ID (e.g., `test_weather_paris` → `Test weather paris`).
 - **Assertions visible** - Show tool_was_called, semantic assertions
 - **Mermaid diagrams readable** - Use neutral theme with good contrast
 - **AI insights prominent** - Verdict section at top with clear recommendation

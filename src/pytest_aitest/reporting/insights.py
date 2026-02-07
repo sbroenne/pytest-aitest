@@ -73,7 +73,10 @@ def _build_analysis_input(
     # Test results summary
     sections.append("## Test Results\n")
     for test in suite_report.tests:
-        sections.append(f"### {test.name}")
+        # Use human-readable name: docstring if available, else short test name
+        sections.append(f"### {test.display_name}")
+        if test.class_docstring:
+            sections.append(f"- Group: {test.class_docstring.split(chr(10))[0].strip()}")
         sections.append(f"- Outcome: {test.outcome}")
         if test.docstring:
             sections.append(f"- Description: {test.docstring}")

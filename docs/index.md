@@ -45,6 +45,8 @@ async def test_weather_comparison(aitest_run, weather_server):
 
 The agent runs your prompt, calls tools, and returns results. You assert on what happened. If the test fails, your tool descriptions need work — not your code.
 
+This is **test-driven development for AI interfaces**: write a test, watch it fail, fix your tool descriptions until it passes, then let AI analysis tell you what else to improve. See [TDD for AI Interfaces](explanation/tdd-for-ai.md) for the full concept.
+
 **What you're testing:**
 
 | Component | Question It Answers |
@@ -55,7 +57,7 @@ The agent runs your prompt, calls tools, and returns results. You assert on what
 
 ## What Makes This Different?
 
-AI analyzes your test results and tells you **what to fix**, not just what failed. It generates [interactive HTML reports](explanation/ai-reports.md#sample-reports) with agent leaderboards, comparison tables, and sequence diagrams.
+AI analyzes your test results and tells you **what to fix**, not just what failed. It generates [interactive HTML reports](explanation/ai-analysis.md#sample-reports) with agent leaderboards, comparison tables, and sequence diagrams.
 
 ???+ example "Sample AI Analysis — actual output comparing 2 LLM models"
 

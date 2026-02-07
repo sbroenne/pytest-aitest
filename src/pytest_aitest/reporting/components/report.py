@@ -105,7 +105,7 @@ def _report_header(report: ReportMetadata) -> Node:
     )
     if report.analysis_cost_usd:
         cost_parts.append(
-            span(".tabular-nums", title="AI report analysis cost")[
+            span(".tabular-nums", title="AI analysis cost")[
                 f"🤖 {format_cost(report.analysis_cost_usd)}"
             ]
         )
@@ -162,9 +162,9 @@ def _render_markdown(text: str) -> Markup:
         return Markup(escaped.replace("\n", "<br>"))
 
 
-def _ai_insights_section(insights: AIInsightsData | None) -> Node | None:
+def _ai_insights_section(insights: AIInsightsData) -> Node | None:
     """Render the AI insights section."""
-    if not insights or not insights.markdown_summary:
+    if not insights.markdown_summary:
         return None
 
     return section(".mb-8")[
@@ -233,8 +233,6 @@ def _scripts_section(ctx: ReportContext) -> Node:
                 "id": a.id,
                 "name": a.name,
                 "pass_rate": a.pass_rate,
-                "skill": a.skill,
-                "prompt_name": a.system_prompt_name,
             }
             for a in ctx.agents
         ]
