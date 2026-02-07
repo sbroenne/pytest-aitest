@@ -18,32 +18,35 @@ from .conftest import DEFAULT_MAX_TURNS, DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM
 # Path to test skills
 SKILLS_DIR = Path(__file__).parent / "skills"
 
+# Financial advisor skill lives in showcase directory
+SHOWCASE_SKILLS_DIR = Path(__file__).parent.parent / "showcase" / "skills"
+
 
 @pytest.mark.integration
-class TestWeatherSkillImprovement:
-    """Tests showing weather-expert skill improves response quality."""
+class TestBankingSkillImprovement:
+    """Tests showing financial-advisor skill improves banking advice quality."""
 
     @pytest.fixture
-    def weather_skill(self):
-        """Load the weather expert skill."""
-        return Skill.from_path(SKILLS_DIR / "weather-expert")
+    def financial_skill(self):
+        """Load the financial advisor skill."""
+        return Skill.from_path(SHOWCASE_SKILLS_DIR / "financial-advisor")
 
-    async def test_baseline_packing_advice_may_skip_weather_check(self, aitest_run, weather_server):
-        """WITHOUT skill: LLM might give generic advice without checking weather.
+    async def test_baseline_fund_allocation_may_be_generic(self, aitest_run, banking_server):
+        """WITHOUT skill: LLM might give generic financial advice.
 
         This test establishes baseline behavior - the LLM may or may not
-        check weather tools before giving packing advice.
+        check account balances before giving allocation advice.
         """
         agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt="You are a travel assistant. Help users pack for trips.",
+            mcp_servers=[banking_server],
+            system_prompt="You are a banking assistant. Help users manage their money.",
             max_turns=5,
         )
 
         result = await aitest_run(
             agent,
-            "I'm going to Paris tomorrow. What should I pack?",
+            "How should I allocate the money in my accounts?",
         )
 
         assert result.success
@@ -51,78 +54,75 @@ class TestWeatherSkillImprovement:
         print(f"Baseline tool calls: {len(result.all_tool_calls)}")
         print(f"Tools used: {[t.name for t in result.all_tool_calls]}")
 
-    async def test_skilled_packing_advice_always_checks_weather(
-        self, aitest_run, weather_server, weather_skill
+    async def test_skilled_allocation_uses_budgeting_rules(
+        self, aitest_run, banking_server, financial_skill
     ):
-        """WITH skill: Agent ALWAYS checks weather before giving packing advice.
+        """WITH skill: Agent ALWAYS checks balances and applies 50/30/20 rule.
 
-        The weather-expert skill instructs the agent to:
-        1. Always call weather tools first
-        2. Give specific advice based on actual temperature
-        3. Mention UV protection when UV > 5
+        The financial-advisor skill instructs the agent to:
+        1. Always check account balances first
+        2. Apply the 50/30/20 budgeting rule
+        3. Prioritize emergency fund
         """
         agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            skill=weather_skill,
-            system_prompt="Help users pack for trips.",
+            mcp_servers=[banking_server],
+            skill=financial_skill,
+            system_prompt="Help users manage their money.",
             max_turns=DEFAULT_MAX_TURNS,
         )
 
         result = await aitest_run(
             agent,
-            "I'm going to Paris tomorrow. What should I pack?",
+            "How should I allocate the money in my accounts?",
         )
 
         assert result.success
-        # WITH skill: Should ALWAYS check weather first
-        assert len(result.all_tool_calls) >= 1, "Skilled agent should check weather tools"
-        assert result.tool_was_called("get_weather") or result.tool_was_called("get_forecast"), (
-            "Should call weather tool before giving advice"
-        )
+        # WITH skill: Should ALWAYS check balances first
+        assert len(result.all_tool_calls) >= 1, "Skilled agent should check account tools"
+        assert result.tool_was_called("get_all_balances") or result.tool_was_called(
+            "get_balance"
+        ), "Should check balances before giving advice"
 
-        # Response should include specific temperature-based advice
+        # Response should include specific budgeting advice
         response = result.final_response.lower()
         has_specific_advice = any(
-            term in response
-            for term in ["°f", "°c", "degrees", "jacket", "coat", "umbrella", "rain"]
+            term in response for term in ["50/30/20", "emergency", "savings", "budget", "allocat"]
         )
-        assert has_specific_advice, "Should give specific weather-based advice"
+        assert has_specific_advice, "Should give specific budgeting advice"
 
-    async def test_skill_uses_reference_docs_for_uv_advice(
-        self, aitest_run, weather_server, weather_skill
+    async def test_skill_identifies_financial_red_flags(
+        self, aitest_run, banking_server, financial_skill
     ):
-        """WITH skill: Agent may consult reference docs for UV thresholds.
+        """WITH skill: Agent detects financial red flags from account state.
 
-        The skill has a clothing-guide.md reference that specifies:
-        - UV 6-7: SPF 30+, seek shade during midday
-        - UV 8+: SPF 50+, wear a hat
-
-        Note: The LLM may provide correct UV advice from training data
-        without consulting the reference docs.
+        The skill defines red flags:
+        - No emergency fund
+        - Spending more than income
+        - Low savings ratio
         """
         agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            skill=weather_skill,
-            system_prompt="You are a sun safety expert.",
+            mcp_servers=[banking_server],
+            skill=financial_skill,
+            system_prompt="You are a financial health advisor.",
             max_turns=DEFAULT_MAX_TURNS,
         )
 
         result = await aitest_run(
             agent,
-            "I'm spending the day outdoors in Miami. Should I worry about sun protection?",
+            "Review my accounts and tell me if there are any financial concerns I should address.",
         )
 
         assert result.success
 
-        # Response should mention UV-specific advice (from training or reference docs)
+        # Response should provide financial health assessment
         response = result.final_response.lower()
-        has_uv_advice = any(
+        has_assessment = any(
             term in response
-            for term in ["uv", "spf", "sunscreen", "sun protection", "sunblock", "hat"]
+            for term in ["emergency", "savings", "recommend", "suggest", "consider"]
         )
-        assert has_uv_advice, "Should provide UV-specific advice"
+        assert has_assessment, "Should provide financial health assessment"
 
 
 @pytest.mark.integration
@@ -273,15 +273,15 @@ class TestTodoSkillImprovement:
 class TestSkillComparisonSummary:
     """Summary tests that clearly show skill value."""
 
-    async def test_weather_skill_increases_tool_usage(self, aitest_run, weather_server):
+    async def test_financial_skill_increases_tool_usage(self, aitest_run, banking_server):
         """Compare tool usage: skilled agent uses tools more consistently."""
-        weather_skill = Skill.from_path(SKILLS_DIR / "weather-expert")
-        prompt = "What should I wear in London today?"
+        financial_skill = Skill.from_path(SHOWCASE_SKILLS_DIR / "financial-advisor")
+        prompt = "How should I manage my money across my accounts?"
 
         # Test WITHOUT skill
         baseline_agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
+            mcp_servers=[banking_server],
             system_prompt="You are a helpful assistant.",
             max_turns=5,
         )
@@ -290,8 +290,8 @@ class TestSkillComparisonSummary:
         # Test WITH skill
         skilled_agent = Agent(
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            skill=weather_skill,
+            mcp_servers=[banking_server],
+            skill=financial_skill,
             system_prompt="You are a helpful assistant.",
             max_turns=DEFAULT_MAX_TURNS,
         )
@@ -299,14 +299,20 @@ class TestSkillComparisonSummary:
 
         # Compare results
         print(f"\n{'=' * 60}")
-        print("WEATHER SKILL COMPARISON")
+        print("FINANCIAL SKILL COMPARISON")
         print(f"{'=' * 60}")
         print(f"Baseline tool calls: {len(baseline_result.all_tool_calls)}")
         print(f"Skilled tool calls:  {len(skilled_result.all_tool_calls)}")
-        print(f"Baseline checked weather: {baseline_result.tool_was_called('get_weather')}")
-        print(f"Skilled checked weather:  {skilled_result.tool_was_called('get_weather')}")
+        print(
+            f"Baseline checked balances: "
+            f"{baseline_result.tool_was_called('get_all_balances') or baseline_result.tool_was_called('get_balance')}"
+        )
+        print(
+            f"Skilled checked balances:  "
+            f"{skilled_result.tool_was_called('get_all_balances') or skilled_result.tool_was_called('get_balance')}"
+        )
         print(f"{'=' * 60}\n")
 
-        assert skilled_result.tool_was_called("get_weather"), (
-            "Skilled agent should always check weather"
-        )
+        assert skilled_result.tool_was_called("get_all_balances") or skilled_result.tool_was_called(
+            "get_balance"
+        ), "Skilled agent should always check balances"

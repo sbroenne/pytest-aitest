@@ -66,7 +66,6 @@ See these example reports to understand what pytest-aitest generates:
 
 | Report | Scenario | What It Shows |
 |--------|----------|---------------|
-| [Hero Report](../reports/05_hero.html) | Full showcase: 2 models × 13 tests | Model comparison, sessions, prompts, skills, AI analysis |
 | [Single Agent](../reports/01_single_agent.html) | One agent, multiple tests | Basic report structure, AI analysis |
 | [Multi-Agent Comparison](../reports/02_multi_agent.html) | Two agents compared | Agent leaderboard, side-by-side results |
 | [Sessions](../reports/03_multi_agent_sessions.html) | Multi-turn conversations | Session grouping, context flow |

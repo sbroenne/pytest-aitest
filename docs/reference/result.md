@@ -17,6 +17,45 @@ Validate agent behavior using `AgentResult` properties and methods.
 | `token_usage` | `dict[str, int]` | Prompt and completion token counts |
 | `cost_usd` | `float` | Estimated cost in USD |
 | `error` | `str \| None` | Error message if failed |
+| `clarification_stats` | `ClarificationStats \| None` | Clarification detection stats (when enabled) |
+
+## Clarification Detection
+
+Detect when the agent asks for clarification instead of acting autonomously. Uses an LLM judge to classify responses.
+
+The judge performs a simple YES/NO classification, so a cheap model like `gpt-5-mini` is sufficient. Unlike `--aitest-summary-model` (which generates complex analysis), the judge doesn't need a capable model.
+
+### Configuration
+
+```python
+from pytest_aitest import Agent, Provider, ClarificationDetection, ClarificationLevel
+
+agent = Agent(
+    provider=Provider(model="azure/gpt-5-mini"),
+    mcp_servers=[server],
+    clarification_detection=ClarificationDetection(
+        enabled=True,
+        level=ClarificationLevel.ERROR,       # INFO, WARNING, or ERROR
+        judge_model="azure/gpt-5-mini",       # None = use agent's model
+    ),
+)
+```
+
+### Assertions
+
+```python
+# Did the agent ask for clarification?
+assert not result.asked_for_clarification
+
+# How many times?
+assert result.clarification_count == 0
+
+# Detailed stats
+if result.clarification_stats:
+    print(f"Count: {result.clarification_stats.count}")
+    print(f"Turns: {result.clarification_stats.turn_indices}")
+    print(f"Examples: {result.clarification_stats.examples}")
+```
 
 ## Tool Assertions
 
@@ -26,10 +65,10 @@ Check if a tool was invoked:
 
 ```python
 # Basic check - was it called at all?
-assert result.tool_was_called("get_weather")
+assert result.tool_was_called("get_balance")
 
 # Check specific call count
-assert result.tool_call_count("get_weather") == 2
+assert result.tool_call_count("get_balance") == 2
 ```
 
 ### tool_call_count
@@ -37,7 +76,7 @@ assert result.tool_call_count("get_weather") == 2
 Get number of tool invocations:
 
 ```python
-count = result.tool_call_count("get_weather")
+count = result.tool_call_count("get_balance")
 assert count >= 1
 assert count <= 5
 ```
@@ -48,13 +87,13 @@ Get an argument from the first call to a tool:
 
 ```python
 # Get argument from first call
-city = result.tool_call_arg("get_weather", "city")
-assert city == "Paris"
+account = result.tool_call_arg("get_balance", "account")
+assert account == "checking"
 
 # For multiple calls, use tool_calls_for and index manually
-calls = result.tool_calls_for("get_weather")
+calls = result.tool_calls_for("get_balance")
 if len(calls) > 1:
-    second_city = calls[1].arguments.get("city")
+    second_account = calls[1].arguments.get("account")
 ```
 
 ### tool_calls_for
@@ -62,7 +101,7 @@ if len(calls) > 1:
 Get all calls to a specific tool:
 
 ```python
-calls = result.tool_calls_for("get_weather")
+calls = result.tool_calls_for("get_balance")
 
 for call in calls:
     print(f"Called with: {call.arguments}")
@@ -75,12 +114,12 @@ for call in calls:
 
 ```python
 # Case-insensitive content check
-assert "paris" in result.final_response.lower()
+assert "checking" in result.final_response.lower()
 
 # Multiple conditions
 response = result.final_response.lower()
-assert "weather" in response
-assert "sunny" in response or "cloudy" in response
+assert "balance" in response
+assert "1,500" in response or "1500" in response
 ```
 
 ### Check for Absence
@@ -153,10 +192,10 @@ uv add pytest-llm-assert
 ```python
 async def test_response_quality(aitest_run, agent, llm_assert):
     """Use the llm_assert fixture for semantic validation."""
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     
     assert result.success
-    assert llm_assert(result.final_response, "mentions weather conditions")
+    assert llm_assert(result.final_response, "mentions account balance")
 ```
 
 ## Complete Examples
@@ -165,14 +204,14 @@ async def test_response_quality(aitest_run, agent, llm_assert):
 
 ```python
 async def test_correct_tool_selection(aitest_run, agent):
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     
     assert result.success
-    assert result.tool_was_called("get_weather")
-    assert not result.tool_was_called("get_forecast")
+    assert result.tool_was_called("get_balance")
+    assert not result.tool_was_called("transfer")
     
-    city = result.tool_call_arg("get_weather", "city")
-    assert city.lower() == "paris"
+    account = result.tool_call_arg("get_balance", "account")
+    assert account.lower() == "checking"
 ```
 
 ### Testing Multi-Step Workflow
@@ -181,13 +220,13 @@ async def test_correct_tool_selection(aitest_run, agent):
 async def test_trip_planning(aitest_run, agent):
     result = await aitest_run(
         agent,
-        "Compare weather in Paris and Sydney"
+        "Show me both my checking and savings balances"
     )
     
     assert result.success
-    assert result.tool_call_count("get_weather") >= 2
+    assert result.tool_call_count("get_balance") >= 2 or result.tool_was_called("get_all_balances")
     
     response = result.final_response.lower()
-    assert "paris" in response
-    assert "sydney" in response
+    assert "checking" in response
+    assert "savings" in response
 ```

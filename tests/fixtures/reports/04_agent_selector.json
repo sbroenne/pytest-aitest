@@ -1,17 +1,17 @@
 {
   "name": "pytest-aitest",
-  "timestamp": "2026-02-07T14:02:59.373972",
-  "duration_ms": 82350.75300000608,
+  "timestamp": "2026-02-07T19:22:48.789602",
+  "duration_ms": 75727.42539999308,
   "tests": [
     {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_weather_query[gpt-5-mini]",
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_balance_query[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 15247.36129998928,
+      "duration_ms": 11069.653200014727,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "What's the weather in Berlin?",
+            "content": "What's my checking account balance?",
             "tool_calls": []
           },
           {
@@ -19,38 +19,280 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "get_weather",
+                "name": "get_balance",
                 "arguments": {
-                  "city": "Berlin"
+                  "account": "checking"
                 },
-                "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
+                "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
                 "error": null,
-                "duration_ms": 3.114799998002127
+                "duration_ms": 2.4046000035014004
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "Current weather in Berlin:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Conditions: Overcast\n- Humidity: 72%\n- Wind: N at 10 km/h\n\nLooks cool and cloudy \u2014 a light jacket is a good idea. Would you like a multi-day forecast or the weather for a different city?",
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with this account?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 8446.109099983005,
+        "duration_ms": 4093.217799992999,
+        "token_usage": {
+          "prompt": 871,
+          "completion": 51
+        },
+        "cost_usd": 0.00031975,
+        "_messages": [
+          {
+            "role": "system",
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
+          },
+          {
+            "role": "user",
+            "content": "What's my checking account balance?"
+          },
+          {
+            "content": null,
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "function": {
+                  "arguments": "{\"account\":\"checking\"}",
+                  "name": "get_balance"
+                },
+                "id": "call_EiJkiAu9F2WI1ZIrTpw0hqH8",
+                "type": "function"
+              }
+            ],
+            "function_call": null,
+            "provider_specific_fields": {
+              "refusal": null
+            },
+            "annotations": []
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "call_EiJkiAu9F2WI1ZIrTpw0hqH8",
+            "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
+          },
+          {
+            "role": "assistant",
+            "content": "Your checking account balance is $1,500.00. Would you like to do anything else with this account?"
+          }
+        ],
+        "session_context_count": 0,
+        "assertions": [],
+        "available_tools": [
+          {
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                }
+              },
+              "required": [
+                "account"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
+            "input_schema": {
+              "type": "object",
+              "properties": {}
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "from_account": {
+                  "type": "string",
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "to_account": {
+                  "type": "string",
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
+                }
+              },
+              "required": [
+                "from_account",
+                "to_account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          }
+        ],
+        "skill_info": null,
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
+      },
+      "error": null,
+      "assertions": [
+        {
+          "type": "llm",
+          "passed": true,
+          "message": "provides the current checking account balance amount",
+          "details": "The content explicitly states the checking account balance as $1,500.00."
+        }
+      ],
+      "docstring": "Basic balance query \u2014 all agents should pass.",
+      "class_docstring": null,
+      "agent_id": "be927112-ef05-4e33-9522-fc0e896802ae",
+      "agent_name": "gpt-5-mini",
+      "model": "gpt-5-mini",
+      "system_prompt_name": null,
+      "skill_name": null
+    },
+    {
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_balance_query[gpt-4.1-mini]",
+      "outcome": "passed",
+      "duration_ms": 6874.437800026499,
+      "agent_result": {
+        "turns": [
+          {
+            "role": "user",
+            "content": "What's my checking account balance?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "name": "get_balance",
+                "arguments": {
+                  "account": "checking"
+                },
+                "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
+                "error": null,
+                "duration_ms": 2.4853000068105757
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Your checking account balance is $1,500.00. Is there anything else you would like to do?",
+            "tool_calls": []
+          }
+        ],
+        "success": true,
+        "error": null,
+        "duration_ms": 1914.1876999929082,
         "token_usage": {
           "prompt": 697,
-          "completion": 292
+          "completion": 39
         },
-        "cost_usd": 0.00075825,
+        "cost_usd": 0.0003412,
         "_messages": [
           {
             "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "What's the weather in Berlin?"
+            "content": "What's my checking account balance?"
           },
           {
             "content": null,
@@ -58,10 +300,10 @@
             "tool_calls": [
               {
                 "function": {
-                  "arguments": "{\"city\":\"Berlin\"}",
-                  "name": "get_weather"
+                  "arguments": "{\"account\":\"checking\"}",
+                  "name": "get_balance"
                 },
-                "id": "call_A65a0Z2A97RaRxZ1Jqb0IcQq",
+                "id": "call_m680sjqeq6LCjFTUNqyDSitk",
                 "type": "function"
               }
             ],
@@ -73,291 +315,187 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_A65a0Z2A97RaRxZ1Jqb0IcQq",
-            "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
+            "tool_call_id": "call_m680sjqeq6LCjFTUNqyDSitk",
+            "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Current weather in Berlin:\n- Temperature: 16\u00b0C (61\u00b0F)\n- Conditions: Overcast\n- Humidity: 72%\n- Wind: N at 10 km/h\n\nLooks cool and cloudy \u2014 a light jacket is a good idea. Would you like a multi-day forecast or the weather for a different city?"
+            "content": "Your checking account balance is $1,500.00. Is there anything else you would like to do?"
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
       "error": null,
       "assertions": [
         {
           "type": "llm",
           "passed": true,
-          "message": "provides the current temperature and conditions for Berlin",
-          "details": "The content explicitly gives the current temperature (16\u00b0C/61\u00b0F) and current conditions (Overcast) for Berlin, satisfying the criterion."
+          "message": "provides the current checking account balance amount",
+          "details": "The content explicitly states the checking account balance as $1,500.00."
         }
       ],
-      "docstring": "Basic weather query \u2014 all agents should pass.",
+      "docstring": "Basic balance query \u2014 all agents should pass.",
       "class_docstring": null,
-      "agent_id": "d57f2c46-f4b5-4a49-8839-5144c9ec2dc6",
-      "agent_name": "gpt-5-mini",
-      "model": "gpt-5-mini",
-      "system_prompt_name": null,
-      "skill_name": null
-    },
-    {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_weather_query[gpt-4.1-mini]",
-      "outcome": "passed",
-      "duration_ms": 7740.648400009377,
-      "agent_result": {
-        "turns": [
-          {
-            "role": "user",
-            "content": "What's the weather in Berlin?",
-            "tool_calls": []
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Berlin"
-                },
-                "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
-                "error": null,
-                "duration_ms": 1.7549000040162355
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "The current weather in Berlin is overcast with a temperature of 16\u00b0C (61\u00b0F). The humidity is at 72%, and there is a north wind blowing at 10 km/h.",
-            "tool_calls": []
-          }
-        ],
-        "success": true,
-        "error": null,
-        "duration_ms": 2116.092399985064,
-        "token_usage": {
-          "prompt": 523,
-          "completion": 56
-        },
-        "cost_usd": 0.0002988,
-        "_messages": [
-          {
-            "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
-          },
-          {
-            "role": "user",
-            "content": "What's the weather in Berlin?"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"city\":\"Berlin\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_EACwtV9rD2uJEiePRbHVh8CI",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_EACwtV9rD2uJEiePRbHVh8CI",
-            "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
-          },
-          {
-            "role": "assistant",
-            "content": "The current weather in Berlin is overcast with a temperature of 16\u00b0C (61\u00b0F). The humidity is at 72%, and there is a north wind blowing at 10 km/h."
-          }
-        ],
-        "session_context_count": 0,
-        "assertions": [],
-        "available_tools": [
-          {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
-            "input_schema": {
-              "type": "object",
-              "properties": {}
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city1": {
-                  "type": "string",
-                  "description": "First city to compare"
-                },
-                "city2": {
-                  "type": "string",
-                  "description": "Second city to compare"
-                }
-              },
-              "required": [
-                "city1",
-                "city2"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          }
-        ],
-        "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
-      },
-      "error": null,
-      "assertions": [
-        {
-          "type": "llm",
-          "passed": true,
-          "message": "provides the current temperature and conditions for Berlin",
-          "details": "Content states the current temperature (16\u00b0C / 61\u00b0F) and describes conditions (overcast, humidity 72%, north wind 10 km/h) for Berlin."
-        }
-      ],
-      "docstring": "Basic weather query \u2014 all agents should pass.",
-      "class_docstring": null,
-      "agent_id": "c0685315-dea6-4652-a275-e7dc177f27e4",
+      "agent_id": "e32f86b7-b835-4ea4-8e57-d83719f1e9d9",
       "agent_name": "gpt-4.1-mini",
       "model": "gpt-4.1-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_weather_query[gpt-5-mini + weather-expert]",
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_balance_query[gpt-5-mini + financial-advisor]",
       "outcome": "passed",
-      "duration_ms": 18732.554399990477,
+      "duration_ms": 8478.608599980362,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "What's the weather in Berlin?",
+            "content": "What's my checking account balance?",
             "tool_calls": []
           },
           {
@@ -365,79 +503,38 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "list_cities",
-                "arguments": {},
-                "result": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]",
-                "error": null,
-                "duration_ms": 1.794499985408038
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "get_weather",
+                "name": "get_balance",
                 "arguments": {
-                  "city": "Berlin"
+                  "account": "checking"
                 },
-                "result": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}",
+                "result": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}",
                 "error": null,
-                "duration_ms": 2.204299991717562
+                "duration_ms": 1.9526999967638403
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "list_skill_references",
-                "arguments": {},
-                "result": "Available reference documents:\n- clothing-guide.md",
-                "error": null,
-                "duration_ms": 0.022899999748915434
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "read_skill_reference",
-                "arguments": {
-                  "filename": "clothing-guide.md"
-                },
-                "result": "# Weather Clothing Guide\n\n## Temperature-Based Clothing\n\n### Cold (< 40\u00b0F / 4\u00b0C)\n- Heavy winter coat or down jacket\n- Gloves and hat/beanie\n- Scarf or neck warmer\n- Thermal underlayers\n- Warm boots\n\n### Cool (40-55\u00b0F / 4-13\u00b0C)\n- Medium jacket or fleece\n- Long pants\n- Light sweater or hoodie\n- Closed-toe shoes\n\n### Mild (55-70\u00b0F / 13-21\u00b0C)\n- Light jacket (for mornings/evenings)\n- Long pants or jeans\n- T-shirt or light long-sleeve\n- Optional: light cardigan\n\n### Warm (70-85\u00b0F / 21-29\u00b0C)\n- T-shirt or light blouse\n- Shorts or lightweight pants\n- Sandals or breathable shoes\n- Sunglasses\n\n### Hot (> 85\u00b0F / 29\u00b0C)\n- Loose, light-colored clothing\n- Shorts and tank top\n- Hat for sun protection\n- Plenty of water\n\n## UV Index Guidelines\n\n| UV Index | Risk Level | Recommendations |\n|----------|------------|-----------------|\n| 0-2 | Low | Minimal protection needed |\n| 3-5 | Moderate | Wear sunglasses, use SPF 30 |\n| 6-7 | High | SPF 30+, seek shade during midday |\n| 8-10 | Very High | SPF 50+, avoid midday sun, wear a hat |\n| 11+ | Extreme | Take all precautions, limit outdoor exposure |\n\n## Precipitation Preparation\n\n- **20-40% chance**: Bring compact umbrella just in case\n- **40-60% chance**: Waterproof jacket recommended\n- **60-80% chance**: Full rain gear, waterproof shoes\n- **80%+ chance**: Plan indoor alternatives, waterproof everything\n\n## Wind Considerations\n\n- **10-20 mph**: Light jacket for wind chill\n- **20-30 mph**: Windbreaker essential, secure loose items\n- **30+ mph**: Consider rescheduling outdoor activities\n",
-                "error": null,
-                "duration_ms": 0.014899997040629387
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "Current conditions in Berlin: 16\u00b0C (61\u00b0F), overcast, humidity 72%, wind N at 10 km/h (\u22486 mph).\n\nWhat to wear / bring (specific):\n- Outer layer: light jacket or windbreaker (16\u00b0C/61\u00b0F is mild but overcast and slightly damp).  \n- Base layer: T\u2011shirt or light long\u2011sleeve; bring a light sweater or cardigan for cooler moments.  \n- Bottoms: long pants or jeans.  \n- Shoes: closed\u2011toe shoes (sneakers); consider water\u2011resistant shoes if you expect damp sidewalks.  \n- Extras: compact umbrella or packable rain jacket if you prefer to be cautious with the overcast sky; the current report lists clouds but no precipitation.  \n- If you'll be out for several hours: a breathable layer (so you can remove the jacket indoors) and consider a hat \u2014 humidity 72% can make it feel a bit chillier.\n\nWind/comfort note:\n- Wind is light (~6 mph), so wind chill is minimal \u2014 no heavy windproof gear needed.\n\nWant more?\n- I can pull a 3\u20137 day forecast if you\u2019re staying longer or want a packing list for a trip.",
+            "content": "Your checking account balance is $1,500.00.\n\nWould you like me to:\n- Show your savings balance or recent transactions?\n- Transfer money between accounts or deposit/withdraw?\n- Help set up a budget or savings plan (emergency fund recommendations)?",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 13065.78360000276,
+        "duration_ms": 3710.4806000133976,
         "token_usage": {
-          "prompt": 4664,
-          "completion": 1239
+          "prompt": 1395,
+          "completion": 278
         },
-        "cost_usd": 0.0036439999999999997,
+        "cost_usd": 0.00090475,
         "_messages": [
           {
             "role": "system",
-            "content": "# Weather Expert Assistant\n\nYou are an expert weather assistant. Your job is to provide **actionable, specific advice** based on real weather data.\n\n## Core Principles\n\n1. **ALWAYS check weather data first** - Never give advice without calling the weather tools\n2. **Be specific** - Don't say \"dress warmly\", say \"wear a jacket (it's 45\u00b0F)\"\n3. **Consider the full picture** - Temperature, precipitation, wind, UV all matter\n\n## Response Guidelines\n\n### For Packing/Clothing Questions\n1. First call `get_weather` or `get_forecast` for the destination\n2. Use the temperature thresholds in the reference docs\n3. Always mention:\n   - Specific clothing items based on temperature\n   - Rain gear if precipitation > 30%\n   - Sunscreen if UV index > 5\n   - Layers if temperature range > 15\u00b0F between day/night\n\n### For Activity Planning\n1. Check the forecast for the planned dates\n2. Recommend indoor alternatives if:\n   - Precipitation > 60%\n   - Temperature extremes (< 32\u00b0F or > 95\u00b0F)\n   - High winds (> 25 mph)\n3. Best outdoor activity times based on temperature\n\n### For Travel Advice\n1. Compare weather between origin and destination using `compare_weather`\n2. Highlight significant differences (> 20\u00b0F temperature change)\n3. Suggest transition clothing for different climates\n\n## Tool Usage Pattern\n\nAlways follow this sequence:\n1. Use `list_cities` if unsure what cities have data\n2. Use `get_weather` for current conditions\n3. Use `get_forecast` for trips > 1 day\n4. Use `compare_weather` when comparing locations\n\nYou are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "# Financial Advisor Skill\n\nYou are a knowledgeable financial advisor with expertise in personal finance management.\n\n## Core Principles\n\n1. **Emergency Fund First**: Always recommend building 3-6 months of expenses before other savings goals\n2. **50/30/20 Rule**: Suggest allocating 50% needs, 30% wants, 20% savings\n3. **Pay Yourself First**: Automate savings before discretionary spending\n4. **Avoid Lifestyle Creep**: Warn against increasing spending as income grows\n\n## Budget Categories\n\nWhen reviewing budgets, consider these healthy ranges (as % of take-home pay):\n- Housing: 25-30%\n- Transportation: 10-15%\n- Food (groceries + dining): 10-15%\n- Utilities: 5-10%\n- Entertainment: 5-10%\n- Savings: 15-20%\n\n## Savings Goal Priorities\n\nRecommend this order:\n1. Emergency fund (3-6 months expenses)\n2. High-interest debt payoff\n3. Retirement contributions (at least employer match)\n4. Other savings goals (vacation, home, etc.)\n\n## Red Flags to Watch\n\n- Spending more than income\n- No emergency fund\n- High credit utilization\n- Dining budget exceeding groceries\n- Entertainment exceeding savings\n\nYou are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "What's the weather in Berlin?"
+            "content": "What's my checking account balance?"
           },
           {
             "content": null,
@@ -445,10 +542,10 @@
             "tool_calls": [
               {
                 "function": {
-                  "arguments": "{}",
-                  "name": "list_cities"
+                  "arguments": "{\"account\":\"checking\"}",
+                  "name": "get_balance"
                 },
-                "id": "call_LwEsdsFh3eXgz4ugQNrTrsub",
+                "id": "call_zK1LNLQu62FXKXUhkrhIQlx2",
                 "type": "function"
               }
             ],
@@ -460,224 +557,192 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_LwEsdsFh3eXgz4ugQNrTrsub",
-            "content": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"city\":\"Berlin\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_3pUVjRcmnDUgQYE5Hm03dDUr",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_3pUVjRcmnDUgQYE5Hm03dDUr",
-            "content": "{\"city\": \"Berlin\", \"country\": \"Germany\", \"temperature_celsius\": 16, \"temperature_fahrenheit\": 61, \"humidity\": 72, \"conditions\": \"Overcast\", \"wind_speed_kmh\": 10, \"wind_direction\": \"N\"}"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{}",
-                  "name": "list_skill_references"
-                },
-                "id": "call_frfpT0McsYGlRnXchxCevX6V",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_frfpT0McsYGlRnXchxCevX6V",
-            "content": "Available reference documents:\n- clothing-guide.md"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"filename\":\"clothing-guide.md\"}",
-                  "name": "read_skill_reference"
-                },
-                "id": "call_6pSkxJyV2xt5IKYO1fmK4lXL",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_6pSkxJyV2xt5IKYO1fmK4lXL",
-            "content": "# Weather Clothing Guide\n\n## Temperature-Based Clothing\n\n### Cold (< 40\u00b0F / 4\u00b0C)\n- Heavy winter coat or down jacket\n- Gloves and hat/beanie\n- Scarf or neck warmer\n- Thermal underlayers\n- Warm boots\n\n### Cool (40-55\u00b0F / 4-13\u00b0C)\n- Medium jacket or fleece\n- Long pants\n- Light sweater or hoodie\n- Closed-toe shoes\n\n### Mild (55-70\u00b0F / 13-21\u00b0C)\n- Light jacket (for mornings/evenings)\n- Long pants or jeans\n- T-shirt or light long-sleeve\n- Optional: light cardigan\n\n### Warm (70-85\u00b0F / 21-29\u00b0C)\n- T-shirt or light blouse\n- Shorts or lightweight pants\n- Sandals or breathable shoes\n- Sunglasses\n\n### Hot (> 85\u00b0F / 29\u00b0C)\n- Loose, light-colored clothing\n- Shorts and tank top\n- Hat for sun protection\n- Plenty of water\n\n## UV Index Guidelines\n\n| UV Index | Risk Level | Recommendations |\n|----------|------------|-----------------|\n| 0-2 | Low | Minimal protection needed |\n| 3-5 | Moderate | Wear sunglasses, use SPF 30 |\n| 6-7 | High | SPF 30+, seek shade during midday |\n| 8-10 | Very High | SPF 50+, avoid midday sun, wear a hat |\n| 11+ | Extreme | Take all precautions, limit outdoor exposure |\n\n## Precipitation Preparation\n\n- **20-40% chance**: Bring compact umbrella just in case\n- **40-60% chance**: Waterproof jacket recommended\n- **60-80% chance**: Full rain gear, waterproof shoes\n- **80%+ chance**: Plan indoor alternatives, waterproof everything\n\n## Wind Considerations\n\n- **10-20 mph**: Light jacket for wind chill\n- **20-30 mph**: Windbreaker essential, secure loose items\n- **30+ mph**: Consider rescheduling outdoor activities\n"
+            "tool_call_id": "call_zK1LNLQu62FXKXUhkrhIQlx2",
+            "content": "{\"account\": \"checking\", \"balance\": 1500.0, \"formatted\": \"$1,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "Current conditions in Berlin: 16\u00b0C (61\u00b0F), overcast, humidity 72%, wind N at 10 km/h (\u22486 mph).\n\nWhat to wear / bring (specific):\n- Outer layer: light jacket or windbreaker (16\u00b0C/61\u00b0F is mild but overcast and slightly damp).  \n- Base layer: T\u2011shirt or light long\u2011sleeve; bring a light sweater or cardigan for cooler moments.  \n- Bottoms: long pants or jeans.  \n- Shoes: closed\u2011toe shoes (sneakers); consider water\u2011resistant shoes if you expect damp sidewalks.  \n- Extras: compact umbrella or packable rain jacket if you prefer to be cautious with the overcast sky; the current report lists clouds but no precipitation.  \n- If you'll be out for several hours: a breathable layer (so you can remove the jacket indoors) and consider a hat \u2014 humidity 72% can make it feel a bit chillier.\n\nWind/comfort note:\n- Wind is light (~6 mph), so wind chill is minimal \u2014 no heavy windproof gear needed.\n\nWant more?\n- I can pull a 3\u20137 day forecast if you\u2019re staying longer or want a packing list for a trip."
+            "content": "Your checking account balance is $1,500.00.\n\nWould you like me to:\n- Show your savings balance or recent transactions?\n- Transfer money between accounts or deposit/withdraw?\n- Help set up a budget or savings plan (emergency fund recommendations)?"
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "list_skill_references",
-            "description": "List available reference documents for the 'weather-expert' skill. Returns filenames that can be read with read_skill_reference.",
-            "input_schema": {
-              "type": "object",
-              "properties": {},
-              "required": []
-            },
-            "server_name": "skill"
-          },
-          {
-            "name": "read_skill_reference",
-            "description": "Read a reference document from the 'weather-expert' skill. Use list_skill_references first to see available files.",
+            "name": "deposit",
+            "description": "Deposit money into an account.",
             "input_schema": {
               "type": "object",
               "properties": {
-                "filename": {
+                "account": {
                   "type": "string",
-                  "description": "Name of the reference file to read"
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
                 }
               },
               "required": [
-                "filename"
+                "account",
+                "amount"
               ]
             },
-            "server_name": "skill"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": {
-          "name": "weather-expert",
-          "description": "Expert weather assistant that provides actionable advice based on conditions",
-          "instruction_content": "# Weather Expert Assistant\n\nYou are an expert weather assistant. Your job is to provide **actionable, specific advice** based on real weather data.\n\n## Core Principles\n\n1. **ALWAYS check weather data first** - Never give advice without calling the weather tools\n2. **Be specific** - Don't say \"dress warmly\", say \"wear a jacket (it's 45\u00b0F)\"\n3. **Consider the full picture** - Temperature, precipitation, wind, UV all matter\n\n## Response Guidelines\n\n### For Packing/Clothing Questions\n1. First call `get_weather` or `get_forecast` for the destination\n2. Use the temperature thresholds in the reference docs\n3. Always mention:\n   - Specific clothing items based on temperature\n   - Rain gear if precipitation > 30%\n   - Sunscreen if UV index > 5\n   - Layers if temperature range > 15\u00b0F between day/night\n\n### For Activity Planning\n1. Check the forecast for the planned dates\n2. Recommend indoor alternatives if:\n   - Precipitation > 60%\n   - Temperature extremes (< 32\u00b0F or > 95\u00b0F)\n   - High winds (> 25 mph)\n3. Best outdoor activity times based on temperature\n\n### For Travel Advice\n1. Compare weather between origin and destination using `compare_weather`\n2. Highlight significant differences (> 20\u00b0F temperature change)\n3. Suggest transition clothing for different climates\n\n## Tool Usage Pattern\n\nAlways follow this sequence:\n1. Use `list_cities` if unsure what cities have data\n2. Use `get_weather` for current conditions\n3. Use `get_forecast` for trips > 1 day\n4. Use `compare_weather` when comparing locations",
-          "reference_names": [
-            "clothing-guide.md"
-          ]
+          "name": "financial-advisor",
+          "description": "Domain knowledge for personal finance management and budgeting advice",
+          "instruction_content": "# Financial Advisor Skill\n\nYou are a knowledgeable financial advisor with expertise in personal finance management.\n\n## Core Principles\n\n1. **Emergency Fund First**: Always recommend building 3-6 months of expenses before other savings goals\n2. **50/30/20 Rule**: Suggest allocating 50% needs, 30% wants, 20% savings\n3. **Pay Yourself First**: Automate savings before discretionary spending\n4. **Avoid Lifestyle Creep**: Warn against increasing spending as income grows\n\n## Budget Categories\n\nWhen reviewing budgets, consider these healthy ranges (as % of take-home pay):\n- Housing: 25-30%\n- Transportation: 10-15%\n- Food (groceries + dining): 10-15%\n- Utilities: 5-10%\n- Entertainment: 5-10%\n- Savings: 15-20%\n\n## Savings Goal Priorities\n\nRecommend this order:\n1. Emergency fund (3-6 months expenses)\n2. High-interest debt payoff\n3. Retirement contributions (at least employer match)\n4. Other savings goals (vacation, home, etc.)\n\n## Red Flags to Watch\n\n- Spending more than income\n- No emergency fund\n- High credit utilization\n- Dining budget exceeding groceries\n- Entertainment exceeding savings",
+          "reference_names": []
         },
-        "effective_system_prompt": "# Weather Expert Assistant\n\nYou are an expert weather assistant. Your job is to provide **actionable, specific advice** based on real weather data.\n\n## Core Principles\n\n1. **ALWAYS check weather data first** - Never give advice without calling the weather tools\n2. **Be specific** - Don't say \"dress warmly\", say \"wear a jacket (it's 45\u00b0F)\"\n3. **Consider the full picture** - Temperature, precipitation, wind, UV all matter\n\n## Response Guidelines\n\n### For Packing/Clothing Questions\n1. First call `get_weather` or `get_forecast` for the destination\n2. Use the temperature thresholds in the reference docs\n3. Always mention:\n   - Specific clothing items based on temperature\n   - Rain gear if precipitation > 30%\n   - Sunscreen if UV index > 5\n   - Layers if temperature range > 15\u00b0F between day/night\n\n### For Activity Planning\n1. Check the forecast for the planned dates\n2. Recommend indoor alternatives if:\n   - Precipitation > 60%\n   - Temperature extremes (< 32\u00b0F or > 95\u00b0F)\n   - High winds (> 25 mph)\n3. Best outdoor activity times based on temperature\n\n### For Travel Advice\n1. Compare weather between origin and destination using `compare_weather`\n2. Highlight significant differences (> 20\u00b0F temperature change)\n3. Suggest transition clothing for different climates\n\n## Tool Usage Pattern\n\nAlways follow this sequence:\n1. Use `list_cities` if unsure what cities have data\n2. Use `get_weather` for current conditions\n3. Use `get_forecast` for trips > 1 day\n4. Use `compare_weather` when comparing locations\n\nYou are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "# Financial Advisor Skill\n\nYou are a knowledgeable financial advisor with expertise in personal finance management.\n\n## Core Principles\n\n1. **Emergency Fund First**: Always recommend building 3-6 months of expenses before other savings goals\n2. **50/30/20 Rule**: Suggest allocating 50% needs, 30% wants, 20% savings\n3. **Pay Yourself First**: Automate savings before discretionary spending\n4. **Avoid Lifestyle Creep**: Warn against increasing spending as income grows\n\n## Budget Categories\n\nWhen reviewing budgets, consider these healthy ranges (as % of take-home pay):\n- Housing: 25-30%\n- Transportation: 10-15%\n- Food (groceries + dining): 10-15%\n- Utilities: 5-10%\n- Entertainment: 5-10%\n- Savings: 15-20%\n\n## Savings Goal Priorities\n\nRecommend this order:\n1. Emergency fund (3-6 months expenses)\n2. High-interest debt payoff\n3. Retirement contributions (at least employer match)\n4. Other savings goals (vacation, home, etc.)\n\n## Red Flags to Watch\n\n- Spending more than income\n- No emergency fund\n- High credit utilization\n- Dining budget exceeding groceries\n- Entertainment exceeding savings\n\nYou are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
       "error": null,
       "assertions": [
         {
           "type": "llm",
           "passed": true,
-          "message": "provides the current temperature and conditions for Berlin",
-          "details": "The content explicitly states the current temperature for Berlin (16\u00b0C / 61\u00b0F) and accompanying conditions (overcast, humidity 72%, wind N at 10 km/h), satisfying the criterion."
+          "message": "provides the current checking account balance amount",
+          "details": "The content explicitly states the checking account balance as $1,500.00, satisfying the criterion."
         }
       ],
-      "docstring": "Basic weather query \u2014 all agents should pass.",
+      "docstring": "Basic balance query \u2014 all agents should pass.",
       "class_docstring": null,
-      "agent_id": "2c371f05-9731-49c2-b57d-cd4543cc5568",
-      "agent_name": "gpt-5-mini + weather-expert",
+      "agent_id": "14c561dd-18dd-4730-a19e-13053d8b33f7",
+      "agent_name": "gpt-5-mini + financial-advisor",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
-      "skill_name": "weather-expert"
+      "skill_name": "financial-advisor"
     },
     {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_multi_city[gpt-5-mini]",
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_financial_planning[gpt-5-mini]",
       "outcome": "passed",
-      "duration_ms": 17944.35540001723,
+      "duration_ms": 20053.115299990168,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "Compare weather in Rome, Madrid, and Athens",
+            "content": "I have money in checking and savings. How should I allocate my funds?",
             "tool_calls": []
           },
           {
@@ -685,119 +750,36 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Rome"
-                },
-                "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 2.339600003324449
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Madrid"
-                },
-                "result": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 1.6926999960560352
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Athens"
-                },
-                "result": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 0.9802000131458044
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "list_cities",
+                "name": "get_all_balances",
                 "arguments": {},
-                "result": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]",
+                "result": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}",
                 "error": null,
-                "duration_ms": 2.2409000084735453
+                "duration_ms": 2.4711000151000917
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "I can\u2019t fetch live weather for Rome, Madrid, or Athens \u2014 those cities aren\u2019t in the available data set. The cities I can retrieve now are: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nWhat would you like to do next?\n- Pick any two or three from the available list for a live comparison (I can fetch current weather or a multi-day forecast).\n- Or, if you want Rome, Madrid, and Athens specifically, I can provide a general (non-live) climatological comparison instead \u2014 does that work?",
+            "content": "I pulled your balances: checking $1,500 and savings $3,000 (total $4,500).\n\nI can give a useful recommendation, but to tailor it I need a couple quick facts:\n- Rough monthly living expenses (rent/mortgage, utilities, food, transport)\n- Any upcoming big payments (car, vacation, home down payment) in the next 12 months\n- Whether you have high\u2011interest debt or want to invest/retire sooner\n\nUntil then, here are clear, practical options you can choose from (I won\u2019t move any money unless you ask me to):\n\n1) Safety-first (emergency fund focus)\n- Keep 1\u20132 months of expenses in checking for bills/buffers.\n- Put the rest in savings until you reach a 3\u20136 month emergency fund.\nExample if your monthly expenses are ~$1,500: keep $1,500 in checking (you already have that) and keep the $3,000 in savings as a 2\u2011month starter emergency fund. Then build from there.\n\n2) Balanced (short-term goals + emergency)\n- Checking: 1 month of expenses\n- Savings: emergency fund (3 months) + separate sub-accounts for short-term goals (vacation, car, etc.)\n- Any extra beyond emergency goes to goal accounts or investments.\nExample split of your $4,500 (if monthly expenses ~$1,500): $1,500 checking / $4,500 total \u2192 target savings $4,500 for 3 months; you\u2019d need to add $1,500 to savings\u2014plan to divert extra income until target met.\n\n3) Growth-forward (invest / pay down debt)\n- Keep a 1\u2011month buffer in checking, keep 3 months in savings, then direct remaining funds to high\u2011priority debt payoff or investments (IRA/brokerage).\nExample: if you\u2019re comfortable with less cash cushion, keep $1,500 checking, $1,500 savings (partial emergency), and invest or use remaining $1,500 to pay down debt or invest.\n\nNext steps I can do for you (tell me which and I\u2019ll execute):\n- Reallocate between your checking and savings (specify amounts), e.g., \u201cMove $X from savings to checking.\u201d\n- Help set a target emergency fund and show how much more you need.\n- Create suggested amounts to invest or pay down debt, and prepare a transfer.\n\nWhich scenario fits you, and what are your monthly expenses and goals? If you want me to move money now, tell me the exact transfer (from, to, amount) and I\u2019ll run it.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 10831.641099997796,
+        "duration_ms": 15081.377099995734,
         "token_usage": {
-          "prompt": 1268,
-          "completion": 787
+          "prompt": 934,
+          "completion": 1592
         },
-        "cost_usd": 0.0018909999999999999,
+        "cost_usd": 0.0034175000000000004,
         "_messages": [
           {
             "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "Compare weather in Rome, Madrid, and Athens"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Rome\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_soITwHugZprKbvCy2TR3l04U",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Madrid\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_KRcaiwJLSS2vh3l68YBo7Kk9",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Athens\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_e5jBEnnZSXNOo0bEeCZknWgT",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_soITwHugZprKbvCy2TR3l04U",
-            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_KRcaiwJLSS2vh3l68YBo7Kk9",
-            "content": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_e5jBEnnZSXNOo0bEeCZknWgT",
-            "content": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
+            "content": "I have money in checking and savings. How should I allocate my funds?"
           },
           {
             "content": null,
@@ -806,9 +788,9 @@
               {
                 "function": {
                   "arguments": "{}",
-                  "name": "list_cities"
+                  "name": "get_all_balances"
                 },
-                "id": "call_NyACdyh8TMcdEAfJ1lWFZXaO",
+                "id": "call_BJRI3OtOcBJQ3wYAbut759l2",
                 "type": "function"
               }
             ],
@@ -820,335 +802,383 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_NyACdyh8TMcdEAfJ1lWFZXaO",
-            "content": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]"
+            "tool_call_id": "call_BJRI3OtOcBJQ3wYAbut759l2",
+            "content": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "I can\u2019t fetch live weather for Rome, Madrid, or Athens \u2014 those cities aren\u2019t in the available data set. The cities I can retrieve now are: Paris, Tokyo, New York, Berlin, London, Sydney.\n\nWhat would you like to do next?\n- Pick any two or three from the available list for a live comparison (I can fetch current weather or a multi-day forecast).\n- Or, if you want Rome, Madrid, and Athens specifically, I can provide a general (non-live) climatological comparison instead \u2014 does that work?"
+            "content": "I pulled your balances: checking $1,500 and savings $3,000 (total $4,500).\n\nI can give a useful recommendation, but to tailor it I need a couple quick facts:\n- Rough monthly living expenses (rent/mortgage, utilities, food, transport)\n- Any upcoming big payments (car, vacation, home down payment) in the next 12 months\n- Whether you have high\u2011interest debt or want to invest/retire sooner\n\nUntil then, here are clear, practical options you can choose from (I won\u2019t move any money unless you ask me to):\n\n1) Safety-first (emergency fund focus)\n- Keep 1\u20132 months of expenses in checking for bills/buffers.\n- Put the rest in savings until you reach a 3\u20136 month emergency fund.\nExample if your monthly expenses are ~$1,500: keep $1,500 in checking (you already have that) and keep the $3,000 in savings as a 2\u2011month starter emergency fund. Then build from there.\n\n2) Balanced (short-term goals + emergency)\n- Checking: 1 month of expenses\n- Savings: emergency fund (3 months) + separate sub-accounts for short-term goals (vacation, car, etc.)\n- Any extra beyond emergency goes to goal accounts or investments.\nExample split of your $4,500 (if monthly expenses ~$1,500): $1,500 checking / $4,500 total \u2192 target savings $4,500 for 3 months; you\u2019d need to add $1,500 to savings\u2014plan to divert extra income until target met.\n\n3) Growth-forward (invest / pay down debt)\n- Keep a 1\u2011month buffer in checking, keep 3 months in savings, then direct remaining funds to high\u2011priority debt payoff or investments (IRA/brokerage).\nExample: if you\u2019re comfortable with less cash cushion, keep $1,500 checking, $1,500 savings (partial emergency), and invest or use remaining $1,500 to pay down debt or invest.\n\nNext steps I can do for you (tell me which and I\u2019ll execute):\n- Reallocate between your checking and savings (specify amounts), e.g., \u201cMove $X from savings to checking.\u201d\n- Help set a target emergency fund and show how much more you need.\n- Create suggested amounts to invest or pay down debt, and prepare a transfer.\n\nWhich scenario fits you, and what are your monthly expenses and goals? If you want me to move money now, tell me the exact transfer (from, to, amount) and I\u2019ll run it."
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
       "error": null,
       "assertions": [
         {
           "type": "llm",
           "passed": true,
-          "message": "mentions weather for Rome, Madrid, and Athens",
-          "details": "The text explicitly references Rome, Madrid, and Athens in the context of fetching live weather (stating it can\u2019t fetch live weather for those cities), so it mentions weather for all three."
+          "message": "provides financial advice about fund allocation",
+          "details": "The content gives explicit financial advice on how to allocate funds between checking, savings, emergency fund targets, and investments/debt payoff with concrete scenarios and suggested amounts."
         }
       ],
-      "docstring": "Multiple cities \u2014 tests differentiation between agents.",
+      "docstring": "Financial advice \u2014 tests differentiation between agents (skill vs no skill).",
       "class_docstring": null,
-      "agent_id": "d57f2c46-f4b5-4a49-8839-5144c9ec2dc6",
+      "agent_id": "be927112-ef05-4e33-9522-fc0e896802ae",
       "agent_name": "gpt-5-mini",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
       "skill_name": null
     },
     {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_multi_city[gpt-4.1-mini]",
-      "outcome": "passed",
-      "duration_ms": 9318.411699990975,
-      "agent_result": {
-        "turns": [
-          {
-            "role": "user",
-            "content": "Compare weather in Rome, Madrid, and Athens",
-            "tool_calls": []
-          },
-          {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Rome"
-                },
-                "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 2.525399992009625
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Madrid"
-                },
-                "result": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 1.570799999171868
-              },
-              {
-                "name": "get_weather",
-                "arguments": {
-                  "city": "Athens"
-                },
-                "result": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 2.0585999882314354
-              }
-            ]
-          },
-          {
-            "role": "assistant",
-            "content": "Currently, I do not have weather data available for Rome, Madrid, and Athens. The cities I can provide weather information for are Paris, Tokyo, New York, Berlin, London, and Sydney. Would you like me to compare the weather in any of these cities instead?",
-            "tool_calls": []
-          }
-        ],
-        "success": true,
-        "error": null,
-        "duration_ms": 2789.7455999918748,
-        "token_usage": {
-          "prompt": 592,
-          "completion": 117
-        },
-        "cost_usd": 0.000424,
-        "_messages": [
-          {
-            "role": "system",
-            "content": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
-          },
-          {
-            "role": "user",
-            "content": "Compare weather in Rome, Madrid, and Athens"
-          },
-          {
-            "content": null,
-            "role": "assistant",
-            "tool_calls": [
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Rome\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_q7oJ1BatfY0fwbeo8kWnxWUA",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Madrid\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_I7rVP8ROwYUOnjTEpkJpyBeu",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city\": \"Athens\"}",
-                  "name": "get_weather"
-                },
-                "id": "call_NTzAf8hXCzg5s8kTOjPkUk4N",
-                "type": "function"
-              }
-            ],
-            "function_call": null,
-            "provider_specific_fields": {
-              "refusal": null
-            },
-            "annotations": []
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_q7oJ1BatfY0fwbeo8kWnxWUA",
-            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_I7rVP8ROwYUOnjTEpkJpyBeu",
-            "content": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_NTzAf8hXCzg5s8kTOjPkUk4N",
-            "content": "City 'Athens' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "assistant",
-            "content": "Currently, I do not have weather data available for Rome, Madrid, and Athens. The cities I can provide weather information for are Paris, Tokyo, New York, Berlin, London, and Sydney. Would you like me to compare the weather in any of these cities instead?"
-          }
-        ],
-        "session_context_count": 0,
-        "assertions": [],
-        "available_tools": [
-          {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
-            "input_schema": {
-              "type": "object",
-              "properties": {}
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city1": {
-                  "type": "string",
-                  "description": "First city to compare"
-                },
-                "city2": {
-                  "type": "string",
-                  "description": "Second city to compare"
-                }
-              },
-              "required": [
-                "city1",
-                "city2"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          }
-        ],
-        "skill_info": null,
-        "effective_system_prompt": "You are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
-      },
-      "error": null,
-      "assertions": [
-        {
-          "type": "llm",
-          "passed": true,
-          "message": "mentions weather for Rome, Madrid, and Athens",
-          "details": "The content explicitly names Rome, Madrid, and Athens in the context of weather data (stating it does not have weather data for those cities)."
-        }
-      ],
-      "docstring": "Multiple cities \u2014 tests differentiation between agents.",
-      "class_docstring": null,
-      "agent_id": "c0685315-dea6-4652-a275-e7dc177f27e4",
-      "agent_name": "gpt-4.1-mini",
-      "model": "gpt-4.1-mini",
-      "system_prompt_name": null,
-      "skill_name": null
-    },
-    {
-      "name": "tests/fixtures/scenario_04_agent_selector.py::test_multi_city[gpt-5-mini + weather-expert]",
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_financial_planning[gpt-4.1-mini]",
       "outcome": "failed",
-      "duration_ms": 13367.421800008742,
+      "duration_ms": 4461.012199986726,
       "agent_result": {
         "turns": [
           {
             "role": "user",
-            "content": "Compare weather in Rome, Madrid, and Athens",
+            "content": "I have money in checking and savings. How should I allocate my funds?",
+            "tool_calls": []
+          },
+          {
+            "role": "assistant",
+            "content": "To provide you with a recommendation on how to allocate your funds between checking and savings, could you please share your current balances in each account? If you want, I can retrieve your current balances for you.",
+            "tool_calls": []
+          }
+        ],
+        "success": true,
+        "error": null,
+        "duration_ms": 1180.417399998987,
+        "token_usage": {
+          "prompt": 334,
+          "completion": 43
+        },
+        "cost_usd": 0.0002024,
+        "_messages": [
+          {
+            "role": "system",
+            "content": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
+          },
+          {
+            "role": "user",
+            "content": "I have money in checking and savings. How should I allocate my funds?"
+          },
+          {
+            "role": "assistant",
+            "content": "To provide you with a recommendation on how to allocate your funds between checking and savings, could you please share your current balances in each account? If you want, I can retrieve your current balances for you."
+          }
+        ],
+        "session_context_count": 0,
+        "assertions": [],
+        "available_tools": [
+          {
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                }
+              },
+              "required": [
+                "account"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
+            "input_schema": {
+              "type": "object",
+              "properties": {}
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "from_account": {
+                  "type": "string",
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "to_account": {
+                  "type": "string",
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
+                }
+              },
+              "required": [
+                "from_account",
+                "to_account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "deposit",
+            "description": "Deposit money into an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          }
+        ],
+        "skill_info": null,
+        "effective_system_prompt": "You are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
+      },
+      "error": "      AssertionError: assert (False or False)\n       +  where False = tool_was_called('get_all_balances')\n       +    where tool_was_called = AgentResult(SUCCESS)\\n  Turns: 2\\n  Tools called: none\\n  Duration: 1180ms\\n  Tokens: 377 | Cost: $0.000202\\n  Final: 'To provide you with a recommendation on how to allocate your funds between checking and savings, cou'....tool_was_called\n       +  and   False = tool_was_called('get_balance')\n       +    where tool_was_called = AgentResult(SUCCESS)\\n  Turns: 2\\n  Tools called: none\\n  Duration: 1180ms\\n  Tokens: 377 | Cost: $0.000202\\n  Final: 'To provide you with a recommendation on how to allocate your funds between checking and savings, cou'....tool_was_called",
+      "assertions": [],
+      "docstring": "Financial advice \u2014 tests differentiation between agents (skill vs no skill).",
+      "class_docstring": null,
+      "agent_id": "e32f86b7-b835-4ea4-8e57-d83719f1e9d9",
+      "agent_name": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini",
+      "system_prompt_name": null,
+      "skill_name": null
+    },
+    {
+      "name": "tests/fixtures/scenario_04_agent_selector.py::test_financial_planning[gpt-5-mini + financial-advisor]",
+      "outcome": "passed",
+      "duration_ms": 24790.5982999946,
+      "agent_result": {
+        "turns": [
+          {
+            "role": "user",
+            "content": "I have money in checking and savings. How should I allocate my funds?",
             "tool_calls": []
           },
           {
@@ -1156,66 +1186,36 @@
             "content": "",
             "tool_calls": [
               {
-                "name": "list_cities",
+                "name": "get_all_balances",
                 "arguments": {},
-                "result": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]",
+                "result": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}",
                 "error": null,
-                "duration_ms": 1.9120000069960952
-              },
-              {
-                "name": "compare_weather",
-                "arguments": {
-                  "city1": "Rome",
-                  "city2": "Madrid"
-                },
-                "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 1.036100002238527
-              },
-              {
-                "name": "compare_weather",
-                "arguments": {
-                  "city1": "Rome",
-                  "city2": "Athens"
-                },
-                "result": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 2.069400012260303
-              },
-              {
-                "name": "compare_weather",
-                "arguments": {
-                  "city1": "Madrid",
-                  "city2": "Athens"
-                },
-                "result": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney",
-                "error": null,
-                "duration_ms": 1.3528999988920987
+                "duration_ms": 3.0402000120375305
               }
             ]
           },
           {
             "role": "assistant",
-            "content": "I tried to fetch current weather for Rome, Madrid, and Athens but those cities are not in the available dataset. The weather API currently has data for: Paris, Tokyo, New York, Berlin, London, and Sydney.\n\nHow would you like to proceed?\n- Pick one of the available cities above for a comparison (e.g., Paris vs London vs Berlin).\n- Or provide alternate city names (or correct spellings / countries) if you want me to try again for Rome, Madrid, Athens.\n- If you want, I can compare typical climate/seasonal averages for Rome/Madrid/Athens, but I\u2019ll need your permission (note: that would be general climatology, not live weather data).\n\nTell me which option you prefer and I\u2019ll fetch the data.",
+            "content": "Thanks \u2014 I checked your accounts: you have $1,500 in checking and $3,000 in savings for a total of $4,500.\n\nHigh-level recommendations (priority order)\n1. Emergency fund first \u2014 3\u20136 months of your essential expenses kept in savings (separate, ideally in a high\u2011yield savings account).\n2. Pay down any high\u2011interest debt (credit cards, payday loans) once you have at least a small emergency buffer.\n3. Contribute to retirement, at least enough to get any employer match.\n4. Other goals (vacation, home down payment) after the above.\n\nWhy I need more info\n- To give specific targets I need your monthly take\u2011home pay and your monthly essential expenses (rent/mortgage, utilities, groceries, transportation, minimum debt payments). Also tell me if you have high\u2011interest debt or an employer match.\n\nImmediate, practical steps you can take now\n- Keep enough in checking to cover upcoming bills and one month of expected spending. Move the rest to savings (or better, a high\u2011yield savings account).\n- Automate \"pay yourself first\": schedule an automatic transfer from checking to savings right after each payday.\n- If you have high\u2011interest debt (>7\u201310% APR), prioritize paying that down after you have a small emergency buffer (~$1,000) or at least 1 month of expenses.\n- If you have an employer 401(k) match, make sure you\u2019re contributing at least enough to get the full match.\n\nHow to apply the 50/30/20 rule (use your take\u2011home pay)\n- 50% needs (housing, utilities, groceries, transportation)\n- 30% wants (dining out, entertainment)\n- 20% savings & debt repayment (emergency fund, retirement, extra debt payments)\n\nQuick example (illustrative)\n- If your monthly take\u2011home pay = $3,000 and your essential monthly expenses = $2,000:\n  - 3 months of expenses = $6,000 emergency fund target.\n  - You currently have $3,000 in savings \u2192 need $3,000 more.\n  - Keep $2,000 in checking for bills (you currently have $1,500, so you may want to top it up).\n  - Set an automated transfer of $500/month from checking \u2192 savings until the emergency fund is met (would take ~6 months).\n\nRed flags to watch for\n- Spending more than your income\n- No emergency fund or underfunded emergency fund for your situation\n- High credit utilization or high\u2011APR debt\n- Spending on dining/entertainment that outpaces savings\n\nNext steps I can do for you\n- Create a specific monthly plan if you tell me: monthly take\u2011home pay, monthly essential expenses, any high\u2011interest debt balances & rates, and whether you get a 401(k) match.\n- If you want, I can also move money between your checking and savings (tell me how much and which direction) or pull recent transactions so we can categorize spending.\n\nWhich would you like to do next? Provide your monthly numbers and any debt/retirement details and I\u2019ll give a concrete allocation plan.",
             "tool_calls": []
           }
         ],
         "success": true,
         "error": null,
-        "duration_ms": 10154.156400007196,
+        "duration_ms": 18009.26670001354,
         "token_usage": {
-          "prompt": 1684,
-          "completion": 1036
+          "prompt": 1458,
+          "completion": 1777
         },
-        "cost_usd": 0.002493,
+        "cost_usd": 0.0039185,
         "_messages": [
           {
             "role": "system",
-            "content": "# Weather Expert Assistant\n\nYou are an expert weather assistant. Your job is to provide **actionable, specific advice** based on real weather data.\n\n## Core Principles\n\n1. **ALWAYS check weather data first** - Never give advice without calling the weather tools\n2. **Be specific** - Don't say \"dress warmly\", say \"wear a jacket (it's 45\u00b0F)\"\n3. **Consider the full picture** - Temperature, precipitation, wind, UV all matter\n\n## Response Guidelines\n\n### For Packing/Clothing Questions\n1. First call `get_weather` or `get_forecast` for the destination\n2. Use the temperature thresholds in the reference docs\n3. Always mention:\n   - Specific clothing items based on temperature\n   - Rain gear if precipitation > 30%\n   - Sunscreen if UV index > 5\n   - Layers if temperature range > 15\u00b0F between day/night\n\n### For Activity Planning\n1. Check the forecast for the planned dates\n2. Recommend indoor alternatives if:\n   - Precipitation > 60%\n   - Temperature extremes (< 32\u00b0F or > 95\u00b0F)\n   - High winds (> 25 mph)\n3. Best outdoor activity times based on temperature\n\n### For Travel Advice\n1. Compare weather between origin and destination using `compare_weather`\n2. Highlight significant differences (> 20\u00b0F temperature change)\n3. Suggest transition clothing for different climates\n\n## Tool Usage Pattern\n\nAlways follow this sequence:\n1. Use `list_cities` if unsure what cities have data\n2. Use `get_weather` for current conditions\n3. Use `get_forecast` for trips > 1 day\n4. Use `compare_weather` when comparing locations\n\nYou are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+            "content": "# Financial Advisor Skill\n\nYou are a knowledgeable financial advisor with expertise in personal finance management.\n\n## Core Principles\n\n1. **Emergency Fund First**: Always recommend building 3-6 months of expenses before other savings goals\n2. **50/30/20 Rule**: Suggest allocating 50% needs, 30% wants, 20% savings\n3. **Pay Yourself First**: Automate savings before discretionary spending\n4. **Avoid Lifestyle Creep**: Warn against increasing spending as income grows\n\n## Budget Categories\n\nWhen reviewing budgets, consider these healthy ranges (as % of take-home pay):\n- Housing: 25-30%\n- Transportation: 10-15%\n- Food (groceries + dining): 10-15%\n- Utilities: 5-10%\n- Entertainment: 5-10%\n- Savings: 15-20%\n\n## Savings Goal Priorities\n\nRecommend this order:\n1. Emergency fund (3-6 months expenses)\n2. High-interest debt payoff\n3. Retirement contributions (at least employer match)\n4. Other savings goals (vacation, home, etc.)\n\n## Red Flags to Watch\n\n- Spending more than income\n- No emergency fund\n- High credit utilization\n- Dining budget exceeding groceries\n- Entertainment exceeding savings\n\nYou are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
           },
           {
             "role": "user",
-            "content": "Compare weather in Rome, Madrid, and Athens"
+            "content": "I have money in checking and savings. How should I allocate my funds?"
           },
           {
             "content": null,
@@ -1224,33 +1224,9 @@
               {
                 "function": {
                   "arguments": "{}",
-                  "name": "list_cities"
+                  "name": "get_all_balances"
                 },
-                "id": "call_84ExcAuYtBb9F4mZRsINMAUR",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city1\": \"Rome\", \"city2\": \"Madrid\"}",
-                  "name": "compare_weather"
-                },
-                "id": "call_UUDWAIUd5240Ohq320VXVCVy",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city1\": \"Rome\", \"city2\": \"Athens\"}",
-                  "name": "compare_weather"
-                },
-                "id": "call_hafQ6CH01yxs0juDoGSIzLtQ",
-                "type": "function"
-              },
-              {
-                "function": {
-                  "arguments": "{\"city1\": \"Madrid\", \"city2\": \"Athens\"}",
-                  "name": "compare_weather"
-                },
-                "id": "call_2g5EnIINqvkIBAtIQTbUVtcm",
+                "id": "call_YiUh1fPMeu70F8HSz5LZeinj",
                 "type": "function"
               }
             ],
@@ -1262,150 +1238,182 @@
           },
           {
             "role": "tool",
-            "tool_call_id": "call_84ExcAuYtBb9F4mZRsINMAUR",
-            "content": "[\"Paris\", \"Tokyo\", \"New York\", \"Berlin\", \"London\", \"Sydney\"]"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_UUDWAIUd5240Ohq320VXVCVy",
-            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_hafQ6CH01yxs0juDoGSIzLtQ",
-            "content": "City 'Rome' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
-          },
-          {
-            "role": "tool",
-            "tool_call_id": "call_2g5EnIINqvkIBAtIQTbUVtcm",
-            "content": "City 'Madrid' not found. Available cities: Paris, Tokyo, New York, Berlin, London, Sydney"
+            "tool_call_id": "call_YiUh1fPMeu70F8HSz5LZeinj",
+            "content": "{\"accounts\": {\"checking\": {\"balance\": 1500.0, \"formatted\": \"$1,500.00\"}, \"savings\": {\"balance\": 3000.0, \"formatted\": \"$3,000.00\"}}, \"total\": 4500.0, \"total_formatted\": \"$4,500.00\"}"
           },
           {
             "role": "assistant",
-            "content": "I tried to fetch current weather for Rome, Madrid, and Athens but those cities are not in the available dataset. The weather API currently has data for: Paris, Tokyo, New York, Berlin, London, and Sydney.\n\nHow would you like to proceed?\n- Pick one of the available cities above for a comparison (e.g., Paris vs London vs Berlin).\n- Or provide alternate city names (or correct spellings / countries) if you want me to try again for Rome, Madrid, Athens.\n- If you want, I can compare typical climate/seasonal averages for Rome/Madrid/Athens, but I\u2019ll need your permission (note: that would be general climatology, not live weather data).\n\nTell me which option you prefer and I\u2019ll fetch the data."
+            "content": "Thanks \u2014 I checked your accounts: you have $1,500 in checking and $3,000 in savings for a total of $4,500.\n\nHigh-level recommendations (priority order)\n1. Emergency fund first \u2014 3\u20136 months of your essential expenses kept in savings (separate, ideally in a high\u2011yield savings account).\n2. Pay down any high\u2011interest debt (credit cards, payday loans) once you have at least a small emergency buffer.\n3. Contribute to retirement, at least enough to get any employer match.\n4. Other goals (vacation, home down payment) after the above.\n\nWhy I need more info\n- To give specific targets I need your monthly take\u2011home pay and your monthly essential expenses (rent/mortgage, utilities, groceries, transportation, minimum debt payments). Also tell me if you have high\u2011interest debt or an employer match.\n\nImmediate, practical steps you can take now\n- Keep enough in checking to cover upcoming bills and one month of expected spending. Move the rest to savings (or better, a high\u2011yield savings account).\n- Automate \"pay yourself first\": schedule an automatic transfer from checking to savings right after each payday.\n- If you have high\u2011interest debt (>7\u201310% APR), prioritize paying that down after you have a small emergency buffer (~$1,000) or at least 1 month of expenses.\n- If you have an employer 401(k) match, make sure you\u2019re contributing at least enough to get the full match.\n\nHow to apply the 50/30/20 rule (use your take\u2011home pay)\n- 50% needs (housing, utilities, groceries, transportation)\n- 30% wants (dining out, entertainment)\n- 20% savings & debt repayment (emergency fund, retirement, extra debt payments)\n\nQuick example (illustrative)\n- If your monthly take\u2011home pay = $3,000 and your essential monthly expenses = $2,000:\n  - 3 months of expenses = $6,000 emergency fund target.\n  - You currently have $3,000 in savings \u2192 need $3,000 more.\n  - Keep $2,000 in checking for bills (you currently have $1,500, so you may want to top it up).\n  - Set an automated transfer of $500/month from checking \u2192 savings until the emergency fund is met (would take ~6 months).\n\nRed flags to watch for\n- Spending more than your income\n- No emergency fund or underfunded emergency fund for your situation\n- High credit utilization or high\u2011APR debt\n- Spending on dining/entertainment that outpaces savings\n\nNext steps I can do for you\n- Create a specific monthly plan if you tell me: monthly take\u2011home pay, monthly essential expenses, any high\u2011interest debt balances & rates, and whether you get a 401(k) match.\n- If you want, I can also move money between your checking and savings (tell me how much and which direction) or pull recent transactions so we can categorize spending.\n\nWhich would you like to do next? Provide your monthly numbers and any debt/retirement details and I\u2019ll give a concrete allocation plan."
           }
         ],
         "session_context_count": 0,
         "assertions": [],
         "available_tools": [
           {
-            "name": "get_weather",
-            "description": "Get the current weather for a city. Returns temperature, humidity, conditions, and wind information.",
+            "name": "get_balance",
+            "description": "Get the current balance of a specific account (checking or savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city": {
+                "account": {
                   "type": "string",
-                  "description": "The city name (e.g., 'Paris', 'Tokyo', 'New York')"
+                  "description": "Account name: 'checking' or 'savings'",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 }
               },
               "required": [
-                "city"
+                "account"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "get_forecast",
-            "description": "Get a multi-day weather forecast for a city.",
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "city": {
-                  "type": "string",
-                  "description": "The city name"
-                },
-                "days": {
-                  "type": "integer",
-                  "description": "Number of days to forecast (1-7, default 5)",
-                  "minimum": 1,
-                  "maximum": 7
-                }
-              },
-              "required": [
-                "city"
-              ]
-            },
-            "server_name": "pytest_aitest.testing.weather_mcp"
-          },
-          {
-            "name": "list_cities",
-            "description": "List all cities with available weather data.",
+            "name": "get_all_balances",
+            "description": "Get balances for all accounts at once, including total.",
             "input_schema": {
               "type": "object",
               "properties": {}
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "compare_weather",
-            "description": "Compare the current weather between two cities.",
+            "name": "transfer",
+            "description": "Transfer money between accounts (checking and savings).",
             "input_schema": {
               "type": "object",
               "properties": {
-                "city1": {
+                "from_account": {
                   "type": "string",
-                  "description": "First city to compare"
+                  "description": "Source account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
                 },
-                "city2": {
+                "to_account": {
                   "type": "string",
-                  "description": "Second city to compare"
+                  "description": "Destination account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to transfer in dollars"
                 }
               },
               "required": [
-                "city1",
-                "city2"
+                "from_account",
+                "to_account",
+                "amount"
               ]
             },
-            "server_name": "pytest_aitest.testing.weather_mcp"
+            "server_name": "pytest_aitest.testing.banking_mcp"
           },
           {
-            "name": "list_skill_references",
-            "description": "List available reference documents for the 'weather-expert' skill. Returns filenames that can be read with read_skill_reference.",
-            "input_schema": {
-              "type": "object",
-              "properties": {},
-              "required": []
-            },
-            "server_name": "skill"
-          },
-          {
-            "name": "read_skill_reference",
-            "description": "Read a reference document from the 'weather-expert' skill. Use list_skill_references first to see available files.",
+            "name": "deposit",
+            "description": "Deposit money into an account.",
             "input_schema": {
               "type": "object",
               "properties": {
-                "filename": {
+                "account": {
                   "type": "string",
-                  "description": "Name of the reference file to read"
+                  "description": "Account to deposit into",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to deposit in dollars"
                 }
               },
               "required": [
-                "filename"
+                "account",
+                "amount"
               ]
             },
-            "server_name": "skill"
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "withdraw",
+            "description": "Withdraw money from an account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Account to withdraw from",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "Amount to withdraw in dollars"
+                }
+              },
+              "required": [
+                "account",
+                "amount"
+              ]
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
+          },
+          {
+            "name": "get_transactions",
+            "description": "Get recent transaction history, optionally filtered by account.",
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "string",
+                  "description": "Optional: filter by account name",
+                  "enum": [
+                    "checking",
+                    "savings"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "description": "Maximum number of transactions to return (default: 10)",
+                  "default": 10
+                }
+              }
+            },
+            "server_name": "pytest_aitest.testing.banking_mcp"
           }
         ],
         "skill_info": {
-          "name": "weather-expert",
-          "description": "Expert weather assistant that provides actionable advice based on conditions",
-          "instruction_content": "# Weather Expert Assistant\n\nYou are an expert weather assistant. Your job is to provide **actionable, specific advice** based on real weather data.\n\n## Core Principles\n\n1. **ALWAYS check weather data first** - Never give advice without calling the weather tools\n2. **Be specific** - Don't say \"dress warmly\", say \"wear a jacket (it's 45\u00b0F)\"\n3. **Consider the full picture** - Temperature, precipitation, wind, UV all matter\n\n## Response Guidelines\n\n### For Packing/Clothing Questions\n1. First call `get_weather` or `get_forecast` for the destination\n2. Use the temperature thresholds in the reference docs\n3. Always mention:\n   - Specific clothing items based on temperature\n   - Rain gear if precipitation > 30%\n   - Sunscreen if UV index > 5\n   - Layers if temperature range > 15\u00b0F between day/night\n\n### For Activity Planning\n1. Check the forecast for the planned dates\n2. Recommend indoor alternatives if:\n   - Precipitation > 60%\n   - Temperature extremes (< 32\u00b0F or > 95\u00b0F)\n   - High winds (> 25 mph)\n3. Best outdoor activity times based on temperature\n\n### For Travel Advice\n1. Compare weather between origin and destination using `compare_weather`\n2. Highlight significant differences (> 20\u00b0F temperature change)\n3. Suggest transition clothing for different climates\n\n## Tool Usage Pattern\n\nAlways follow this sequence:\n1. Use `list_cities` if unsure what cities have data\n2. Use `get_weather` for current conditions\n3. Use `get_forecast` for trips > 1 day\n4. Use `compare_weather` when comparing locations",
-          "reference_names": [
-            "clothing-guide.md"
-          ]
+          "name": "financial-advisor",
+          "description": "Domain knowledge for personal finance management and budgeting advice",
+          "instruction_content": "# Financial Advisor Skill\n\nYou are a knowledgeable financial advisor with expertise in personal finance management.\n\n## Core Principles\n\n1. **Emergency Fund First**: Always recommend building 3-6 months of expenses before other savings goals\n2. **50/30/20 Rule**: Suggest allocating 50% needs, 30% wants, 20% savings\n3. **Pay Yourself First**: Automate savings before discretionary spending\n4. **Avoid Lifestyle Creep**: Warn against increasing spending as income grows\n\n## Budget Categories\n\nWhen reviewing budgets, consider these healthy ranges (as % of take-home pay):\n- Housing: 25-30%\n- Transportation: 10-15%\n- Food (groceries + dining): 10-15%\n- Utilities: 5-10%\n- Entertainment: 5-10%\n- Savings: 15-20%\n\n## Savings Goal Priorities\n\nRecommend this order:\n1. Emergency fund (3-6 months expenses)\n2. High-interest debt payoff\n3. Retirement contributions (at least employer match)\n4. Other savings goals (vacation, home, etc.)\n\n## Red Flags to Watch\n\n- Spending more than income\n- No emergency fund\n- High credit utilization\n- Dining budget exceeding groceries\n- Entertainment exceeding savings",
+          "reference_names": []
         },
-        "effective_system_prompt": "# Weather Expert Assistant\n\nYou are an expert weather assistant. Your job is to provide **actionable, specific advice** based on real weather data.\n\n## Core Principles\n\n1. **ALWAYS check weather data first** - Never give advice without calling the weather tools\n2. **Be specific** - Don't say \"dress warmly\", say \"wear a jacket (it's 45\u00b0F)\"\n3. **Consider the full picture** - Temperature, precipitation, wind, UV all matter\n\n## Response Guidelines\n\n### For Packing/Clothing Questions\n1. First call `get_weather` or `get_forecast` for the destination\n2. Use the temperature thresholds in the reference docs\n3. Always mention:\n   - Specific clothing items based on temperature\n   - Rain gear if precipitation > 30%\n   - Sunscreen if UV index > 5\n   - Layers if temperature range > 15\u00b0F between day/night\n\n### For Activity Planning\n1. Check the forecast for the planned dates\n2. Recommend indoor alternatives if:\n   - Precipitation > 60%\n   - Temperature extremes (< 32\u00b0F or > 95\u00b0F)\n   - High winds (> 25 mph)\n3. Best outdoor activity times based on temperature\n\n### For Travel Advice\n1. Compare weather between origin and destination using `compare_weather`\n2. Highlight significant differences (> 20\u00b0F temperature change)\n3. Suggest transition clothing for different climates\n\n## Tool Usage Pattern\n\nAlways follow this sequence:\n1. Use `list_cities` if unsure what cities have data\n2. Use `get_weather` for current conditions\n3. Use `get_forecast` for trips > 1 day\n4. Use `compare_weather` when comparing locations\n\nYou are a helpful weather assistant.\nUse the available tools to answer questions about weather.\nAlways use tools - never make up weather data."
+        "effective_system_prompt": "# Financial Advisor Skill\n\nYou are a knowledgeable financial advisor with expertise in personal finance management.\n\n## Core Principles\n\n1. **Emergency Fund First**: Always recommend building 3-6 months of expenses before other savings goals\n2. **50/30/20 Rule**: Suggest allocating 50% needs, 30% wants, 20% savings\n3. **Pay Yourself First**: Automate savings before discretionary spending\n4. **Avoid Lifestyle Creep**: Warn against increasing spending as income grows\n\n## Budget Categories\n\nWhen reviewing budgets, consider these healthy ranges (as % of take-home pay):\n- Housing: 25-30%\n- Transportation: 10-15%\n- Food (groceries + dining): 10-15%\n- Utilities: 5-10%\n- Entertainment: 5-10%\n- Savings: 15-20%\n\n## Savings Goal Priorities\n\nRecommend this order:\n1. Emergency fund (3-6 months expenses)\n2. High-interest debt payoff\n3. Retirement contributions (at least employer match)\n4. Other savings goals (vacation, home, etc.)\n\n## Red Flags to Watch\n\n- Spending more than income\n- No emergency fund\n- High credit utilization\n- Dining budget exceeding groceries\n- Entertainment exceeding savings\n\nYou are a helpful banking assistant.\nUse the available tools to manage accounts and transactions.\nAlways use tools - never make up balances or account data."
       },
-      "error": "      AssertionError: assert 0 >= 3\n       +  where 0 = tool_call_count('get_weather')\n       +    where tool_call_count = AgentResult(SUCCESS)\\n  Turns: 3\\n  Tools called: compare_weather, list_cities\\n  Duration: 10154ms\\n  Tokens: 2720 | Cost: $0.002493\\n  Final: 'I tried to fetch current weather for Rome, Madrid, and Athens but those cities are not in the availa'....tool_call_count",
-      "assertions": [],
-      "docstring": "Multiple cities \u2014 tests differentiation between agents.",
+      "error": null,
+      "assertions": [
+        {
+          "type": "llm",
+          "passed": true,
+          "message": "provides financial advice about fund allocation",
+          "details": "The content offers specific fund-allocation guidance (emergency fund targets, priorities for debt repayment and retirement, 50/30/20 allocation, instructions to move excess to savings and automate transfers, plus a numeric example)."
+        }
+      ],
+      "docstring": "Financial advice \u2014 tests differentiation between agents (skill vs no skill).",
       "class_docstring": null,
-      "agent_id": "2c371f05-9731-49c2-b57d-cd4543cc5568",
-      "agent_name": "gpt-5-mini + weather-expert",
+      "agent_id": "14c561dd-18dd-4730-a19e-13053d8b33f7",
+      "agent_name": "gpt-5-mini + financial-advisor",
       "model": "gpt-5-mini",
       "system_prompt_name": null,
-      "skill_name": "weather-expert"
+      "skill_name": "financial-advisor"
     }
   ],
   "passed": 5,
@@ -1414,9 +1422,9 @@
   "suite_docstring": "Three agents for testing the agent selector UI.",
   "schema_version": "3.0",
   "insights": {
-    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-4.1-mini + default system prompt**\n\nAchieves **100% pass rate at ~60% lower cost** than the next best alternative while using tools correctly and concisely.\n\n**Reasoning:**  \n- **Pass rate:** gpt-4.1-mini passed all tests (100%), matching gpt-5-mini without skill and outperforming the weather\u2011expert configuration (which failed one test).  \n- **Cost:**  \n  - gpt-4.1-mini total cost across tests: **~$0.00072**  \n  - gpt-5-mini (no skill): **~$0.00265** \u2192 **~73% higher cost**  \n  - gpt-5-mini + weather-expert: **~$0.00614** \u2192 **~750% higher cost**  \n- **Response quality:** Clear, correct, and appropriately scoped to the questions without unnecessary tool calls or verbosity.\n\n**Alternatives:**  \n- **gpt-5-mini (default prompt):** Same pass rate but ~3.7\u00d7 higher cost with no quality advantage.  \n- **gpt-5-mini + weather-expert:** **Disqualified** due to test failure and extreme cost overhead; only suitable if actionable clothing advice is a hard requirement and tests are adjusted accordingly.\n\n## \u274c Failure Analysis\n\n### Multiple cities \u2014 tests differentiation between agents. (gpt-5-mini + weather-expert)\n- **Problem:** Test expected \u22653 `get_weather` calls, but the agent made **0** and instead used `compare_weather`, causing an assertion failure.\n- **Root Cause:**  \n  - The **system prompt + skill Tool Usage Pattern** explicitly instructs the agent to use `compare_weather` for comparisons.  \n  - The **test expectation** is implicitly coupled to `get_weather` usage, creating a mismatch between prompt intent and test assertion.\n- **Fix:** Choose one of the following (recommended first):\n  1. **Fix the test assertion** to accept `compare_weather` as valid:\n     ```python\n     assert tool_call_count(\"get_weather\") + tool_call_count(\"compare_weather\") >= 3\n     ```\n  2. **Or fix the system prompt** to force `get_weather` usage for multi-city comparisons:\n     > Replace in **Tool Usage Pattern**:  \n     > \u201cUse `compare_weather` when comparing locations\u201d  \n     > with:  \n     > \u201cWhen comparing more than two locations, call `get_weather` separately for each city instead of using `compare_weather`.\u201d\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.weather_mcp\nOverall, tools work reliably, but **overlap between `get_weather` and `compare_weather` causes confusion** in test expectations.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_weather | \u2705 | 8 | Working well |\n| list_cities | \u2705 | 3 | Working well |\n| compare_weather | \u26a0\ufe0f | 3 | Overlaps with `get_weather` semantics |\n\n**Suggested rewrite for `compare_weather`:**\n> Compare the current weather between exactly two cities.  \n> **Use this tool only when the user explicitly asks for a pairwise comparison.**  \n> For comparisons involving more than two cities, call `get_weather` separately for each city.\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (effective)\n- **Token count:** ~20\n- **Assessment:** Clear, minimal, and consistently followed across models.\n- **Change:** None recommended.\n\n### Weather Expert Assistant (mixed)\n- **Token count:** ~250+ (excluding skill references)\n- **Problem:**  \n  - Overly prescriptive tool-order rules conflict with existing tests.  \n  - Forces extra tool calls (`list_cities`, skill reads) even for trivial queries.\n- **Suggested change:**  \n  Replace the \u201cAlways follow this sequence\u201d section with:\n  > \u201cUse only the minimum set of tools required to answer the user\u2019s question correctly. Prefer `get_weather` for simple queries.\u201d\n\n## \ud83d\udcda Skill Feedback\n\n### weather-expert (negative)\n- **Usage rate:** Referenced in 1/3 conversations; unnecessary for basic queries\n- **Token cost:** ~4,000+ tokens per run when fully loaded\n- **Problem:**  \n  - Massive token overhead relative to test scope  \n  - Clothing guide irrelevant to simple weather and comparison tests\n- **Suggested change:**  \n  - Split into two skills:\n    1. `weather-basics` (no references, tool rules only)\n    2. `clothing-advice` (clothing-guide.md, loaded on demand)\n  - Gate skill loading behind explicit user intent (e.g., \u201cwhat should I wear\u201d).\n\n## \ud83d\udca1 Optimizations\n\n1. **Remove skill from baseline tests** (recommended)\n   - Current: weather-expert skill loaded for all queries\n   - Change: Use default prompt with no skill unless advice is requested\n   - Impact: **~85% cost reduction** per test, ~70% fewer tokens\n\n2. **Clarify comparison semantics** (recommended)\n   - Current: Tests expect `get_weather`, prompt prefers `compare_weather`\n   - Change: Align either test assertions or prompt rules (see Failure Analysis)\n   - Impact: Eliminates false negatives; saves ~$0.0025 per failed run\n\n## \ud83d\udce6 Tool Response Optimization\n\n### get_weather (from pytest_aitest.testing.weather_mcp)\n- **Current response size:** ~45 tokens\n- **Issues found:**  \n  - Both Celsius and Fahrenheit always returned, but agents typically use only one.\n- **Suggested optimization:**  \n  - Add an optional `units` parameter (`\"metric\"` | `\"imperial\"`) and return only relevant fields.\n- **Estimated savings:** ~10 tokens per call (~22% reduction)\n\n**Example current vs optimized:**\n```json\n// Current (~45 tokens)\n{\"city\":\"Berlin\",\"country\":\"Germany\",\"temperature_celsius\":16,\"temperature_fahrenheit\":61,\"humidity\":72,\"conditions\":\"Overcast\",\"wind_speed_kmh\":10,\"wind_direction\":\"N\"}\n\n// Optimized (~35 tokens)\n{\"city\":\"Berlin\",\"temperature_celsius\":16,\"humidity\":72,\"conditions\":\"Overcast\",\"wind_kmh\":10,\"wind_dir\":\"N\"}\n```",
-    "cost_usd": 0.02770425,
-    "tokens_used": 6570,
+    "markdown_summary": "## \ud83c\udfaf Recommendation\n\n**Deploy: gpt-5-mini (default system prompt, no skill)**\n\nAchieves **100% pass rate** on required behaviors at **~55% lower total cost** than the skill-augmented variant, while correctly using MCP tools.\n\n**Reasoning:**  \n- **Pass rate:** gpt-5-mini (default) passed both tests it was eligible for, including correct tool usage for financial advice. gpt-4.1-mini failed a required tool call and is disqualified.  \n- **Cost:**  \n  - gpt-5-mini (default): $0.003738 total across tests shown  \n  - gpt-5-mini + financial-advisor: $0.004824 total (**~29% higher cost**)  \n- **Response quality:** The default prompt produced cautious, compliant advice (asking for more info) while still grounding responses in real balances via tools. The skill adds richer advice but at significantly higher cost and token usage.\n\n**Alternatives:**  \n- **gpt-5-mini + financial-advisor:** Higher-quality financial guidance, but **~29% higher cost** and nearly **2\u00d7 token usage**. Suitable only if advisory depth is a product requirement.  \n- **gpt-4.1-mini:** **Disqualified** \u2014 failed required tool usage in the financial advice test.\n\n## \u274c Failure Analysis\n\n### Financial advice \u2014 tests differentiation between agents (skill vs no skill) (gpt-4.1-mini)\n- **Problem:** The agent asked the user for balances instead of retrieving them.\n- **Root Cause:** The system prompt instruction \u201cAlways use tools\u201d was not strong enough to force proactive balance retrieval for advisory questions.\n- **Fix:** Update the system prompt to explicitly require balance lookup for advice:\n  ```\n  Always retrieve relevant account balances using tools before giving any financial advice or recommendations.\n  ```\n\n## \ud83d\udd27 MCP Tool Feedback\n\n### pytest_aitest.testing.banking_mcp\nOverall, tools are well-defined and correctly used by compliant agents. Tool selection is intuitive.\n\n| Tool | Status | Calls | Issues |\n|------|--------|-------|--------|\n| get_balance | \u2705 | 3 | Working well |\n| get_all_balances | \u2705 | 2 | Working well |\n| transfer | \u26a0\ufe0f | 0 | Not exercised in tests |\n| deposit | \u26a0\ufe0f | 0 | Not exercised in tests |\n| withdraw | \u26a0\ufe0f | 0 | Not exercised in tests |\n| get_transactions | \u26a0\ufe0f | 0 | Not exercised in tests |\n\n## \ud83d\udcdd System Prompt Feedback\n\n### default (mixed)\n- **Token count:** ~20\n- **Problem:** The instruction \u201cAlways use tools\u201d is underspecified for advisory scenarios, leading one model to ask the user instead of calling tools.\n- **Suggested change:** Replace the last line with:\n  ```\n  Always retrieve required account data with tools before answering questions about balances, allocations, or financial advice. Never ask the user for information that tools can provide.\n  ```\n\n## \ud83d\udcda Skill Feedback\n\n### financial-advisor (positive but expensive)\n- **Usage rate:** High \u2014 principles and structure clearly reflected in responses\n- **Token cost:** ~700\u2013900 extra tokens per test\n- **Problem:** Overkill for simple balance queries; skill content is injected even when not needed.\n- **Suggested change:** Split into two skills:\n  - `financial-advisor-core` (principles + priorities only)\n  - `financial-advisor-budgeting` (detailed categories and red flags)\n\n## \ud83d\udca1 Optimizations\n\n1. **Conditional Skill Injection** (recommended)\n   - Current: Financial advisor skill is always loaded.\n   - Change: Only attach the skill for tests or routes involving \u201cadvice\u201d, \u201cbudget\u201d, or \u201callocation\u201d.\n   - Impact: **25\u201335% cost reduction** on non-advisory queries (~700\u2013900 fewer tokens per call).\n\n2. **Stronger Tool-Use Directive** (recommended)\n   - Current: Models interpret \u201cAlways use tools\u201d inconsistently.\n   - Change: Add explicit requirement to fetch balances before advice (see prompt fix above).\n   - Impact: Prevents tool-miss failures, eliminating retries and failed tests (saves ~$0.0002 per failure).",
+    "cost_usd": 0.0179081,
+    "tokens_used": 5616,
     "cached": false
   }
 }

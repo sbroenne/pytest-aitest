@@ -331,12 +331,12 @@ def _add_junit_properties(
     as <property> elements in JUnit XML output.
 
     Example output:
-        <testcase name="test_weather">
+        <testcase name="test_balance">
           <properties>
-            <property name="aitest.agent.name" value="weather-agent"/>
+            <property name="aitest.agent.name" value="banking-agent"/>
             <property name="aitest.model" value="gpt-5-mini"/>
-            <property name="aitest.skill" value="weather-expert"/>
-            <property name="aitest.tools.called" value="get_weather,get_forecast"/>
+            <property name="aitest.skill" value="financial-advisor"/>
+            <property name="aitest.tools.called" value="get_balance,transfer"/>
           </properties>
         </testcase>
     """

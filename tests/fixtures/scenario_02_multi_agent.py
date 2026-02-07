@@ -19,26 +19,28 @@ from pytest_aitest import Agent, MCPServer, Provider, Wait
 
 pytestmark = [pytest.mark.integration]
 
-WEATHER_PROMPT = """You are a helpful weather assistant.
-Use the available tools to answer questions about weather.
-Always use tools - never make up weather data."""
+BANKING_PROMPT = """You are a helpful banking assistant.
+Use the available tools to manage accounts and transactions.
+Always use tools - never make up balances or account data."""
 
-weather_server = MCPServer(
-    command=[sys.executable, "-u", "-m", "pytest_aitest.testing.weather_mcp"],
-    wait=Wait.for_tools(["get_weather", "get_forecast", "list_cities"]),
+banking_server = MCPServer(
+    command=[sys.executable, "-u", "-m", "pytest_aitest.testing.banking_mcp"],
+    wait=Wait.for_tools(
+        ["get_balance", "get_all_balances", "transfer", "deposit", "withdraw", "get_transactions"]
+    ),
 )
 
 AGENTS = [
     Agent(
         provider=Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000),
-        mcp_servers=[weather_server],
-        system_prompt=WEATHER_PROMPT,
+        mcp_servers=[banking_server],
+        system_prompt=BANKING_PROMPT,
         max_turns=5,
     ),
     Agent(
         provider=Provider(model="azure/gpt-4.1-mini", rpm=10, tpm=10000),
-        mcp_servers=[weather_server],
-        system_prompt=WEATHER_PROMPT,
+        mcp_servers=[banking_server],
+        system_prompt=BANKING_PROMPT,
         max_turns=5,
     ),
 ]
@@ -53,43 +55,38 @@ def _reset_agents():
 
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_simple_weather(aitest_run, agent, llm_assert):
-    """Basic weather query — all agents should pass."""
-    result = await aitest_run(agent, "What's the weather in London?")
+async def test_check_balance(aitest_run, agent, llm_assert):
+    """Basic balance query — all agents should pass."""
+    result = await aitest_run(agent, "What's my checking account balance?")
     assert result.success
-    assert result.tool_was_called("get_weather")
-    assert result.tool_call_arg("get_weather", "city") == "London"
-    assert llm_assert(result.final_response, "describes the current weather conditions")
+    assert result.tool_was_called("get_balance")
+    assert result.tool_call_arg("get_balance", "account") == "checking"
+    assert llm_assert(result.final_response, "states the checking account balance amount")
 
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_forecast(aitest_run, agent, llm_assert):
-    """Forecast query — tests tool selection."""
-    result = await aitest_run(agent, "5-day forecast for New York please")
+async def test_transfer_and_verify(aitest_run, agent, llm_assert):
+    """Transfer with verification — tests multi-step tool use."""
+    agent.max_turns = 8
+    result = await aitest_run(
+        agent, "Transfer $100 from checking to savings, then show me both balances"
+    )
     assert result.success
-    assert result.tool_was_called("get_forecast")
-    assert result.tool_call_arg("get_forecast", "city") == "New York"
-    assert result.tool_call_count("get_forecast") >= 1
-    assert llm_assert(result.final_response, "provides a 5-day forecast with daily conditions")
+    assert result.tool_was_called("transfer")
+    assert result.tool_call_arg("transfer", "amount") == 100
+    assert result.tool_call_count("get_balance") >= 1 or result.tool_was_called("get_all_balances")
+    assert llm_assert(result.final_response, "confirms the transfer and shows updated balances")
     assert result.duration_ms < 30000
 
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_comparison(aitest_run, agent, llm_assert):
-    """City comparison — multi-step reasoning."""
+async def test_error_handling(aitest_run, agent, llm_assert):
+    """Insufficient funds — tests error recovery."""
     agent.max_turns = 8
-    result = await aitest_run(
-        agent, "Compare Paris and Tokyo weather - which is better for a picnic?"
-    )
+    result = await aitest_run(agent, "Withdraw $50,000 from my checking account")
     assert result.success
-    assert result.tool_call_count("get_weather") >= 2 or result.tool_was_called("compare_weather")
-    if result.tool_was_called("compare_weather"):
-        assert result.tool_call_arg("compare_weather", "city1") in {"Paris", "Tokyo"}
-        assert result.tool_call_arg("compare_weather", "city2") in {"Paris", "Tokyo"}
-    else:
-        cities = {call.arguments.get("city") for call in result.tool_calls_for("get_weather")}
-        assert {"Paris", "Tokyo"}.issubset(cities)
+    assert result.tool_was_called("withdraw")
     assert llm_assert(
         result.final_response,
-        "recommends which city is better for a picnic based on weather",
+        "explains that the withdrawal failed due to insufficient funds",
     )

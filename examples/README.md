@@ -6,16 +6,16 @@ Working examples are in `tests/integration/` — they are the best reference for
 
 | File | What it demonstrates |
 |------|---------------------|
-| [test_basic_usage.py](../tests/integration/test_basic_usage.py) | Natural language → tool usage with Weather and Todo servers |
-| [test_model_benchmark.py](../tests/integration/test_model_benchmark.py) | Compare multiple LLMs on same tests |
-| [test_prompt_arena.py](../tests/integration/test_prompt_arena.py) | Compare multiple system prompts |
-| [test_matrix.py](../tests/integration/test_matrix.py) | Full model × prompt grid |
+| [test_basic_usage.py](../tests/integration/test_basic_usage.py) | Natural language → tool usage with Banking and Todo servers |
+| [test_dimension_detection.py](../tests/integration/test_dimension_detection.py) | Multi-dimension comparison (model × prompt) |
+| [test_skills.py](../tests/integration/test_skills.py) | Skills with references and metadata |
+| [test_skill_improvement.py](../tests/integration/test_skill_improvement.py) | Skill before/after comparisons |
 
 ## Run Examples
 
 ```bash
 # Prerequisites
-uv add pytest-aitest   # or: pip install pytest-aitest
+uv add pytest-aitest
 az login               # For Azure OpenAI
 
 # Run basic usage tests
@@ -29,16 +29,16 @@ pytest tests/integration/ -v --aitest-html=report.html
 
 Two built-in test servers for natural language testing:
 
-### Weather Server
+### Banking Server
 ```python
 @pytest.fixture(scope="module")
-def weather_server():
+def banking_server():
     return MCPServer(
-        command=["python", "-m", "pytest_aitest.testing.weather_mcp"],
-        wait=Wait.for_tools(["get_weather", "get_forecast"]),
+        command=["python", "-m", "pytest_aitest.testing.banking_mcp"],
+        wait=Wait.for_tools(["get_balance", "transfer"]),
     )
 
-# Test: "What's the weather in Paris?"
+# Test: "What's my checking balance?"
 ```
 
 ### Todo Server
@@ -57,6 +57,6 @@ def todo_server():
 
 See [conftest.py](../tests/integration/conftest.py) for fixture patterns:
 
-- `weather_server` / `todo_server` — Test MCP servers  
+- `banking_server` / `todo_server` — Test MCP servers  
 - `DEFAULT_MODEL`, `DEFAULT_RPM`, `DEFAULT_TPM`, `DEFAULT_MAX_TURNS` — Constants for agent creation
 - Azure token handling

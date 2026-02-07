@@ -13,44 +13,44 @@ Define agents with meaningful names when testing distinct approaches:
 ```python
 from pytest_aitest import Agent, Provider, MCPServer, Skill
 
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
 # Test different prompts with the same MCP server
 agent_brief = Agent(
     name="brief-prompt",
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
     system_prompt="Be concise. One sentence max.",
 )
 
 agent_detailed = Agent(
     name="detailed-prompt",
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
     system_prompt="Be thorough. Explain your reasoning.",
 )
 
 agent_with_skill = Agent(
     name="with-skill",
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
-    skill=Skill.from_path("skills/weather-expert"),
+    mcp_servers=[banking_server],
+    skill=Skill.from_path("skills/financial-advisor"),
 )
 
 AGENTS = [agent_brief, agent_detailed, agent_with_skill]
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_weather_query(aitest_run, agent):
-    """Which configuration handles weather queries best?"""
-    result = await aitest_run(agent, "What's the weather in Paris?")
+async def test_balance_query(aitest_run, agent):
+    """Which configuration handles balance queries best?"""
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 
 This runs 3 tests:
 
-- `test_weather_query[brief-prompt]`
-- `test_weather_query[detailed-prompt]`
-- `test_weather_query[with-skill]`
+- `test_balance_query[brief-prompt]`
+- `test_balance_query[detailed-prompt]`
+- `test_balance_query[with-skill]`
 
 **Use explicit configurations when:**
 
@@ -69,14 +69,14 @@ PROMPTS = {
     "detailed": "Explain your reasoning step by step.",
 }
 
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
 # Generate all combinations
 AGENTS = [
     Agent(
         name=f"{model}-{prompt_name}",
         provider=Provider(model=f"azure/{model}"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
         system_prompt=prompt,
     )
     for model in MODELS
@@ -85,18 +85,18 @@ AGENTS = [
 
 # 2 models × 2 prompts = 4 configurations
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_weather_query(aitest_run, agent):
+async def test_balance_query(aitest_run, agent):
     """Test MCP server with different model/prompt combinations."""
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 
 This runs 4 tests:
 
-- `test_weather_query[gpt-5-mini-brief]`
-- `test_weather_query[gpt-5-mini-detailed]`
-- `test_weather_query[gpt-4.1-brief]`
-- `test_weather_query[gpt-4.1-detailed]`
+- `test_balance_query[gpt-5-mini-brief]`
+- `test_balance_query[gpt-5-mini-detailed]`
+- `test_balance_query[gpt-4.1-brief]`
+- `test_balance_query[gpt-4.1-detailed]`
 
 **Use generated configurations when:**
 

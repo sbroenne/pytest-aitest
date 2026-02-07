@@ -59,6 +59,27 @@ class SkillInfo:
 
 
 @dataclass(slots=True)
+class ClarificationStats:
+    """Statistics about clarification requests detected during execution.
+
+    Tracks when the agent asks for user input instead of executing the task.
+    Only populated when clarification_detection is enabled on the agent.
+
+    Example:
+        result = await aitest_run(agent, "Check my balance")
+        if result.clarification_stats:
+            print(f"Agent asked {result.clarification_stats.count} question(s)")
+    """
+
+    count: int = 0
+    turn_indices: list[int] = field(default_factory=list)
+    examples: list[str] = field(default_factory=list)  # Max 3 examples stored
+
+    def __repr__(self) -> str:
+        return f"ClarificationStats(count={self.count}, turns={self.turn_indices})"
+
+
+@dataclass(slots=True)
 class Assertion:
     """A single assertion result from a test."""
 
@@ -118,6 +139,9 @@ class AgentResult:
     available_tools: list[ToolInfo] = field(default_factory=list)
     skill_info: SkillInfo | None = None
     effective_system_prompt: str = ""
+
+    # Clarification detection
+    clarification_stats: ClarificationStats | None = None
 
     @property
     def messages(self) -> list[dict[str, Any]]:
@@ -190,6 +214,26 @@ class AgentResult:
         if calls:
             return calls[0].arguments.get(arg_name)
         return None
+
+    @property
+    def asked_for_clarification(self) -> bool:
+        """Check if the agent asked for clarification instead of acting.
+
+        Returns True if clarification detection was enabled AND the agent
+        asked at least one clarifying question.
+
+        Example:
+            result = await aitest_run(agent, "Check my balance")
+            assert not result.asked_for_clarification
+        """
+        return self.clarification_stats is not None and self.clarification_stats.count > 0
+
+    @property
+    def clarification_count(self) -> int:
+        """Number of times the agent asked for clarification."""
+        if self.clarification_stats is None:
+            return 0
+        return self.clarification_stats.count
 
     def __repr__(self) -> str:
         status = "SUCCESS" if self.success else f"FAILED: {self.error}"

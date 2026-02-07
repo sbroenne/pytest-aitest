@@ -245,6 +245,8 @@ system_prompt: |
 Then parametrize tests with them:
 
 ```python
+from pytest_aitest import load_prompts
+
 ADVISOR_PROMPTS = load_prompts(Path(__file__).parent / "prompts")
 
 class TestPromptComparison:

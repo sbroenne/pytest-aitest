@@ -24,27 +24,27 @@ Compare two versions of your MCP server:
 from pytest_aitest import Agent, Provider, MCPServer
 
 # Two versions to compare
-weather_v1 = MCPServer(command=["python", "weather_v1.py"])
-weather_v2 = MCPServer(command=["python", "weather_v2.py"])
+banking_v1 = MCPServer(command=["python", "banking_v1.py"])
+banking_v2 = MCPServer(command=["python", "banking_v2.py"])
 
 AGENTS = [
     Agent(
-        name="weather-v1",
+        name="banking-v1",
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_v1],
+        mcp_servers=[banking_v1],
     ),
     Agent(
-        name="weather-v2",
+        name="banking-v2",
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_v2],
+        mcp_servers=[banking_v2],
     ),
 ]
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_weather_query(aitest_run, agent):
-    result = await aitest_run(agent, "What's the weather in Paris?")
+async def test_balance_query(aitest_run, agent):
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
-    assert result.tool_was_called("get_weather")
+    assert result.tool_was_called("get_balance")
 ```
 
 The report shows which server performs better.
@@ -67,15 +67,15 @@ Test whether a clearer description improves tool usage:
 
 ```python
 # v1: Vague description
-# get_weather: "Gets weather data"
+# get_balance: "Gets balance data"
 
 # v2: Clear description with examples  
-# get_weather: "Get current weather for a city. Example: get_weather('Paris')"
+# get_balance: "Get current balance for a bank account. Example: get_balance('checking')"
 
 @pytest.mark.parametrize("agent", [agent_v1, agent_v2], ids=["vague", "clear"])
 async def test_tool_discovery(aitest_run, agent):
-    result = await aitest_run(agent, "I'm planning a trip. What's it like in Tokyo?")
-    assert result.tool_was_called("get_weather")
+    result = await aitest_run(agent, "I need to check how much money I have")
+    assert result.tool_was_called("get_balance")
 ```
 
 ### Comparing Implementations
@@ -114,12 +114,12 @@ Test whether a new input schema is clearer:
 
 ```python
 # v1: Single "query" parameter
-# v2: Separate "city" and "country" parameters
+# v2: Separate "account" and "type" parameters
 
 @pytest.mark.parametrize("agent", [agent_v1, agent_v2])
 async def test_ambiguous_query(aitest_run, agent):
     # This query is ambiguous - does the LLM handle it correctly?
-    result = await aitest_run(agent, "Weather in Paris, Texas")
+    result = await aitest_run(agent, "How much do I have in checking?")
     assert result.success
 ```
 
@@ -129,7 +129,7 @@ Test servers across multiple models to find interactions:
 
 ```python
 MODELS = ["gpt-5-mini", "gpt-4.1"]
-SERVERS = {"v1": weather_v1, "v2": weather_v2}
+SERVERS = {"v1": banking_v1, "v2": banking_v2}
 
 AGENTS = [
     Agent(
@@ -146,7 +146,7 @@ AGENTS = [
 
 This reveals interactions like:
 - "v2 works great with gpt-4.1 but fails with gpt-5-mini"
-- "gpt-5-mini needs better descriptions to match gpt-4.1 performance"
+- "gpt-5-mini needs better tool descriptions to match gpt-4.1 performance"
 
 ## AI Insights for Server Comparison
 
@@ -155,13 +155,13 @@ When you run with `--aitest-summary-model`, the report includes:
 ```
 🔧 MCP TOOL FEEDBACK
 
-weather-v1/get_weather — 60% success rate
-Current: "Gets weather data"
-Issue: LLM often calls get_forecast instead
-Suggested: "Get CURRENT weather conditions for a city. 
-            For future weather, use get_forecast."
+banking-v1/get_balance — 60% success rate
+Current: "Gets balance data"
+Issue: LLM often calls get_all_balances instead
+Suggested: "Get CURRENT balance for a specific bank account.
+            For all accounts at once, use get_all_balances."
 
-weather-v2/get_weather — 95% success rate  
+banking-v2/get_balance — 95% success rate  
 Description is clear and well-targeted.
 ```
 

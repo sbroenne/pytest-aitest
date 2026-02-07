@@ -14,29 +14,33 @@ An **Agent Skill** is a domain knowledge module following the [agentskills.io](h
 A skill is a directory with a `SKILL.md` file:
 
 ```
-weather-expert/
+financial-advisor/
 ├── SKILL.md           # Instructions (required)
 └── references/        # On-demand lookup docs (optional)
-    └── clothing-guide.md
+    └── budgeting-guide.md
 ```
 
 ### SKILL.md Format
 
 ```markdown
 ---
-name: weather-expert
-description: Guidelines for interpreting weather data
+name: financial-advisor
+description: Guidelines for personal finance management
 ---
 
-# Weather Expert Guidelines
+# Financial Advisor Guidelines
 
-## Temperature Interpretation
-- Below 0°C: Freezing, warn about ice
-- 0-10°C: Cold, recommend warm clothing  
-- 10-20°C: Mild, light jacket sufficient
-- Above 20°C: Warm, no jacket needed
+## Budget Analysis
+- Follow the 50/30/20 rule: 50% needs, 30% wants, 20% savings
+- Emergency fund should cover 3-6 months of expenses
+- Track spending categories: housing, food, transport, entertainment
 
-For clothing recommendations, use the reference document.
+## Red Flags
+- Savings below 10% of income
+- No emergency fund
+- High-interest debt accumulating
+
+For detailed budgeting advice, use the reference document.
 ```
 
 ## Skill References
@@ -50,28 +54,28 @@ References are documents the agent can look up **on demand** rather than having 
 
 ### Example Reference Document
 
-```markdown title="references/clothing-guide.md"
-# Clothing Guide by Temperature
+```markdown title="references/budgeting-guide.md"
+# Budgeting Guide
 
-## Freezing (Below 0°C)
-- Heavy winter coat, insulated
-- Thermal layers underneath
-- Hat, gloves, scarf essential
-- Waterproof boots
+## The 50/30/20 Rule
+- 50% Needs: rent, utilities, groceries, insurance
+- 30% Wants: dining out, entertainment, shopping
+- 20% Savings: emergency fund, investments, debt payoff
 
-## Cold (0-10°C)
-- Warm jacket or coat
-- Sweater or fleece layer
-- Light gloves optional
+## Building an Emergency Fund
+- Start with $1,000 mini-fund
+- Build to 3 months of expenses
+- Keep in high-yield savings account
+- Don't invest emergency fund
 ...
 ```
 
 ### How the Agent Uses References
 
-When you tell the skill to "use the reference document for clothing recommendations", the agent will:
+When you tell the skill to "use the reference document for budgeting advice", the agent will:
 
-1. Call `list_skill_references()` → sees `clothing-guide.md`
-2. Call `read_skill_reference(filename="clothing-guide.md")` → gets the content
+1. Call `list_skill_references()` → sees `budgeting-guide.md`
+2. Call `read_skill_reference(filename="budgeting-guide.md")` → gets the content
 3. Use that content to formulate a detailed response
 
 This keeps your base prompt lean while providing detailed information when needed.
@@ -85,19 +89,19 @@ This keeps your base prompt lean while providing detailed information when neede
 | Short, critical rules | Long documentation |
 | < 500 tokens | > 500 tokens per doc |
 
-**Example**: Put temperature interpretation rules in SKILL.md, but detailed clothing recommendations in `references/clothing-guide.md`.
+**Example**: Put budget analysis rules in SKILL.md, but detailed budgeting breakdowns in `references/budgeting-guide.md`.
 
 ## Using a Skill
 
 ```python
 from pytest_aitest import Agent, Provider, MCPServer, Skill
 
-skill = Skill.from_path("skills/weather-expert")
+skill = Skill.from_path("skills/financial-advisor")
 
 agent = Agent(
     name="with-skill",
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
     skill=skill,
 )
 ```
@@ -107,29 +111,29 @@ agent = Agent(
 Compare agents with and without skills:
 
 ```python
-skill = Skill.from_path("skills/weather-expert")
+skill = Skill.from_path("skills/financial-advisor")
 
 agent_without_skill = Agent(
     name="without-skill",
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
 )
 
 agent_with_skill = Agent(
     name="with-skill",
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
     skill=skill,
 )
 
 AGENTS = [agent_without_skill, agent_with_skill]
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_clothing_recommendation(aitest_run, agent):
-    """Does the skill improve clothing recommendations?"""
+async def test_financial_advice(aitest_run, agent):
+    """Does the skill improve financial recommendations?"""
     result = await aitest_run(
         agent, 
-        "It's 5°C in Paris. What should I wear?"
+        "I have $5,000 to allocate. How should I split it between needs, savings, and wants?"
     )
     assert result.success
 ```

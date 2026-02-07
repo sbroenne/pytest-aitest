@@ -24,10 +24,10 @@ import pytest
 from pytest_aitest import MCPServer, Wait
 
 @pytest.fixture(scope="module")
-def weather_server():
+def banking_server():
     return MCPServer(
-        command=["python", "-m", "my_weather_mcp"],
-        wait=Wait.for_tools(["get_weather"]),
+        command=["python", "-m", "my_banking_mcp"],
+        wait=Wait.for_tools(["get_balance"]),
     )
 ```
 
@@ -64,7 +64,7 @@ wait=Wait.ready()
 **Wait.for_tools()** — Wait until specific tools are available (recommended):
 
 ```python
-wait=Wait.for_tools(["get_weather", "set_reminder"])
+wait=Wait.for_tools(["get_balance", "set_reminder"])
 ```
 
 **Wait.for_log()** — Wait for a specific log pattern (regex):
@@ -114,27 +114,27 @@ import pytest
 from pytest_aitest import Agent, MCPServer, Provider, Wait
 
 @pytest.fixture(scope="module")
-def weather_server():
+def banking_server():
     return MCPServer(
-        command=["python", "-m", "my_weather_mcp"],
-        wait=Wait.for_tools(["get_weather", "get_forecast"]),
+        command=["python", "-m", "my_banking_mcp"],
+        wait=Wait.for_tools(["get_balance", "transfer"]),
     )
 
 @pytest.fixture
-def weather_agent(weather_server):
+def banking_agent(banking_server):
     return Agent(
-        name="weather",
+        name="banking",
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
-        system_prompt="You are a weather assistant.",
+        mcp_servers=[banking_server],
+        system_prompt="You are a banking assistant.",
         max_turns=5,
     )
 
-async def test_weather_query(aitest_run, weather_agent):
-    result = await aitest_run(weather_agent, "What's the weather in Paris?")
+async def test_balance_query(aitest_run, banking_agent):
+    result = await aitest_run(banking_agent, "What's my checking balance?")
     
     assert result.success
-    assert result.tool_was_called("get_weather")
+    assert result.tool_was_called("get_balance")
 ```
 
 ## Multiple Servers
@@ -143,10 +143,10 @@ Combine multiple MCP servers in a single agent:
 
 ```python
 @pytest.fixture(scope="module")
-def weather_server():
+def banking_server():
     return MCPServer(
-        command=["python", "-m", "weather_mcp"],
-        wait=Wait.for_tools(["get_weather"]),
+        command=["python", "-m", "banking_mcp"],
+        wait=Wait.for_tools(["get_balance"]),
     )
 
 @pytest.fixture(scope="module")
@@ -157,12 +157,12 @@ def calendar_server():
     )
 
 @pytest.fixture
-def assistant_agent(weather_server, calendar_server):
+def assistant_agent(banking_server, calendar_server):
     return Agent(
         name="assistant",
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server, calendar_server],
-        system_prompt="You can check weather and manage calendar.",
+        mcp_servers=[banking_server, calendar_server],
+        system_prompt="You can check balances and manage calendar.",
         max_turns=10,
     )
 ```

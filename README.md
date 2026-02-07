@@ -22,16 +22,16 @@ So I built pytest-aitest: write tests as natural language prompts. An **Agent** 
 ```python
 from pytest_aitest import Agent, Provider, MCPServer
 
-async def test_weather_query(aitest_run):
+async def test_balance_query(aitest_run):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[MCPServer(command=["python", "-m", "my_weather_server"])],
+        mcp_servers=[MCPServer(command=["python", "-m", "my_banking_server"])],
     )
 
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
 
     assert result.success
-    assert result.tool_was_called("get_weather")
+    assert result.tool_was_called("get_balance")
 ```
 
 If the test fails, your tool descriptions need work — not your code. This is **test-driven development for AI interfaces**:
@@ -81,6 +81,7 @@ pytest tests/
 - **Multi-Turn Sessions** — Test conversations that build on context
 - **AI Analysis** — Actionable feedback on tool descriptions, prompts, and costs
 - **100+ LLM Providers** — Any model via [LiteLLM](https://docs.litellm.ai/docs/providers) (Azure, OpenAI, Anthropic, Google, and more)
+- **Clarification Detection** — Catch agents that ask questions instead of acting
 - **Semantic Assertions** — AI judge via [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert)
 
 ## Who This Is For
