@@ -128,6 +128,25 @@ def _build_analysis_input(
             sections.append(f"Schema: {json.dumps(tool.input_schema, indent=2)}")
             sections.append("")
 
+        # Compute tool coverage: which tools were never called across all tests
+        all_tool_names = {t.name for t in tool_info}
+        called_tool_names: set[str] = set()
+        for test in suite_report.tests:
+            if test.agent_result:
+                called_tool_names.update(test.agent_result.tool_names_called)
+        uncalled_tools = sorted(all_tool_names - called_tool_names)
+        if uncalled_tools:
+            sections.append("## Tool Coverage\n")
+            sections.append(
+                f"The following tools were available but never called across all tests: "
+                f"{', '.join(uncalled_tools)}"
+            )
+            sections.append(
+                "\nNote: This is only a concern if tests were expected to exercise these tools. "
+                "If no test asserts on these tools, this is a coverage observation, not a failure."
+            )
+            sections.append("")
+
     # Skill content
     if skill_info:
         sections.append("\n## Skills\n")

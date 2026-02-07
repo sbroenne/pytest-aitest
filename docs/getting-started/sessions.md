@@ -10,11 +10,11 @@ So far, each test is independent—the agent has no memory between tests. **Sess
 
 Real agents don't answer single questions. Users have conversations:
 
-1. "What's the weather in Paris?"
-2. "What about tomorrow?" ← Requires remembering "Paris"
-3. "Should I bring an umbrella?" ← Requires remembering the forecast
+1. "What's my checking account balance?"
+2. "Transfer $200 to savings" ← Requires remembering the accounts
+3. "What are my new balances?" ← Requires remembering the transfer
 
-Without sessions, test 2 would fail—the agent doesn't know what "tomorrow" refers to.
+Without sessions, test 2 would fail—the agent doesn't know which accounts were discussed.
 
 ## Defining a Session
 
@@ -24,34 +24,34 @@ Use the `@pytest.mark.session` marker:
 import pytest
 from pytest_aitest import Agent, Provider, MCPServer
 
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
-weather_agent = Agent(
-    name="weather",
+banking_agent = Agent(
+    name="banking",
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
 )
 
-@pytest.mark.session("weather-chat")
-class TestWeatherConversation:
+@pytest.mark.session("banking-chat")
+class TestBankingConversation:
     """Tests run in order, sharing conversation history."""
     
     async def test_initial_query(self, aitest_run):
         """First message - establishes context."""
-        result = await aitest_run(weather_agent, "What's the weather in Paris?")
+        result = await aitest_run(banking_agent, "What's my checking account balance?")
         assert result.success
-        assert "Paris" in result.final_response
+        assert result.tool_was_called("get_balance")
     
     async def test_followup(self, aitest_run):
         """Second message - uses context from first."""
-        result = await aitest_run(weather_agent, "What about tomorrow?")
+        result = await aitest_run(banking_agent, "Transfer $200 to savings")
         assert result.success
-        # Agent remembers we were talking about Paris
-        assert result.tool_was_called("get_forecast")
+        # Agent remembers we were talking about checking
+        assert result.tool_was_called("transfer")
     
-    async def test_recommendation(self, aitest_run):
+    async def test_verification(self, aitest_run):
         """Third message - builds on full conversation."""
-        result = await aitest_run(weather_agent, "Should I bring an umbrella?")
+        result = await aitest_run(banking_agent, "What are my new balances?")
         assert result.success
 ```
 
@@ -63,26 +63,26 @@ class TestWeatherConversation:
 !!! warning "Not compatible with pytest-xdist"
     Sessions require sequential test execution to maintain conversation order.
     Don't use `-n auto` or other parallel execution with session tests.
-- The session name (`"weather-chat"`) groups related tests
+- The session name (`"banking-chat"`) groups related tests
 
 ## Session Context Flow
 
 ```
 test_initial_query
-    User: "What's the weather in Paris?"
-    Agent: "Paris is 18°C, partly cloudy..."
+    User: "What's my checking account balance?"
+    Agent: "Your checking balance is $1,500.00..."
     ↓ context passed to next test
 
 test_followup  
     [Previous messages included]
-    User: "What about tomorrow?"
-    Agent: "Tomorrow in Paris will be..."
+    User: "Transfer $200 to savings"
+    Agent: "Done! Transferred $200 from checking to savings..."
     ↓ context passed to next test
 
-test_recommendation
+test_verification
     [All previous messages included]
-    User: "Should I bring an umbrella?"
-    Agent: "Based on tomorrow's forecast..."
+    User: "What are my new balances?"
+    Agent: "Checking: $1,300, Savings: $3,200..."
 ```
 
 ## When to Use Sessions

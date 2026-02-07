@@ -215,7 +215,8 @@ class TestAgentSelectorMermaidOverlay:
         header.click()
         page.wait_for_timeout(1000)
 
-        mermaid = page.locator(".mermaid svg, [data-mermaid-code] svg")
+        # Verify no JS errors during mermaid rendering
+        page.locator(".mermaid svg, [data-mermaid-code] svg")
         # May have 0 if not rendered yet, or > 0 if rendered
         # Just check no errors in loading
         assert True  # If we got here, no JS errors

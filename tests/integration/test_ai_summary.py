@@ -56,8 +56,8 @@ class TestAIInsightsGeneration:
         from pytest_aitest.reporting.insights import generate_insights
 
         tests = [
-            _make_test_report("test_weather", "passed", model="gpt-5-mini"),
-            _make_test_report("test_forecast", "passed", model="gpt-5-mini"),
+            _make_test_report("test_balance_check", "passed", model="gpt-5-mini"),
+            _make_test_report("test_transfer", "passed", model="gpt-5-mini"),
         ]
         suite = _make_suite_report(tests)
 

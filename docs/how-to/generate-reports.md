@@ -189,19 +189,19 @@ pytest tests/ \
 pytest-aitest automatically enriches JUnit XML with agent metadata as `<property>` elements:
 
 ```xml
-<testcase name="test_weather" time="2.34">
+<testcase name="test_balance" time="2.34">
   <properties>
-    <property name="aitest.agent.name" value="weather-agent"/>
+    <property name="aitest.agent.name" value="banking-agent"/>
     <property name="aitest.model" value="gpt-5-mini"/>
-    <property name="aitest.skill" value="weather-expert"/>
+    <property name="aitest.skill" value="financial-advisor"/>
     <property name="aitest.prompt" value="concise"/>
-    <property name="aitest.servers" value="weather_mcp,calendar_mcp"/>
-    <property name="aitest.allowed_tools" value="get_forecast,get_weather"/>
+    <property name="aitest.servers" value="banking_mcp,calendar_mcp"/>
+    <property name="aitest.allowed_tools" value="get_balance,transfer"/>
     <property name="aitest.tokens.input" value="1250"/>
     <property name="aitest.tokens.output" value="89"/>
     <property name="aitest.cost_usd" value="0.000425"/>
     <property name="aitest.turns" value="3"/>
-    <property name="aitest.tools.called" value="get_forecast,get_weather"/>
+    <property name="aitest.tools.called" value="get_balance,transfer"/>
     <property name="aitest.success" value="true"/>
   </properties>
 </testcase>

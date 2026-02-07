@@ -1,17 +1,22 @@
+
 # pytest-aitest
 
 > **6** tests | **6** passed | **0** failed | **100%** pass rate  
-> Duration: 50.1s | Cost: $0.0038 | Tokens: 711–1,941  
+> Duration: 50.1s | Cost: 🧪 $-0.020191 · 🤖 $0.0240 · 💰 $0.003773 | Tokens: 711–1,941  
 > February 07, 2026 at 02:01 PM
 
 *Multi-turn banking session with 2 agents.*
 
+
 ## Agent Leaderboard
 
-| # | Agent | Pass Rate | Cost | Tokens | Duration |
-|---|-------|-----------|------|--------|----------|
-| 1 | gpt-4.1-mini 🏆 | 100% (3/3) | $0.0014 | 3,005 | 19.9s |
-| 2 | gpt-5-mini | 100% (3/3) | $0.0024 | 4,180 | 30.2s |
+
+|#|Agent|Tests|Pass Rate|Tokens|Cost|Duration|
+| :---: | :--- | :---: | :---: | ---: | ---: | ---: |
+|🥇|gpt-4.1-mini 🏆|3/3|100%|3,005|$0.001419|19.9s|
+|🥈|gpt-5-mini|3/3|100%|4,180|$0.002354|30.2s|
+
+
 
 ## AI Analysis
 
@@ -127,14 +132,17 @@ Overall, tools are clearly named and consistently selected. No confusion between
    - Change: Set gpt-4.1-mini as the default for this banking MCP test suite.
    - Impact: **~40% cost reduction** per session with no loss in pass rate or tool accuracy.
 
+
 ## Test Results
 
+
 ### Session: Multi-turn banking session with 2 agents.
+
 
 #### ✅ First turn: check account balance.
 
 <details>
-<summary>✅ gpt-5-mini — 11.4s, 906 tokens, $0.0003</summary>
+<summary>✅ gpt-5-mini — 11.4s · 906 tokens · 3 turns · $0.000333</summary>
 
 **Assertions:**
 
@@ -142,9 +150,11 @@ Overall, tools are clearly named and consistently selected. No confusion between
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_balance` | ✅ | account='checking' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_balance`|✅|account='checking'|
+
 
 **Response:**
 
@@ -165,7 +175,7 @@ sequenceDiagram
 </details>
 
 <details>
-<summary>✅ gpt-4.1-mini — 6.6s, 711 tokens, $0.0003</summary>
+<summary>✅ gpt-4.1-mini — 6.6s · 711 tokens · 3 turns · $0.000332</summary>
 
 **Assertions:**
 
@@ -173,9 +183,11 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_balance` | ✅ | account='checking' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_balance`|✅|account='checking'|
+
 
 **Response:**
 
@@ -195,10 +207,11 @@ sequenceDiagram
 
 </details>
 
+
 #### ✅ Second turn: transfer money.
 
 <details>
-<summary>✅ gpt-5-mini — 8.8s, 1,333 tokens, $0.0007</summary>
+<summary>✅ gpt-5-mini — 8.8s · 1,333 tokens · 3 turns · $0.000708</summary>
 
 **Assertions:**
 
@@ -206,17 +219,19 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `transfer` | ✅ | from_account='checking', to_account='savings', amount=100 |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`transfer`|✅|from_account='checking', to_account='savings', amount=100|
+
 
 **Response:**
 
 > Done — $100.00 has been transferred from your checking to your savings. Your new balances are:
-- Checking: $1,400.00
-- Savings: $3,100.00
-
-Anything else I can help with?
+> - Checking: $1,400.00
+> - Savings: $3,100.00
+> 
+> Anything else I can help with?
 
 ```mermaid
 sequenceDiagram
@@ -233,7 +248,7 @@ sequenceDiagram
 </details>
 
 <details>
-<summary>✅ gpt-4.1-mini — 6.8s, 985 tokens, $0.0005</summary>
+<summary>✅ gpt-4.1-mini — 6.8s · 985 tokens · 3 turns · $0.000485</summary>
 
 **Assertions:**
 
@@ -241,9 +256,11 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `transfer` | ✅ | from_account='checking', to_account='savings', amount=100 |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`transfer`|✅|from_account='checking', to_account='savings', amount=100|
+
 
 **Response:**
 
@@ -263,10 +280,11 @@ sequenceDiagram
 
 </details>
 
+
 #### ✅ Third turn: verify the transfer.
 
 <details>
-<summary>✅ gpt-5-mini — 10.0s, 1,941 tokens, $0.0013</summary>
+<summary>✅ gpt-5-mini — 10.0s · 1,941 tokens · 3 turns · $0.001313</summary>
 
 **Assertions:**
 
@@ -274,18 +292,20 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_all_balances` | ✅ |  |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_all_balances`|✅||
+
 
 **Response:**
 
 > According to your account summary right now:
-- Checking: $1,500.00
-- Savings: $3,000.00
-- Total across accounts: $4,500.00
-
-Would you like me to transfer money, show recent transactions, or refresh/check again?
+> - Checking: $1,500.00
+> - Savings: $3,000.00
+> - Total across accounts: $4,500.00
+> 
+> Would you like me to transfer money, show recent transactions, or refresh/check again?
 
 ```mermaid
 sequenceDiagram
@@ -302,7 +322,7 @@ sequenceDiagram
 </details>
 
 <details>
-<summary>✅ gpt-4.1-mini — 6.5s, 1,309 tokens, $0.0006</summary>
+<summary>✅ gpt-4.1-mini — 6.5s · 1,309 tokens · 3 turns · $0.000602</summary>
 
 **Assertions:**
 
@@ -310,18 +330,20 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_all_balances` | ✅ |  |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_all_balances`|✅||
+
 
 **Response:**
 
 > Currently, your account balances are:
-- Checking: $1,500.00
-- Savings: $3,000.00
-The total balance across both accounts is $4,500.00.
-
-Let me know if you need anything else!
+> - Checking: $1,500.00
+> - Savings: $3,000.00
+> The total balance across both accounts is $4,500.00.
+> 
+> Let me know if you need anything else!
 
 ```mermaid
 sequenceDiagram
@@ -336,7 +358,5 @@ sequenceDiagram
 ```
 
 </details>
-
----
 
 *Generated by [pytest-aitest](https://github.com/sbroenne/pytest-aitest) on February 07, 2026 at 02:01 PM*

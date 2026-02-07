@@ -110,6 +110,9 @@ def generate_md(
     Produces documentation-quality GFM markdown with agent leaderboard tables,
     Mermaid sequence diagrams, and collapsible test detail sections.
 
+    Uses typed component functions from ``reporting.markdown`` that accept
+    dataclasses and compose mdutils primitives into structured Markdown.
+
     Args:
         report: Test suite report data (dataclass)
         output_path: Path to write Markdown file
@@ -119,171 +122,11 @@ def generate_md(
     Example:
         generate_md(suite_report, "report.md", insights=insights_result)
     """
+    from pytest_aitest.reporting.markdown import render_markdown_report
+
     context = _build_report_context(report, insights=insights, min_pass_rate=min_pass_rate)
-    md = _render_markdown(context)
+    md = render_markdown_report(context)
     Path(output_path).write_text(md, encoding="utf-8")
-
-
-def _render_markdown(ctx: ReportContext) -> str:
-    """Render a ReportContext to a Markdown string."""
-    lines: list[str] = []
-    r = ctx.report
-    agents = ctx.agents
-    multi_agent = len(agents) > 1
-
-    # Title
-    lines.append(f"# {r.name}")
-    lines.append("")
-
-    # Metadata block
-    duration_s = r.duration_ms / 1000
-    pass_rate = r.passed / r.total * 100 if r.total else 0
-    lines.append(
-        f"> **{r.total}** tests | "
-        f"**{r.passed}** passed | "
-        f"**{r.failed}** failed | "
-        f"**{pass_rate:.0f}%** pass rate  "
-    )
-    lines.append(
-        f"> Duration: {duration_s:.1f}s | "
-        f"Cost: ${r.total_cost_usd:.4f} | "
-        f"Tokens: {r.token_min:,}–{r.token_max:,}  "
-    )
-    lines.append(f"> {r.timestamp}")
-    lines.append("")
-
-    if r.suite_docstring:
-        lines.append(f"*{r.suite_docstring}*")
-        lines.append("")
-
-    # Agent leaderboard (multi-agent only)
-    if multi_agent:
-        lines.append("## Agent Leaderboard")
-        lines.append("")
-        lines.append("| # | Agent | Pass Rate | Cost | Tokens | Duration |")
-        lines.append("|---|-------|-----------|------|--------|----------|")
-
-        for i, agent in enumerate(agents, 1):
-            winner = " 🏆" if agent.is_winner else ""
-            dq = " ⛔" if agent.disqualified else ""
-            name_col = f"{agent.name}{winner}{dq}"
-            lines.append(
-                f"| {i} | {name_col} | "
-                f"{agent.pass_rate:.0f}% ({agent.passed}/{agent.total}) | "
-                f"${agent.cost:.4f} | {agent.tokens:,} | {agent.duration_s:.1f}s |"
-            )
-        lines.append("")
-
-    # AI Insights
-    if ctx.insights and ctx.insights.markdown_summary:
-        lines.append("## AI Analysis")
-        lines.append("")
-        lines.append(ctx.insights.markdown_summary)
-        lines.append("")
-
-    # Test results
-    lines.append("## Test Results")
-    lines.append("")
-
-    for group in ctx.test_groups:
-        if group.type == "session":
-            lines.append(f"### Session: {group.name}")
-        else:
-            lines.append(f"### {group.name}")
-        lines.append("")
-
-        for test in group.tests:
-            # Determine overall status across agents
-            outcomes = [r.outcome for r in test.results_by_agent.values()]
-            if all(o == "passed" for o in outcomes):
-                status = "✅"
-            elif any(o == "failed" for o in outcomes):
-                status = "❌"
-            else:
-                status = "⏭️"
-
-            lines.append(f"#### {status} {test.display_name}")
-            lines.append("")
-
-            for agent_id, result in test.results_by_agent.items():
-                agent = ctx.agents_by_id.get(agent_id)
-                agent_label = agent.name if agent else agent_id
-
-                # In single-agent mode, don't nest under agent name
-                if multi_agent:
-                    summary_label = (
-                        f"{'✅' if result.passed else '❌'} {agent_label} — "
-                        f"{result.duration_s:.1f}s, {result.tokens:,} tokens, "
-                        f"${result.cost:.4f}"
-                    )
-                    lines.append("<details>")
-                    lines.append(f"<summary>{summary_label}</summary>")
-                    lines.append("")
-                else:
-                    summary_label = (
-                        f"{result.duration_s:.1f}s, {result.tokens:,} tokens, ${result.cost:.4f}"
-                    )
-                    lines.append("<details>")
-                    lines.append(f"<summary>{summary_label}</summary>")
-                    lines.append("")
-
-                # Assertions
-                if result.assertions:
-                    lines.append("**Assertions:**")
-                    lines.append("")
-                    for a in result.assertions:
-                        a_icon = "✅" if a.passed else "❌"
-                        lines.append(f"- {a_icon} `{a.type}`: {a.message}")
-                    lines.append("")
-
-                # Tool calls table
-                if result.tool_calls:
-                    lines.append("**Tool Calls:**")
-                    lines.append("")
-                    lines.append("| Tool | Status | Args |")
-                    lines.append("|------|--------|------|")
-                    for tc in result.tool_calls:
-                        tc_status = "✅" if tc.success else f"❌ {tc.error or ''}"
-                        args_str = ""
-                        if tc.args:
-                            args_str = ", ".join(f"{k}={v!r}" for k, v in tc.args.items())
-                            if len(args_str) > 80:
-                                args_str = args_str[:77] + "..."
-                        lines.append(f"| `{tc.name}` | {tc_status} | {args_str} |")
-                    lines.append("")
-
-                # Error
-                if result.error:
-                    lines.append(f"**Error:** `{result.error}`")
-                    lines.append("")
-
-                # Final response
-                if result.final_response:
-                    lines.append("**Response:**")
-                    lines.append("")
-                    lines.append(f"> {result.final_response[:500]}")
-                    lines.append("")
-
-                # Mermaid diagram
-                if result.mermaid:
-                    lines.append("```mermaid")
-                    lines.append(result.mermaid)
-                    lines.append("```")
-                    lines.append("")
-
-                lines.append("</details>")
-                lines.append("")
-
-    # Footer
-    lines.append("---")
-    lines.append("")
-    lines.append(
-        f"*Generated by [pytest-aitest](https://github.com/sbroenne/pytest-aitest) "
-        f"on {r.timestamp}*"
-    )
-    lines.append("")
-
-    return "\n".join(lines)
 
 
 def generate_mermaid_sequence(result: AgentResult) -> str:

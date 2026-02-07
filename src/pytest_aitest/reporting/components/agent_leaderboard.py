@@ -92,7 +92,7 @@ def _multi_agent_table(agents: list[AgentData]) -> Node:
                     th(".text-right")["Duration"],
                 ],
             ],
-            tbody[[_leaderboard_row(agent, i + 1) for i, agent in enumerate(agents)]],
+            tbody[*[_leaderboard_row(agent, i + 1) for i, agent in enumerate(agents)]],
         ],
     ]
 

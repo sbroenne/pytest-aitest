@@ -1,8 +1,8 @@
 ---
+title: "Test your AI interfaces. AI analyzes your results."
 description: "A pytest plugin for testing MCP servers, tools, system prompts, and agent skills with real LLMs. AI analyzes results and tells you what to fix."
+icon: material/flask-outline
 ---
-
-# pytest-aitest
 
 # Test your AI interfaces. AI analyzes your results.
 
@@ -26,21 +26,21 @@ For LLMs, your API isn't functions and types — it's **tool descriptions, syste
 Write tests as natural language prompts. An **Agent** is your test harness — it combines an LLM provider, MCP servers, and optional configuration:
 
 ```python
-async def test_weather_comparison(aitest_run, weather_server):
+async def test_balance_and_transfer(aitest_run, banking_server):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),   # LLM provider
-        mcp_servers=[weather_server],                  # MCP servers with tools
+        mcp_servers=[banking_server],                  # MCP servers with tools
         system_prompt="Be concise.",                   # System Prompt (optional)
-        skill=weather_skill,                           # Agent Skill (optional)
+        skill=financial_skill,                         # Agent Skill (optional)
     )
 
     result = await aitest_run(
         agent,
-        "Compare weather in Paris and Tokyo. Which is better for a picnic?",
+        "Transfer $200 from checking to savings and show me the new balances.",
     )
 
     assert result.success
-    assert result.tool_was_called("get_weather")
+    assert result.tool_was_called("transfer")
 ```
 
 The agent runs your prompt, calls tools, and returns results. You assert on what happened. If the test fails, your tool descriptions need work — not your code.
@@ -67,26 +67,26 @@ AI analyzes your test results and tells you **what to fix**, not just what faile
 
     Achieves **100% pass rate at ~55–70% lower cost** than gpt-5-mini, with equal tool correctness and acceptable response quality.
 
-    - **Simple weather:** $0.000297 (vs $0.000342 — 13% cheaper)
-    - **Forecast:** $0.000575 (vs $0.001508 — 62% cheaper)
-    - **Comparison:** $0.000501 (vs $0.001785 — 72% cheaper)
+    - **Balance check:** $0.000297 (vs $0.000342 — 13% cheaper)
+    - **Transfer:** $0.000575 (vs $0.001508 — 62% cheaper)
+    - **Multi-step:** $0.000501 (vs $0.001785 — 72% cheaper)
 
     **🔧 MCP Tool Feedback**
 
     | Tool | Status | Calls | Issue |
     |------|--------|-------|-------|
-    | `get_weather` | ✅ | 6 | Working well |
-    | `get_forecast` | ✅ | 2 | Working well |
-    | `compare_weather` | ✅ | 1 | Consider strengthening description |
-    | `list_cities` | ⚠️ | 0 | Not exercised |
+    | `get_balance` | ✅ | 6 | Working well |
+    | `transfer` | ✅ | 2 | Working well |
+    | `get_all_balances` | ✅ | 1 | Consider strengthening description |
+    | `get_transactions` | ⚠️ | 0 | Not exercised |
 
-    **Suggested improvement for `compare_weather`:**
+    **Suggested improvement for `get_all_balances`:**
 
-    > Compare current weather between two cities and return per-city conditions plus computed differences (temperature, humidity deltas). Use instead of calling `get_weather` twice.
+    > Return balances for all accounts belonging to the current user in a single call. Use instead of calling `get_balance` separately for each account.
 
     **💡 Optimizations**
 
-    **Cost reduction opportunity:** Strengthen `compare_weather` description to encourage single-call logic instead of multiple `get_weather` calls. **Estimated impact: ~15–25% cost reduction** on comparison queries.
+    **Cost reduction opportunity:** Strengthen `get_all_balances` description to encourage single-call logic instead of multiple `get_balance` calls. **Estimated impact: ~15–25% cost reduction** on multi-account queries.
 
 
 
@@ -96,18 +96,18 @@ AI analyzes your test results and tells you **what to fix**, not just what faile
 ```python
 from pytest_aitest import Agent, Provider, MCPServer
 
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
-async def test_weather_query(aitest_run):
+async def test_balance_check(aitest_run):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
     )
     
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking account balance?")
     
     assert result.success
-    assert result.tool_was_called("get_weather")
+    assert result.tool_was_called("get_balance")
 ```
 
 > 📁 See [test_basic_usage.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_basic_usage.py) for complete examples.

@@ -23,9 +23,9 @@ from pytest_aitest import Agent, Provider, MCPServer
 
 Agent(
     provider=Provider(model="azure/gpt-5-mini"),   # LLM provider (required)
-    mcp_servers=[weather_server],                   # MCP servers with tools
+    mcp_servers=[banking_server],                   # MCP servers with tools
     system_prompt="Be concise.",                    # Agent behavior (optional)
-    skill=weather_skill,                            # Agent Skill (optional)
+    skill=financial_skill,                          # Agent Skill (optional)
 )
 ```
 
@@ -38,25 +38,25 @@ import pytest
 from pytest_aitest import Agent, Provider, MCPServer
 
 # The MCP server you're testing
-weather_server = MCPServer(command=["python", "weather_mcp.py"])
+banking_server = MCPServer(command=["python", "banking_mcp.py"])
 
 agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
+    mcp_servers=[banking_server],
 )
 
-async def test_weather_query(aitest_run):
-    """Verify the LLM can use get_weather correctly."""
-    result = await aitest_run(agent, "What's the weather in Paris?")
+async def test_balance_query(aitest_run):
+    """Verify the LLM can use get_balance correctly."""
+    result = await aitest_run(agent, "What's my checking account balance?")
     
     assert result.success
-    assert result.tool_was_called("get_weather")
+    assert result.tool_was_called("get_balance")
 ```
 
 **What this tests:**
 
-- **Tool discovery** — Did the LLM find `get_weather`?
-- **Parameter inference** — Did it pass `location="Paris"` correctly?
+- **Tool discovery** — Did the LLM find `get_balance`?
+- **Parameter inference** — Did it pass `account="checking"` correctly?
 - **Response handling** — Did it interpret the tool output?
 
 If this fails, your MCP server's tool descriptions or schemas need work.
@@ -75,7 +75,7 @@ You iterate on your tool descriptions the same way you iterate on code. See [TDD
 ## Running the Test
 
 ```bash
-pytest tests/test_weather.py -v
+pytest tests/test_banking.py -v
 ```
 
 ## Generating Reports

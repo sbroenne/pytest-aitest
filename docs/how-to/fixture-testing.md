@@ -33,7 +33,7 @@ They demonstrate:
 pytest tests/fixtures/scenario_01_single_agent.py -v
 
 # Run a single test
-pytest tests/fixtures/scenario_01_single_agent.py::test_simple_weather_query -v
+pytest tests/fixtures/scenario_01_single_agent.py::test_balance_check -v
 
 # Generate fixture JSON report
 pytest tests/fixtures/scenario_01_single_agent.py -v \
@@ -51,21 +51,21 @@ pytest tests/fixtures/ -v
 
 ```python
 agent = Agent(
-    name="weather-agent",
+    name="banking-agent",
     provider=Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000),
-    mcp_servers=[weather_server],
-    system_prompt=WEATHER_PROMPT,
+    mcp_servers=[banking_server],
+    system_prompt=BANKING_PROMPT,
 )
 
-async def test_simple_weather_query(aitest_run, llm_assert):
-    result = await aitest_run(agent, "What's the weather in Paris?")
+async def test_balance_check(aitest_run, llm_assert):
+    result = await aitest_run(agent, "What's my checking account balance?")
     assert result.success
-    assert result.tool_was_called("get_weather")
-    assert llm_assert(result.final_response, "mentions the temperature")
+    assert result.tool_was_called("get_balance")
+    assert llm_assert(result.final_response, "mentions the account balance")
     assert result.cost_usd < 0.05
 ```
 
-**Tests:** `test_simple_weather_query`, `test_forecast_query`, `test_city_comparison`, `test_expected_failure`
+**Tests:** `test_balance_check`, `test_transfer_funds`, `test_transaction_history`, `test_expected_failure`
 
 ### 2. Two Agents (6 tests)
 
@@ -78,8 +78,8 @@ AGENTS = [
 ]
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_simple_weather(aitest_run, agent, llm_assert):
-    result = await aitest_run(agent, "What's the weather in London?")
+async def test_balance_check(aitest_run, agent, llm_assert):
+    result = await aitest_run(agent, "What's my checking account balance?")
     assert result.success
 ```
 
@@ -114,12 +114,12 @@ The `@pytest.mark.session` marker ensures tests share agent state.
 AGENTS = [
     Agent(name="gpt-5-mini", ...),
     Agent(name="gpt-4.1-mini", ...),
-    Agent(name="gpt-5-mini+skill", ..., skill=WEATHER_SKILL),
+    Agent(name="gpt-5-mini+skill", ..., skill=FINANCIAL_SKILL),
 ]
 
 @pytest.mark.parametrize("agent", AGENTS, ids=lambda a: a.name)
-async def test_weather_query(aitest_run, agent, llm_assert):
-    result = await aitest_run(agent, "What's the weather in Berlin?")
+async def test_balance_query(aitest_run, agent, llm_assert):
+    result = await aitest_run(agent, "What's my checking account balance?")
     assert result.success
 ```
 
@@ -134,12 +134,12 @@ Validate response quality using AI judgment:
 ```python
 # llm_assert is a pytest fixture — just add it to your test function signature
 # Does response mention expected content?
-assert llm_assert(result.final_response, "provides temperature in Celsius and Fahrenheit")
+assert llm_assert(result.final_response, "mentions account balance with dollar amount")
 
 # Complex criteria
 assert llm_assert(
     result.final_response,
-    "recommends specific clothing items based on current temperature"
+    "lists both checking and savings account balances"
 )
 ```
 
@@ -149,14 +149,14 @@ Verify the agent used the right tools:
 
 ```python
 # Simple: was tool called at all?
-assert result.tool_was_called("get_weather")
+assert result.tool_was_called("get_balance")
 
 # Count: how many times?
-assert result.tool_call_count("get_weather") >= 2
+assert result.tool_call_count("get_balance") >= 2
 
 # Arguments: what parameters were passed?
-city = result.tool_call_arg("get_weather", "city")
-assert city.lower() == "berlin"
+account = result.tool_call_arg("get_balance", "account")
+assert account.lower() == "checking"
 
 # Multiple calls: get all invocations
 calls = result.tool_calls_for("transfer")
@@ -242,24 +242,24 @@ When writing fixture tests, follow this pattern:
 Example:
 
 ```python
-async def test_trip_planning(self, aitest_run, weather_server, llm_assert):
+async def test_transfer_workflow(self, aitest_run, banking_server, llm_assert):
     agent = Agent(...)
     
     result = await aitest_run(
         agent,
-        "Plan a trip to Paris. Check weather for the next 3 days."
+        "Check my checking balance, then transfer $100 to savings."
     )
     
     # Validate execution
     assert result.success, f"Agent failed: {result.error}"
     
     # Validate tools used
-    assert result.tool_was_called("get_forecast")
-    days = result.tool_call_arg("get_forecast", "days")
-    assert days == 3, f"Expected 3 days, got {days}"
+    assert result.tool_was_called("transfer")
+    amount = result.tool_call_arg("transfer", "amount")
+    assert amount == 100, f"Expected $100, got {amount}"
     
     # Validate response quality
-    assert llm_assert(result.final_response, "provides weather prediction for 3 days")
+    assert llm_assert(result.final_response, "confirms transfer of $100 to savings")
     
     # Validate efficiency
     assert result.cost_usd < 0.05, f"Cost too high: ${result.cost_usd}"
@@ -290,7 +290,7 @@ assert len(result.available_tools) > 0
 **"Wrong parameter passed"**
 ```python
 # Get all calls to debug
-calls = result.tool_calls_for("get_weather")
+calls = result.tool_calls_for("get_balance")
 for i, call in enumerate(calls):
     print(f"Call {i}: {call.arguments}")
 ```
@@ -301,7 +301,7 @@ for i, call in enumerate(calls):
 print(f"Response:\n{result.final_response}")
 
 # Check if criterion is too strict
-assert llm_assert(result.final_response, "mentions weather")  # Too vague
+assert llm_assert(result.final_response, "mentions balance")  # Too vague
 assert llm_assert(result.final_response, "exact phrase")      # Too narrow
 ```
 

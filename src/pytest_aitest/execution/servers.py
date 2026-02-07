@@ -291,11 +291,15 @@ class CLIServerProcess:
         # Build shell command
         if self._shell == "none":
             # Direct execution: no shell wrapper.
-            # Uses shlex.split to parse the command string into proper arguments,
-            # preserving quoted strings (e.g., JSON arrays with double quotes).
-            # This avoids shell-specific quoting issues (PowerShell strips inner
-            # double quotes when passing to native commands).
-            cmd = shlex.split(full_cmd, posix=True)
+            # Split base command and args separately:
+            # - Base command: use posix=False on Windows to preserve backslashes
+            #   in paths (posix=True treats backslash as escape character).
+            # - Args: always use posix=True to properly handle quoted strings
+            #   (e.g., JSON arrays like "[1,2,3]").
+            base_parts = shlex.split(self.config.command, posix=(sys.platform != "win32"))
+            if args:
+                base_parts.extend(shlex.split(args, posix=True))
+            cmd = base_parts
         elif self._shell in ("powershell", "pwsh"):
             shell_exe = "powershell" if self._shell == "powershell" else "pwsh"
             cmd = [shell_exe, "-NoProfile", "-NonInteractive", "-Command", full_cmd]

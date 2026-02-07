@@ -12,7 +12,7 @@ How pytest-aitest executes tests and dispatches tools.
 ┌─────────────────────────────────────────────────────────┐
 │                     pytest-aitest                        │
 ├─────────────────────────────────────────────────────────┤
-│  Test: "What's the weather in Paris?"                   │
+│  Test: "What's my checking balance?"                      │
 │                         │                                │
 │                         ▼                                │
 │  ┌─────────────────────────────────────────────────┐    │
@@ -39,7 +39,7 @@ All MCP and CLI servers defined in the agent are started as subprocesses:
 ```python
 agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server, calendar_server],  # Started
+    mcp_servers=[banking_server, calendar_server],  # Started
     cli_servers=[git_cli],                           # Started
 )
 ```
@@ -61,10 +61,10 @@ The engine enters a turn-based loop:
 
 ```
 Turn 1: Send prompt + tool definitions to LLM
-        LLM responds: "I'll check the weather" + tool_call(get_weather, city="Paris")
+        LLM responds: "I'll check the balance" + tool_call(get_balance, account="checking")
         
 Turn 2: Execute tool, send result to LLM
-        LLM responds: "The weather in Paris is 20°C and sunny"
+        LLM responds: "Your checking balance is $1,500.00"
         
 Done: No more tool calls, return final response
 ```
@@ -88,7 +88,7 @@ When the LLM requests a tool call:
 Every turn is recorded in the `AgentResult`:
 
 ```python
-result = await aitest_run(agent, "What's the weather?")
+result = await aitest_run(agent, "What's my checking balance?")
 
 result.turns          # List of all conversation turns
 result.all_tool_calls # All tool calls made
@@ -138,7 +138,7 @@ When an agent has a skill, it's injected into the system prompt:
 ```python
 agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
-    skill=Skill.from_path("skills/weather-expert"),
+    skill=Skill.from_path("skills/financial-advisor"),
     system_prompt="You are a helpful assistant.",
 )
 ```

@@ -15,7 +15,15 @@ from litellm.exceptions import RateLimitError as LiteLLMRateLimitError
 
 from pytest_aitest.core.auth import get_azure_ad_token_provider
 from pytest_aitest.core.errors import EngineTimeoutError, RateLimitError
-from pytest_aitest.core.result import AgentResult, SkillInfo, ToolCall, ToolInfo, Turn
+from pytest_aitest.core.result import (
+    AgentResult,
+    ClarificationStats,
+    SkillInfo,
+    ToolCall,
+    ToolInfo,
+    Turn,
+)
+from pytest_aitest.execution.clarification import check_clarification
 from pytest_aitest.execution.retry import RetryConfig, with_retry
 from pytest_aitest.execution.skill_tools import (
     execute_skill_tool,
@@ -40,7 +48,7 @@ class AgentEngine:
     Example:
         engine = AgentEngine(agent, server_manager)
         await engine.initialize()
-        result = await engine.run("What's the weather?")
+        result = await engine.run("What's my checking balance?")
         await engine.shutdown()
     """
 
@@ -145,6 +153,11 @@ class AgentEngine:
         # Track session context for reporting
         session_context_count = len(messages) if messages else 0
 
+        # Initialize clarification detection
+        clarification_stats: ClarificationStats | None = None
+        if self.agent.clarification_detection.enabled:
+            clarification_stats = ClarificationStats()
+
         # Build initial messages
         if messages:
             # Continue from prior conversation (session mode)
@@ -203,6 +216,19 @@ class AgentEngine:
                         turns.append(Turn(role="assistant", content=content))
                         # Add final response to conversation for session continuity
                         conversation.append({"role": "assistant", "content": content})
+
+                        # Check for clarification if detection is enabled
+                        if clarification_stats is not None and content.strip():
+                            is_clarification = await self._check_clarification(content)
+                            if is_clarification:
+                                clarification_stats.count += 1
+                                clarification_stats.turn_indices.append(len(turns) - 1)
+                                if len(clarification_stats.examples) < 3:
+                                    preview = (
+                                        content[:200] + "..." if len(content) > 200 else content
+                                    )
+                                    clarification_stats.examples.append(preview)
+
                         break
 
                     # Check finish reason
@@ -224,6 +250,7 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                clarification_stats=clarification_stats,
             )
         except RateLimitError as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -239,6 +266,7 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                clarification_stats=clarification_stats,
             )
         except Exception as e:
             duration_ms = (time.perf_counter() - start_time) * 1000
@@ -254,6 +282,7 @@ class AgentEngine:
                 available_tools=self._available_tools,
                 skill_info=self._skill_info,
                 effective_system_prompt=self._effective_system_prompt,
+                clarification_stats=clarification_stats,
             )
 
         duration_ms = (time.perf_counter() - start_time) * 1000
@@ -268,6 +297,7 @@ class AgentEngine:
             available_tools=self._available_tools,
             skill_info=self._skill_info,
             effective_system_prompt=self._effective_system_prompt,
+            clarification_stats=clarification_stats,
         )
 
     def _build_system_prompt(self) -> str | None:
@@ -286,6 +316,16 @@ class AgentEngine:
             return None
 
         return "\n\n".join(parts)
+
+    async def _check_clarification(self, response_text: str) -> bool:
+        """Check if a response asks for clarification using the judge LLM."""
+        detection = self.agent.clarification_detection
+        judge_model = detection.judge_model or self.agent.provider.model
+        return await check_clarification(
+            response_text,
+            judge_model=judge_model,
+            azure_ad_token_provider=self._azure_ad_token_provider,
+        )
 
     async def _call_llm_with_retry(self, messages: list[dict[str, Any]]) -> Any:
         """Call the LLM with retry logic for rate limits."""

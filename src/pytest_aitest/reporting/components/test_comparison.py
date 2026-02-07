@@ -175,17 +175,17 @@ def _agent_result_column(
         failed_border = "border-l-[3px] border-red-500"
         border_class = passed_border if result.passed else failed_border
         status_text = "passed" if result.passed else "failed"
-        passed_bg = "bg-green-500/15 text-green-400"
-        failed_bg = "bg-red-500/15 text-red-400"
-        status_bg = passed_bg if result.passed else failed_bg
+        status_class = (
+            "bg-green-500/15 text-green-400" if result.passed else "bg-red-500/15 text-red-400"
+        )
     else:
         border_class = "opacity-50"
         status_text = None
-        status_bg = None
+        status_class = None
 
     status_span = None
     if status_text:
-        status_span = span(class_=f"px-2 py-0.5 rounded text-xs font-medium {status_bg}")[
+        status_span = span(class_=f"px-2 py-0.5 rounded text-xs font-medium {status_class}")[
             status_text
         ]
 

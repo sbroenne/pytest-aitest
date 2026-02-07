@@ -6,19 +6,19 @@ Tests should import constants from here and create agents inline.
 Example:
     from tests.integration.conftest import (
         DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM, DEFAULT_MAX_TURNS,
-        BENCHMARK_MODELS, WEATHER_PROMPT, TODO_PROMPT,
+        BENCHMARK_MODELS, BANKING_PROMPT, TODO_PROMPT,
     )
 
     @pytest.mark.asyncio
-    async def test_weather(aitest_run, weather_server):
+    async def test_banking(aitest_run, banking_server):
         agent = Agent(
-            name="weather-test",
+            name="banking-test",
             provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
-            mcp_servers=[weather_server],
-            system_prompt=WEATHER_PROMPT,
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
             max_turns=DEFAULT_MAX_TURNS,
         )
-        result = await aitest_run(agent, "What's the weather in Paris?")
+        result = await aitest_run(agent, "What's my checking balance?")
         assert result.success
 """
 
@@ -81,17 +81,19 @@ DEFAULT_MAX_TURNS = 5
 # System Prompts
 # =============================================================================
 
-WEATHER_PROMPT = """You are a weather assistant with access to real-time weather tools.
+BANKING_PROMPT = """You are a banking assistant with access to account management tools.
 
-IMPORTANT: Always use the available tools to get weather data. Never guess or use your training data for weather information - it may be outdated. The tools provide current, accurate data.
+IMPORTANT: Always use the available tools to manage accounts. Never guess balances or transaction details - the tools provide accurate, real-time data.
 
 Available tools:
-- get_weather: Get current weather for a city
-- get_forecast: Get multi-day forecast for a city
-- list_cities: See which cities have weather data
-- compare_weather: Compare weather between two cities
+- get_balance: Get current balance for a specific account
+- get_all_balances: See all account balances at once
+- transfer: Move money between accounts
+- deposit: Add money to an account
+- withdraw: Take money from an account
+- get_transactions: View transaction history
 
-When asked about weather, ALWAYS call the appropriate tool first, then respond based on the tool's output."""
+When asked about accounts, ALWAYS call the appropriate tool first, then respond based on the tool's output."""
 
 TODO_PROMPT = """You are a task management assistant with access to a todo list system.
 
@@ -112,20 +114,6 @@ KEYVALUE_PROMPT = "You are a helpful assistant. Use the tools to complete tasks.
 # =============================================================================
 # MCP Server Fixtures
 # =============================================================================
-
-
-@pytest.fixture(scope="module")
-def weather_server():
-    """Weather MCP server - simple "hello world" for testing."""
-    return MCPServer(
-        command=[
-            sys.executable,
-            "-u",
-            "-m",
-            "pytest_aitest.testing.weather_mcp",
-        ],
-        wait=Wait.for_tools(["get_weather", "get_forecast", "list_cities"]),
-    )
 
 
 @pytest.fixture(scope="module")

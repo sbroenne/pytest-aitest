@@ -78,7 +78,7 @@ provider = Provider(
 ## Agent Configuration
 
 ```python
-from pytest_aitest import Agent, Provider, MCPServer
+from pytest_aitest import Agent, ClarificationDetection, Provider, MCPServer
 
 agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
@@ -89,6 +89,7 @@ agent = Agent(
     max_turns=10,                       # Max tool-call rounds
     name="my-agent",                    # Identifier for reports (optional)
     allowed_tools=["tool1", "tool2"],   # Filter tools (optional, reduces tokens)
+    clarification_detection=ClarificationDetection(enabled=True),  # Detect clarification questions
 )
 ```
 
@@ -131,14 +132,14 @@ See [Test CLI Tools](../how-to/test-cli-tools.md) for complete options.
 The main fixture for running tests:
 
 ```python
-async def test_weather(aitest_run):
+async def test_banking(aitest_run):
     agent = Agent(
-        name="weather",
+        name="banking",
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
     )
     
-    result = await aitest_run(agent, "What's the weather?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 

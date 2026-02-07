@@ -11,8 +11,8 @@ System prompts define agent behavior. Test different prompts to find what works.
 ```python
 agent = Agent(
     provider=Provider(model="azure/gpt-5-mini"),
-    mcp_servers=[weather_server],
-    system_prompt="You are a weather assistant. Be concise and direct.",
+    mcp_servers=[banking_server],
+    system_prompt="You are a banking assistant. Be concise and direct.",
 )
 ```
 
@@ -35,7 +35,7 @@ The system prompt affects both the *quality* of responses and the *cost* (longer
 |--------|---------------|-------------|
 | Purpose | Define behavior | Provide domain knowledge |
 | Content | Instructions | Reference material |
-| Example | "Be concise" | "Temperature chart..." |
+| Example | "Be concise" | "Account fee schedule..." |
 | Parameter | `system_prompt=` | `skill=` |
 
 You can use both together. The skill content is prepended to the system prompt.
@@ -72,13 +72,13 @@ from pytest_aitest import Agent, Provider, load_system_prompts
 PROMPTS = load_system_prompts(Path("prompts/"))
 
 @pytest.mark.parametrize("name,system_prompt", PROMPTS.items())
-async def test_weather_query(aitest_run, weather_server, name, system_prompt):
+async def test_balance_query(aitest_run, banking_server, name, system_prompt):
     agent = Agent(
         provider=Provider(model="azure/gpt-5-mini"),
-        mcp_servers=[weather_server],
+        mcp_servers=[banking_server],
         system_prompt=system_prompt,
     )
-    result = await aitest_run(agent, "What's the weather in Paris?")
+    result = await aitest_run(agent, "What's my checking balance?")
     assert result.success
 ```
 

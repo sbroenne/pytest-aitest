@@ -15,6 +15,49 @@ if TYPE_CHECKING:
     from pytest_aitest.core.skill import Skill
 
 
+class ClarificationLevel(Enum):
+    """Severity level when clarification is detected."""
+
+    INFO = "info"  # Log only, don't affect test outcome
+    WARNING = "warning"  # Log and record as warning
+    ERROR = "error"  # Treat as test error
+
+
+@dataclass(slots=True, frozen=True)
+class ClarificationDetection:
+    """Configuration for detecting when an agent asks for clarification.
+
+    When enabled, uses a judge LLM to detect if the agent is asking the user
+    for clarification (e.g., \"Would you like me to...?\") instead of executing
+    the requested task. This is important because agents being tested should
+    act autonomously, not ask questions.
+
+    The judge model can be the same as the agent's model (default) or a
+    separate, cheaper model.
+
+    Example:
+        # Use agent's own model as judge
+        Agent(
+            provider=Provider(model="azure/gpt-5-mini"),
+            clarification_detection=ClarificationDetection(enabled=True),
+        )
+
+        # Use a separate cheaper model as judge
+        Agent(
+            provider=Provider(model="azure/gpt-4.1"),
+            clarification_detection=ClarificationDetection(
+                enabled=True,
+                level=ClarificationLevel.ERROR,
+                judge_model="azure/gpt-5-mini",
+            ),
+        )
+    """
+
+    enabled: bool = False
+    level: ClarificationLevel = ClarificationLevel.WARNING
+    judge_model: str | None = None  # None = use agent's own model
+
+
 class WaitStrategy(Enum):
     """Wait strategy for server startup."""
 
@@ -195,9 +238,9 @@ class Agent:
 
     Example:
         Agent(
-            name="weather-fast",
+            name="banking-fast",
             provider=Provider(model="azure/gpt-5-mini"),
-            mcp_servers=[weather_server],
+            mcp_servers=[banking_server],
             system_prompt="Be concise.",
         )
 
@@ -206,7 +249,7 @@ class Agent:
 
         @pytest.mark.parametrize("agent", agents, ids=lambda a: a.name)
         async def test_query(aitest_run, agent):
-            result = await aitest_run(agent, "What's the weather?")
+            result = await aitest_run(agent, "What's my balance?")
 
     Filtering tools:
         Agent(
@@ -226,6 +269,7 @@ class Agent:
     skill: Skill | None = None
     allowed_tools: list[str] | None = None  # Filter to specific tools (None = all)
     system_prompt_name: str | None = None  # Label for system prompt (for report grouping)
+    clarification_detection: ClarificationDetection = field(default_factory=ClarificationDetection)
 
     def __post_init__(self) -> None:
         """Auto-construct name from dimensions if not explicitly set."""

@@ -66,6 +66,18 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
                     )
                 )
 
+            # Reconstruct clarification stats if present
+            from pytest_aitest.core.result import ClarificationStats
+
+            clarification_stats = None
+            if ar_data.get("clarification_stats") is not None:
+                cs_data = ar_data["clarification_stats"]
+                clarification_stats = ClarificationStats(
+                    count=cs_data.get("count", 0),
+                    turn_indices=cs_data.get("turn_indices", []),
+                    examples=cs_data.get("examples", []),
+                )
+
             # Reconstruct agent result
             agent_result = AgentResult(
                 turns=turns,
@@ -75,6 +87,7 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
                 token_usage=ar_data.get("token_usage", {}),
                 cost_usd=ar_data.get("cost_usd", 0.0),
                 session_context_count=ar_data.get("session_context_count", 0),
+                clarification_stats=clarification_stats,
             )
 
         # Read identity from typed fields
