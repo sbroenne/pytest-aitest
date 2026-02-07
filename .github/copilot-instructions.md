@@ -39,6 +39,16 @@ Always say "system prompt" when referring to agent instructions. Never abbreviat
 
 In documentation, always show `uv add` instead of `pip install`.
 
+## CRITICAL: Never Force Commit
+
+**Never use `git commit --no-verify`. Pre-commit hooks exist for a reason.**
+
+- If a hook fails, **fix the issue** and commit normally
+- `ruff format` reformats files → re-stage and retry
+- `pyright` reports errors → fix the code
+- If a hook is genuinely broken (e.g., false positive with 0 errors), fix the hook config — not bypass it
+- Force-committing creates a habit of ignoring quality gates
+
 ## CRITICAL: What We Test
 
 **We do NOT test agents. We USE agents to test:**
