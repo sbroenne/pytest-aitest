@@ -1,8 +1,7 @@
 ---
+title: "Test your AI interfaces. AI analyzes your results."
 description: "A pytest plugin for testing MCP servers, tools, system prompts, and agent skills with real LLMs. AI analyzes results and tells you what to fix."
 ---
-
-# pytest-aitest
 
 # Test your AI interfaces. AI analyzes your results.
 
