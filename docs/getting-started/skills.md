@@ -1,3 +1,7 @@
+---
+description: "Add domain knowledge to AI agents with Agent Skills following the agentskills.io specification. Test whether skills improve agent performance."
+---
+
 # Agent Skills
 
 An **Agent Skill** is a domain knowledge module following the [agentskills.io](https://agentskills.io/specification) specification. Skills provide:

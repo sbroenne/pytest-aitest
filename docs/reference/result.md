@@ -1,3 +1,7 @@
+---
+description: "AgentResult API reference. Inspect tool calls, turns, tokens, cost, and assert on agent behavior in pytest-aitest tests."
+---
+
 # AgentResult
 
 Validate agent behavior using `AgentResult` properties and methods.

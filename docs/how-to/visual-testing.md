@@ -1,3 +1,7 @@
+---
+description: "Validate HTML report rendering with Playwright browser automation. Ensure report components render correctly across scenarios."
+---
+
 # Visual Testing with Playwright
 
 Validate HTML report rendering and UI interactions using Playwright browser automation.

@@ -1,3 +1,7 @@
+---
+description: "Write your first AI test in under 5 minutes. Set up pytest-aitest to test MCP servers, tools, and system prompts with real LLMs."
+---
+
 # Getting Started
 
 Write your first AI test in under 5 minutes.

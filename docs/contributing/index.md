@@ -1,3 +1,7 @@
+---
+description: "Contribute to pytest-aitest: development setup, coding standards, and project architecture."
+---
+
 # Contributing
 
 Resources for contributors and developers working on pytest-aitest itself.

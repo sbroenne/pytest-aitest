@@ -1,3 +1,7 @@
+---
+description: "Built-in Weather, Todo, and Banking MCP test servers for validating agent behavior without external dependencies."
+---
+
 # Test Harnesses
 
 Built-in MCP servers for testing agent behavior without external dependencies.

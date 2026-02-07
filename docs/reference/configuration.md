@@ -1,3 +1,7 @@
+---
+description: "Configure pytest-aitest via pyproject.toml or command-line flags. Set up models, reports, pass rate thresholds, and provider settings."
+---
+
 # Configuration
 
 ## Quick Setup (pyproject.toml)

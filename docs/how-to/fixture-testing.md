@@ -1,3 +1,7 @@
+---
+description: "Use pre-built fixture test suites with semantic, tool, and performance assertions to validate AI agent behavior systematically."
+---
+
 # Fixture Testing with Comprehensive Assertions
 
 Test your AI agents using pre-built fixture test suites with semantic, tool, and performance assertions.

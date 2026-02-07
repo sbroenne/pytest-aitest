@@ -1,3 +1,7 @@
+---
+description: "A/B test MCP server implementations. Compare tool descriptions, parameter schemas, and error handling to find what LLMs understand best."
+---
+
 # A/B Testing MCP Servers
 
 Compare different MCP server implementations to find what works best.

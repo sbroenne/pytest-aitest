@@ -1,3 +1,7 @@
+---
+description: "Internal architecture of pytest-aitest: test execution pipeline, tool dispatch, server lifecycle, and reporting system."
+---
+
 # Architecture
 
 How pytest-aitest executes tests and dispatches tools.

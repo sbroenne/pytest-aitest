@@ -1,6 +1,7 @@
 site_name: pytest-aitest
-site_description: Pytest plugin for testing AI agents with MCP and CLI servers
+site_description: "A pytest plugin for testing MCP servers, tools, system prompts, and agent skills with real LLMs. AI analyzes results and tells you what to fix."
 site_url: https://sbroenne.github.io/pytest-aitest
+site_author: sbroenne
 repo_url: https://github.com/sbroenne/pytest-aitest
 repo_name: sbroenne/pytest-aitest
 
@@ -36,6 +37,9 @@ theme:
 
 plugins:
   - search
+  - social:
+      enabled: !ENV [CI, false]
+  - meta
   - mkdocstrings:
       handlers:
         python:
@@ -99,3 +103,4 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/sbroenne/pytest-aitest
+  generator: false

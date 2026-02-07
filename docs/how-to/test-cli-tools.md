@@ -1,3 +1,7 @@
+---
+description: "Test command-line tools with AI agents. Wrap CLI tools as MCP-compatible servers and validate LLM interactions."
+---
+
 # How to Test CLI Tools
 
 Wrap command-line tools as MCP-like servers for testing CLI-based interfaces.
