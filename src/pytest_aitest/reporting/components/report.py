@@ -48,7 +48,7 @@ def _load_static_asset(path: str) -> str:
 
 def _html_head(report: ReportMetadata) -> Node:
     """Render the HTML head section."""
-    css_content = _load_static_asset("partials/tailwind.css")
+    css_content = _load_static_asset("partials/report.css")
 
     return head[
         meta(charset="UTF-8"),

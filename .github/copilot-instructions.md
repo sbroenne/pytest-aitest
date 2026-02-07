@@ -80,54 +80,31 @@ For LLMs, your API isn't functions and types — it's **tool descriptions, syste
 
 **MANDATORY STEPS AFTER EVERY CODE CHANGE:**
 
-1. **RUN VISUAL TESTS** (non-negotiable)
+1. **RUN UNIT TESTS** (non-negotiable)
    ```bash
-   uv run pytest tests/visual/ -q
+   uv run pytest tests/unit/test_html_reports.py -q
    ```
-   - All 44 tests MUST PASS
-   - Tests verify HTML rendering in actual browser
+   - All 74 tests MUST PASS
+   - Tests verify HTML structure via string assertions
    - Do NOT proceed if any test fails
 
-2. **VERIFY TEST ASSERTIONS** (non-negotiable)
-   - Understand what each test checks for
-   - Mentally verify the code change addresses the test requirement
-   - Do NOT assume tests passing means feature works correctly
-
-3. **REGENERATE ALL REPORTS** (non-negotiable)
+2. **REGENERATE ALL REPORTS** (non-negotiable)
    ```bash
    uv run python scripts/generate_fixture_html.py
    ```
-   - Generates 4 fixture reports in docs/reports/
+   - Generates fixture reports in docs/reports/
    - Do NOT skip this step
 
-4. **VERIFY CHANGES IN ACTUAL HTML** (non-negotiable)
+3. **VERIFY CHANGES IN ACTUAL HTML** (non-negotiable)
    ```bash
    Select-String -Path "docs\reports\01_single_agent.html" -Pattern "YOUR_SEARCH_TERM"
    ```
-   - Search for the specific change (e.g., "Single agent tests", "✓ Assertions", "whitespace-pre-wrap")
    - Confirm change is present in generated HTML
-   - Do NOT proceed without this verification
-
-5. **OPEN IN BROWSER** (when feasible)
-   - Visually inspect the HTML report
-   - Verify feature works as intended
-   - Catch CSS/layout issues that grep won't find
-
-**IF CHANGE DOESN'T APPEAR IN HTML:**
-- Check if test fixture JSON has the data (examine .json file)
-- Check if generator.py is reading it (add print statements if needed)
-- Check if template component is receiving it (inspect types)
-- Check if component is rendering it (check htpy code)
-- Verify HTML output contains the CSS/classes
-- Regenerate reports again
-- Search HTML again with broader patterns
+   - Open in browser when feasible
 
 **WHAT NOT TO DO:**
 - ❌ Assume tests passing means feature works
-- ❌ Skip visual tests
-- ❌ Skip report regeneration  
-- ❌ Assume old code won't still generate old output
-- ❌ Proceed without searching HTML for the change
+- ❌ Skip report regeneration
 - ❌ Modify fixture JSONs directly - regenerate via pytest
 - ❌ Commit without verifying in browser
 
@@ -443,16 +420,9 @@ src/pytest_aitest/
 │       ├── test_comparison.py    # Side-by-side agent comparison
 │       └── overlay.py            # Fullscreen expanded view
 ├── templates/             # Static assets for HTML reports
-│   ├── input.css          # Source CSS (Tailwind input)
-│   ├── tailwind.config.js # Tailwind CSS configuration
 │   └── partials/          # Static assets
-│       ├── tailwind.css   # Built CSS (generated - do not edit)
+│       ├── report.css     # Hand-written CSS (edit directly)
 │       └── scripts.js     # JS (Mermaid, copy buttons, filtering)
-│       ├── agent_leaderboard.html  # Agent ranking table
-│       ├── agent_selector.html     # Agent comparison toggles
-│       ├── test_grid.html          # Test results grid
-│       ├── test_comparison.html    # Side-by-side agent comparison
-│       └── overlay.html            # Fullscreen expanded view
 └── testing/               # Test harnesses
     ├── weather.py         # WeatherStore for demos
     ├── weather_mcp.py     # Weather MCP server
@@ -559,28 +529,27 @@ Every htpy component has a **typed data contract** in `components/types.py`. Thi
 
 ```
 src/pytest_aitest/templates/
-├── tailwind.config.js       # Tailwind CSS configuration
-├── input.css                # Source CSS (processed by Tailwind)
 └── partials/
-    ├── tailwind.css         # Built CSS (DO NOT EDIT - generated)
+    ├── report.css           # Hand-written CSS (edit directly)
     └── scripts.js           # JS: Mermaid, copy buttons, expand/collapse, agent filtering
 ```
 
 **Note:** HTML rendering is handled by htpy components in `reporting/components/`, not by template files.
 
-### CSS Development with Tailwind
+### CSS Development
 
-The project uses Tailwind CSS. **Never edit `partials/tailwind.css` directly.**
+The project uses hand-written CSS in `partials/report.css`. No build step needed — edit and regenerate reports.
 
-```bash
-# Build CSS after editing input.css or Tailwind classes in templates
-npx tailwindcss -i ./src/pytest_aitest/templates/input.css \
-                -o ./src/pytest_aitest/templates/partials/tailwind.css \
-                -c ./src/pytest_aitest/templates/tailwind.config.js
+The CSS provides:
+- Design tokens as CSS custom properties (colors, shadows, radii, fonts)
+- Utility classes matching the patterns used by htpy components
+- Semantic component classes (`.card`, `.leaderboard-table`, `.agent-chip`, etc.)
+- Markdown content styling
 
-# Or use the build script
-uv run python scripts/build_css.py
-```
+To modify styles:
+1. Edit `src/pytest_aitest/templates/partials/report.css`
+2. Regenerate report: `uv run pytest-aitest-report aitest-reports/results.json --html aitest-reports/test.html`
+3. Open in browser and verify
 
 ### Report Sources
 
@@ -658,14 +627,13 @@ uv run pytest-aitest-report aitest-reports/results.json --html aitest-reports/te
 - Data contract changes (if backward compatible)
 
 **Workflow for template development:**
-1. Edit templates in `src/pytest_aitest/templates/`
-2. If using new Tailwind classes, rebuild CSS first
-3. Regenerate report from existing JSON:
+1. Edit CSS in `src/pytest_aitest/templates/partials/report.css` or htpy components
+2. Regenerate report from existing JSON:
    ```bash
    uv run pytest-aitest-report aitest-reports/results.json --html aitest-reports/test.html
    ```
-4. Open the HTML file in browser
-5. Repeat steps 1-4 until satisfied
+3. Open the HTML file in browser
+4. Repeat steps 1-3 until satisfied
 
 This workflow is **instant and free** - no LLM calls, no API costs.
 
@@ -677,7 +645,7 @@ This workflow is **instant and free** - no LLM calls, no API costs.
 | `reporting/generator.py` | Changing how context is built for components |
 | `reporting/components/*.py` | Individual UI components (htpy) |
 | `templates/partials/scripts.js` | Interactivity, Mermaid diagrams |
-| `templates/input.css` | Base styles, custom CSS (then rebuild Tailwind) |
+| `templates/partials/report.css` | Styles, colors, layout |
 | `cli.py` | CLI commands for report regeneration |
 
 ### Report Design Principles

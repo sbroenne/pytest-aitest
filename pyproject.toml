@@ -140,7 +140,5 @@ markers = [
 # UV/PEP 735 dependency groups (for uv sync)
 [dependency-groups]
 dev = [
-    "playwright>=1.58.0",
     "pytest-aitest[dev,test,azure,docs]",
-    "pytest-playwright>=0.7.2",
 ]
