@@ -1,3 +1,7 @@
+---
+description: "HTML report component structure: agent leaderboard, test grid, comparison view, sequence diagrams, and AI insights layout."
+---
+
 # Report Structure
 
 The visual structure and components of pytest-aitest HTML reports.

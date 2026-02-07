@@ -1,3 +1,7 @@
+---
+description: "AI-powered test analysis that tells you what to fix. Get deployment recommendations, tool feedback, prompt improvements, and cost optimizations."
+---
+
 # AI Analysis
 
 Every pytest-aitest report includes AI-generated analysis. An LLM reads your test results and produces actionable feedback — not just metrics.

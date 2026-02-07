@@ -1,3 +1,7 @@
+---
+description: "Command-line options for pytest-aitest: configure reports, AI analysis models, minimum pass rates, and more."
+---
+
 # CLI Options
 
 ## Recommended: pyproject.toml

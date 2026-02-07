@@ -1,3 +1,7 @@
+---
+description: "Test and compare system prompts for AI agents. Find the prompt that produces the best tool usage and response quality."
+---
+
 # System Prompts
 
 System prompts define agent behavior. Test different prompts to find what works.

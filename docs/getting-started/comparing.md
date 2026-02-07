@@ -1,3 +1,7 @@
+---
+description: "Compare LLM models, system prompts, and agent configurations side-by-side. Find the most cost-effective setup with automated leaderboards."
+---
+
 # Comparing Configurations
 
 The power of pytest-aitest is comparing different configurations to find what works best.

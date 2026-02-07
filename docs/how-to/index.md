@@ -1,3 +1,7 @@
+---
+description: "Step-by-step guides for testing MCP servers, CLI tools, generating AI-analyzed reports, and more with pytest-aitest."
+---
+
 # How-To Guides
 
 Goal-oriented guides for common tasks.

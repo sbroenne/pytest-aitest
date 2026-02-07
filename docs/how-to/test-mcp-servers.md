@@ -1,3 +1,7 @@
+---
+description: "Test MCP servers with real LLMs. Verify tool discovery, parameter handling, and error recovery using pytest-aitest."
+---
+
 # How to Test MCP Servers
 
 Test your Model Context Protocol (MCP) servers by running LLM agents against them.

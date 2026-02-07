@@ -1,3 +1,7 @@
+---
+description: "Complete end-to-end example demonstrating all pytest-aitest capabilities in a banking scenario: multi-agent testing, sessions, skills, and AI analysis."
+---
+
 # Complete Example: Tying It All Together
 
 This guide walks through the **hero test suite** — a comprehensive example demonstrating all pytest-aitest capabilities in a single, cohesive banking scenario.

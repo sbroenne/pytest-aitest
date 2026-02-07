@@ -1,3 +1,7 @@
+---
+description: "Auto-generated API documentation for pytest-aitest core types: Agent, Provider, MCPServer, CLIServer, Skill, and more."
+---
+
 # API Reference
 
 Auto-generated API documentation from source code.

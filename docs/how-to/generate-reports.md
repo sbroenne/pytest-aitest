@@ -1,3 +1,7 @@
+---
+description: "Generate HTML reports with AI-powered analysis, agent leaderboards, sequence diagrams, and actionable fix recommendations."
+---
+
 # How to Generate Reports
 
 Generate HTML, JSON, and Markdown reports with AI-powered insights.

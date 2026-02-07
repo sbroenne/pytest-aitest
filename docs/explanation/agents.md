@@ -1,3 +1,7 @@
+---
+description: "Understand Agents in pytest-aitest: an Agent combines an LLM provider, MCP servers, system prompts, and skills into a test harness."
+---
+
 # Agents
 
 The core concept in pytest-aitest.

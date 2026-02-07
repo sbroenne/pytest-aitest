@@ -1,3 +1,7 @@
+---
+description: "Understand the design philosophy behind pytest-aitest: why agents are test harnesses, how AI analysis works, and architectural decisions."
+---
+
 # Explanation
 
 Understanding the design and concepts behind pytest-aitest.

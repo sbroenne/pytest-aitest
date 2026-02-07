@@ -1,3 +1,7 @@
+---
+description: "Test multi-turn conversations where agents maintain context across tests. Validate session continuity, context retention, and sequential workflows."
+---
+
 # Multi-Turn Sessions
 
 So far, each test is independent—the agent has no memory between tests. **Sessions** let multiple tests share conversation history, simulating real multi-turn interactions.
