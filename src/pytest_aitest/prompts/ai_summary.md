@@ -142,6 +142,7 @@ Use these sections as needed (skip sections with no content):
 - `⚠️` Warning: Errors occurred, or LLM confused it with similar tools
 - `❌` Error: Always fails, or never called when it should be
 - **Focus on disambiguation**: If tools have similar names/purposes, suggest clearer descriptions
+- **Tool coverage**: If the input includes a "Tool Coverage" section listing uncalled tools, mention them. But do NOT flag uncalled tools as a problem unless a test explicitly failed because the tool wasn't called (look for `tool_was_called` in error messages). Uncalled tools with all tests passing means the test suite simply doesn't cover those tools — it's a coverage observation, not a bug.
 
 ### System Prompt Feedback
 - **Effective**: Agent followed instructions correctly

@@ -65,6 +65,16 @@ Auto-generated API documentation from source code.
       show_source: false
       heading_level: 3
 
+::: pytest_aitest.core.result.ToolInfo
+    options:
+      show_source: false
+      heading_level: 3
+
+::: pytest_aitest.core.result.SkillInfo
+    options:
+      show_source: false
+      heading_level: 3
+
 ## Skill Types
 
 ::: pytest_aitest.core.skill.Skill
@@ -72,9 +82,34 @@ Auto-generated API documentation from source code.
       show_source: false
       heading_level: 3
 
-## Prompt Functions
+::: pytest_aitest.core.skill.SkillMetadata
+    options:
+      show_source: false
+      heading_level: 3
+
+::: pytest_aitest.core.skill.load_skill
+    options:
+      show_source: false
+      heading_level: 3
+
+## Prompt Types
+
+::: pytest_aitest.core.prompt.Prompt
+    options:
+      show_source: false
+      heading_level: 3
 
 ::: pytest_aitest.core.prompt.load_system_prompts
+    options:
+      show_source: false
+      heading_level: 3
+
+::: pytest_aitest.core.prompt.load_prompts
+    options:
+      show_source: false
+      heading_level: 3
+
+::: pytest_aitest.core.prompt.load_prompt
     options:
       show_source: false
       heading_level: 3

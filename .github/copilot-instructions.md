@@ -283,7 +283,7 @@ Reports include:
 pytest tests/ --aitest-html=report.html --aitest-summary-model=azure/gpt-5.2-chat
 
 # Regenerate report with new AI insights from existing JSON (no re-run)
-pytest-aitest-report results.json --html=report.html --regenerate --summary-model=azure/gpt-5-mini
+pytest-aitest-report results.json --html report.html --summary --summary-model azure/gpt-5-mini
 ```
 
 ### Key Types
@@ -328,12 +328,16 @@ class TestBankingWorkflow:
 
 ### System Prompts
 
-System prompts are plain `.md` files. No YAML, no classes.
+System prompts can be plain `.md` files or YAML files with metadata.
 
 ```python
-# Load from directory - returns dict[str, str]
+# Load .md files as plain strings - returns dict[str, str]
 prompts = load_system_prompts(Path("prompts/"))
 # {"concise": "Be brief...", "detailed": "Explain..."}
+
+# Or load .yaml files as Prompt objects - returns list[Prompt]
+from pytest_aitest import load_prompts
+prompt_list = load_prompts(Path("prompts/"))
 
 # Use with pytest parametrize
 @pytest.mark.parametrize("prompt_name,system_prompt", prompts.items())
