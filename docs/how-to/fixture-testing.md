@@ -134,12 +134,12 @@ Validate response quality using AI judgment:
 ```python
 # llm_assert is a pytest fixture — just add it to your test function signature
 # Does response mention expected content?
-assert llm_assert(result.final_response, "provides temperature in Celsius and Fahrenheit")
+assert llm_assert(result.final_response, "mentions account balance with dollar amount")
 
 # Complex criteria
 assert llm_assert(
     result.final_response,
-    "recommends specific clothing items based on current temperature"
+    "lists both checking and savings account balances"
 )
 ```
 

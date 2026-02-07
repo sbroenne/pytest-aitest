@@ -259,6 +259,13 @@ if TYPE_CHECKING:
    - Skills inject structured knowledge into agent context
    - Reports analyze skill effectiveness and suggest improvements
 
+6. **Clarification Detection**: Catch agents that ask questions instead of acting
+   - LLM-as-judge detects "Would you like me to...?" style responses
+   - Configure with `ClarificationDetection(enabled=True)` on Agent
+   - Assert with `result.asked_for_clarification` / `result.clarification_count`
+   - Levels: INFO (log only), WARNING (default), ERROR (fail test)
+   - Uses separate judge LLM call (defaults to agent's own model)
+
 ### AI Analysis (KEY DIFFERENTIATOR)
 
 Reports are **insights-first**, not metrics-first. AI analysis is **mandatory** when generating reports.
@@ -301,6 +308,7 @@ prompts = load_system_prompts(Path("prompts/"))
 result = await aitest_run(agent, "Do something with tools")
 assert result.success
 assert result.tool_was_called("my_tool")
+assert not result.asked_for_clarification  # Agent should act, not ask
 ```
 
 ### Multi-Turn Sessions

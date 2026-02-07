@@ -35,7 +35,7 @@ The system prompt affects both the *quality* of responses and the *cost* (longer
 |--------|---------------|-------------|
 | Purpose | Define behavior | Provide domain knowledge |
 | Content | Instructions | Reference material |
-| Example | "Be concise" | "Temperature chart..." |
+| Example | "Be concise" | "Account fee schedule..." |
 | Parameter | `system_prompt=` | `skill=` |
 
 You can use both together. The skill content is prepended to the system prompt.

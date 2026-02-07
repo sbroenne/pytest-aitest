@@ -1,0 +1,625 @@
+<!doctype html><html lang="en" class="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>pytest-aitest - Test Report</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&amp;family=Roboto+Mono&amp;display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script><style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:&#34;&#34;}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Roboto,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:Roboto Mono,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}body{--tw-bg-opacity:1;background-color:rgb(30 33 41/var(--tw-bg-opacity,1));font-family:Roboto,system-ui,sans-serif;line-height:1.625;--tw-text-opacity:1;color:rgb(191 199 213/var(--tw-text-opacity,1))}h1,h2,h3,h4,h5,h6{font-weight:500;letter-spacing:-.025em;--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}a{color:rgb(64 81 181/var(--tw-text-opacity,1));transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}a,a:hover{--tw-text-opacity:1}a:hover{color:rgb(82 108 254/var(--tw-text-opacity,1))}.report-header{margin-bottom:1.5rem;border-radius:4px;--tw-bg-opacity:1;background-color:rgb(64 81 181/var(--tw-bg-opacity,1));padding:1.5rem;--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1));--tw-shadow:0 2px 4px -1px rgba(0,0,0,.2),0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12);--tw-shadow-colored:0 2px 4px -1px var(--tw-shadow-color),0 4px 5px 0 var(--tw-shadow-color),0 1px 10px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.report-header h1{margin-bottom:.25rem;font-size:1.5rem;line-height:2rem;font-weight:500;letter-spacing:-.025em}.status-passed{border-radius:9999px;border-width:1px;border-color:rgba(34,197,94,.3);background-color:rgba(34,197,94,.15);color:rgb(74 222 128/var(--tw-text-opacity,1))}.status-failed,.status-passed{display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .75rem;font-size:.875rem;line-height:1.25rem;font-weight:500;--tw-text-opacity:1}.status-failed{border-radius:9999px;border-width:1px;border-color:rgba(239,68,68,.3);background-color:rgba(239,68,68,.15);color:rgb(248 113 113/var(--tw-text-opacity,1))}.card{border-radius:4px;border-width:1px;border-color:hsla(0,0%,100%,.05);--tw-bg-opacity:1;background-color:rgb(40 44 52/var(--tw-bg-opacity,1));--tw-shadow:0 2px 4px -1px rgba(0,0,0,.2),0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12);--tw-shadow-colored:0 2px 4px -1px var(--tw-shadow-color),0 4px 5px 0 var(--tw-shadow-color),0 1px 10px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.card-body{padding:1.25rem}.section{margin-bottom:2.5rem}.section-title{margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem;font-size:1.125rem;line-height:1.75rem;font-weight:500;--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}.metric{display:flex;flex-direction:column}.badge{display:inline-flex;align-items:center;gap:.375rem;border-radius:4px;padding:.25rem .625rem;font-size:.75rem;line-height:1rem;font-weight:500}.tool-name{font-family:Roboto Mono,monospace;font-weight:500;--tw-text-opacity:1;color:rgb(82 108 254/var(--tw-text-opacity,1))}.ai-insights{border-radius:4px;border-width:1px;border-color:hsla(0,0%,100%,.05);--tw-bg-opacity:1;background-color:rgb(40 44 52/var(--tw-bg-opacity,1));--tw-shadow:0 2px 4px -1px rgba(0,0,0,.2),0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12);--tw-shadow-colored:0 2px 4px -1px var(--tw-shadow-color),0 4px 5px 0 var(--tw-shadow-color),0 1px 10px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow);margin-bottom:2.5rem;overflow:hidden}.ai-insights-header{display:flex;align-items:center;gap:.75rem;border-bottom-width:1px;border-color:hsla(0,0%,100%,.1);background-image:linear-gradient(to right,var(--tw-gradient-stops));--tw-gradient-from:rgba(168,85,247,.1) var(--tw-gradient-from-position);--tw-gradient-to:rgba(168,85,247,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to);--tw-gradient-to:rgba(64,81,181,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),rgba(64,81,181,.1) var(--tw-gradient-via-position),var(--tw-gradient-to);--tw-gradient-to:transparent var(--tw-gradient-to-position);padding:1rem 1.25rem;font-weight:500;--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}.leaderboard-table{width:100%;font-size:.875rem;line-height:1.25rem}.leaderboard-table th{border-bottom-width:1px;border-color:hsla(0,0%,100%,.1);--tw-bg-opacity:1;background-color:rgb(45 50 60/var(--tw-bg-opacity,1));padding:.75rem 1.25rem;text-align:left;font-size:.75rem;line-height:1rem;font-weight:500;text-transform:uppercase;letter-spacing:.05em;--tw-text-opacity:1;color:rgb(139 148 158/var(--tw-text-opacity,1))}.leaderboard-table td{border-bottom-width:1px;border-color:hsla(0,0%,100%,.05);padding:1rem 1.25rem;--tw-text-opacity:1;color:rgb(191 199 213/var(--tw-text-opacity,1))}.leaderboard-table tbody tr{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.leaderboard-table tbody tr:hover{background-color:hsla(0,0%,100%,.02)}.winner-row{background-color:rgba(34,197,94,.05)}.markdown-content{color:var(--tw-prose-body);max-width:65ch}.markdown-content :where(p):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.25em;margin-bottom:1.25em}.markdown-content :where([class~=lead]):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-lead);font-size:1.25em;line-height:1.6;margin-top:1.2em;margin-bottom:1.2em}.markdown-content :where(a):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-links);text-decoration:underline;font-weight:500}.markdown-content :where(strong):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-bold);font-weight:600}.markdown-content :where(a strong):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(blockquote strong):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(thead th strong):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(ol):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:decimal;margin-top:1.25em;margin-bottom:1.25em;padding-inline-start:1.625em}.markdown-content :where(ol[type=A]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:upper-alpha}.markdown-content :where(ol[type=a]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:lower-alpha}.markdown-content :where(ol[type=A s]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:upper-alpha}.markdown-content :where(ol[type=a s]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:lower-alpha}.markdown-content :where(ol[type=I]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:upper-roman}.markdown-content :where(ol[type=i]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:lower-roman}.markdown-content :where(ol[type=I s]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:upper-roman}.markdown-content :where(ol[type=i s]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:lower-roman}.markdown-content :where(ol[type=&#34;1&#34;]):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:decimal}.markdown-content :where(ul):not(:where([class~=not-prose],[class~=not-prose] *)){list-style-type:disc;margin-top:1.25em;margin-bottom:1.25em;padding-inline-start:1.625em}.markdown-content :where(ol&gt;li):not(:where([class~=not-prose],[class~=not-prose] *))::marker{font-weight:400;color:var(--tw-prose-counters)}.markdown-content :where(ul&gt;li):not(:where([class~=not-prose],[class~=not-prose] *))::marker{color:var(--tw-prose-bullets)}.markdown-content :where(dt):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-headings);font-weight:600;margin-top:1.25em}.markdown-content :where(hr):not(:where([class~=not-prose],[class~=not-prose] *)){border-color:var(--tw-prose-hr);border-top-width:1px;margin-top:3em;margin-bottom:3em}.markdown-content :where(blockquote):not(:where([class~=not-prose],[class~=not-prose] *)){font-weight:500;font-style:italic;color:var(--tw-prose-quotes);border-inline-start-width:.25rem;border-inline-start-color:var(--tw-prose-quote-borders);quotes:&#34;\201C&#34;&#34;\201D&#34;&#34;\2018&#34;&#34;\2019&#34;;margin-top:1.6em;margin-bottom:1.6em;padding-inline-start:1em}.markdown-content :where(blockquote p:first-of-type):not(:where([class~=not-prose],[class~=not-prose] *)):before{content:open-quote}.markdown-content :where(blockquote p:last-of-type):not(:where([class~=not-prose],[class~=not-prose] *)):after{content:close-quote}.markdown-content :where(h1):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-headings);font-weight:800;font-size:2.25em;margin-bottom:.8888889em;line-height:1.1111111}.markdown-content :where(h1 strong):not(:where([class~=not-prose],[class~=not-prose] *)){font-weight:900;color:inherit}.markdown-content :where(h2):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-headings);font-weight:700;font-size:1.5em;margin-top:2em;margin-bottom:1em;line-height:1.3333333}.markdown-content :where(h2 strong):not(:where([class~=not-prose],[class~=not-prose] *)){font-weight:800;color:inherit}.markdown-content :where(h3):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-headings);font-weight:600;font-size:1.25em;margin-top:1.6em;margin-bottom:.6em;line-height:1.6}.markdown-content :where(h3 strong):not(:where([class~=not-prose],[class~=not-prose] *)){font-weight:700;color:inherit}.markdown-content :where(h4):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-headings);font-weight:600;margin-top:1.5em;margin-bottom:.5em;line-height:1.5}.markdown-content :where(h4 strong):not(:where([class~=not-prose],[class~=not-prose] *)){font-weight:700;color:inherit}.markdown-content :where(img):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:2em;margin-bottom:2em}.markdown-content :where(picture):not(:where([class~=not-prose],[class~=not-prose] *)){display:block;margin-top:2em;margin-bottom:2em}.markdown-content :where(video):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:2em;margin-bottom:2em}.markdown-content :where(kbd):not(:where([class~=not-prose],[class~=not-prose] *)){font-weight:500;font-family:inherit;color:var(--tw-prose-kbd);box-shadow:0 0 0 1px var(--tw-prose-kbd-shadows),0 3px 0 var(--tw-prose-kbd-shadows);font-size:.875em;padding-top:.1875em;padding-inline-end:.375em;padding-bottom:.1875em;padding-inline-start:.375em}.markdown-content :where(code):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-code);font-weight:600;font-size:.875em}.markdown-content :where(code):not(:where([class~=not-prose],[class~=not-prose] *)):before{content:&#34;`&#34;}.markdown-content :where(code):not(:where([class~=not-prose],[class~=not-prose] *)):after{content:&#34;`&#34;}.markdown-content :where(a code):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(h1 code):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(h2 code):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit;font-size:.875em}.markdown-content :where(h3 code):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit;font-size:.9em}.markdown-content :where(h4 code):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(blockquote code):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(thead th code):not(:where([class~=not-prose],[class~=not-prose] *)){color:inherit}.markdown-content :where(pre):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-pre-code);background-color:var(--tw-prose-pre-bg);overflow-x:auto;font-weight:400;font-size:.875em;line-height:1.7142857;margin-top:1.7142857em;margin-bottom:1.7142857em;border-radius:.375rem;padding-top:.8571429em;padding-inline-end:1.1428571em;padding-bottom:.8571429em;padding-inline-start:1.1428571em}.markdown-content :where(pre code):not(:where([class~=not-prose],[class~=not-prose] *)){background-color:transparent;border-width:0;border-radius:0;padding:0;font-weight:inherit;color:inherit;font-size:inherit;font-family:inherit;line-height:inherit}.markdown-content :where(pre code):not(:where([class~=not-prose],[class~=not-prose] *)):before{content:none}.markdown-content :where(pre code):not(:where([class~=not-prose],[class~=not-prose] *)):after{content:none}.markdown-content :where(table):not(:where([class~=not-prose],[class~=not-prose] *)){width:100%;table-layout:auto;margin-top:2em;margin-bottom:2em;font-size:.875em;line-height:1.7142857}.markdown-content :where(thead):not(:where([class~=not-prose],[class~=not-prose] *)){border-bottom-width:1px;border-bottom-color:var(--tw-prose-th-borders)}.markdown-content :where(thead th):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-headings);font-weight:600;vertical-align:bottom;padding-inline-end:.5714286em;padding-bottom:.5714286em;padding-inline-start:.5714286em}.markdown-content :where(tbody tr):not(:where([class~=not-prose],[class~=not-prose] *)){border-bottom-width:1px;border-bottom-color:var(--tw-prose-td-borders)}.markdown-content :where(tbody tr:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){border-bottom-width:0}.markdown-content :where(tbody td):not(:where([class~=not-prose],[class~=not-prose] *)){vertical-align:baseline}.markdown-content :where(tfoot):not(:where([class~=not-prose],[class~=not-prose] *)){border-top-width:1px;border-top-color:var(--tw-prose-th-borders)}.markdown-content :where(tfoot td):not(:where([class~=not-prose],[class~=not-prose] *)){vertical-align:top}.markdown-content :where(th,td):not(:where([class~=not-prose],[class~=not-prose] *)){text-align:start}.markdown-content :where(figcaption):not(:where([class~=not-prose],[class~=not-prose] *)){color:var(--tw-prose-captions);font-size:.875em;line-height:1.4285714;margin-top:.8571429em}.markdown-content{--tw-prose-body:#374151;--tw-prose-headings:#111827;--tw-prose-lead:#4b5563;--tw-prose-links:#111827;--tw-prose-bold:#111827;--tw-prose-counters:#6b7280;--tw-prose-bullets:#d1d5db;--tw-prose-hr:#e5e7eb;--tw-prose-quotes:#111827;--tw-prose-quote-borders:#e5e7eb;--tw-prose-captions:#6b7280;--tw-prose-kbd:#111827;--tw-prose-kbd-shadows:rgba(17,24,39,.1);--tw-prose-code:#111827;--tw-prose-pre-code:#e5e7eb;--tw-prose-pre-bg:#1f2937;--tw-prose-th-borders:#d1d5db;--tw-prose-td-borders:#e5e7eb;--tw-prose-invert-body:#d1d5db;--tw-prose-invert-headings:#fff;--tw-prose-invert-lead:#9ca3af;--tw-prose-invert-links:#fff;--tw-prose-invert-bold:#fff;--tw-prose-invert-counters:#9ca3af;--tw-prose-invert-bullets:#4b5563;--tw-prose-invert-hr:#374151;--tw-prose-invert-quotes:#f3f4f6;--tw-prose-invert-quote-borders:#374151;--tw-prose-invert-captions:#9ca3af;--tw-prose-invert-kbd:#fff;--tw-prose-invert-kbd-shadows:hsla(0,0%,100%,.1);--tw-prose-invert-code:#fff;--tw-prose-invert-pre-code:#d1d5db;--tw-prose-invert-pre-bg:rgba(0,0,0,.5);--tw-prose-invert-th-borders:#4b5563;--tw-prose-invert-td-borders:#374151;font-size:1rem;line-height:1.75}.markdown-content :where(li):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.5em;margin-bottom:.5em}.markdown-content :where(ol&gt;li):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-start:.375em}.markdown-content :where(ul&gt;li):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-start:.375em}.markdown-content :where(.prose&gt;ul&gt;li p):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.75em;margin-bottom:.75em}.markdown-content :where(.prose&gt;ul&gt;li&gt;p:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.25em}.markdown-content :where(.prose&gt;ul&gt;li&gt;p:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-bottom:1.25em}.markdown-content :where(.prose&gt;ol&gt;li&gt;p:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.25em}.markdown-content :where(.prose&gt;ol&gt;li&gt;p:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-bottom:1.25em}.markdown-content :where(ul ul,ul ol,ol ul,ol ol):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.75em;margin-bottom:.75em}.markdown-content :where(dl):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.25em;margin-bottom:1.25em}.markdown-content :where(dd):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.5em;padding-inline-start:1.625em}.markdown-content :where(tbody td,tfoot td):not(:where([class~=not-prose],[class~=not-prose] *)){padding-top:.5714286em;padding-inline-end:.5714286em;padding-bottom:.5714286em;padding-inline-start:.5714286em}.markdown-content :where(figure):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:2em;margin-bottom:2em}.markdown-content :where(.prose&gt;:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0}.markdown-content :where(.prose&gt;:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-bottom:0}.markdown-content{font-size:.875rem;line-height:1.7142857}.markdown-content :where(p):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.1428571em;margin-bottom:1.1428571em}.markdown-content :where([class~=lead]):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:1.2857143em;line-height:1.5555556;margin-top:.8888889em;margin-bottom:.8888889em}.markdown-content :where(blockquote):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.3333333em;margin-bottom:1.3333333em;padding-inline-start:1.1111111em}.markdown-content :where(h1):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:2.1428571em;margin-top:0;margin-bottom:.8em;line-height:1.2}.markdown-content :where(h2):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:1.4285714em;margin-top:1.6em;margin-bottom:.8em;line-height:1.4}.markdown-content :where(h3):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:1.2857143em;margin-top:1.5555556em;margin-bottom:.4444444em;line-height:1.5555556}.markdown-content :where(h4):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.4285714em;margin-bottom:.5714286em;line-height:1.4285714}.markdown-content :where(img):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.7142857em;margin-bottom:1.7142857em}.markdown-content :where(picture):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.7142857em;margin-bottom:1.7142857em}.markdown-content :where(picture&gt;img):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0;margin-bottom:0}.markdown-content :where(video):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.7142857em;margin-bottom:1.7142857em}.markdown-content :where(kbd):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:.8571429em;border-radius:.3125rem;padding-top:.1428571em;padding-inline-end:.3571429em;padding-bottom:.1428571em;padding-inline-start:.3571429em}.markdown-content :where(code):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:.8571429em}.markdown-content :where(h2 code):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:.9em}.markdown-content :where(h3 code):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:.8888889em}.markdown-content :where(pre):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:.8571429em;line-height:1.6666667;margin-top:1.6666667em;margin-bottom:1.6666667em;border-radius:.25rem;padding-top:.6666667em;padding-inline-end:1em;padding-bottom:.6666667em;padding-inline-start:1em}.markdown-content :where(ol):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.1428571em;margin-bottom:1.1428571em;padding-inline-start:1.5714286em}.markdown-content :where(ul):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.1428571em;margin-bottom:1.1428571em;padding-inline-start:1.5714286em}.markdown-content :where(li):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.2857143em;margin-bottom:.2857143em}.markdown-content :where(ol&gt;li):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-start:.4285714em}.markdown-content :where(ul&gt;li):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-start:.4285714em}.markdown-content :where(.prose-sm&gt;ul&gt;li p):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.5714286em;margin-bottom:.5714286em}.markdown-content :where(.prose-sm&gt;ul&gt;li&gt;p:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.1428571em}.markdown-content :where(.prose-sm&gt;ul&gt;li&gt;p:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-bottom:1.1428571em}.markdown-content :where(.prose-sm&gt;ol&gt;li&gt;p:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.1428571em}.markdown-content :where(.prose-sm&gt;ol&gt;li&gt;p:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-bottom:1.1428571em}.markdown-content :where(ul ul,ul ol,ol ul,ol ol):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.5714286em;margin-bottom:.5714286em}.markdown-content :where(dl):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.1428571em;margin-bottom:1.1428571em}.markdown-content :where(dt):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.1428571em}.markdown-content :where(dd):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:.2857143em;padding-inline-start:1.5714286em}.markdown-content :where(hr):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:2.8571429em;margin-bottom:2.8571429em}.markdown-content :where(hr+*):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0}.markdown-content :where(h2+*):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0}.markdown-content :where(h3+*):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0}.markdown-content :where(h4+*):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0}.markdown-content :where(table):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:.8571429em;line-height:1.5}.markdown-content :where(thead th):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-end:1em;padding-bottom:.6666667em;padding-inline-start:1em}.markdown-content :where(thead th:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-start:0}.markdown-content :where(thead th:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-end:0}.markdown-content :where(tbody td,tfoot td):not(:where([class~=not-prose],[class~=not-prose] *)){padding-top:.6666667em;padding-inline-end:1em;padding-bottom:.6666667em;padding-inline-start:1em}.markdown-content :where(tbody td:first-child,tfoot td:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-start:0}.markdown-content :where(tbody td:last-child,tfoot td:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){padding-inline-end:0}.markdown-content :where(figure):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:1.7142857em;margin-bottom:1.7142857em}.markdown-content :where(figure&gt;*):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0;margin-bottom:0}.markdown-content :where(figcaption):not(:where([class~=not-prose],[class~=not-prose] *)){font-size:.8571429em;line-height:1.3333333;margin-top:.6666667em}.markdown-content :where(.prose-sm&gt;:first-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-top:0}.markdown-content :where(.prose-sm&gt;:last-child):not(:where([class~=not-prose],[class~=not-prose] *)){margin-bottom:0}.markdown-content{--tw-prose-body:var(--tw-prose-invert-body);--tw-prose-headings:var(--tw-prose-invert-headings);--tw-prose-lead:var(--tw-prose-invert-lead);--tw-prose-links:var(--tw-prose-invert-links);--tw-prose-bold:var(--tw-prose-invert-bold);--tw-prose-counters:var(--tw-prose-invert-counters);--tw-prose-bullets:var(--tw-prose-invert-bullets);--tw-prose-hr:var(--tw-prose-invert-hr);--tw-prose-quotes:var(--tw-prose-invert-quotes);--tw-prose-quote-borders:var(--tw-prose-invert-quote-borders);--tw-prose-captions:var(--tw-prose-invert-captions);--tw-prose-kbd:var(--tw-prose-invert-kbd);--tw-prose-kbd-shadows:var(--tw-prose-invert-kbd-shadows);--tw-prose-code:var(--tw-prose-invert-code);--tw-prose-pre-code:var(--tw-prose-invert-pre-code);--tw-prose-pre-bg:var(--tw-prose-invert-pre-bg);--tw-prose-th-borders:var(--tw-prose-invert-th-borders);--tw-prose-td-borders:var(--tw-prose-invert-td-borders);max-width:none;--tw-prose-body:#bfc7d5;--tw-prose-headings:#c9d1d9;--tw-prose-links:#4051b5;--tw-prose-bold:#c9d1d9;--tw-prose-code:#526cfe}.markdown-content h2{margin-top:2rem;margin-bottom:1rem;border-bottom-width:1px;border-color:hsla(0,0%,100%,.1);padding-bottom:.5rem;font-size:1.125rem;line-height:1.75rem}.markdown-content h2,.markdown-content h3{font-weight:500;--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}.markdown-content h3{margin-top:1.5rem;margin-bottom:.75rem;font-size:1rem;line-height:1.5rem}.markdown-content p{line-height:1.625;--tw-text-opacity:1;color:rgb(191 199 213/var(--tw-text-opacity,1))}.markdown-content ul{list-style-type:disc}.markdown-content ul&gt;:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.markdown-content ul{padding-left:1.25rem}.markdown-content li,.markdown-content ul{--tw-text-opacity:1;color:rgb(191 199 213/var(--tw-text-opacity,1))}.markdown-content li::marker{--tw-text-opacity:1;color:rgb(139 148 158/var(--tw-text-opacity,1))}.markdown-content code{border-radius:.25rem;border-width:1px;border-color:hsla(0,0%,100%,.05);--tw-bg-opacity:1;background-color:rgb(28 31 38/var(--tw-bg-opacity,1));padding:.125rem .375rem;font-family:Roboto Mono,monospace;font-size:.85em;--tw-text-opacity:1;color:rgb(82 108 254/var(--tw-text-opacity,1))}.markdown-content pre{overflow-x:auto;border-radius:4px;border-width:1px;border-color:hsla(0,0%,100%,.05);--tw-bg-opacity:1;background-color:rgb(28 31 38/var(--tw-bg-opacity,1));padding:1rem}.markdown-content pre code{border-width:0;background-color:transparent;padding:0;--tw-text-opacity:1;color:rgb(191 199 213/var(--tw-text-opacity,1))}.markdown-content strong{font-weight:600;--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}.markdown-content a{--tw-text-opacity:1;color:rgb(64 81 181/var(--tw-text-opacity,1));text-decoration-line:underline;text-decoration-color:rgba(64,81,181,.3);transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.markdown-content a:hover{--tw-text-opacity:1;color:rgb(82 108 254/var(--tw-text-opacity,1));text-decoration-color:rgba(82,108,254,.5)}.markdown-content blockquote{border-left-width:4px;border-color:rgba(64,81,181,.5);padding-left:1rem;font-style:italic;--tw-text-opacity:1;color:rgb(139 148 158/var(--tw-text-opacity,1))}.agent-chip{cursor:pointer;border-radius:4px;border-width:1px;border-color:hsla(0,0%,100%,.1);--tw-bg-opacity:1;background-color:rgb(40 44 52/var(--tw-bg-opacity,1));padding:.5rem .75rem;transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.agent-chip:hover{border-color:rgba(64,81,181,.5)}.agent-chip.selected{--tw-border-opacity:1;border-color:rgb(64 81 181/var(--tw-border-opacity,1));background-color:rgba(64,81,181,.1)}.agent-card{border-radius:4px;border-width:1px;border-color:hsla(0,0%,100%,.1);--tw-bg-opacity:1;background-color:rgb(45 50 60/var(--tw-bg-opacity,1));padding:1rem}.agent-card.winner{border-color:rgba(234,179,8,.3);background-color:rgba(234,179,8,.05)}.filter-btn{border-radius:.25rem;border-width:1px;border-color:hsla(0,0%,100%,.1);--tw-bg-opacity:1;background-color:rgb(40 44 52/var(--tw-bg-opacity,1));padding:.375rem .75rem;font-size:.875rem;line-height:1.25rem;--tw-text-opacity:1;color:rgb(139 148 158/var(--tw-text-opacity,1));transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.filter-btn:hover{border-color:hsla(0,0%,100%,.2)}.filter-btn.active{--tw-border-opacity:1;border-color:rgb(64 81 181/var(--tw-border-opacity,1));background-color:rgba(64,81,181,.2);--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}.visible{visibility:visible}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.inset-0{inset:0}.right-4{right:1rem}.top-4{top:1rem}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:.25rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}.ml-2{margin-left:.5rem}.ml-auto{margin-left:auto}.mt-2{margin-top:.5rem}.block{display:block}.inline{display:inline}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-\[85vh\]{height:85vh}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-\[90vw\]{width:90vw}.w-full{width:100%}.min-w-0{min-width:0}.max-w-6xl{max-width:72rem}.max-w-xl{max-width:36rem}.flex-1{flex:1 1 0%}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-x-6{-moz-column-gap:1.5rem;column-gap:1.5rem}.gap-y-1{row-gap:.25rem}.space-y-1&gt;:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-2&gt;:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-4&gt;:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.overflow-auto{overflow:auto}.overflow-hidden,.truncate{overflow:hidden}.truncate{text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-material{border-radius:4px}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-l-\[3px\]{border-left-width:3px}.border-t{border-top-width:1px}.border-green-500{--tw-border-opacity:1;border-color:rgb(34 197 94/var(--tw-border-opacity,1))}.border-red-500{--tw-border-opacity:1;border-color:rgb(239 68 68/var(--tw-border-opacity,1))}.border-white\/10{border-color:hsla(0,0%,100%,.1)}.border-white\/5{border-color:hsla(0,0%,100%,.05)}.bg-black\/80{background-color:rgba(0,0,0,.8)}.bg-green-500\/15{background-color:rgba(34,197,94,.15)}.bg-green-500\/5{background-color:rgba(34,197,94,.05)}.bg-red-500\/15{background-color:rgba(239,68,68,.15)}.bg-red-500\/5{background-color:rgba(239,68,68,.05)}.bg-surface{--tw-bg-opacity:1;background-color:rgb(30 33 41/var(--tw-bg-opacity,1))}.bg-surface-card{--tw-bg-opacity:1;background-color:rgb(40 44 52/var(--tw-bg-opacity,1))}.bg-surface-code{--tw-bg-opacity:1;background-color:rgb(28 31 38/var(--tw-bg-opacity,1))}.bg-surface-elevated{--tw-bg-opacity:1;background-color:rgb(45 50 60/var(--tw-bg-opacity,1))}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pl-8{padding-left:2rem}.text-center{text-align:center}.text-right{text-align:right}.text-2xl{font-size:1.5rem;line-height:2rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-medium{font-weight:500}.font-semibold{font-weight:600}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.text-green-400{--tw-text-opacity:1;color:rgb(74 222 128/var(--tw-text-opacity,1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113/var(--tw-text-opacity,1))}.text-text{--tw-text-opacity:1;color:rgb(191 199 213/var(--tw-text-opacity,1))}.text-text-light{--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}.text-text-muted{--tw-text-opacity:1;color:rgb(139 148 158/var(--tw-text-opacity,1))}.text-yellow-400{--tw-text-opacity:1;color:rgb(250 204 21/var(--tw-text-opacity,1))}.line-through{text-decoration-line:line-through}.opacity-50{opacity:.5}.opacity-70{opacity:.7}.shadow-material-lg{--tw-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);--tw-shadow-colored:0 5px 5px -3px var(--tw-shadow-color),0 8px 10px 1px var(--tw-shadow-color),0 3px 14px 2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-200{transition-duration:.2s}.hover\:border-primary\/30:hover{border-color:rgba(64,81,181,.3)}.hover\:bg-white\/\[0\.02\]:hover{background-color:hsla(0,0%,100%,.02)}.hover\:text-blue-400:hover{--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.hover\:text-text-light:hover{--tw-text-opacity:1;color:rgb(201 209 217/var(--tw-text-opacity,1))}</style></head><body class="bg-surface text-text min-h-screen"><div class="max-w-6xl mx-auto px-6 py-8"><header class="report-header mb-8"><div class="flex justify-between items-start gap-4 mb-4"><div class="flex-1"><h1 class="text-2xl font-medium mb-1">Skill improvement — baseline vs skilled agent.</h1></div><div class="status-failed"><span>✗</span><span>1 Failed</span></div></div><div class="flex flex-wrap gap-x-6 gap-y-1 py-3 border-t border-white/10 text-sm"><span class="opacity-70">February 07, 2026 at 07:39 PM</span><span>📄 <span class="text-text-light hover:text-blue-400 cursor-pointer" title="tests/fixtures/scenario_07_skill_improvement.py">scenario_07_skill_improvement.py</span></span><span class="tabular-nums">4 tests</span><span class="tabular-nums">72.1s</span><span class="tabular-nums" title="Token range (min-max per test)">1,286–2,169 tok</span><span class="tabular-nums" title="Test execution cost">🧪 $-0.010241</span><span class="tabular-nums" title="AI analysis cost">🤖 $0.0205</span><span class="tabular-nums font-semibold" title="Total cost">💰 $0.0102</span></div></header><section class="mb-8"><div class="ai-insights"><div class="ai-insights-header"><span>🤖</span><span>AI Analysis</span><button class="ml-auto text-text-muted hover:text-text-light text-sm" onclick="this.closest(&#39;.ai-insights&#39;).querySelector(&#39;.card-body&#39;).classList.toggle(&#39;hidden&#39;)">Toggle</button></div><div class="card-body"><div class="markdown-content"><h2>🎯 Recommendation</h2>
+<p><strong>Deploy: baseline (gpt-5-mini + default system prompt)</strong></p>
+<p>Achieves <strong>100% pass rate</strong> across tested scenarios at <strong>~2% lower cost</strong> than the skilled variant, while correctly invoking banking tools when required.</p>
+<p><strong>Reasoning:</strong><br />
+- <strong>Pass rate:</strong> Baseline passed all tests; the skilled agent failed a required tool-usage assertion.<br />
+- <strong>Cost:</strong> Baseline total cost is lower ($0.002759 vs $0.002804 in the comparable allocation test, ~2% savings).<br />
+- <strong>Behavior:</strong> Baseline reliably calls <code>get_all_balances</code> when asked for allocation advice, satisfying test expectations.</p>
+<p><strong>Alternatives:</strong><br />
+- <strong>with-financial-skill (gpt-5-mini)</strong> — <strong>Disqualified</strong> due to failing the allocation advice test (did not call any balance tool despite the test requiring it).</p>
+<h2>❌ Failure Analysis</h2>
+<h3>Ask for allocation advice — skilled agent should apply 50/30/20 rule (with-financial-skill)</h3>
+<ul>
+<li><strong>Problem:</strong> The agent provided high-level guidance and asked a clarifying question instead of fetching balances, causing the test assertion to fail.</li>
+<li><strong>Root Cause:</strong> The <strong>system prompt/skill lacks an explicit instruction to proactively call balance tools</strong> when allocation advice is requested. The agent optimized for conversational clarification over tool usage.</li>
+<li><strong>Fix:</strong> Add an explicit directive to the system prompt or skill to always fetch balances for allocation questions.</li>
+</ul>
+<p><strong>Exact text to add to the Financial Advisor Skill (top section):</strong></p>
+<pre><code>When a user asks how to allocate money across accounts, always retrieve current balances first using get_all_balances (or get_balance if only one account is relevant) before giving advice. Do not ask clarifying questions before checking balances.
+</code></pre>
+<h2>🔧 MCP Tool Feedback</h2>
+<h3>pytest_aitest.testing.banking_mcp</h3>
+<p>Overall, tools are clear and functional. The issue observed is <strong>agent hesitation</strong>, not tool failure.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Status</th>
+<th>Calls</th>
+<th>Issues</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>get_all_balances</td>
+<td>✅</td>
+<td>1</td>
+<td>Working well</td>
+</tr>
+<tr>
+<td>get_balance</td>
+<td>✅</td>
+<td>0</td>
+<td>Not used in failures; acceptable</td>
+</tr>
+<tr>
+<td>transfer</td>
+<td>✅</td>
+<td>0</td>
+<td>Not exercised</td>
+</tr>
+<tr>
+<td>deposit</td>
+<td>✅</td>
+<td>0</td>
+<td>Not exercised</td>
+</tr>
+<tr>
+<td>withdraw</td>
+<td>✅</td>
+<td>0</td>
+<td>Not exercised</td>
+</tr>
+<tr>
+<td>get_transactions</td>
+<td>✅</td>
+<td>0</td>
+<td>Not exercised</td>
+</tr>
+</tbody>
+</table>
+<h2>📝 System Prompt Feedback</h2>
+<h3>default (effective)</h3>
+<ul>
+<li><strong>Token count:</strong> ~14</li>
+<li><strong>Assessment:</strong> Clear, concise, and effective. The prompt implicitly encourages tool use and resulted in correct behavior.</li>
+<li><strong>Suggested change:</strong> None.</li>
+</ul>
+<h3>Financial Advisor Skill prompt (mixed)</h3>
+<ul>
+<li><strong>Token count:</strong> ~350+ (skill content)</li>
+<li><strong>Problem:</strong> Strong financial guidance, but <strong>missing operational instructions</strong> about when to use MCP tools. This caused a direct test failure.</li>
+<li><strong>Suggested change:</strong> Add the explicit tool-usage instruction shown in the Failure Analysis section.</li>
+</ul>
+<h2>📚 Skill Feedback</h2>
+<h3>financial-advisor (mixed)</h3>
+<ul>
+<li><strong>Usage rate:</strong> High in savings-related responses; partial in allocation advice.</li>
+<li><strong>Token cost:</strong> High relative to baseline.</li>
+<li><strong>Problem:</strong> The skill emphasizes advisory principles but not <strong>tool orchestration</strong>, leading to non-compliant behavior in tool-dependent tests.</li>
+<li><strong>Suggested change:</strong> Add a short “Tool Usage Rules” subsection at the top:</li>
+</ul>
+<pre><code>## Tool Usage Rules
+- For allocation, budgeting, or balance-based advice: always call the relevant balance tool first.
+- Prefer get_all_balances when multiple accounts exist.
+</code></pre>
+<h2>💡 Optimizations</h2>
+<ol>
+<li><strong>Enforce proactive balance retrieval</strong> (recommended)</li>
+<li>Current: Skilled agent asks clarifying questions instead of calling tools.</li>
+<li>Change: Add explicit tool-usage rules to the skill/system prompt.</li>
+<li>
+<p>Impact: <strong>Eliminates test failures</strong> and avoids re-runs, saving ~$0.0028 per failed test execution.</p>
+</li>
+<li>
+<p><strong>Reduce skill verbosity</strong> (suggestion)</p>
+</li>
+<li>Current: Long skill content increases token usage without affecting tool behavior.</li>
+<li>Change: Move “Budget Categories” and “Red Flags” to a secondary section loaded only when explicitly needed.</li>
+<li>Impact: <strong>~20–30% cost reduction</strong> for skilled runs due to fewer prompt tokens.</li>
+</ol>
+<h2>📦 Tool Response Optimization</h2>
+<h3>get_all_balances (from pytest_aitest.testing.banking_mcp)</h3>
+<ul>
+<li><strong>Current response size:</strong> ~55–65 tokens</li>
+<li><strong>Issues found:</strong> Duplicate formatted fields (<code>formatted</code>, <code>total_formatted</code>) are not used by the agent in reasoning.</li>
+<li><strong>Suggested optimization:</strong> Remove formatted strings or make them optional.</li>
+</ul>
+<p><strong>Example current vs optimized:</strong></p>
+<pre><code class="language-json">// Current (~60 tokens)
+{
+  &quot;accounts&quot;: {
+    &quot;checking&quot;: {&quot;balance&quot;: 1500.0, &quot;formatted&quot;: &quot;$1,500.00&quot;},
+    &quot;savings&quot;: {&quot;balance&quot;: 3000.0, &quot;formatted&quot;: &quot;$3,000.00&quot;}
+  },
+  &quot;total&quot;: 4500.0,
+  &quot;total_formatted&quot;: &quot;$4,500.00&quot;
+}
+
+// Optimized (~30 tokens)
+{
+  &quot;accounts&quot;: {
+    &quot;checking&quot;: 1500.0,
+    &quot;savings&quot;: 3000.0
+  },
+  &quot;total&quot;: 4500.0
+}
+</code></pre>
+<ul>
+<li><strong>Estimated savings:</strong> ~30 tokens per call (<strong>~50% reduction</strong>)</li>
+</ul></div></div></div></section><section class="mb-8"><h2 class="section-title">🏆 Agent Leaderboard</h2><div class="card overflow-hidden"><table class="leaderboard-table"><thead><tr><th class="w-10"></th><th>Agent</th><th class="text-center">Tests</th><th class="text-center">Pass Rate</th><th class="text-right">Tokens</th><th class="text-right">Cost</th><th class="text-right">Duration</th></tr></thead><tbody><tr class="winner-row"><td class="text-center text-xl">🥇</td><td><div class="font-medium text-text-light"><span>baseline</span></div></td><td class="text-center tabular-nums"><span class="text-green-400">2</span>/<span class="text-text-muted">2</span></td><td class="text-center"><span class="text-green-400 font-semibold tabular-nums">100%</span></td><td class="text-right tabular-nums text-text-muted">3,455</td><td class="text-right tabular-nums text-text-muted">$0.004625</td><td class="text-right tabular-nums text-text-muted">37.7s</td></tr><tr><td class="text-center text-xl">🥈</td><td><div class="font-medium text-text-light"><span>with-financial-skill</span></div></td><td class="text-center tabular-nums"><span class="text-green-400">1</span>/<span class="text-text-muted">2</span></td><td class="text-center"><span class="text-red-400 font-semibold tabular-nums">50%</span></td><td class="text-right tabular-nums text-text-muted">3,975</td><td class="text-right tabular-nums text-text-muted">$0.005622</td><td class="text-right tabular-nums text-text-muted">34.4s</td></tr></tbody></table></div></section><section class="mb-8"><h2 class="section-title">📋 Test Results</h2><div class="mb-4 flex items-center justify-between"><div class="flex gap-2"><button class="filter-btn active" data-filter="all" onclick="filterTests(&#39;all&#39;)">All</button><button class="filter-btn " data-filter="diff" onclick="filterTests(&#39;diff&#39;)">Differences ⚡</button><button class="filter-btn " data-filter="failed" onclick="filterTests(&#39;failed&#39;)">Failed ❌</button></div><div class="text-sm text-text-muted"><span id="visible-count">4</span> / 4 tests</div></div><div class="space-y-4" id="test-groups"><div class="card overflow-hidden test-group" data-group-type="standalone"><div class="group-header px-5 py-3 bg-surface-elevated border-b border-white/10 flex justify-between items-center cursor-pointer" onclick="toggleGroup(this.parentElement)"><div class="flex items-center gap-3"><span class="text-lg">📋</span><span class="font-medium text-text-light">tests/fixtures/scenario_07_skill_improvement.py</span><span class="text-sm text-text-muted">(2 tests)</span></div><div class="flex items-center gap-4"><div class="text-sm text-green-400">2/2</div><div class="text-sm text-red-400">1/2</div><span class="text-text-muted transition-transform duration-200 expand-icon">▼</span></div></div><div class="group-content"><div class="test-row border-b border-white/5" data-test-id="test_fund_allocation_advice" data-has-diff="true" data-has-failed="true"><div class="px-5 py-3 hover:bg-white/[0.02] cursor-pointer transition-colors" onclick="toggleTestDetail(this.parentElement)"><div class="flex items-center justify-between"><div class="flex items-center gap-3 min-w-0 flex-1"><span class="text-green-400">✅</span><span class="text-text-light truncate">Ask for allocation advice — skilled agent should apply 50/30…</span><span class="text-yellow-400" title="Results differ between agents">⚡</span></div><div class="flex items-center gap-4 text-sm text-text-muted"><span class="tabular-nums" title="Total tokens across selected agents">Total 4,152 tok</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Total cost across selected agents">Total $0.005563</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Token difference between selected agents (%difference)">Δ +9%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Duration difference between selected agents (%difference)">Δ +35%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Cost difference between selected agents (%difference)">Δ +2%</span></div></div><div class="flex gap-4 mt-2 pl-8"><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="bcdf19f2-5315-4124-88f3-36677b59a55c"><span class="text-text-muted">baseline:</span><span class="text-green-400">✅</span><span class="text-text-muted tabular-nums">23.9s</span></div><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="51daba5a-035d-48e8-8a71-89d451c61e3e"><span class="text-text-muted">with-financial-skill:</span><span class="text-red-400">❌</span><span class="text-text-muted tabular-nums">17.7s</span></div></div></div><div class="test-detail hidden border-t border-white/10 bg-surface-elevated"><div class="comparison-grid grid gap-4 p-5" style="grid-template-columns: repeat(2, 1fr);"><div class="comparison-column  border-l-[3px] border-green-500" data-agent-id="bcdf19f2-5315-4124-88f3-36677b59a55c"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">baseline</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400">passed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">23.87s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">3</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">2,169</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.002759</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;How should I allocate the money across my accounts?&#34;
+    Agent-&gt;&gt;Tools: &#34;get_all_balances({})&#34;
+    Tools--&gt;&gt;Agent: &#34;{&#39;accounts&#39;: {&#39;checking&#39;: {&#39;balance&#39;: 1500.0, &#39;formatted&#39;: &#39;&#34;
+    Agent-&gt;&gt;User: &#34;Right now you have $4,500 total: $1,500 in checking and $3,000 in savings. How y&#34;"><div class="mermaid text-xs">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User->>Agent: "How should I allocate the money across my accounts?"
+    Agent->>Tools: "get_all_balances({})"
+    Tools-->>Agent: "{'accounts': {'checking': {'balance': 1500.0, 'formatted': '"
+    Agent->>User: "Right now you have $4,500 total: $1,500 in checking and $3,000 in savings. How y"</div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>🔧</span><span>Tool Calls</span></div><div class="space-y-1"><div class="flex items-center gap-2 text-sm p-2 rounded bg-green-500/5"><span class="text-green-400">✅</span><code class="tool-name">get_all_balances</code></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>✓</span><span>Assertions</span></div><div class="space-y-2"><div class="flex items-center gap-2 text-sm p-2 rounded bg-green-500/5"><span class="text-green-400">✅</span><code class="text-text-muted">llm</code><span class="text-text">provides financial advice about fund allocation</span></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>💬</span><span>Response</span></div><div style="padding: 1rem; background-color: var(--color-surface-elevated); border-radius: 0.5rem; color: var(--color-text); white-space: pre-wrap; word-wrap: break-word; line-height: 1.625;">Right now you have $4,500 total: $1,500 in checking and $3,000 in savings. How you should split it depends on your goals and monthly cash flow. A few quick questions that will let me give a specific plan:
+- How much are your typical monthly living expenses (rent/mortgage, bills, food, transport)?
+- Any upcoming large expenses in the next 6–12 months (car repair, vacation, tuition, down payment)?
+- Do you have high‑interest debt (credit cards) you’re paying down?
+- Do you feel comfortable with the current cushion in your checking for monthly bills, or do you often overdraft?
+
+Until I hear back, here are general guidelines and three simple allocation options you can pick based on your situation.
+
+Key rules of thumb
+- Emergency fund: aim for 3–6 months of essential expenses in savings. If your income is unstable or you have dependents, aim toward 6 months.
+- Checking buffer: keep enough in checking to cover one month of bills plus a small buffer ($500–$1,000) to avoid overdrafts.
+- Short‑term goals (under 2 years): keep in savings or a dedicated short‑term account, not in stocks.
+- Long‑term investing: once emergency fund is in place and high‑interest debt is handled, redirect extra toward investments/retirement.
+
+Example allocations (based on different priorities)
+1) Conservative / safety-first
+- Goal: build emergency fund
+- Keep $1,500 in checking for monthly use
+- Move $1,500 from checking into savings so savings = $4,500 (larger emergency cushion)
+Result: checking $0–not ideal unless you keep buffer; better: keep $1,000 in checking and transfer $500 → savings. I recommend leaving at least $500–$1,000 in checking.
+
+2) Balanced / day-to-day + short-term goals
+- Keep $1,500 in checking (covers monthly bills)
+- Savings $3,000 remain for short-term goals or emergency top-up
+- Automate monthly transfer of a fixed amount into savings (e.g., $300/month)
+
+3) Aggressive savings / building emergency + investing
+- Keep $1,000 in checking
+- Move $500 from checking → savings now (savings = $3,500)
+- Any additional monthly surplus split 70% to investments/retirement, 30% to savings until emergency fund target met
+
+Practical next steps I recommend
+- Tell me your monthly expenses and goals so I can recommend an exact target emergency fund and a transfer amount.
+- If you want, I can move funds between your accounts now (tell me how much and which direction).
+- Set up automation: a weekly/biweekly/ monthly transfer into savings right after paydays.
+- Consider a separate savings sub-account or high-yield savings for goals to keep money organized and earning more interest.
+
+If you want a specific suggestion now, tell me whether your priority is (A) build emergency fund, (B) save for a short-term goal, (C) pay down debt/invest — and I’ll propose one exact transfer (and I can execute it if you’d like).</div></div></div><div class="comparison-column  border-l-[3px] border-red-500" data-agent-id="51daba5a-035d-48e8-8a71-89d451c61e3e"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">with-financial-skill</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-red-500/15 text-red-400">failed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">17.71s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">2</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">0</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1,983</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.002804</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;How should I allocate the money across my accounts?&#34;
+    Agent-&gt;&gt;User: &#34;I can help — to give specific transfers I’ll need a little info. Quick question &#34;"><div class="mermaid text-xs">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User->>Agent: "How should I allocate the money across my accounts?"
+    Agent->>User: "I can help — to give specific transfers I’ll need a little info. Quick question "</div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>💬</span><span>Response</span></div><div style="padding: 1rem; background-color: var(--color-surface-elevated); border-radius: 0.5rem; color: var(--color-text); white-space: pre-wrap; word-wrap: break-word; line-height: 1.625;">I can help — to give specific transfers I’ll need a little info. Quick question first: do you want general guidance, or do you want me to look up your current balances and suggest exact transfers now?
+
+Below is a short, practical plan you can use right away plus what I’ll do if you want me to check your accounts.
+
+High-level rules (my priorities)
+- Emergency fund first: build 3–6 months of essential expenses in savings before other big goals.
+- Follow 50/30/20 as a baseline: 50% needs, 30% wants, 20% savings/debt repayment.
+- Pay yourself first: automate savings and debt payments as soon as pay arrives.
+- Avoid lifestyle creep: keep increases in spending tied to savings/investment goals.
+
+Recommended account allocation (general)
+- Checking: Enough to cover 1–2 months of regular bills and upcoming spending (rent/mortgage, utilities, loan payments, groceries). This is your operating account.
+- Savings (high-yield if possible): Emergency fund (3–6 months of essential expenses) + short-term sinking funds (vacation, car maintenance, big purchases). Once emergency fund target is hit, use savings for short-term goals or if you prefer, keep some in dedicated sub-accounts.
+- Retirement accounts (401(k), IRA): Contribute at least enough to get full employer match. Then aim to get to 10–20% of gross income toward retirement (after employer match).
+- Brokerage or other investment accounts: For long-term non-retirement goals once emergency savings and retirement match are covered.
+- Extra cash to pay down debt: If you have high‑interest debt (credit cards, payday loans), direct additional savings to pay that down before extra investing.
+
+Practical monthly allocation (based on take-home pay)
+- Needs (50%) — keep in/check from checking to pay bills
+- Wants (30%) — discretionary spending from checking
+- Savings &amp; debt (20%) — split this automatically: 
+  - First, to savings until emergency fund reaches 3–6 months
+  - Next, extra to high‑interest debt, then retirement/brokerage
+
+Where to keep each dollar
+- Emergency fund: savings account (high-yield) — goal: 3–6 months of essentials
+- Monthly buffer: checking — 1–2 months of expenses
+- Retirement contributions: payroll 401(k) pre-tax or Roth IRA — automated each paycheck
+- Short-term goals: savings sub-accounts or labeled buckets
+- Long-term investing: brokerage account or additional retirement contributions after debt/EF/retirement match
+
+Example (if your take-home is $4,000/month)
+- Needs: $2,000 (keeping $2,000 in checking for monthly bills)
+- Wants: $1,200 (spending from checking)
+- Savings/Debt: $800 — automate $500 → savings until EF complete, $300 → extra debt payment or IRA
+
+Next steps I can do for you (pick one)
+1) If you want tailored suggestions, tell me:
+   - monthly take-home pay
+   - monthly essential expenses (rent/mortgage, utilities, insurance, minimum debt payments, groceries)
+   - current checking &amp; savings balances
+   - any high-interest debt amounts &amp; interest rates
+   - retirement contributions/employer match
+2) I can fetch your current balances now and make recommended transfers — tell me which accounts (checking/savings) I may access and whether you want me to execute transfers automatically or just show a plan.
+
+Which would you like me to do?</div></div><div><div class="text-sm font-medium text-red-400 mb-3 flex items-center gap-2"><span>❌</span><span>Error</span></div><div style="padding: 0.75rem; background-color: rgb(127, 29, 29); border: 1px solid rgb(153, 27, 27); border-radius: 0.5rem; color: rgb(254, 202, 202); font-size: 0.875rem; white-space: pre-wrap; word-wrap: break-word; max-height: 200px; overflow-y: auto;">      AssertionError: assert (False or False)
+       +  where False = tool_was_called(&#39;get_all_balances&#39;)
+       +    where tool_was_called = AgentResult(SUCCESS)\n  Turns: 2\n  Tools called: none\n  Duration: 11112ms\n  Tokens: 1983 | Cost: $0.002804\n  Final: &#39;I can help — to give specific transfers I’ll need a little info. Quick question first: do you want g&#39;....tool_was_called
+       +  and   False = tool_was_called(&#39;get_balance&#39;)
+       +    where tool_was_called = AgentResult(SUCCESS)\n  T
+
+... (error truncated, see full logs for details)</div></div></div></div></div></div><div class="test-row border-b border-white/5" data-test-id="test_savings_recommendation" data-has-diff="false" data-has-failed="false"><div class="px-5 py-3 hover:bg-white/[0.02] cursor-pointer transition-colors" onclick="toggleTestDetail(this.parentElement)"><div class="flex items-center justify-between"><div class="flex items-center gap-3 min-w-0 flex-1"><span class="text-green-400">✅</span><span class="text-text-light truncate">Ask about savings — skilled agent should mention emergency f…</span></div><div class="flex items-center gap-4 text-sm text-text-muted"><span class="tabular-nums" title="Total tokens across selected agents">Total 3,278 tok</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Total cost across selected agents">Total $0.004684</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Token difference between selected agents (%difference)">Δ +55%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Duration difference between selected agents (%difference)">Δ +20%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Cost difference between selected agents (%difference)">Δ +51%</span></div></div><div class="flex gap-4 mt-2 pl-8"><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="bcdf19f2-5315-4124-88f3-36677b59a55c"><span class="text-text-muted">baseline:</span><span class="text-green-400">✅</span><span class="text-text-muted tabular-nums">13.8s</span></div><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="51daba5a-035d-48e8-8a71-89d451c61e3e"><span class="text-text-muted">with-financial-skill:</span><span class="text-green-400">✅</span><span class="text-text-muted tabular-nums">16.7s</span></div></div></div><div class="test-detail hidden border-t border-white/10 bg-surface-elevated"><div class="comparison-grid grid gap-4 p-5" style="grid-template-columns: repeat(2, 1fr);"><div class="comparison-column  border-l-[3px] border-green-500" data-agent-id="bcdf19f2-5315-4124-88f3-36677b59a55c"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">baseline</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400">passed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">13.83s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">2</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">0</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1,286</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.001865</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;I want to save more money. What do you recommend?&#34;
+    Agent-&gt;&gt;User: &#34;Great — here are practical, high-impact ways to save more, plus a couple quick o&#34;"><div class="mermaid text-xs">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User->>Agent: "I want to save more money. What do you recommend?"
+    Agent->>User: "Great — here are practical, high-impact ways to save more, plus a couple quick o"</div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>✓</span><span>Assertions</span></div><div class="space-y-2"><div class="flex items-center gap-2 text-sm p-2 rounded bg-green-500/5"><span class="text-green-400">✅</span><code class="text-text-muted">llm</code><span class="text-text">provides savings recommendations</span></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>💬</span><span>Response</span></div><div style="padding: 1rem; background-color: var(--color-surface-elevated); border-radius: 0.5rem; color: var(--color-text); white-space: pre-wrap; word-wrap: break-word; line-height: 1.625;">Great — here are practical, high-impact ways to save more, plus a couple quick options I can help with right away.
+
+High-level principles
+- Automate it: set up automatic transfers to savings right after payday so you “pay yourself first.”
+- Make goals specific: name the goal, amount, and date (e.g., $3,600 in 12 months = $300/month).
+- Reduce friction: simplify accounts and automate categorization so saving feels effortless.
+
+Concrete steps you can start today
+1. Set a clear goal
+   - Emergency fund (3–6 months of expenses), short-term (vacation, car), and long-term (down payment).
+2. Automate transfers
+   - Move a fixed amount to savings each payday. Even $50–$200 adds up fast.
+3. Use a high-yield savings account
+   - Earn more interest than a standard checking account.
+4. Follow a budgeting rule
+   - 50/30/20 (needs/wants/savings &amp; debt) or zero-based budgeting if you want tighter control.
+5. Attack high-interest debt first
+   - Paying down credit cards gives a guaranteed return equal to the interest rate.
+6. Trim recurring costs
+   - Audit subscriptions, renegotiate bills (internet, phone, insurance), and cancel unused services.
+7. Reduce everyday spending
+   - Meal plan, batch errands to save fuel, buy generic brands, set a weekly grocery limit.
+8. Round-ups and “sinking funds”
+   - Use apps or your bank’s round-up feature to transfer small amounts automatically. Create sub-accounts for planned expenses.
+9. Boost income and windfalls
+   - Sell unwanted items, pick up side work, and direct bonuses/tax refunds into savings instead of spending.
+10. Track and review monthly
+   - Check progress, reallocate excess funds, and increase your transfer when feasible.
+
+Small strategies that scale
+- Start small and increase: save $25/week and raise by $5 each month.
+- Save raises/bonuses first (not lifestyle creep).
+- Keep savings liquid for the emergency fund, then move longer-term goals into investments/retirement accounts.
+
+Would you like help putting a plan into numbers?
+- I can check your current balances and recent transactions, suggest a monthly transfer amount based on them, or set up an automatic transfer for you. Tell me which you&#39;d like to do.</div></div></div><div class="comparison-column  border-l-[3px] border-green-500" data-agent-id="51daba5a-035d-48e8-8a71-89d451c61e3e"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">with-financial-skill</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400">passed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">16.67s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">2</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">0</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1,992</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.002818</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User-&gt;&gt;Agent: &#34;I want to save more money. What do you recommend?&#34;
+    Agent-&gt;&gt;User: &#34;Great — want practical, doable steps. Here’s a short, actionable plan you can st&#34;"><div class="mermaid text-xs">sequenceDiagram
+    participant User
+    participant Agent
+    participant Tools
+
+    User->>Agent: "I want to save more money. What do you recommend?"
+    Agent->>User: "Great — want practical, doable steps. Here’s a short, actionable plan you can st"</div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>✓</span><span>Assertions</span></div><div class="space-y-2"><div class="flex items-center gap-2 text-sm p-2 rounded bg-green-500/5"><span class="text-green-400">✅</span><code class="text-text-muted">llm</code><span class="text-text">provides savings recommendations</span></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>💬</span><span>Response</span></div><div style="padding: 1rem; background-color: var(--color-surface-elevated); border-radius: 0.5rem; color: var(--color-text); white-space: pre-wrap; word-wrap: break-word; line-height: 1.625;">Great — want practical, doable steps. Here’s a short, actionable plan you can start today plus specific tactics to speed up saving.
+
+Top priorities (in order)
+1. Build an emergency fund equal to 3–6 months of your essential monthly expenses. This comes first.
+2. After your emergency fund, pay down any high‑interest debt (credit cards, payday, some personal loans).
+3. Make sure you’re getting any employer retirement match (this is “free money”).
+4. Then save for other goals (house, vacation) and invest for long‑term growth.
+
+Simple monthly framework (50/30/20)
+- Needs (50%): housing, utilities, groceries, insurance, minimum debt payments.
+- Wants (30%): dining out, entertainment, shopping.
+- Savings/debt repayment (20%): emergency fund, extra debt payments, retirement.
+
+Actionable steps (do these first)
+1. Calculate your essentials: total your true monthly needs (rent/mortgage, groceries, utilities, insurance, minimum debt). Multiply by 3–6 to get your emergency fund goal.
+2. Automate “pay yourself first”: set a recurring transfer the day you get paid from checking → high‑yield savings for your emergency fund.
+3. Open a high‑yield savings account or separate “pot” to keep EF liquid and distinct from spending.
+4. Trim easy expenses: cancel unused subscriptions, cut back dining out by 1–2 meals/week, shop groceries with a list and a plan, swap to a cheaper phone/data plan.
+5. Revisit large items: If housing &gt;30% or transportation &gt;15%, consider downsizing, refinancing, carpooling, or using public transit where possible.
+6. Attack high‑interest debt after EF: use avalanche (highest interest first) to save interest, or snowball (small wins) if you need motivation.
+7. Contribute to retirement up to employer match as soon as your EF is established.
+8. Track and review monthly: set one monthly 20–30 minute budgeting check to adjust.
+
+Ways to increase the amount you can save
+- Increase income: side gig, freelancing, overtime, sell unused items.
+- Reduce housing/transportation costs (biggest levers).
+- Temporarily cut wants (entertainment, subscriptions) and redirect that money to savings.
+- Refinance high‑interest loans if you qualify.
+
+Tools and KPIs to watch
+- Savings rate (aim ≥20% of take‑home pay).
+- Emergency fund months funded.
+- Net worth trend.
+- Credit utilization (&lt;30% recommended).
+- Monthly budget adherence (use an app or spreadsheet).
+
+Red flags to avoid
+- Spending more than you earn.
+- No emergency fund.
+- Credit cards near their limits.
+- Putting entertainment or dining above savings.
+
+Quick example
+If your take‑home pay is $4,000/month and your essentials are $2,200:
+- Emergency fund target (3 months) = $6,600.
+- Automate $800/month to savings (20%): you’ll hit 3 months in ~8–9 months.
+- Temporarily cut $200/month in dining/entertainment and add to savings to reach goal faster.
+
+Would you like help with any of the following?
+- I can create a simple budget template for you.
+- I can review your accounts and recent transactions to give tailored recommendations (I’ll need your permission to fetch balances/transactions).
+- Or tell me your monthly take‑home pay and rough monthly expenses and I’ll make a 3–6 month plan with numbers.
+
+Which would you like to do next?</div></div></div></div></div></div></div></div></div><style>
+.test-group.collapsed .group-content {
+    display: none;
+}
+.test-group.collapsed .expand-icon {
+    transform: rotate(-90deg);
+}
+.test-row.hidden {
+    display: none;
+}
+.test-detail.hidden {
+    display: none;
+}
+</style></section></div><div id="overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-8" onclick="hideOverlay()"><button class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-2xl text-text-muted hover:text-text-light bg-surface-card rounded-full border border-white/10 transition-colors" onclick="hideOverlay()">✕</button><div class="w-[90vw] h-[85vh] overflow-auto bg-surface-card rounded-lg p-6 shadow-material-lg flex items-center justify-center" onclick="event.stopPropagation()"><div class="mermaid w-full h-full" id="overlay-mermaid"></div></div></div><div id="diagram-hover-popup" class="fixed z-40 bg-surface-card rounded-lg shadow-material-lg border border-white/10 p-4 hidden max-w-xl" onmouseenter="keepDiagramHover()" onmouseleave="hideDiagramHover()" onclick="hideOverlay(); this.classList.add(&#39;hidden&#39;); showDiagram(document.getElementById(&#39;hover-mermaid&#39;).innerHTML);"><div class="mermaid" id="hover-mermaid"></div></div><style>
+#overlay.active { display: flex !important; }
+#diagram-hover-popup.active { display: block !important; }
+
+/* Scale the mermaid SVG in overlay to fill available space */
+#overlay-mermaid svg {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    min-height: 60vh;
+}
+</style><script>
+// pytest-aitest Report Scripts
+
+// Initialize Mermaid with dark theme
+mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'dark',
+    securityLevel: 'loose',
+    themeVariables: {
+        primaryColor: '#4051b5',
+        primaryTextColor: '#c9d1d9',
+        primaryBorderColor: '#4051b5',
+        lineColor: '#8b949e',
+        secondaryColor: '#282c34',
+        tertiaryColor: '#1e2129',
+        background: '#282c34',
+        mainBkg: '#282c34',
+        noteBkgColor: '#2d333b',
+        noteTextColor: '#c9d1d9',
+        actorTextColor: '#c9d1d9',
+        actorBkg: '#2d323c',
+        actorBorder: '#4051b5',
+        signalColor: '#c9d1d9',
+        signalTextColor: '#c9d1d9',
+    }
+});
+
+// Copy to clipboard for suggestions
+function copyToClipboard(button, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = '✓ Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('copied');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        button.textContent = '❌ Error';
+        setTimeout(() => {
+            button.textContent = '📋 Copy';
+        }, 2000);
+    });
+}
+
+// Fullscreen diagram viewer
+function showDiagram(mermaidCode) {
+    const overlay = document.getElementById('overlay');
+    const content = document.getElementById('overlay-mermaid');
+    
+    // Set the raw mermaid code as text content (not innerHTML to avoid escaping issues)
+    content.textContent = mermaidCode;
+    
+    // Remove any previous rendering attributes
+    content.removeAttribute('data-processed');
+    
+    overlay.classList.add('active');
+    
+    // Run mermaid on this element
+    mermaid.run({ nodes: [content] }).catch(err => {
+        console.error('Mermaid render error:', err);
+        // Show the raw code if rendering fails
+        content.textContent = 'Error rendering diagram:\n' + mermaidCode;
+    });
+}
+
+function hideOverlay() {
+    document.getElementById('overlay').classList.remove('active');
+}
+
+// Close overlay on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideOverlay();
+});
+
+// Hover popup for side-by-side diagrams
+let hoverTimeout = null;
+function showDiagramHover(element, mermaidCode) {
+    clearTimeout(hoverTimeout);
+    const popup = document.getElementById('diagram-hover-popup');
+    const content = document.getElementById('hover-mermaid');
+    content.innerHTML = mermaidCode;
+    popup.classList.add('active');
+    mermaid.run({ nodes: [content] });
+}
+
+function hideDiagramHover() {
+    hoverTimeout = setTimeout(() => {
+        document.getElementById('diagram-hover-popup').classList.remove('active');
+    }, 100);
+}
+
+function keepDiagramHover() {
+    clearTimeout(hoverTimeout);
+}
+
+// Side-by-side test selector
+function showSideBySideTest(testId) {
+    // Hide all groups
+    document.querySelectorAll('.side-by-side-group').forEach(group => {
+        group.classList.remove('active');
+    });
+    // Show selected group
+    const selected = document.getElementById(testId);
+    if (selected) {
+        selected.classList.add('active');
+        // Re-render mermaid diagrams in the newly visible group
+        mermaid.run({ nodes: selected.querySelectorAll('.mermaid') });
+    }
+}
+
+
+// All agent data for client-side filtering
+const allAgents = [{"id": "bcdf19f2-5315-4124-88f3-36677b59a55c", "name": "baseline", "pass_rate": 100.0}, {"id": "51daba5a-035d-48e8-8a71-89d451c61e3e", "name": "with-financial-skill", "pass_rate": 50.0}];
+const allAgentsById = {"bcdf19f2-5315-4124-88f3-36677b59a55c": {"id": "bcdf19f2-5315-4124-88f3-36677b59a55c", "name": "baseline"}, "51daba5a-035d-48e8-8a71-89d451c61e3e": {"id": "51daba5a-035d-48e8-8a71-89d451c61e3e", "name": "with-financial-skill"}};
+
+// Track selected agents (exactly 2)
+let selectedAgentIds = ["bcdf19f2-5315-4124-88f3-36677b59a55c", "51daba5a-035d-48e8-8a71-89d451c61e3e"];
+
+// Agent comparison logic - always keep exactly 2 selected
+function updateAgentComparison(clickedAgentId) {
+    const checkboxes = document.querySelectorAll('input[name="compare-agent"]');
+    
+    // If clicking an already-selected agent, do nothing (keep 2 selected)
+    if (selectedAgentIds.includes(clickedAgentId)) {
+        // Re-check it to prevent unchecking
+        checkboxes.forEach(cb => {
+            if (cb.value === clickedAgentId) {
+                cb.checked = true;
+            }
+        });
+        return;
+    }
+    
+    // Replace the oldest selection with the new one
+    selectedAgentIds.shift();  // Remove first (oldest)
+    selectedAgentIds.push(clickedAgentId);  // Add new one
+    
+    // Update all checkboxes to match selectedAgentIds
+    checkboxes.forEach(cb => {
+        cb.checked = selectedAgentIds.includes(cb.value);
+        cb.closest('.agent-chip').classList.toggle('selected', cb.checked);
+    });
+    
+    // Update visible columns in test comparison
+    document.querySelectorAll('.comparison-column').forEach(col => {
+        const agentId = col.dataset.agentId;
+        if (agentId) {
+            const shouldShow = selectedAgentIds.includes(agentId);
+            col.classList.toggle('hidden', !shouldShow);
+            
+            // Render mermaid diagrams in newly visible columns
+            if (shouldShow) {
+                const diagrams = col.querySelectorAll('.mermaid:not([data-processed])');
+                if (diagrams.length > 0) {
+                    mermaid.run({ nodes: diagrams });
+                }
+            }
+        }
+    });
+    
+    // Update comparison grid layout based on visible columns
+    document.querySelectorAll('.comparison-grid').forEach(grid => {
+        const visibleCols = grid.querySelectorAll('.comparison-column:not(.hidden)').length;
+        grid.style.gridTemplateColumns = `repeat(${visibleCols}, 1fr)`;
+    });
+    
+    // Update agent cards visibility
+    document.querySelectorAll('.agent-card[data-card-id]').forEach(card => {
+        const agentId = card.dataset.cardId;
+        card.classList.toggle('hidden', !selectedAgentIds.includes(agentId));
+    });
+    
+    // Update comparison row agent results
+    document.querySelectorAll('.agent-result-item').forEach(item => {
+        const agentId = item.dataset.agentId;
+        item.classList.toggle('hidden', !selectedAgentIds.includes(agentId));
+    });
+    
+    console.log('Selected agents:', selectedAgentIds);
+}
+
+// Test filtering
+function filterTests(filter) {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    
+    let visibleCount = 0;
+    document.querySelectorAll('.test-row').forEach(row => {
+        let show = true;
+        if (filter === 'diff') {
+            show = row.dataset.hasDiff === 'true';
+        } else if (filter === 'failed') {
+            show = row.dataset.hasFailed === 'true';
+        }
+        row.classList.toggle('hidden', !show);
+        if (show) visibleCount++;
+    });
+    
+    document.getElementById('visible-count').textContent = visibleCount;
+}
+
+// Group toggle
+function toggleGroup(group) {
+    group.classList.toggle('collapsed');
+}
+
+// Test detail toggle - also renders mermaid diagrams when expanded
+function toggleTestDetail(row) {
+    const detail = row.querySelector('.test-detail');
+    const wasHidden = detail.classList.contains('hidden');
+    detail.classList.toggle('hidden');
+    
+    // If we're showing the detail, render any mermaid diagrams
+    if (wasHidden) {
+        const diagrams = detail.querySelectorAll('.mermaid:not([data-processed])');
+        if (diagrams.length > 0) {
+            mermaid.run({ nodes: diagrams });
+        }
+    }
+}
+
+// Initialize on page load - process visible mermaid diagrams
+document.addEventListener('DOMContentLoaded', () => {
+    // Mermaid should auto-process with startOnLoad, but just in case
+    const visibleDiagrams = document.querySelectorAll('.mermaid:not(.hidden .mermaid)');
+    if (visibleDiagrams.length > 0) {
+        mermaid.run({ nodes: visibleDiagrams });
+    }
+});
+</script></body></html>

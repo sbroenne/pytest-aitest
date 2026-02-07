@@ -33,6 +33,16 @@ Auto-generated API documentation from source code.
       show_source: false
       heading_level: 3
 
+::: pytest_aitest.core.agent.ClarificationDetection
+    options:
+      show_source: false
+      heading_level: 3
+
+::: pytest_aitest.core.agent.ClarificationLevel
+    options:
+      show_source: false
+      heading_level: 3
+
 ## Result Types
 
 ::: pytest_aitest.core.result.AgentResult
@@ -46,6 +56,11 @@ Auto-generated API documentation from source code.
       heading_level: 3
 
 ::: pytest_aitest.core.result.ToolCall
+    options:
+      show_source: false
+      heading_level: 3
+
+::: pytest_aitest.core.result.ClarificationStats
     options:
       show_source: false
       heading_level: 3

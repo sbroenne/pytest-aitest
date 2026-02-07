@@ -10,10 +10,11 @@ from __future__ import annotations
 
 import pytest
 
-from pytest_aitest import Agent, Provider
+from pytest_aitest import Agent, ClarificationDetection, ClarificationLevel, Provider
 
 from .conftest import (
     BANKING_PROMPT,
+    DEFAULT_MAX_TURNS,
     DEFAULT_MODEL,
     DEFAULT_RPM,
     DEFAULT_TPM,
@@ -448,3 +449,38 @@ class TestAdvancedPatterns:
         assert result.tool_was_called("add_task")
         # Should verify
         assert result.tool_call_count("list_tasks") >= 1
+
+
+# =============================================================================
+# Clarification Detection
+# =============================================================================
+
+
+class TestClarificationDetection:
+    """Tests for clarification detection feature.
+
+    Verifies that agents act autonomously instead of asking
+    the user for clarification when given clear instructions.
+    """
+
+    @pytest.mark.asyncio
+    async def test_no_clarification_on_clear_request(self, aitest_run, banking_server):
+        """Agent should not ask for clarification on a clear request."""
+        agent = Agent(
+            name="no-clarification",
+            provider=Provider(model=f"azure/{DEFAULT_MODEL}", rpm=DEFAULT_RPM, tpm=DEFAULT_TPM),
+            mcp_servers=[banking_server],
+            system_prompt=BANKING_PROMPT,
+            max_turns=DEFAULT_MAX_TURNS,
+            clarification_detection=ClarificationDetection(
+                enabled=True,
+                level=ClarificationLevel.ERROR,
+            ),
+        )
+
+        result = await aitest_run(agent, "What's my checking balance?")
+
+        assert result.success
+        assert result.tool_was_called("get_balance")
+        assert not result.asked_for_clarification
+        assert result.clarification_count == 0

@@ -17,6 +17,45 @@ Validate agent behavior using `AgentResult` properties and methods.
 | `token_usage` | `dict[str, int]` | Prompt and completion token counts |
 | `cost_usd` | `float` | Estimated cost in USD |
 | `error` | `str \| None` | Error message if failed |
+| `clarification_stats` | `ClarificationStats \| None` | Clarification detection stats (when enabled) |
+
+## Clarification Detection
+
+Detect when the agent asks for clarification instead of acting autonomously. Uses an LLM judge to classify responses.
+
+The judge performs a simple YES/NO classification, so a cheap model like `gpt-5-mini` is sufficient. Unlike `--aitest-summary-model` (which generates complex analysis), the judge doesn't need a capable model.
+
+### Configuration
+
+```python
+from pytest_aitest import Agent, Provider, ClarificationDetection, ClarificationLevel
+
+agent = Agent(
+    provider=Provider(model="azure/gpt-5-mini"),
+    mcp_servers=[server],
+    clarification_detection=ClarificationDetection(
+        enabled=True,
+        level=ClarificationLevel.ERROR,       # INFO, WARNING, or ERROR
+        judge_model="azure/gpt-5-mini",       # None = use agent's model
+    ),
+)
+```
+
+### Assertions
+
+```python
+# Did the agent ask for clarification?
+assert not result.asked_for_clarification
+
+# How many times?
+assert result.clarification_count == 0
+
+# Detailed stats
+if result.clarification_stats:
+    print(f"Count: {result.clarification_stats.count}")
+    print(f"Turns: {result.clarification_stats.turn_indices}")
+    print(f"Examples: {result.clarification_stats.examples}")
+```
 
 ## Tool Assertions
 
