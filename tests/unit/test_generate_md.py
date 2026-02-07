@@ -286,7 +286,7 @@ class TestGenerateMdMultiAgent:
         output = tmp_path / "report.md"
         generate_md(multi_agent_suite, output, insights=insights)
         md = output.read_text(encoding="utf-8")
-        assert "| # | Agent |" in md
+        assert "|#|Agent|" in md
         assert "Pass Rate" in md
 
     def test_leaderboard_shows_winner(

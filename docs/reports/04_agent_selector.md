@@ -1,18 +1,23 @@
+
 # pytest-aitest
 
 > **6** tests | **5** passed | **1** failed | **83%** pass rate  
-> Duration: 82.4s | Cost: $0.0095 | Tokens: 579–5,903  
+> Duration: 82.4s | Cost: 🧪 $-0.018195 · 🤖 $0.0277 · 💰 $0.009509 | Tokens: 579–5,903  
 > February 07, 2026 at 02:02 PM
 
 *Three agents for testing the agent selector UI.*
 
+
 ## Agent Leaderboard
 
-| # | Agent | Pass Rate | Cost | Tokens | Duration |
-|---|-------|-----------|------|--------|----------|
-| 1 | gpt-4.1-mini 🏆 | 100% (2/2) | $0.0007 | 1,288 | 17.1s |
-| 2 | gpt-5-mini | 100% (2/2) | $0.0026 | 3,044 | 33.2s |
-| 3 | gpt-5-mini + weather-expert | 50% (1/2) | $0.0061 | 8,623 | 32.1s |
+
+|#|Agent|Tests|Pass Rate|Tokens|Cost|Duration|
+| :---: | :--- | :---: | :---: | ---: | ---: | ---: |
+|🥇|gpt-4.1-mini 🏆|2/2|100%|1,288|$0.000723|17.1s|
+|🥈|gpt-5-mini|2/2|100%|3,044|$0.002649|33.2s|
+|🥉|gpt-5-mini + weather-expert|1/2|50%|8,623|$0.006137|32.1s|
+
+
 
 ## AI Analysis
 
@@ -129,14 +134,17 @@ Overall, tools work reliably, but **overlap between `get_weather` and `compare_w
 {"city":"Berlin","temperature_celsius":16,"humidity":72,"conditions":"Overcast","wind_kmh":10,"wind_dir":"N"}
 ```
 
+
 ## Test Results
 
+
 ### tests/fixtures/scenario_04_agent_selector.py
+
 
 #### ✅ Basic weather query — all agents should pass.
 
 <details>
-<summary>✅ gpt-5-mini — 15.2s, 989 tokens, $0.0008</summary>
+<summary>✅ gpt-5-mini — 15.2s · 989 tokens · 3 turns · $0.000758</summary>
 
 **Assertions:**
 
@@ -144,19 +152,21 @@ Overall, tools work reliably, but **overlap between `get_weather` and `compare_w
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_weather` | ✅ | city='Berlin' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_weather`|✅|city='Berlin'|
+
 
 **Response:**
 
 > Current weather in Berlin:
-- Temperature: 16°C (61°F)
-- Conditions: Overcast
-- Humidity: 72%
-- Wind: N at 10 km/h
-
-Looks cool and cloudy — a light jacket is a good idea. Would you like a multi-day forecast or the weather for a different city?
+> - Temperature: 16°C (61°F)
+> - Conditions: Overcast
+> - Humidity: 72%
+> - Wind: N at 10 km/h
+> 
+> Looks cool and cloudy — a light jacket is a good idea. Would you like a multi-day forecast or the weather for a different city?
 
 ```mermaid
 sequenceDiagram
@@ -173,7 +183,7 @@ sequenceDiagram
 </details>
 
 <details>
-<summary>✅ gpt-4.1-mini — 7.7s, 579 tokens, $0.0003</summary>
+<summary>✅ gpt-4.1-mini — 7.7s · 579 tokens · 3 turns · $0.000299</summary>
 
 **Assertions:**
 
@@ -181,9 +191,11 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_weather` | ✅ | city='Berlin' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_weather`|✅|city='Berlin'|
+
 
 **Response:**
 
@@ -204,7 +216,7 @@ sequenceDiagram
 </details>
 
 <details>
-<summary>✅ gpt-5-mini + weather-expert — 18.7s, 5,903 tokens, $0.0036</summary>
+<summary>✅ gpt-5-mini + weather-expert — 18.7s · 5,903 tokens · 6 turns · $0.003644</summary>
 
 **Assertions:**
 
@@ -212,23 +224,25 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `list_cities` | ✅ |  |
-| `get_weather` | ✅ | city='Berlin' |
-| `list_skill_references` | ✅ |  |
-| `read_skill_reference` | ✅ | filename='clothing-guide.md' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`list_cities`|✅||
+|`get_weather`|✅|city='Berlin'|
+|`list_skill_references`|✅||
+|`read_skill_reference`|✅|filename='clothing-guide.md'|
+
 
 **Response:**
 
 > Current conditions in Berlin: 16°C (61°F), overcast, humidity 72%, wind N at 10 km/h (≈6 mph).
-
-What to wear / bring (specific):
-- Outer layer: light jacket or windbreaker (16°C/61°F is mild but overcast and slightly damp).  
-- Base layer: T‑shirt or light long‑sleeve; bring a light sweater or cardigan for cooler moments.  
-- Bottoms: long pants or jeans.  
-- Shoes: closed‑toe shoes (sneakers); consider water‑resistant shoes if you expect damp sidewalks.  
-- Extras: compact umbrella or packable 
+> 
+> What to wear / bring (specific):
+> - Outer layer: light jacket or windbreaker (16°C/61°F is mild but overcast and slightly damp).  
+> - Base layer: T‑shirt or light long‑sleeve; bring a light sweater or cardigan for cooler moments.  
+> - Bottoms: long pants or jeans.  
+> - Shoes: closed‑toe shoes (sneakers); consider water‑resistant shoes if you expect damp sidewalks.  
+> - Extras: compact umbrella or packable 
 
 ```mermaid
 sequenceDiagram
@@ -250,10 +264,11 @@ sequenceDiagram
 
 </details>
 
-#### ❌ Multiple cities — tests differentiation between agents.
+
+#### ❌ Multiple cities — tests differentiation between agents. ⚡
 
 <details>
-<summary>✅ gpt-5-mini — 17.9s, 2,055 tokens, $0.0019</summary>
+<summary>✅ gpt-5-mini — 17.9s · 2,055 tokens · 4 turns · $0.001891</summary>
 
 **Assertions:**
 
@@ -261,20 +276,22 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_weather` | ✅ | city='Rome' |
-| `get_weather` | ✅ | city='Madrid' |
-| `get_weather` | ✅ | city='Athens' |
-| `list_cities` | ✅ |  |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_weather`|✅|city='Rome'|
+|`get_weather`|✅|city='Madrid'|
+|`get_weather`|✅|city='Athens'|
+|`list_cities`|✅||
+
 
 **Response:**
 
 > I can’t fetch live weather for Rome, Madrid, or Athens — those cities aren’t in the available data set. The cities I can retrieve now are: Paris, Tokyo, New York, Berlin, London, Sydney.
-
-What would you like to do next?
-- Pick any two or three from the available list for a live comparison (I can fetch current weather or a multi-day forecast).
-- Or, if you want Rome, Madrid, and Athens specifically, I can provide a general (non-live) climatological comparison instead — does that work?
+> 
+> What would you like to do next?
+> - Pick any two or three from the available list for a live comparison (I can fetch current weather or a multi-day forecast).
+> - Or, if you want Rome, Madrid, and Athens specifically, I can provide a general (non-live) climatological comparison instead — does that work?
 
 ```mermaid
 sequenceDiagram
@@ -297,7 +314,7 @@ sequenceDiagram
 </details>
 
 <details>
-<summary>✅ gpt-4.1-mini — 9.3s, 709 tokens, $0.0004</summary>
+<summary>✅ gpt-4.1-mini — 9.3s · 709 tokens · 3 turns · $0.000424</summary>
 
 **Assertions:**
 
@@ -305,11 +322,13 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_weather` | ✅ | city='Rome' |
-| `get_weather` | ✅ | city='Madrid' |
-| `get_weather` | ✅ | city='Athens' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_weather`|✅|city='Rome'|
+|`get_weather`|✅|city='Madrid'|
+|`get_weather`|✅|city='Athens'|
+
 
 **Response:**
 
@@ -334,16 +353,18 @@ sequenceDiagram
 </details>
 
 <details>
-<summary>❌ gpt-5-mini + weather-expert — 13.4s, 2,720 tokens, $0.0025</summary>
+<summary>❌ gpt-5-mini + weather-expert — 13.4s · 2,720 tokens · 3 turns · $0.002493</summary>
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `list_cities` | ✅ |  |
-| `compare_weather` | ✅ | city1='Rome', city2='Madrid' |
-| `compare_weather` | ✅ | city1='Rome', city2='Athens' |
-| `compare_weather` | ✅ | city1='Madrid', city2='Athens' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`list_cities`|✅||
+|`compare_weather`|✅|city1='Rome', city2='Madrid'|
+|`compare_weather`|✅|city1='Rome', city2='Athens'|
+|`compare_weather`|✅|city1='Madrid', city2='Athens'|
+
 
 **Error:** `      AssertionError: assert 0 >= 3
        +  where 0 = tool_call_count('get_weather')
@@ -352,11 +373,11 @@ sequenceDiagram
 **Response:**
 
 > I tried to fetch current weather for Rome, Madrid, and Athens but those cities are not in the available dataset. The weather API currently has data for: Paris, Tokyo, New York, Berlin, London, and Sydney.
-
-How would you like to proceed?
-- Pick one of the available cities above for a comparison (e.g., Paris vs London vs Berlin).
-- Or provide alternate city names (or correct spellings / countries) if you want me to try again for Rome, Madrid, Athens.
-- If you want, I can compare typical climate/se
+> 
+> How would you like to proceed?
+> - Pick one of the available cities above for a comparison (e.g., Paris vs London vs Berlin).
+> - Or provide alternate city names (or correct spellings / countries) if you want me to try again for Rome, Madrid, Athens.
+> - If you want, I can compare typical climate/se
 
 ```mermaid
 sequenceDiagram
@@ -377,7 +398,5 @@ sequenceDiagram
 ```
 
 </details>
-
----
 
 *Generated by [pytest-aitest](https://github.com/sbroenne/pytest-aitest) on February 07, 2026 at 02:02 PM*

@@ -30,9 +30,9 @@ dependencies = [
     "litellm>=1.81",
     "mcp>=1.26",
     "pydantic>=2.0",
-    "jinja2>=3.1",
     "markdown>=3.10",
     "htpy>=25.12.0",
+    "mdutils>=1.8.1",
 ]
 
 [project.optional-dependencies]
@@ -44,13 +44,9 @@ dev = [
     "ruff>=0.14",
     "pyright>=1.1.408",
     "pre-commit>=4.5",
-    "datamodel-code-generator>=0.25",
-    "jsonschema>=4.0",
     "typeguard>=4.4",
 ]
 test = [
-    "beautifulsoup4>=4.14",
-    "lxml>=6.0",
     "syrupy>=5.1",
 ]
 azure = [

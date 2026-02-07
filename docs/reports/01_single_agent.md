@@ -1,10 +1,15 @@
+
 # pytest-aitest
 
 > **4** tests | **3** passed | **1** failed | **75%** pass rate  
-> Duration: 47.3s | Cost: $0.0030 | Tokens: 619–1,241  
+> Duration: 47.3s | Cost: 🧪 $-0.016872 · 🤖 $0.0199 · 💰 $0.003004 | Tokens: 619–1,241  
 > February 07, 2026 at 01:58 PM
 
 *Single agent tests - basic report without comparison UI.*
+
+> **weather-agent** — ❌ 1 Failed  
+> 3/4 tests | $0.003004 | 3,777 tokens | 47.3s
+
 
 ## AI Analysis
 
@@ -95,14 +100,17 @@ Overall, tools are **well-described and correctly selected** by the agent. No co
 
 This optimization would materially reduce cost in multi-city scenarios without affecting test correctness.
 
+
 ## Test Results
 
+
 ### tests/fixtures/scenario_01_single_agent.py
+
 
 #### ✅ Basic weather lookup — should pass.
 
 <details>
-<summary>15.6s, 785 tokens, $0.0003</summary>
+<summary>15.6s · 785 tokens · 3 turns · $0.000348</summary>
 
 **Assertions:**
 
@@ -110,19 +118,21 @@ This optimization would materially reduce cost in multi-city scenarios without a
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_weather` | ✅ | city='Paris' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_weather`|✅|city='Paris'|
+
 
 **Response:**
 
 > Here’s the current weather for Paris, France:
-- Conditions: Partly cloudy
-- Temperature: 18°C (64°F)
-- Humidity: 65%
-- Wind: 12 km/h from the SW
-
-Would you like a forecast for the next few days or anything else?
+> - Conditions: Partly cloudy
+> - Temperature: 18°C (64°F)
+> - Humidity: 65%
+> - Wind: 12 km/h from the SW
+> 
+> Would you like a forecast for the next few days or anything else?
 
 ```mermaid
 sequenceDiagram
@@ -138,10 +148,11 @@ sequenceDiagram
 
 </details>
 
+
 #### ✅ Multi-day forecast — tests get_forecast tool.
 
 <details>
-<summary>11.2s, 1,132 tokens, $0.0009</summary>
+<summary>11.2s · 1,132 tokens · 3 turns · $0.000885</summary>
 
 **Assertions:**
 
@@ -149,19 +160,21 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_forecast` | ✅ | city='Tokyo', days=3 |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_forecast`|✅|city='Tokyo', days=3|
+
 
 **Response:**
 
 > Here’s the 3-day forecast for Tokyo:
-
-- Day 1 (today): Sunny — High 26°C / Low 18°C. 20% chance of precipitation.  
-- Day 2: Partly cloudy — High 27°C / Low 19°C. 30% chance of precipitation.  
-- Day 3: Cloudy — High 28°C / Low 20°C. 40% chance of precipitation.
-
-Quick note: chances of rain increase through the period — you may want to have an umbrella available by Day 3.
+> 
+> - Day 1 (today): Sunny — High 26°C / Low 18°C. 20% chance of precipitation.  
+> - Day 2: Partly cloudy — High 27°C / Low 19°C. 30% chance of precipitation.  
+> - Day 3: Cloudy — High 28°C / Low 20°C. 40% chance of precipitation.
+> 
+> Quick note: chances of rain increase through the period — you may want to have an umbrella available by Day 3.
 
 ```mermaid
 sequenceDiagram
@@ -177,10 +190,11 @@ sequenceDiagram
 
 </details>
 
+
 #### ✅ Compare two cities — multiple tool calls.
 
 <details>
-<summary>12.8s, 1,241 tokens, $0.0011</summary>
+<summary>12.8s · 1,241 tokens · 3 turns · $0.001087</summary>
 
 **Assertions:**
 
@@ -188,21 +202,23 @@ sequenceDiagram
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `compare_weather` | ✅ | city1='Berlin', city2='Sydney' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`compare_weather`|✅|city1='Berlin', city2='Sydney'|
+
 
 **Response:**
 
 > Sydney is warmer today.
-
-Current conditions:
-- Berlin: 16°C (61°F), overcast, 72% humidity, N wind 10 km/h.
-- Sydney: 26°C (79°F), sunny, 60% humidity, SE wind 20 km/h.
-
-Temperature difference: Sydney is 10°C (18°F) warmer than Berlin.
-
-Would you like a multi-day forecast for either city?
+> 
+> Current conditions:
+> - Berlin: 16°C (61°F), overcast, 72% humidity, N wind 10 km/h.
+> - Sydney: 26°C (79°F), sunny, 60% humidity, SE wind 20 km/h.
+> 
+> Temperature difference: Sydney is 10°C (18°F) warmer than Berlin.
+> 
+> Would you like a multi-day forecast for either city?
 
 ```mermaid
 sequenceDiagram
@@ -218,21 +234,24 @@ sequenceDiagram
 
 </details>
 
+
 #### ❌ Test that fails due to turn limit — for report variety.
 
 <details>
-<summary>7.8s, 619 tokens, $0.0007</summary>
+<summary>7.8s · 619 tokens · 2 turns · $0.000683</summary>
 
 **Tool Calls:**
 
-| Tool | Status | Args |
-|------|--------|------|
-| `get_weather` | ✅ | city='Paris' |
-| `get_weather` | ✅ | city='Tokyo' |
-| `get_weather` | ✅ | city='London' |
-| `get_weather` | ✅ | city='Berlin' |
-| `get_weather` | ✅ | city='Sydney' |
-| `get_weather` | ✅ | city='Berlin' |
+
+|Tool|Status|Args|
+| :--- | :---: | :--- |
+|`get_weather`|✅|city='Paris'|
+|`get_weather`|✅|city='Tokyo'|
+|`get_weather`|✅|city='London'|
+|`get_weather`|✅|city='Berlin'|
+|`get_weather`|✅|city='Sydney'|
+|`get_weather`|✅|city='Berlin'|
+
 
 **Error:** `      AssertionError: Agent exceeded turn limit - unable to process request for 5 cities (max_turns=1)`
 
@@ -258,7 +277,5 @@ sequenceDiagram
 ```
 
 </details>
-
----
 
 *Generated by [pytest-aitest](https://github.com/sbroenne/pytest-aitest) on February 07, 2026 at 01:58 PM*
