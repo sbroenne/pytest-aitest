@@ -152,6 +152,24 @@ All PRs are **squash merged** to keep a clean commit history on main.
 
 ## Releasing
 
-1. Update version in `src/pytest_aitest/__init__.py` and `pyproject.toml`
-2. Create a git tag: `git tag v0.x.x`
-3. Push: `git push origin main --tags`
+Releases are triggered via GitHub Actions workflow dispatch:
+
+1. Go to [Actions → Release](https://github.com/sbroenne/pytest-aitest/actions/workflows/release.yml)
+2. Click "Run workflow"
+3. Select the version bump type:
+   - **patch** (default) — Bug fixes, backwards-compatible (e.g., 0.2.0 → 0.2.1)
+   - **minor** — New features, backwards-compatible (e.g., 0.2.0 → 0.3.0)
+   - **major** — Breaking changes (e.g., 0.2.0 → 1.0.0)
+4. Or specify a custom version (e.g., `1.2.3`) to override automatic versioning
+
+The workflow will:
+1. Calculate the new version from the latest git tag
+2. Update `pyproject.toml` with the new version
+3. Build the package
+4. Test the build
+5. Create and push a git tag (e.g., `v0.2.1`)
+6. Publish to PyPI
+7. Create a GitHub release
+8. Deploy updated documentation
+
+**Note**: The version in `pyproject.toml` is automatically updated during the release workflow. You do not need to manually update it before releasing.

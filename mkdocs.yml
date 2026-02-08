@@ -102,6 +102,7 @@ nav:
     - Overview: contributing/index.md
     - Architecture: contributing/architecture.md
     - Report Structure: contributing/report-structure.md
+    - Releasing: contributing/releasing.md
 
 extra:
   social:
