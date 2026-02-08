@@ -3,16 +3,51 @@
 These tests verify that MCP servers start correctly, tools are discovered,
 and basic tool calls work - WITHOUT using LLM. This ensures the infrastructure
 works before expensive integration tests.
+
+Tests all three MCP transports: stdio, SSE, and streamable-http.
 """
 
 from __future__ import annotations
 
+import socket
+import subprocess
 import sys
+import time
 
 import pytest
 
 from pytest_aitest import MCPServer, Wait
 from pytest_aitest.execution.servers import MCPServerProcess
+
+
+# ---------------------------------------------------------------------------
+# Helper functions for HTTP transports
+# ---------------------------------------------------------------------------
+
+
+def _free_port() -> int:
+    """Find a free TCP port on localhost."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+def _wait_for_port(port: int, host: str = "127.0.0.1", timeout: float = 10.0) -> None:
+    """Block until host:port accepts a TCP connection or timeout expires."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=1):
+                return
+        except OSError:
+            time.sleep(0.2)
+    msg = f"Server on {host}:{port} did not start within {timeout}s"
+    raise TimeoutError(msg)
+
+
+# ---------------------------------------------------------------------------
+# stdio transport tests
+# ---------------------------------------------------------------------------
 
 
 class TestMCPServerStdio:
@@ -81,7 +116,7 @@ class TestMCPServerStdio:
 
     @pytest.mark.asyncio
     async def test_todo_mcp_tool_call(self):
-        """Can call tools on todo MCP server."""
+        """Can call tools on todo MCP server via stdio."""
         config = MCPServer(
             command=[sys.executable, "-u", "-m", "pytest_aitest.testing.todo_mcp"],
             wait=Wait.for_tools(["add_task", "list_tasks"]),
@@ -103,7 +138,7 @@ class TestMCPServerStdio:
 
     @pytest.mark.asyncio
     async def test_banking_mcp_tool_call(self):
-        """Can call tools on banking MCP server."""
+        """Can call tools on banking MCP server via stdio."""
         config = MCPServer(
             command=[sys.executable, "-u", "-m", "pytest_aitest.testing.banking_mcp"],
             wait=Wait.for_tools(["get_balance"]),
@@ -118,3 +153,373 @@ class TestMCPServerStdio:
             assert "balance" in result.lower() or "1500" in result or "1,500" in result
         finally:
             await server.stop()
+
+
+# ---------------------------------------------------------------------------
+# SSE transport tests
+# ---------------------------------------------------------------------------
+
+
+class TestMCPServerSSE:
+    """Test SSE transport for MCP servers."""
+
+    @pytest.mark.asyncio
+    async def test_todo_mcp_sse_starts_and_lists_tools(self):
+        """Todo MCP server starts and discovers tools via SSE."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.todo_mcp",
+                "--transport",
+                "sse",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="sse",
+                url=f"http://127.0.0.1:{port}/sse",
+                wait=Wait.for_tools(["add_task", "list_tasks"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+            tools = server.get_tools()
+
+            # Verify expected tools
+            assert "add_task" in tools
+            assert "list_tasks" in tools
+            assert "complete_task" in tools
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    @pytest.mark.asyncio
+    async def test_banking_mcp_sse_starts_and_lists_tools(self):
+        """Banking MCP server starts and discovers tools via SSE."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.banking_mcp",
+                "--transport",
+                "sse",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="sse",
+                url=f"http://127.0.0.1:{port}/sse",
+                wait=Wait.for_tools(["get_balance", "transfer"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+            tools = server.get_tools()
+
+            # Verify expected tools
+            assert "get_balance" in tools
+            assert "transfer" in tools
+            assert "get_all_balances" in tools
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    @pytest.mark.asyncio
+    async def test_todo_mcp_sse_tool_call(self):
+        """Can call tools on todo MCP server via SSE."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.todo_mcp",
+                "--transport",
+                "sse",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="sse",
+                url=f"http://127.0.0.1:{port}/sse",
+                wait=Wait.for_tools(["add_task", "list_tasks"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+
+            # Add a task
+            result = await server.call_tool("add_task", {"title": "SSE test task"})
+            assert "SSE test task" in result or "message" in result.lower()
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    @pytest.mark.asyncio
+    async def test_banking_mcp_sse_tool_call(self):
+        """Can call tools on banking MCP server via SSE."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.banking_mcp",
+                "--transport",
+                "sse",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="sse",
+                url=f"http://127.0.0.1:{port}/sse",
+                wait=Wait.for_tools(["get_balance"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+
+            # Get balance
+            result = await server.call_tool("get_balance", {"account": "checking"})
+            assert "balance" in result.lower() or "1500" in result or "1,500" in result
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+
+# ---------------------------------------------------------------------------
+# Streamable HTTP transport tests
+# ---------------------------------------------------------------------------
+
+
+class TestMCPServerStreamableHTTP:
+    """Test streamable-http transport for MCP servers."""
+
+    @pytest.mark.asyncio
+    async def test_todo_mcp_http_starts_and_lists_tools(self):
+        """Todo MCP server starts and discovers tools via streamable-http."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.todo_mcp",
+                "--transport",
+                "streamable-http",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="streamable-http",
+                url=f"http://127.0.0.1:{port}/mcp",
+                wait=Wait.for_tools(["add_task", "list_tasks"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+            tools = server.get_tools()
+
+            # Verify expected tools
+            assert "add_task" in tools
+            assert "list_tasks" in tools
+            assert "complete_task" in tools
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    @pytest.mark.asyncio
+    async def test_banking_mcp_http_starts_and_lists_tools(self):
+        """Banking MCP server starts and discovers tools via streamable-http."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.banking_mcp",
+                "--transport",
+                "streamable-http",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="streamable-http",
+                url=f"http://127.0.0.1:{port}/mcp",
+                wait=Wait.for_tools(["get_balance", "transfer"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+            tools = server.get_tools()
+
+            # Verify expected tools
+            assert "get_balance" in tools
+            assert "transfer" in tools
+            assert "get_all_balances" in tools
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    @pytest.mark.asyncio
+    async def test_todo_mcp_http_tool_call(self):
+        """Can call tools on todo MCP server via streamable-http."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.todo_mcp",
+                "--transport",
+                "streamable-http",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="streamable-http",
+                url=f"http://127.0.0.1:{port}/mcp",
+                wait=Wait.for_tools(["add_task", "list_tasks"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+
+            # Add a task
+            result = await server.call_tool("add_task", {"title": "HTTP test task"})
+            assert "HTTP test task" in result or "message" in result.lower()
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    @pytest.mark.asyncio
+    async def test_banking_mcp_http_tool_call(self):
+        """Can call tools on banking MCP server via streamable-http."""
+        port = _free_port()
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "pytest_aitest.testing.banking_mcp",
+                "--transport",
+                "streamable-http",
+                "--port",
+                str(port),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            _wait_for_port(port)
+
+            config = MCPServer(
+                transport="streamable-http",
+                url=f"http://127.0.0.1:{port}/mcp",
+                wait=Wait.for_tools(["get_balance"]),
+            )
+            server = MCPServerProcess(config)
+
+            await server.start()
+
+            # Get balance
+            result = await server.call_tool("get_balance", {"account": "checking"})
+            assert "balance" in result.lower() or "1500" in result or "1,500" in result
+
+            await server.stop()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
