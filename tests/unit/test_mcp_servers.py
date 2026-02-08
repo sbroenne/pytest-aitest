@@ -19,7 +19,6 @@ import pytest
 from pytest_aitest import MCPServer, Wait
 from pytest_aitest.execution.servers import MCPServerProcess
 
-
 # ---------------------------------------------------------------------------
 # Helper functions for HTTP transports
 # ---------------------------------------------------------------------------
