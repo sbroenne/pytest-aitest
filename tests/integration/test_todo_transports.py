@@ -58,14 +58,14 @@ def _wait_for_port(port: int, host: str = "127.0.0.1", timeout: float = 15.0) ->
 
 @pytest.fixture(scope="module")
 def streamable_http_todo_server():
-    """Start the todo SDK server with streamable-http transport."""
+    """Start the todo server with streamable-http transport."""
     port = _free_port()
     proc = subprocess.Popen(
         [
             sys.executable,
             "-u",
             "-m",
-            "pytest_aitest.testing.todo_sdk_mcp",
+            "pytest_aitest.testing.todo_mcp",
             "--transport",
             "streamable-http",
             "--port",
@@ -101,14 +101,14 @@ def streamable_http_todo_server():
 
 @pytest.fixture(scope="module")
 def sse_todo_server():
-    """Start the todo SDK server with SSE transport."""
+    """Start the todo server with SSE transport."""
     port = _free_port()
     proc = subprocess.Popen(
         [
             sys.executable,
             "-u",
             "-m",
-            "pytest_aitest.testing.todo_sdk_mcp",
+            "pytest_aitest.testing.todo_mcp",
             "--transport",
             "sse",
             "--port",

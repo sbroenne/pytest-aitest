@@ -58,14 +58,14 @@ def _wait_for_port(port: int, host: str = "127.0.0.1", timeout: float = 15.0) ->
 
 @pytest.fixture(scope="module")
 def streamable_http_server():
-    """Start the banking SDK server with streamable-http transport."""
+    """Start the banking server with streamable-http transport."""
     port = _free_port()
     proc = subprocess.Popen(
         [
             sys.executable,
             "-u",
             "-m",
-            "pytest_aitest.testing.banking_sdk_mcp",
+            "pytest_aitest.testing.banking_mcp",
             "--transport",
             "streamable-http",
             "--port",
@@ -101,14 +101,14 @@ def streamable_http_server():
 
 @pytest.fixture(scope="module")
 def sse_server():
-    """Start the banking SDK server with SSE transport."""
+    """Start the banking server with SSE transport."""
     port = _free_port()
     proc = subprocess.Popen(
         [
             sys.executable,
             "-u",
             "-m",
-            "pytest_aitest.testing.banking_sdk_mcp",
+            "pytest_aitest.testing.banking_mcp",
             "--transport",
             "sse",
             "--port",
