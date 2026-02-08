@@ -35,15 +35,15 @@ jobs:
           # If custom version is provided, use it
           if [ -n "${{ inputs.custom_version }}" ]; then
             VERSION="${{ inputs.custom_version }}"
-            echo "Using custom version: $VERSION"
+            echo "Using custom version: ${VERSION}"
           else
             # Get the latest tag
             LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-            echo "Latest tag: $LATEST_TAG"
+            echo "Latest tag: ${LATEST_TAG}"
             
             # Remove 'v' prefix if present
             CURRENT_VERSION="${LATEST_TAG#v}"
-            echo "Current version: $CURRENT_VERSION"
+            echo "Current version: ${CURRENT_VERSION}"
             
             # Parse version components
             IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
@@ -65,12 +65,12 @@ jobs:
             esac
             
             VERSION="${MAJOR}.${MINOR}.${PATCH}"
-            echo "New version: $VERSION"
+            echo "New version: ${VERSION}"
           fi
           
           TAG="v${VERSION}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build Package
