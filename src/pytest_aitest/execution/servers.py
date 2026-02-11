@@ -14,7 +14,7 @@ from pytest_aitest.core.errors import ServerStartError
 if TYPE_CHECKING:
     from mcp import ClientSession
 
-    from pytest_aitest.core.agent import CLIServer, MCPServer
+    from pytest_aitest.core.agent import CLIServer, GitHubCopilotServer, MCPServer
 
 
 class MCPServerProcess:
@@ -355,6 +355,147 @@ class CLIServerProcess:
         return self._executions
 
 
+class GitHubCopilotServerProcess:
+    """Manages a GitHub Copilot Coding Agent session.
+
+    Wraps the GitHub Copilot SDK to expose Copilot's capabilities as tools
+    that can be tested like MCP servers. The Copilot agent provides:
+    - Natural language code generation
+    - File editing and manipulation
+    - Advanced planning and tool orchestration
+
+    Example:
+        server = GitHubCopilotServerProcess(copilot_config)
+        await server.start()
+        tools = server.get_tools()
+        result = await server.call_tool("copilot_execute", {"prompt": "..."})
+        await server.stop()
+    """
+
+    def __init__(self, config: GitHubCopilotServer) -> None:
+        self.config = config
+        self._client = None
+        self._session = None
+        self._tool_name = f"{config.name}_execute"
+        self._executions: list[dict[str, Any]] = []
+
+    async def start(self) -> None:
+        """Initialize the GitHub Copilot client and create a session."""
+        try:
+            # Defer import so github-copilot-sdk is optional
+            from copilot import CopilotClient  # type: ignore[import-untyped]
+        except ImportError as e:
+            raise ServerStartError(
+                "GitHubCopilot",
+                [self.config.name],
+                "github-copilot-sdk not installed. Install with: pip install github-copilot-sdk",
+            ) from e
+
+        try:
+            self._client = CopilotClient()
+            await self._client.start()
+
+            # Create session with config
+            session_config: dict[str, Any] = {
+                "model": self.config.model,
+                "streaming": self.config.streaming,
+            }
+            if self.config.instructions:
+                session_config["instructions"] = self.config.instructions
+            if self.config.skill_directories:
+                session_config["skill_directories"] = self.config.skill_directories
+
+            self._session = await self._client.create_session(session_config)
+
+        except Exception as e:
+            if self._client:
+                await self._client.stop()
+                self._client = None
+            raise ServerStartError("GitHubCopilot", [self.config.name], str(e)) from e
+
+    async def stop(self) -> None:
+        """Stop the GitHub Copilot client."""
+        if self._client:
+            await self._client.stop()
+            self._client = None
+        self._session = None
+        self._executions = []
+
+    def get_tools(self) -> dict[str, dict[str, Any]]:
+        """Get available tools as MCP-compatible schema."""
+        description = (
+            f"Execute a task using GitHub Copilot Coding Agent ({self.config.model}). "
+            "Copilot can perform code generation, file editing, and complex multi-step workflows."
+        )
+        if self.config.instructions:
+            description += f"\n\nInstructions: {self.config.instructions}"
+
+        return {
+            self._tool_name: {
+                "name": self._tool_name,
+                "description": description,
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "prompt": {
+                            "type": "string",
+                            "description": "The task or query to send to GitHub Copilot",
+                        }
+                    },
+                    "required": ["prompt"],
+                },
+            }
+        }
+
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> str:
+        """Execute a Copilot task and return the response."""
+        if name != self._tool_name:
+            raise ValueError(f"Unknown tool: {name}")
+
+        if not self._session:
+            raise RuntimeError("Copilot session not started")
+
+        prompt = arguments.get("prompt", "")
+        if not prompt:
+            return json.dumps({"error": "No prompt provided"})
+
+        try:
+            # Send prompt and wait for response
+            response = await self._session.send_and_wait({"prompt": prompt})
+
+            # Extract content from response
+            content = ""
+            if hasattr(response, "data") and hasattr(response.data, "content"):
+                content = response.data.content
+            elif isinstance(response, dict):
+                content = response.get("content", str(response))
+            else:
+                content = str(response)
+
+            execution = {
+                "prompt": prompt,
+                "response": content,
+                "success": True,
+            }
+            self._executions.append(execution)
+
+            return json.dumps({"response": content})
+
+        except Exception as e:
+            execution = {
+                "prompt": prompt,
+                "response": "",
+                "success": False,
+                "error": str(e),
+            }
+            self._executions.append(execution)
+            return json.dumps({"error": str(e)})
+
+    def get_executions(self) -> list[dict[str, Any]]:
+        """Get all recorded Copilot executions for assertions."""
+        return self._executions
+
+
 class ServerManager:
     """Manages all servers for an agent.
 
@@ -370,11 +511,18 @@ class ServerManager:
         self,
         mcp_servers: list[MCPServer],
         cli_servers: list[CLIServer],
+        copilot_servers: list[GitHubCopilotServer] | None = None,
     ) -> None:
         self._mcp_servers = [MCPServerProcess(cfg) for cfg in mcp_servers]
         self._cli_servers = [CLIServerProcess(cfg) for cfg in cli_servers]
+        self._copilot_servers = (
+            [GitHubCopilotServerProcess(cfg) for cfg in copilot_servers]
+            if copilot_servers
+            else []
+        )
         self._tool_to_mcp_server: dict[str, MCPServerProcess] = {}
         self._tool_to_cli_server: dict[str, CLIServerProcess] = {}
+        self._tool_to_copilot_server: dict[str, GitHubCopilotServerProcess] = {}
 
     async def start_all(self) -> None:
         """Start all servers."""
@@ -390,11 +538,19 @@ class ServerManager:
             for tool_name in server.get_tools():
                 self._tool_to_cli_server[tool_name] = server
 
+        # Start all Copilot servers
+        for server in self._copilot_servers:
+            await server.start()
+            for tool_name in server.get_tools():
+                self._tool_to_copilot_server[tool_name] = server
+
     async def stop_all(self) -> None:
         """Stop all servers."""
         for server in self._mcp_servers:
             await server.stop()
         for server in self._cli_servers:
+            await server.stop()
+        for server in self._copilot_servers:
             await server.stop()
 
     async def get_tools_schema(self) -> list[dict[str, Any]]:
@@ -419,6 +575,22 @@ class ServerManager:
 
         # CLI server tools
         for server in self._cli_servers:
+            for name, tool_def in server.get_tools().items():
+                tools.append(
+                    {
+                        "type": "function",
+                        "function": {
+                            "name": name,
+                            "description": tool_def.get("description", ""),
+                            "parameters": tool_def.get(
+                                "inputSchema", {"type": "object", "properties": {}}
+                            ),
+                        },
+                    }
+                )
+
+        # Copilot server tools
+        for server in self._copilot_servers:
             for name, tool_def in server.get_tools().items():
                 tools.append(
                     {
@@ -479,6 +651,21 @@ class ServerManager:
                     )
                 )
 
+        # Copilot server tools
+        for server in self._copilot_servers:
+            server_name = server.config.name
+            for name, tool_def in server.get_tools().items():
+                tools_info.append(
+                    ToolInfo(
+                        name=name,
+                        description=tool_def.get("description", ""),
+                        input_schema=tool_def.get(
+                            "inputSchema", {"type": "object", "properties": {}}
+                        ),
+                        server_name=server_name,
+                    )
+                )
+
         return tools_info
 
     async def call_tool(self, name: str, arguments: dict[str, Any]) -> str:
@@ -490,5 +677,9 @@ class ServerManager:
         # Check CLI servers
         if name in self._tool_to_cli_server:
             return await self._tool_to_cli_server[name].call_tool(name, arguments)
+
+        # Check Copilot servers
+        if name in self._tool_to_copilot_server:
+            return await self._tool_to_copilot_server[name].call_tool(name, arguments)
 
         raise ValueError(f"Unknown tool: {name}")

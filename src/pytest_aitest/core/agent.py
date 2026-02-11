@@ -281,6 +281,45 @@ class CLIExecution:
 
 
 @dataclass(slots=True)
+class GitHubCopilotServer:
+    """GitHub Copilot Coding Agent server configuration.
+
+    Wraps the GitHub Copilot SDK to expose Copilot's agent capabilities
+    as tools that can be tested like MCP servers. The Copilot agent provides
+    advanced planning, file editing, and tool orchestration capabilities.
+
+    Authentication uses GitHub Copilot CLI credentials (requires `gh copilot`
+    to be installed and authenticated).
+
+    Example:
+        GitHubCopilotServer(
+            name="copilot-coder",
+            model="gpt-4.1",
+        )
+
+        # With custom instructions
+        GitHubCopilotServer(
+            name="copilot-expert",
+            model="claude-sonnet-4.5",
+            instructions="Focus on code quality and best practices.",
+        )
+
+        # With skills
+        GitHubCopilotServer(
+            name="copilot-pr-analyzer",
+            skill_directories=["./.copilot_skills/pr-analyzer"],
+        )
+    """
+
+    name: str
+    model: str = "gpt-4.1"
+    instructions: str | None = None
+    skill_directories: list[str] = field(default_factory=list)
+    streaming: bool = True
+    wait: Wait = field(default_factory=Wait.ready)
+
+
+@dataclass(slots=True)
 class Agent:
     """AI agent configuration combining provider and servers.
 
@@ -319,6 +358,7 @@ class Agent:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     mcp_servers: list[MCPServer] = field(default_factory=list)
     cli_servers: list[CLIServer] = field(default_factory=list)
+    copilot_servers: list[GitHubCopilotServer] = field(default_factory=list)
     system_prompt: str | None = None
     max_turns: int = 10
     skill: Skill | None = None

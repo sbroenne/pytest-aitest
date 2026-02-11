@@ -124,6 +124,7 @@ def aitest_run(
         server_manager = ServerManager(
             mcp_servers=agent.mcp_servers,
             cli_servers=agent.cli_servers,
+            copilot_servers=agent.copilot_servers,
         )
         engine = AgentEngine(agent, server_manager)
         engines.append(engine)
