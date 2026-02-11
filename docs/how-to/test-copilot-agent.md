@@ -20,9 +20,9 @@ GitHub Copilot Coding Agent provides advanced code generation, file editing, and
 Install the optional dependency:
 
 ```bash
-pip install pytest-aitest[copilot]
+uv add pytest-aitest[copilot]
 # or
-pip install github-copilot-sdk
+uv pip install github-copilot-sdk
 ```
 
 Authenticate with GitHub Copilot CLI:
@@ -421,15 +421,15 @@ If you get an import error:
 
 ```python
 ServerStartError: github-copilot-sdk not installed. 
-Install with: pip install github-copilot-sdk
+Install with: uv pip install github-copilot-sdk
 ```
 
 Install the SDK:
 
 ```bash
-pip install github-copilot-sdk
+uv pip install github-copilot-sdk
 # or
-pip install pytest-aitest[copilot]
+uv add pytest-aitest[copilot]
 ```
 
 ### Authentication Failed

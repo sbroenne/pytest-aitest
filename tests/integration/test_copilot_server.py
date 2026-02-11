@@ -5,7 +5,7 @@ similar to MCP servers. Includes A/B testing of custom instructions and model co
 
 NOTE: These tests require github-copilot-sdk to be installed and the GitHub Copilot CLI
 to be authenticated. Install with:
-    pip install pytest-aitest[copilot]
+    uv add pytest-aitest[copilot]
     gh copilot auth
 
 Run with:
