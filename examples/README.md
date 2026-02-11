@@ -10,6 +10,7 @@ Working examples are in `tests/integration/` — they are the best reference for
 | [test_dimension_detection.py](../tests/integration/test_dimension_detection.py) | Multi-dimension comparison (model × prompt) |
 | [test_skills.py](../tests/integration/test_skills.py) | Skills with references and metadata |
 | [test_skill_improvement.py](../tests/integration/test_skill_improvement.py) | Skill before/after comparisons |
+| [test_copilot_server.py](../tests/integration/test_copilot_server.py) | GitHub Copilot Coding Agent as a system under test |
 
 ## Run Examples
 
@@ -51,6 +52,20 @@ def todo_server():
     )
 
 # Test: "Add buy milk to my shopping list"
+```
+
+### GitHub Copilot Server
+```python
+@pytest.fixture(scope="module")
+def copilot_server():
+    return GitHubCopilotServer(
+        name="copilot-assistant",
+        model="gpt-4.1",
+        instructions="You are a helpful coding assistant.",
+    )
+
+# Test: "Use Copilot to write a factorial function"
+# Note: Requires github-copilot-sdk and gh copilot auth
 ```
 
 ## Fixtures
