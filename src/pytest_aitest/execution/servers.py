@@ -388,7 +388,7 @@ class GitHubCopilotServerProcess:
             raise ServerStartError(
                 "GitHubCopilot",
                 [self.config.name],
-                "github-copilot-sdk not installed. Install with: pip install github-copilot-sdk",
+                "github-copilot-sdk not installed. Install with: uv add pytest-aitest[copilot]",
             ) from e
 
         try:

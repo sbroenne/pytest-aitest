@@ -3,13 +3,15 @@
 These tests demonstrate how to use GitHub Copilot Coding Agent as a system under test,
 similar to MCP servers. Includes A/B testing of custom instructions and model comparison.
 
-NOTE: These tests require github-copilot-sdk to be installed and the GitHub Copilot CLI
-to be authenticated. Install with:
+REQUIREMENTS: These tests require github-copilot-sdk to be installed and the GitHub 
+Copilot CLI to be authenticated. Tests will fail if the SDK is not available.
+
+Install with:
     uv add pytest-aitest[copilot]
     gh copilot auth
 
 Run with:
-    # Run all tests (will skip if SDK not available)
+    # Run all tests
     pytest tests/integration/test_copilot_server.py -v
     
     # Generate comparison report
@@ -27,21 +29,6 @@ from pytest_aitest import Agent, GitHubCopilotServer, Provider
 from .conftest import DEFAULT_MAX_TURNS, DEFAULT_MODEL, DEFAULT_RPM, DEFAULT_TPM
 
 pytestmark = [pytest.mark.integration, pytest.mark.copilot]
-
-
-# =============================================================================
-# Helper to check if Copilot SDK is available
-# =============================================================================
-
-
-def _copilot_sdk_available() -> bool:
-    """Check if github-copilot-sdk is installed."""
-    try:
-        import copilot  # noqa: F401
-
-        return True
-    except ImportError:
-        return False
 
 
 # =============================================================================
@@ -97,10 +84,6 @@ COPILOT_MODELS = ["gpt-4.1", "gpt-4o-mini"]
 # =============================================================================
 
 
-@pytest.mark.skipif(
-    not _copilot_sdk_available(),
-    reason="github-copilot-sdk not available",
-)
 class TestCopilotInstructionComparison:
     """A/B test different custom instructions with Copilot.
 
@@ -166,10 +149,6 @@ specialized in {instruction_name} code generation. Use it for this task.""",
 # =============================================================================
 
 
-@pytest.mark.skipif(
-    not _copilot_sdk_available(),
-    reason="github-copilot-sdk not available",
-)
 class TestCopilotModelComparison:
     """Compare different Copilot models for the same task.
 
@@ -221,10 +200,6 @@ class TestCopilotModelComparison:
 # =============================================================================
 
 
-@pytest.mark.skipif(
-    not _copilot_sdk_available(),
-    reason="github-copilot-sdk not available",
-)
 class TestCopilotMultiDimension:
     """Test all combinations of instructions and models (2×3 matrix).
 
@@ -287,10 +262,6 @@ class TestCopilotMultiDimension:
 # =============================================================================
 
 
-@pytest.mark.skipif(
-    not _copilot_sdk_available(),
-    reason="github-copilot-sdk not available",
-)
 class TestCopilotBasicUsage:
     """Basic tests demonstrating Copilot integration."""
 
