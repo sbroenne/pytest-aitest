@@ -279,6 +279,140 @@ async def test_model_comparison(aitest_run, model):
     assert result.success
 ```
 
+## A/B Testing Custom Instructions
+
+Compare different instruction sets to find the optimal configuration for your use case. The report will show side-by-side comparison.
+
+### Instruction Comparison Pattern
+
+```python
+import pytest
+
+# Define instruction sets
+QUALITY_INSTRUCTIONS = """You are a senior software engineer focused on code quality.
+
+Guidelines:
+- Always include type hints for parameters and return values
+- Write comprehensive docstrings in Google style
+- Add error handling and input validation
+- Follow PEP 8 style conventions"""
+
+PERFORMANCE_INSTRUCTIONS = """You are a performance-oriented software engineer.
+
+Guidelines:
+- Optimize for speed and memory efficiency
+- Use appropriate data structures for the task
+- Include time/space complexity in comments
+- Consider algorithmic efficiency"""
+
+INSTRUCTION_SETS = {
+    "quality": QUALITY_INSTRUCTIONS,
+    "performance": PERFORMANCE_INSTRUCTIONS,
+}
+
+@pytest.mark.parametrize(
+    "instruction_name,instructions",
+    INSTRUCTION_SETS.items(),
+    ids=INSTRUCTION_SETS.keys(),
+)
+@pytest.mark.asyncio
+async def test_compare_instructions(aitest_run, instruction_name, instructions):
+    """Compare different instruction sets for the same task.
+    
+    This test runs twice (once per instruction set):
+    - quality: Should produce well-documented, type-hinted code
+    - performance: Should emphasize efficiency and complexity
+    
+    The AI analysis will compare which instruction set works best.
+    """
+    copilot_server = GitHubCopilotServer(
+        name=f"copilot-{instruction_name}",
+        model="gpt-4.1",
+        instructions=instructions,
+    )
+    
+    agent = Agent(
+        name=f"copilot-{instruction_name}",
+        provider=Provider(model="azure/gpt-5-mini"),
+        copilot_servers=[copilot_server],
+        system_prompt=f"Use Copilot specialized in {instruction_name} code generation.",
+        max_turns=5,
+    )
+    
+    result = await aitest_run(
+        agent,
+        "Use Copilot to create a Python binary search tree class "
+        "with insert, search, and delete methods.",
+    )
+    
+    assert result.success
+    assert result.tool_was_called(f"copilot_{instruction_name}_execute")
+```
+
+### Multi-Dimension Testing
+
+Test all combinations of models and instructions:
+
+```python
+# Test 2×2 matrix: 2 models × 2 instruction sets
+@pytest.mark.parametrize("model", ["gpt-4.1", "gpt-4o-mini"])
+@pytest.mark.parametrize(
+    "instruction_name,instructions",
+    INSTRUCTION_SETS.items(),
+    ids=INSTRUCTION_SETS.keys(),
+)
+@pytest.mark.asyncio
+async def test_all_combinations(aitest_run, model, instruction_name, instructions):
+    """Test all model × instruction combinations.
+    
+    Creates:
+    - gpt-4.1 × quality
+    - gpt-4.1 × performance
+    - gpt-4o-mini × quality
+    - gpt-4o-mini × performance
+    
+    The AI analysis identifies the optimal combination.
+    """
+    copilot_server = GitHubCopilotServer(
+        name=f"copilot-{model.replace('.', '-')}-{instruction_name}",
+        model=model,
+        instructions=instructions,
+    )
+    
+    agent = Agent(
+        name=f"{model}-{instruction_name}",
+        provider=Provider(model="azure/gpt-5-mini"),
+        copilot_servers=[copilot_server],
+        system_prompt=f"Use Copilot ({model}, {instruction_name}) for code generation.",
+        max_turns=5,
+    )
+    
+    result = await aitest_run(
+        agent,
+        "Use Copilot to write a factorial function in Python.",
+    )
+    
+    assert result.success
+```
+
+### Viewing Results
+
+Generate a comparison report:
+
+```bash
+# Run A/B tests and generate report
+pytest tests/ --aitest-html=copilot_comparison.html
+
+# View the report (opens in browser)
+open copilot_comparison.html
+```
+
+The report will show:
+
+- **Agent Leaderboard** — Ranked by pass rate and cost
+- **Test Comparison** — Side-by-side results for each agent
+- **AI Analysis** — Recommendations on which configuration to deploy
+
 ## Troubleshooting
 
 ### SDK Not Installed
@@ -403,4 +537,4 @@ When you test with GitHub Copilot server, you're validating:
 !!! tip "Testing Philosophy"
     You're testing the **interface** to Copilot, not Copilot itself. Focus on validating that your agent can effectively use Copilot as a tool.
 
-> 📁 **Real Example:** [test_copilot_server.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_copilot_server.py) — GitHub Copilot server testing patterns
+> 📁 **Real Example:** [test_copilot_server.py](https://github.com/sbroenne/pytest-aitest/blob/main/tests/integration/test_copilot_server.py) — Complete examples with A/B testing of instructions, model comparison, and multi-dimension testing
