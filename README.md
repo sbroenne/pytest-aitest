@@ -76,6 +76,7 @@ pytest tests/
 
 - **MCP Server Testing** — Real models against real tool interfaces
 - **CLI Server Testing** — Wrap CLIs as testable tool servers
+- **GitHub Copilot Agent Testing** — Test Copilot SDK as a tool provider
 - **Agent Comparison** — Compare models, prompts, skills, and server versions
 - **Agent Leaderboard** — Auto-ranked by pass rate and cost
 - **Multi-Turn Sessions** — Test conversations that build on context

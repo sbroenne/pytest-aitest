@@ -80,6 +80,7 @@ nav:
     - Overview: how-to/index.md
     - Test MCP Servers: how-to/test-mcp-servers.md
     - Test CLI Tools: how-to/test-cli-tools.md
+    - Test GitHub Copilot Agent: how-to/test-copilot-agent.md
     - Generate Reports: how-to/generate-reports.md
     - CI/CD Integration: how-to/ci-cd.md
     - Visual Testing: how-to/visual-testing.md
