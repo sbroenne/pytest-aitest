@@ -5,11 +5,14 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import logging
 import os
 import sys
 from typing import TYPE_CHECKING, Any
 
 from pytest_aitest.core.errors import ServerStartError
+
+_logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from mcp import ClientSession
@@ -133,8 +136,15 @@ class MCPServerProcess:
     async def stop(self) -> None:
         """Stop the MCP server / disconnect from remote."""
         if self._exit_stack:
-            await self._exit_stack.aclose()
-            self._exit_stack = None
+            try:
+                await self._exit_stack.aclose()
+            except BaseException:
+                _logger.debug(
+                    "Server cleanup encountered async teardown error",
+                    exc_info=True,
+                )
+            finally:
+                self._exit_stack = None
         self._session = None
 
     def get_tools(self) -> dict[str, dict[str, Any]]:

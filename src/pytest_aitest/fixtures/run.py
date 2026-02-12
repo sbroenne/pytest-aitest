@@ -164,5 +164,5 @@ async def _aitest_auto_cleanup(
     for engine in engines:
         try:
             await engine.shutdown()
-        except Exception:
+        except BaseException:
             _logger.warning("Engine cleanup failed", exc_info=True)
