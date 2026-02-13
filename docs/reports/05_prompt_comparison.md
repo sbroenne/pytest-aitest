@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **6** tests | **6** passed | **0** failed | **100%** pass rate  
-> Duration: 67.9s | Cost: 🧪 $-0.018319 · 🤖 $0.0249 · 💰 $0.006595 | Tokens: 910–3,452  
+> Duration: 67.9s | Cost: 🧪 $-0.016718 · 🤖 $0.0233 · 💰 $0.006595 | Tokens: 910–3,452  
 > February 07, 2026 at 07:36 PM
 
 *Prompt comparison — same model, different system prompts.*
@@ -21,125 +21,128 @@
 
 ## AI Analysis
 
-## 🎯 Recommendation
+<div class="winner-card">
+<div class="winner-title">Recommended for Deploy</div>
+<div class="winner-name">gpt-5-mini + concise</div>
+<div class="winner-summary">Delivers a perfect pass rate at the lowest cost, using only the necessary tools and producing clear, compact answers without extra steps.</div>
+<div class="winner-stats">
+<div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
+<div class="winner-stat"><span class="winner-stat-value blue">$0.000727</span><span class="winner-stat-label">Total Cost</span></div>
+<div class="winner-stat"><span class="winner-stat-value amber">1,956</span><span class="winner-stat-label">Tokens</span></div>
+</div>
+</div>
 
-**Deploy: gpt-5-mini + concise**
+<div class="metric-grid">
+<div class="metric-card green">
+<div class="metric-value green">6</div>
+<div class="metric-label">Total Tests</div>
+</div>
+<div class="metric-card red">
+<div class="metric-value red">0</div>
+<div class="metric-label">Failures</div>
+</div>
+<div class="metric-card blue">
+<div class="metric-value blue">3</div>
+<div class="metric-label">Agents</div>
+</div>
+<div class="metric-card amber">
+<div class="metric-value amber">3.3</div>
+<div class="metric-label">Avg Turns</div>
+</div>
+</div>
 
-Achieves **100% pass rate at the lowest cost**, with **~82% lower cost** than the next closest alternative while still using tools correctly.
+## Comparative Analysis
 
-**Reasoning:**  
-All three prompt variants passed all tests, so pass rate is tied at 100%. Cost is the decisive factor. The **concise** prompt consistently produced correct tool usage and compliant answers at a fraction of the cost:
-- Balance query: $0.000296 vs $0.000472–$0.000485 (≈40% cheaper)
-- Transfer with explanation: $0.000431 vs $0.002281–$0.002631 (**81–84% cheaper**)
+**Why the winner wins:**  
+The concise prompt achieves the same 100% pass rate as the structured and detailed variants at a fraction of the cost. It avoids unnecessary pre- and post-action tool calls and limits explanation length, resulting in the lowest realized cost per test while still satisfying response quality requirements.
 
-Response quality met test requirements without unnecessary tool calls or verbosity.
+**Notable patterns:**  
+- Prompt verbosity directly drives tool usage. The detailed prompt triggered extra `get_all_balances` calls before and after transfers, inflating tokens and cost without improving test outcomes.  
+- Structured formatting adds moderate overhead. Emoji headers and repeated status blocks increased tokens compared to concise free-text, with no functional gain.  
+- The cheaper configuration is not a weaker one. All agents used the same model; cost differences are entirely attributable to prompt-induced behavior, not model capability.
 
 **Alternatives:**  
-- **structured:** Same pass rate, clearer formatting, but **~5× higher cost** on transfers. Consider only if strict response formatting is required downstream.  
-- **detailed:** Same pass rate, but **~6× higher cost** due to extra tool calls and verbose explanations. Not cost-effective for production.
+- **gpt-5-mini + structured:** Same correctness with clearer visual structure, but ~4× higher total cost. Suitable only if formatted, dashboard-like output is a hard requirement.  
+- **gpt-5-mini + detailed:** Most verbose and most expensive. Provides narrative explanations and redundant balance checks that are unnecessary for these tasks.
 
 ## 🔧 MCP Tool Feedback
 
-### pytest_aitest.testing.banking_mcp
-Overall, tools are discoverable and correctly used. The concise and structured prompts select the minimal required tools, while the detailed prompt triggers unnecessary calls.
+### banking_server
+Overall, tools are discoverable and correctly invoked. The main inefficiency comes from prompt-driven overuse rather than tool design flaws.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | get_balance | ✅ | 3 | Working well |
-| get_all_balances | ⚠️ | 2 | Overused by detailed prompt for a simple transfer |
 | transfer | ✅ | 3 | Working well |
-| deposit | ✅ | 0 | Not exercised in tests |
-| withdraw | ✅ | 0 | Not exercised in tests |
-| get_transactions | ✅ | 0 | Not exercised in tests |
+| get_all_balances | ⚠️ | 2 | Called unnecessarily by detailed prompt |
 
 **Suggested rewrite for `get_all_balances`:**
-> Get balances for all accounts **only when a total or multi-account summary is explicitly required**. For single-account checks, prefer `get_balance`.
-
-This clarification would discourage unnecessary pre/post calls in prompts like **detailed**.
+> Returns balances for all accounts. Use only when the user explicitly asks for *all* balances or a portfolio summary. Do not call this tool for single-account queries or simple transfers.
 
 ## 📝 System Prompt Feedback
 
 ### concise (effective)
-- **Token count:** ~25
-- **Assessment:** Clear, minimal, and aligned with test expectations. No changes recommended.
+- **Token count:** Low
+- **Behavioral impact:** Language emphasizes direct action and brief explanation, priming the model to call exactly one required tool and respond succinctly.
+- **Problem:** None observed
+- **Suggested change:** None
 
-### structured (mixed)
-- **Token count:** ~45
-- **Problem:** Forces structured output even when not required, increasing token usage and response length.
-- **Suggested change (replace last line):**
-  ```
-  Use tools for all account operations. Never guess balances — always check.
-  ```
-  ⟶
-  ```
-  Use tools for all account operations. Never guess balances — always check. Use the format only when it adds clarity.
-  ```
+### structured (effective)
+- **Token count:** Medium
+- **Behavioral impact:** Encourages labeled sections and status indicators, increasing response length but not altering tool correctness.
+- **Problem:** Extra formatting tokens without functional benefit
+- **Suggested change:** Remove repeated “Status: success” lines to reduce output length.
 
-### detailed (ineffective for cost)
-- **Token count:** ~90+
-- **Problem:** Mandates balance checks before and after every operation, causing redundant `get_all_balances` calls and extreme cost inflation.
-- **Suggested change (replace bullet list intro):**
-  ```
-  For every operation:
-  ```
-  ⟶
-  ```
-  For operations where balances change or totals are requested:
-  ```
+### detailed (mixed)
+- **Token count:** High
+- **Behavioral impact:** Words like “explain” and the implied expectation of completeness prime the model to gather before/after state, leading to redundant balance checks.
+- **Problem:** Over-instrumentation and narrative verbosity
+- **Suggested change:** Replace “explain what happened” guidance with:  
+  > “Briefly summarize the result in 1–2 sentences without additional verification steps.”
 
 ## 💡 Optimizations
 
-1. **Avoid redundant balance aggregation** (recommended)
-   - Current: The detailed prompt triggers `get_all_balances` before and after transfers even when the transfer tool already returns new balances.
-   - Change: Update the prompt to trust `transfer.new_balance_from` and `transfer.new_balance_to` unless totals are explicitly requested.
-   - Impact: **~80% cost reduction** on transfer tests (eliminates 2 tool calls and long summaries).
+| # | Optimization | Priority | Estimated Savings |
+|---|-------------|----------|-------------------|
+| 1 | Default to concise prompt | recommended | ~70% cost reduction |
+| 2 | Constrain explanatory language | recommended | ~30% fewer tokens |
 
-2. **Prefer concise prompt for default agent** (recommended)
-   - Current: Multiple prompt variants tested equally.
-   - Change: Set **concise** as the production default; keep others only for specialized UX needs.
-   - Impact: **70–85% lower cost per test** with no loss in pass rate.
+#### 1. Default to concise prompt (recommended)
+- Current: Multiple prompt styles used with identical correctness.
+- Change: Make the concise prompt the default for transactional flows.
+- Impact: ~70% cost reduction with no loss in pass rate.
+
+#### 2. Constrain explanatory language (recommended)
+- Current: “Explain what happened” triggers extra narration and tool calls in detailed prompts.
+- Change: Explicitly cap explanations to 1–2 sentences and forbid additional verification tools.
+- Impact: ~30% fewer tokens on transfer-style tests.
 
 ## 📦 Tool Response Optimization
 
-### transfer (from pytest_aitest.testing.banking_mcp)
-- **Current response size:** ~110 tokens
-- **Issues found:** Includes verbose fields (`type`, `message`, duplicated formatted and raw amounts) not required by the agent.
-- **Suggested optimization:** Remove redundant fields and rely on numeric values only; let the agent format currency.
+### get_all_balances (from banking_server)
+- **Current response size:** High (includes totals and formatted duplicates)
+- **Issues found:** Redundant fields (`total`, `total_formatted`) not used by any agent; verbose nested structure.
+- **Suggested optimization:** Return only per-account balances when called in test contexts.
+- **Estimated savings:** ~40% tokens per call
 
 **Example current vs optimized:**
 ```json
-// Current (~110 tokens)
+// Current
 {
-  "transaction_id": "TX0001",
-  "type": "transfer",
-  "from_account": "checking",
-  "to_account": "savings",
-  "amount": 300,
-  "amount_formatted": "$300.00",
-  "new_balance_from": 1200.0,
-  "new_balance_to": 3300.0,
-  "message": "Successfully transferred $300.00 from checking to savings."
+  "accounts": {
+    "checking": {"balance": 1500.0, "formatted": "$1,500.00"},
+    "savings": {"balance": 3000.0, "formatted": "$3,000.00"}
+  },
+  "total": 4500.0,
+  "total_formatted": "$4,500.00"
 }
 
-// Optimized (~55 tokens)
+// Optimized
 {
-  "id": "TX0001",
-  "from": "checking",
-  "to": "savings",
-  "amount": 300,
-  "balance_from": 1200.0,
-  "balance_to": 3300.0
+  "checking": 1500.0,
+  "savings": 3000.0
 }
 ```
-- **Estimated savings:** ~50 tokens per call (**~45% reduction**)
-
-### get_balance (from pytest_aitest.testing.banking_mcp)
-- **Current response size:** ~40 tokens
-- **Issues found:** Duplicate numeric and formatted values.
-- **Suggested optimization:** Return only the numeric balance.
-- **Estimated savings:** ~15 tokens per call (~35% reduction)
-
-These changes further amplify the cost advantage of the **concise** prompt without affecting correctness.
 
 
 ## Test Results

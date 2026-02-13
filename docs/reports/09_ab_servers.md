@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **4** tests | **4** passed | **0** failed | **100%** pass rate  
-> Duration: 32.7s | Cost: 🧪 $-0.013016 · 🤖 $0.0153 · 💰 $0.002304 | Tokens: 892–2,033  
+> Duration: 32.7s | Cost: 🧪 $-0.018086 · 🤖 $0.0204 · 💰 $0.002304 | Tokens: 892–2,033  
 > February 07, 2026 at 08:33 PM
 
 *A/B server comparison — verbose vs terse system prompts.*
@@ -20,86 +20,126 @@
 
 ## AI Analysis
 
-## 🎯 Recommendation
+<div class="winner-card">
+<div class="winner-title">Recommended for Deploy</div>
+<div class="winner-name">terse-prompt</div>
+<div class="winner-summary">Delivers a 100% pass rate at lower realized cost than the verbose alternative while maintaining reliable multi-step tool chaining.</div>
+<div class="winner-stats">
+<div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
+<div class="winner-stat"><span class="winner-stat-value blue">$0.001062</span><span class="winner-stat-label">Total Cost</span></div>
+<div class="winner-stat"><span class="winner-stat-value amber">2,602</span><span class="winner-stat-label">Tokens</span></div>
+</div>
+</div>
 
-**Deploy: terse-prompt (gpt-5-mini)**
+<div class="metric-grid">
+<div class="metric-card green">
+<div class="metric-value green">4</div>
+<div class="metric-label">Total Tests</div>
+</div>
+<div class="metric-card red">
+<div class="metric-value red">0</div>
+<div class="metric-label">Failures</div>
+</div>
+<div class="metric-card blue">
+<div class="metric-value blue">2</div>
+<div class="metric-label">Agents</div>
+</div>
+<div class="metric-card amber">
+<div class="metric-value amber">3.5</div>
+<div class="metric-label">Avg Turns</div>
+</div>
+</div>
 
-Achieves **100% pass rate at ~13% lower total cost** than the verbose prompt while producing equivalent tool usage and correct multi-step behavior.
+## Comparative Analysis
 
-**Reasoning:** Both prompts passed all tests (100% pass rate). The terse prompt is cheaper across both scenarios ($0.001061 vs $0.001242 total, ~13% cost reduction) and used fewer tokens while still calling the correct tools in the correct order. Response quality is equivalent for test purposes; the extra verbosity in the verbose prompt does not improve correctness.
+**Why the winner wins:**  
+terse-prompt achieves the same 100% pass rate as verbose-prompt at a lower realized cost ($0.001062 vs $0.001242 total) and with fewer tokens. It consistently chains tools correctly (transfer → get_all_balances) without extra verbosity.
+
+**Notable patterns:**  
+- The verbose prompt did not improve correctness on multi-step tasks; both agents executed identical tool sequences successfully.  
+- Verbosity primarily increased response length and token usage rather than tool reliability or accuracy.
 
 **Alternatives:**  
-- **verbose-prompt (gpt-5-mini):** Same pass rate, but ~13% higher cost with no measurable reliability or correctness benefit in these tests.
-
-## 🔧 MCP Tool Feedback
-
-### pytest_aitest.testing.banking_mcp
-Overall, tools are clearly named and were invoked correctly in all tests. No confusion between similar tools was observed.
-
-| Tool | Status | Calls | Issues |
-|------|--------|-------|--------|
-| get_balance | ✅ | 2 | Working well |
-| get_all_balances | ✅ | 2 | Working well |
-| transfer | ✅ | 2 | Working well |
-| deposit | ✅ | 0 | Not exercised in tests |
-| withdraw | ✅ | 0 | Not exercised in tests |
-| get_transactions | ✅ | 0 | Not exercised in tests |
+- **verbose-prompt:** Identical pass rate with slightly higher cost and token usage. Choose only if the additional conversational detail (e.g., receipts prompts) is explicitly desired.
 
 ## 📝 System Prompt Feedback
 
-### verbose-prompt (effective but inefficient)
-- **Token count:** High (contributed to +161 and +323 token overhead vs terse prompt in simple and multi-step tests)
-- **Problem:** Redundant instructions and explicit tool lists increase context size without improving tool selection or correctness.
-- **Suggested change (exact rewrite):**
-  ```
-  You are a banking assistant. Use the provided tools to answer account-related requests.
-  Always call the appropriate tool before answering. Never guess balances or transaction results.
-  ```
-
 ### terse-prompt (effective)
-- **Token count:** Low
-- **Assessment:** Instructions were sufficient for correct tool usage in both single-step and multi-step scenarios. No changes required.
+- **Token count:** Lower overall usage across both tests
+- **Behavioral impact:** Direct language encourages immediate tool invocation and concise confirmations without preambles.
+- **Problem:** None observed.
+- **Suggested change:** None required.
+
+### verbose-prompt (effective)
+- **Token count:** Higher due to expanded confirmations and follow-up questions
+- **Behavioral impact:** Polite, explanatory phrasing adds conversational value but increases verbosity after tool calls.
+- **Problem:** Extra language increases cost without improving outcomes.
+- **Suggested change:** Remove optional follow-ups unless explicitly requested.
+  > Replace: “Would you like a receipt for the transfer or the transaction ID?”  
+  > With: “(Receipt available on request.)”
 
 ## 💡 Optimizations
 
-1. **Standardize on terse system prompt** (recommended)
-   - Current: Two prompt variants maintained with overlapping intent.
-   - Change: Remove the verbose prompt and deploy the terse prompt as the default.
-   - Impact: ~13% cost reduction per test run with identical pass rates and behavior.
+| # | Optimization | Priority | Estimated Savings |
+|---|-------------|----------|-------------------|
+| 1 | Prefer terse system prompt | recommended | ~15% cost reduction |
+| 2 | Trim tool response payloads | suggestion | ~20–30% fewer tokens per call |
+
+#### 1. Prefer terse system prompt (recommended)
+- Current: Two prompts yield identical correctness.
+- Change: Standardize on terse-prompt for production.
+- Impact: ~15% cost reduction with no loss in pass rate.
+
+#### 2. Trim tool response payloads (suggestion)
+- Current: Tool responses include formatted strings and totals not always used.
+- Change: Return only fields required by tests and common responses.
+- Impact: ~20–30% fewer tokens per tool call, compounding savings in multi-step flows.
 
 ## 📦 Tool Response Optimization
 
-### get_all_balances (from pytest_aitest.testing.banking_mcp)
-- **Current response size:** High due to duplicated formatted values and totals not always used.
-- **Issues found:**  
-  - `total` and `total_formatted` are unused in one of the two multi-step responses.  
-  - Both raw and formatted values are returned for each account, but only `formatted` is used in assistant output.
-- **Suggested optimization:**  
-  Return only formatted balances by default; make totals optional via a flag.
-- **Estimated savings:** ~20–25 tokens per call (~15–20% reduction)
+### transfer
+- **Current response size:** Includes redundant formatted fields and message text.
+- **Issues found:** `amount_formatted`, `message` duplicate information already inferable.
+- **Suggested optimization:** Return balances and IDs only.
+- **Estimated savings:** ~25 tokens per call (≈20% reduction)
 
 **Example current vs optimized:**
 ```json
-// Current (~120 tokens)
+// Current
 {
-  "accounts": {
-    "checking": {"balance": 1400.0, "formatted": "$1,400.00"},
-    "savings": {"balance": 3100.0, "formatted": "$3,100.00"}
-  },
-  "total": 4500.0,
-  "total_formatted": "$4,500.00"
+  "transaction_id":"TX0001",
+  "type":"transfer",
+  "from_account":"checking",
+  "to_account":"savings",
+  "amount":100,
+  "amount_formatted":"$100.00",
+  "new_balance_from":1400.0,
+  "new_balance_to":3100.0,
+  "message":"Successfully transferred $100.00 from checking to savings."
 }
 
-// Optimized (~90 tokens)
+// Optimized
 {
-  "accounts": {
-    "checking": "$1,400.00",
-    "savings": "$3,100.00"
-  }
+  "transaction_id":"TX0001",
+  "new_balance_from":1400.0,
+  "new_balance_to":3100.0
 }
 ```
 
-This optimization would reduce response size without affecting test correctness or agent behavior in the observed scenarios.
+### get_all_balances
+- **Current response size:** Includes totals and formatted strings.
+- **Issues found:** `total` and `total_formatted` are optional for most replies.
+- **Suggested optimization:** Omit totals unless explicitly requested.
+- **Estimated savings:** ~15 tokens per call (≈25% reduction)
+
+**Example current vs optimized:**
+```json
+// Current
+{"accounts":{"checking":{"balance":1400.0,"formatted":"$1,400.00"},"savings":{"balance":3100.0,"formatted":"$3,100.00"}},"total":4500.0,"total_formatted":"$4,500.00"}
+
+// Optimized
+{"accounts":{"checking":{"balance":1400.0},"savings":{"balance":3100.0}}}
+```
 
 
 ## Test Results

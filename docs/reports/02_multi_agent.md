@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **6** tests | **5** passed | **1** failed | **83%** pass rate  
-> Duration: 55.8s | Cost: 🧪 $-0.015492 · 🤖 $0.0201 · 💰 $0.004565 | Tokens: 738–2,232  
+> Duration: 55.8s | Cost: 🧪 $-0.018561 · 🤖 $0.0231 · 💰 $0.004565 | Tokens: 738–2,232  
 > February 07, 2026 at 07:20 PM
 
 *Two agents compared side-by-side.*
@@ -20,96 +20,122 @@
 
 ## AI Analysis
 
-## 🎯 Recommendation
+<div class="winner-card">
+<div class="winner-title">Recommended for Deploy</div>
+<div class="winner-name">gpt-5-mini</div>
+<div class="winner-summary">Delivers a perfect pass rate with reliable multi-step tool usage and correct error recovery. While not the cheapest overall, it is the only configuration that consistently executes required tools under failure conditions.</div>
+<div class="winner-stats">
+<div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
+<div class="winner-stat"><span class="winner-stat-value blue">$0.003314</span><span class="winner-stat-label">Total Cost</span></div>
+<div class="winner-stat"><span class="winner-stat-value amber">4,589</span><span class="winner-stat-label">Tokens</span></div>
+</div>
+</div>
 
-**Deploy: gpt-5-mini with default system prompt**
+<div class="metric-grid">
+<div class="metric-card green">
+<div class="metric-value green">6</div>
+<div class="metric-label">Total Tests</div>
+</div>
+<div class="metric-card red">
+<div class="metric-value red">1</div>
+<div class="metric-label">Failures</div>
+</div>
+<div class="metric-card blue">
+<div class="metric-value blue">2</div>
+<div class="metric-label">Agents</div>
+</div>
+<div class="metric-card amber">
+<div class="metric-value amber">3.2</div>
+<div class="metric-label">Avg Turns</div>
+</div>
+</div>
 
-Achieves **100% pass rate** across all tests with correct tool usage, at the cost of **higher spend** but **zero functional failures**.
+## Comparative Analysis
 
-**Reasoning:**  
-- **Pass rate:** gpt-5-mini passed **3/3 tests (100%)**, while gpt-4.1-mini passed **2/3 (67%)** and is therefore disqualified for deployment.  
-- **Cost:** gpt-5-mini cost **$0.00331 total**, versus **$0.00125 total** for gpt-4.1-mini. Despite being ~**165% more expensive**, gpt-5-mini is the **only configuration that meets correctness requirements**.  
-- **Response quality:** gpt-5-mini consistently followed the instruction to *always use tools*, including attempting the `withdraw` tool even when the action would fail.
+**Why the winner wins:**  
+gpt-5-mini is the only agent to pass **all tests**, including the error-recovery scenario that explicitly requires invoking the `withdraw` tool even when funds are insufficient. The alternative agent is cheaper overall but fails a critical behavioral requirement, making it unsuitable for deployment despite lower cost.
+
+**Notable patterns:**  
+- Both agents handle straightforward balance queries and multi-step transfers correctly.  
+- The differentiator appears under **error conditions**: gpt-5-mini attempts the requested action and lets the tool return a domain error, while gpt-4.1-mini short-circuits by reasoning from balances and avoids the tool call entirely.
 
 **Alternatives:**  
-- **gpt-4.1-mini (disqualified):** ~62% lower cost, but fails the insufficient funds test by skipping the required `withdraw` tool call, violating test expectations and system prompt constraints.
+- **gpt-4.1-mini**: Lower total cost, but fails the insufficient-funds scenario because it does not call the required tool. This is a behavioral limitation in tool adherence, not a pricing or latency issue.
 
 ## ❌ Failure Analysis
 
-### Insufficient funds — tests error recovery. (gpt-4.1-mini)
-- **Problem:** The agent did not call the `withdraw` tool when asked to withdraw $50,000, causing the test assertion `tool_was_called('withdraw')` to fail.
-- **Root Cause:** The model pre-validated the balance using `get_balance` and short-circuited the workflow, opting to explain the failure in natural language instead of attempting the withdrawal. This contradicts both the **system prompt** (“Always use tools”) and the test’s expectation that error handling occurs via the tool.
-- **Fix:** Strengthen the system prompt to explicitly require attempting the requested action tool even if failure is expected.
+### Failure Summary
 
-**Exact system prompt change:**
-```
-You are a helpful banking assistant.
-Use the available tools to manage accounts and transactions.
-Always use tools for requested actions, even if you expect them to fail (e.g., insufficient funds).
-Never make up balances or account data.
-```
+**gpt-4.1-mini** (1 failure)
+
+| Test | Root Cause | Fix |
+|------|------------|-----|
+| Insufficient funds — tests error recovery | Model avoided calling `withdraw` and answered from balance check instead | Instruct agent to always attempt requested financial actions via tools, even when failure is likely |
+
+### Insufficient funds — tests error recovery (gpt-4.1-mini)
+- **Problem:** The test expects the agent to attempt a withdrawal so the system can validate error handling.
+- **Root Cause:** The agent reasoned that funds were insufficient after calling `get_balance` and declined to execute the `withdraw` tool.
+- **Behavioral Mechanism:** The model optimized for “helpfulness” by preventing an action it deemed invalid, instead of following the implicit contract that user-requested actions must be executed and allowed to fail at the tool layer.
+- **Fix:** Add explicit instruction to the system prompt:  
+  > “When a user requests an account action (withdraw, transfer), always call the corresponding tool first. Do not preemptively block the action based on inferred constraints; let the tool return errors.”
 
 ## 🔧 MCP Tool Feedback
 
-### pytest_aitest.testing.banking_mcp
-Overall, tools are clear and consistently used. Error behavior is surfaced correctly to the agent.
+### banking_server
+Overall, tools are clear and consistently used. Error responses are correctly surfaced and easy for the agent to explain.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | get_balance | ✅ | 3 | Working well |
 | get_all_balances | ✅ | 3 | Working well |
 | transfer | ✅ | 2 | Working well |
-| withdraw | ✅ | 1 | Error handling works as intended |
-| deposit | ✅ | 0 | Not exercised |
-| get_transactions | ✅ | 0 | Not exercised |
-
-No description rewrites required; tool naming and schemas are unambiguous.
-
-## 📝 System Prompt Feedback
-
-### default (mixed effectiveness)
-- **Token count:** ~27 tokens
-- **Problem:** The instruction “Always use tools” is underspecified for failure scenarios. gpt-4.1-mini interpreted it as “use tools to fetch data,” not “attempt the requested action.”
-- **Suggested change:** Add explicit guidance for error paths.
-
-**Exact replacement:**
-```
-You are a helpful banking assistant.
-Use the available tools to manage accounts and transactions.
-Always use tools for requested actions, even if you expect them to fail (for example, insufficient funds).
-Never make up balances or account data.
-```
+| withdraw | ✅ | 1 | Working well; behavior depends on agent calling it |
 
 ## 💡 Optimizations
 
-1. **Clarify mandatory action-tool usage** (recommended)
-   - Current: Prompt allows models to short-circuit actions based on reasoning.
-   - Change: Explicitly require calling the action tool (`withdraw`, `transfer`, etc.) whenever the user requests an action.
-   - Impact: Eliminates action-skipping failures; prevents disqualification of lower-cost models, potentially enabling **>60% cost reduction** if gpt-4.1-mini becomes compliant.
+| # | Optimization | Priority | Estimated Savings |
+|---|-------------|----------|-------------------|
+| 1 | Enforce action-first tool calls | recommended | Avoids 100% of similar test failures |
+| 2 | Trim unused fields from balance summaries | suggestion | ~10–15% token reduction on balance-heavy tests |
 
-2. **Reduce verbose recovery messaging** (suggestion)
-   - Current: gpt-5-mini produces long option lists after failures (e.g., insufficient funds), increasing token usage.
-   - Change: Limit recovery suggestions to 1–2 concise options unless the user asks for details.
-   - Impact: ~10–15% cost reduction on failure-path interactions.
+#### 1. Enforce action-first tool calls (recommended)
+- Current: Some agents infer failure conditions and skip required tools.
+- Change: Add a system-level rule to always execute user-requested financial actions via tools.
+- Impact: Eliminates an entire class of behavioral failures; reliability gain outweighs minor cost increase.
+
+#### 2. Trim unused fields from balance summaries (suggestion)
+- Current: `get_all_balances` returns totals and formatted strings not always used.
+- Change: Remove `total` and `total_formatted` when tests only assert per-account balances.
+- Impact: ~10–15% cost reduction on tests that call `get_all_balances`.
 
 ## 📦 Tool Response Optimization
 
-### withdraw (from pytest_aitest.testing.banking_mcp)
-- **Current response size:** ~20–25 tokens (error string)
-- **Issues found:** Error is plain text; agent does not need full sentence phrasing.
-- **Suggested optimization:** Return a compact, structured error object.
+### get_all_balances (from banking_server)
+- **Current response size:** ~120 tokens
+- **Issues found:** Includes aggregate totals and formatted strings that the agent often paraphrases or ignores.
+- **Suggested optimization:** Return only raw balances unless totals are explicitly requested.
+- **Estimated savings:** ~20 tokens per call (~15% reduction)
 
 **Example current vs optimized:**
 ```json
-// Current (~22 tokens)
-"Insufficient funds. checking has $1,500.00."
+// Current
+{
+  "accounts": {
+    "checking": {"balance": 1400.0, "formatted": "$1,400.00"},
+    "savings": {"balance": 3100.0, "formatted": "$3,100.00"}
+  },
+  "total": 4500.0,
+  "total_formatted": "$4,500.00"
+}
 
-// Optimized (~10 tokens)
-{"error":"INSUFFICIENT_FUNDS","balance":1500}
+// Optimized
+{
+  "accounts": {
+    "checking": 1400.0,
+    "savings": 3100.0
+  }
+}
 ```
-- **Estimated savings:** ~12 tokens per failed call (~50% reduction)
-
-This optimization is optional but would further reduce costs on negative paths without affecting correctness.
 
 
 ## Test Results

@@ -41,9 +41,7 @@ Your analysis should be **actionable, specific, and visually rich**. Use tables 
 Use these sections as needed (skip sections with no content):
 
 ````markdown
-## 🎯 Recommendation
-
-[ALWAYS start with the Winner Spotlight card. This is a glowing hero card with gradient background.]
+[ALWAYS start with the Winner Spotlight card. This is a glowing hero card with gradient background. Do NOT add a heading above it — the card is self-explanatory.]
 
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
@@ -85,7 +83,7 @@ Use these sections as needed (skip sections with no content):
 
 **Notable patterns:** [Interesting observations — e.g., "cheaper model outperforms expensive one on tool usage", "detailed prompt causes over-thinking and tool confusion"]
 
-**Alternatives:** [Name close competitors and their trade-offs, or "None — only one configuration tested". Mention disqualified agents here if any.]
+**Alternatives:** [Name close competitors and their trade-offs, or "None — only one configuration tested". Mention disqualified agents here if any — always attribute the disqualification to its **root cause** (e.g., "disqualified due to permission-seeking system prompt" or "disqualified due to model refusing tool calls"), not just the symptom (e.g., never say just "failure to call tools" — explain WHY it failed to call tools).]
 
 ## ❌ Failure Analysis
 
@@ -189,7 +187,7 @@ Use these sections as needed (skip sections with no content):
 ### Recommendation
 - **Compare by**: pass rate → **cost** (primary metric) → response quality
 - **Use pre-computed statistics**: The input includes a "Pre-computed Agent Statistics" section with exact per-agent numbers and a designated winner. Use these numbers verbatim in your Winner Card and metric cards. Do NOT re-derive statistics from raw test data.
-- **Disqualified agents**: If a minimum pass rate threshold is specified, agents below it are disqualified. Never recommend a disqualified agent for deployment. Mention them as disqualified in the Alternatives section.
+- **Disqualified agents**: Only agents explicitly marked "⛔ Disqualified" in the Pre-computed Agent Statistics are disqualified. **Never invent disqualifications** — if an agent has no "⛔ Disqualified" status in the ranked table, it is NOT disqualified regardless of its pass rate. Never recommend a disqualified agent for deployment. Mention them as disqualified in the Alternatives section. **Always attribute the root cause** — e.g., "disqualified because the system prompt caused permission-seeking behavior", not just "disqualified due to 0% pass rate" or "failure to call tools". The reader needs to know WHY.
 - **Emphasize cost over tokens**: Cost is what matters for ranking - mention cost first, then tokens
   - ✅ Good: "Achieves 100% pass rate at 60% lower cost (~65% fewer tokens)"
   - ❌ Bad: "Achieves 100% pass rate at 65% lower token usage and cost"
@@ -222,6 +220,7 @@ Use these sections as needed (skip sections with no content):
 - **Effective**: Agent followed instructions correctly
 - **Mixed**: Some tests passed, others showed confusion
 - **Ineffective**: Instructions ignored or misunderstood
+- **Model-specific effectiveness**: A prompt that fails with one model may succeed with another. If a prompt variant was tested with multiple models (e.g., `gpt-5-mini + detailed` failed but `gpt-4.1 + detailed` passed), label it **mixed** — NOT ineffective. Only label a prompt **ineffective** if it failed across ALL models it was tested with. Always qualify: "ineffective with gpt-5-mini" rather than just "ineffective".
 - Note token bloat: "150 tokens of examples could be removed"
 
 ### Skill Feedback
@@ -283,3 +282,5 @@ Use these sections as needed (skip sections with no content):
     - **No inline color styles** — use only the CSS class names (green, blue, amber, red) on metric-card and metric-value
     - **Gauge color values**: green=#4ade80, amber=#facc15, red=#f87171, blue=#60a5fa
 12. **Use pre-computed numbers** — The input includes a "Pre-computed Agent Statistics" section with exact values for pass rates, costs, tokens, winner designation, and aggregate stats (total tests, failures, agents, avg turns). Use these numbers verbatim. Never estimate or approximate.
+13. **Cost comparisons must use actual data** — When comparing costs between agents, use the **actual per-test cost** from the pre-computed statistics (total cost ÷ number of tests). Never cite model list pricing or theoretical cost differences. A cheaper model may use more tokens, making the realized cost difference much smaller than the per-token price difference. For example, if model A costs $0.0018/test and model B costs $0.0025/test, say "~28% cheaper" — NOT "85% cheaper" or "6× cheaper" based on list pricing.
+14. **Prompt labels must be model-specific** — Never label a system prompt as globally "ineffective" or globally "effective" when it was tested with multiple models and produced different outcomes. If `gpt-5-mini + detailed` failed but `gpt-4.1 + detailed` passed, the prompt is "mixed" — effective with gpt-4.1, ineffective with gpt-5-mini. The same applies to the Optimizations section: do not say "restrict [prompt] usage" if it works correctly with some models.

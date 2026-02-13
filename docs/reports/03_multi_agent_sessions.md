@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **6** tests | **6** passed | **0** failed | **100%** pass rate  
-> Duration: 50.1s | Cost: 🧪 $-0.020191 · 🤖 $0.0240 · 💰 $0.003773 | Tokens: 711–1,941  
+> Duration: 50.1s | Cost: 🧪 $-0.018304 · 🤖 $0.0221 · 💰 $0.003773 | Tokens: 711–1,941  
 > February 07, 2026 at 02:01 PM
 
 *Multi-turn banking session with 2 agents.*
@@ -20,117 +20,114 @@
 
 ## AI Analysis
 
-## 🎯 Recommendation
+<div class="winner-card">
+<div class="winner-title">Recommended for Deploy</div>
+<div class="winner-name">gpt-4.1-mini</div>
+<div class="winner-summary">Delivers a 100% pass rate at ~40% lower total cost than the alternative, with faster responses, fewer tokens, and consistently correct tool selection across a multi-turn session.</div>
+<div class="winner-stats">
+<div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
+<div class="winner-stat"><span class="winner-stat-value blue">$0.001419</span><span class="winner-stat-label">Total Cost</span></div>
+<div class="winner-stat"><span class="winner-stat-value amber">3,005</span><span class="winner-stat-label">Tokens</span></div>
+</div>
+</div>
 
-**Deploy: gpt-4.1-mini + default system prompt**
+<div class="metric-grid">
+<div class="metric-card green">
+<div class="metric-value green">6</div>
+<div class="metric-label">Total Tests</div>
+</div>
+<div class="metric-card red">
+<div class="metric-value red">0</div>
+<div class="metric-label">Failures</div>
+</div>
+<div class="metric-card blue">
+<div class="metric-value blue">2</div>
+<div class="metric-label">Agents</div>
+</div>
+<div class="metric-card amber">
+<div class="metric-value amber">3.0</div>
+<div class="metric-label">Avg Turns</div>
+</div>
+</div>
 
-Achieves 100% pass rate at ~40% lower total cost than gpt-5-mini with comparable response quality and correct tool usage.
+## Comparative Analysis
 
-**Reasoning:**  
-Both agents passed all tests (100% pass rate). gpt-4.1-mini completed the full multi‑turn session at **$0.001419 total cost**, compared to **$0.002354** for gpt-5-mini, a **~40% cost reduction**. Response quality and tool selection were equivalent across all turns, making cost the decisive factor.
+**Why the winner wins:**  
+Both agents achieved identical functional outcomes (100% pass rate across all turns), but **gpt-4.1-mini** did so at **~40% lower total cost** ($0.001419 vs $0.002354) and **~28% fewer tokens**. It also responded faster on every turn, indicating lower latency overhead while maintaining correct tool usage.
+
+**Notable patterns:**  
+- The cheaper winner is not just “good enough” — it is **strictly more efficient**: fewer tokens per turn without sacrificing clarity or correctness.  
+- Both agents demonstrated correct **tool chaining across a multi-turn session** (balance → transfer → verify), showing no degradation from session carry-over.  
+- Response verbosity differed slightly: gpt-5-mini tended to add extra conversational framing (“Would you like to…”) that increased token usage without adding test-relevant value.
 
 **Alternatives:**  
-- **gpt-5-mini**: Same pass rate and behavior, but ~66% higher cost for this test set. No quality advantage observed to justify the premium.
+- **gpt-5-mini** — Functionally reliable with a 100% pass rate, but incurs higher cost and token usage for the same tasks. Suitable only if gpt-5-mini is required for consistency with other deployments; otherwise, it is dominated on efficiency.
 
 ## 🔧 MCP Tool Feedback
 
-### pytest_aitest.testing.banking_mcp
-Overall, tools are clearly named and consistently selected. No confusion between similar tools observed.
+### banking_server
+Overall, tools are easy to discover and were invoked correctly by both agents on the first attempt in all tests. Tool naming is intuitive and aligned with user intent.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | get_balance | ✅ | 2 | Working well |
 | transfer | ✅ | 2 | Working well |
 | get_all_balances | ✅ | 2 | Working well |
-| deposit | ✅ | 0 | Not exercised |
-| withdraw | ✅ | 0 | Not exercised |
-| get_transactions | ✅ | 0 | Not exercised |
 
-## 📦 Tool Response Optimization
-
-### get_balance (from pytest_aitest.testing.banking_mcp)
-- **Current response size:** ~20–25 tokens
-- **Issues found:** Redundant fields (`balance` and `formatted`) where only the formatted value is used in responses.
-- **Suggested optimization:** Return a single balance field optimized for display.
-- **Estimated savings:** ~30–40% tokens per call
-
-**Example current vs optimized:**
-```json
-// Current (~24 tokens)
-{"account":"checking","balance":1500.0,"formatted":"$1,500.00"}
-
-// Optimized (~14 tokens)
-{"account":"checking","balance":"$1,500.00"}
-```
-
-### transfer (from pytest_aitest.testing.banking_mcp)
-- **Current response size:** ~55–65 tokens
-- **Issues found:** Multiple redundant fields (`amount` vs `amount_formatted`, verbose `message`) not required by the agent.
-- **Suggested optimization:** Keep IDs and new balances only; let the agent generate phrasing.
-- **Estimated savings:** ~40–45% tokens per call
-
-**Example current vs optimized:**
-```json
-// Current (~60 tokens)
-{
-  "transaction_id":"TX0001",
-  "type":"transfer",
-  "from_account":"checking",
-  "to_account":"savings",
-  "amount":100,
-  "amount_formatted":"$100.00",
-  "new_balance_from":1400.0,
-  "new_balance_to":3100.0,
-  "message":"Successfully transferred $100.00 from checking to savings."
-}
-
-// Optimized (~32 tokens)
-{
-  "transaction_id":"TX0001",
-  "from":"checking",
-  "to":"savings",
-  "new_balance_from":1400.0,
-  "new_balance_to":3100.0
-}
-```
-
-### get_all_balances (from pytest_aitest.testing.banking_mcp)
-- **Current response size:** ~45–55 tokens
-- **Issues found:** Nested structure and duplicate numeric vs formatted totals.
-- **Suggested optimization:** Flatten balances and remove unused numeric totals.
-- **Estimated savings:** ~35% tokens per call
-
-**Example current vs optimized:**
-```json
-// Current (~50 tokens)
-{
-  "accounts":{
-    "checking":{"balance":1500.0,"formatted":"$1,500.00"},
-    "savings":{"balance":3000.0,"formatted":"$3,000.00"}
-  },
-  "total":4500.0,
-  "total_formatted":"$4,500.00"
-}
-
-// Optimized (~32 tokens)
-{
-  "checking":"$1,500.00",
-  "savings":"$3,000.00",
-  "total":"$4,500.00"
-}
-```
+**Observation (non-blocking):**  
+In the verification step, `get_all_balances` returned balances that matched the original state rather than reflecting the prior transfer. Tests passed because assertions likely checked structure/tool usage rather than state consistency, but this is worth reviewing if session state accuracy is a goal of the MCP server rather than the test harness.
 
 ## 💡 Optimizations
 
-1. **Session state validation in tests** (recommended)
-   - Current: After a transfer, `get_all_balances` returns the original balances (checking $1,500 / savings $3,000), not the post‑transfer values shown in the transfer response.
-   - Change: Add an assertion that verifies balance consistency across turns within the same session.
-   - Impact: Improves test correctness and prevents false positives; no cost increase, higher signal quality in failures.
+| # | Optimization | Priority | Estimated Savings |
+|---|-------------|----------|-------------------|
+| 1 | Reduce conversational filler in responses | recommended | ~15–20% cost reduction |
+| 2 | Slim down tool response payloads | suggestion | ~10–15% fewer tokens |
 
-2. **Prefer gpt-4.1-mini as default model** (recommended)
-   - Current: Both models used interchangeably.
-   - Change: Set gpt-4.1-mini as the default for this banking MCP test suite.
-   - Impact: **~40% cost reduction** per session with no loss in pass rate or tool accuracy.
+#### 1. Reduce conversational filler in responses (recommended)
+- Current: Agents often append follow-up questions and friendly prompts (“Would you like to do anything else…”) that are not required by the tests.
+- Change: Update the system prompt to add:  
+  > “After completing a task, respond concisely and do not add follow-up questions unless explicitly requested by the user.”
+- Impact: ~15–20% cost reduction through shorter completions, especially noticeable with higher-cost models.
+
+#### 2. Slim down tool response payloads (suggestion)
+- Current: Tool responses include both raw numeric values and formatted strings, plus message fields that the agent paraphrases anyway.
+- Change: Remove redundant formatted fields or messages when not required by tests.
+- Impact: ~10–15% fewer tokens per tool call, compounding over multi-turn sessions.
+
+## 📦 Tool Response Optimization
+
+### get_all_balances (from banking_server)
+- **Current response size:** Verbose due to nested objects and duplicated formatted values
+- **Issues found:**  
+  - Both `balance` and `formatted` are returned for each account  
+  - `total_formatted` duplicates information derivable from `total`
+- **Suggested optimization:** Return only numeric balances and let the agent format if needed.
+- **Estimated savings:** ~25–30 tokens per call (~15% reduction)
+
+**Example current vs optimized:**
+```json
+// Current
+{
+  "accounts": {
+    "checking": {"balance": 1500.0, "formatted": "$1,500.00"},
+    "savings": {"balance": 3000.0, "formatted": "$3,000.00"}
+  },
+  "total": 4500.0,
+  "total_formatted": "$4,500.00"
+}
+
+// Optimized
+{
+  "accounts": {
+    "checking": 1500.0,
+    "savings": 3000.0
+  },
+  "total": 4500.0
+}
+```
+
+This optimization preserves all information required by the tests while reducing token overhead and improving LLM efficiency.
 
 
 ## Test Results
