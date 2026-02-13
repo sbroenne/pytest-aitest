@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **26** tests | **23** passed | **3** failed | **88%** pass rate  
-> Duration: 295.3s | Cost: 🧪 $0.0235 · 🤖 $0.0472 · 💰 $0.0707 | Tokens: 819–7,492  
+> Duration: 295.3s | Cost: 🧪 $0.0213 · 🤖 $0.0494 · 💰 $0.0707 | Tokens: 819–7,492  
 > February 07, 2026 at 08:45 PM
 
 *Core banking tests — parametrized across all benchmark agents.*
@@ -31,7 +31,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-5-mini</div>
-<div class="winner-summary">Achieves a 100% pass rate across the full core banking suite at the lowest total cost, with consistent, correct tool chaining in multi-step and multi-turn scenarios.</div>
+<div class="winner-summary">Achieves a perfect 100% pass rate across the full core banking suite at the lowest overall cost, with reliable multi-step tool chaining and consistent behavior in multi-turn sessions.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.016579</span><span class="winner-stat-label">Total Cost</span></div>
@@ -60,20 +60,20 @@
 
 ## Comparative Analysis
 
-**Why the winner wins:**  
-- **Perfect reliability at the lowest cost**: gpt-5-mini is the only configuration that ran the full 9-test benchmark with **100% pass rate** at **$0.016579 total cost**, undercutting gpt-4.1 which failed 2/9 tests while costing more overall.
-- **Correct multi-step tool orchestration**: It consistently chained tools (e.g., `transfer → get_all_balances`) without hesitation, even in multi-turn sessions.
-- **Resilient to prompt styles**: Baseline gpt-5-mini handled advisory, transactional, and session-based tests without prompt-induced permission-seeking or refusals.
+#### Why the winner wins
+- Delivers **100% pass rate** across 9 core and session-based tests while remaining the **lowest total cost** option.
+- Correctly chains tools in complex flows (transfer → verify balances) without hesitation or permission-seeking.
+- Maintains session context reliably across multi-turn planning scenarios, including follow-up verification.
 
-**Notable patterns:**  
-- **Prompt verbosity matters more than model strength**: The *detailed* prompt caused gpt-5-mini to ask for permission before calling tools, while the same prompt worked with gpt-4.1. This is a prompt–model interaction issue, not a tool issue.
-- **Cheaper model, better behavior**: Despite being lower-cost, gpt-5-mini showed more decisive tool usage than gpt-4.1, which hesitated or failed content checks in transactional flows.
-- **Skills help quality, not correctness**: The `financial-advisor` skill improved advice depth but did not materially affect pass/fail outcomes.
+#### Notable patterns
+- **Concise prompts reduce cost without hurting accuracy**: `gpt-5-mini + concise` passed with significantly fewer tokens, but was only validated on a single test.
+- **Overly detailed prompts trigger permission-seeking**: The “detailed” variant caused the model to ask for consent before calling tools, blocking progress.
+- **Model sensitivity to policy filters**: One `gpt-4.1` run failed before any tokens were produced due to a content policy rejection, indicating higher fragility to prompt phrasing.
 
-**Alternatives:**  
-- **gpt-5-mini + concise**: Also 100% pass rate and extremely cheap, but only exercised on 1 test — insufficient coverage for deployment.
-- **gpt-4.1 (baseline)**: Not recommended — failed core transactional and advisory tests due to policy filtering and over-cautious responses.
-- **gpt-5-mini + detailed**: Not recommended — failed due to **permission-seeking behavior induced by prompt language**, despite the strong base model.
+#### Alternatives
+- **gpt-5-mini + concise**: Perfect accuracy on limited coverage at very low cost; viable for narrow, well-scoped endpoints.
+- **gpt-4.1 (base)**: Lower reliability (78% pass rate) and higher cost; failures stem from cautious behavior and incomplete task fulfillment.
+- **gpt-5-mini + detailed**: Not recommended; fails due to prompt-induced permission-seeking that prevents tool usage.
 
 ## ❌ Failure Analysis
 
@@ -83,96 +83,96 @@
 
 | Test | Root Cause | Fix |
 |------|------------|-----|
-| Transfer money and verify the result with balance check | Azure content policy triggered before any tool call | Reduce transactional phrasing that resembles real-money execution; add explicit allowance for simulated banking actions |
-| First turn: check balances and discuss savings goals | Over-cautious advisory response; asked for more info instead of giving a baseline suggestion | Require a concrete recommendation even when data is missing |
+| Transfer money and verify the result with balance check | Content policy rejection before tool call | Simplify prompt and remove policy-sensitive phrasing |
+| First turn: check balances and discuss savings goals | Did not provide a concrete savings suggestion | Require a baseline recommendation even with incomplete data |
 
 **gpt-5-mini + detailed** (1 failure)
 
 | Test | Root Cause | Fix |
 |------|------------|-----|
-| Compare concise vs detailed vs friendly advisory styles | Permission-seeking prevented any tool calls | Remove language that asks for permission before acting |
+| Compare concise vs detailed vs friendly advisory styles | Permission-seeking blocked tool calls | Remove consent-seeking language and mandate immediate tool use |
 
 ### Transfer money and verify the result with balance check (gpt-4.1)
-- **Problem:** The agent failed immediately with a content policy violation and made no tool calls.
-- **Root Cause:** The model interpreted the transfer request as a real financial action requiring additional safeguards.
-- **Fix:** Add an explicit system instruction that all banking actions are **simulated and authorized**.
+- **Problem:** The agent failed before any response or tool call due to a content policy violation.
+- **Root Cause:** Prompt phrasing triggered Azure OpenAI content filters, aborting the request.
+- **Behavioral Mechanism:** Safety-oriented wording in the base prompt increases the likelihood of policy interception before execution.
+- **Fix:** Remove non-essential advisory language and ensure the prompt is strictly transactional for transfer tests.
 
 ### First turn: check balances and discuss savings goals (gpt-4.1)
-- **Problem:** The agent reported balances but did not suggest any savings transfer amount.
-- **Root Cause:** Advisory phrasing prioritized “personalization” over delivering a minimal viable recommendation.
-- **Fix:** Require a fallback heuristic (e.g., “suggest $X based on balances alone if transactions are unavailable”).
+- **Problem:** The agent asked for more information instead of giving a savings suggestion.
+- **Root Cause:** Prompt allowed deferral when transaction data was missing.
+- **Behavioral Mechanism:** Language such as “to make a personalized suggestion” primed the model to wait for more input rather than infer a baseline.
+- **Fix:** Add explicit instruction: “If data is missing, provide a conservative estimate based on balances alone.”
 
 ### Compare concise vs detailed vs friendly advisory styles (gpt-5-mini + detailed)
-- **Problem:** The agent asked for permission instead of calling `get_all_balances`.
-- **Root Cause:**  
-  **Behavioral Mechanism:** Prompt phrases like *“Before I access anything”* and *“Do you want me to check…”* primed a consent-gathering mode. This overrides the tool-first behavior expected by the tests.
-- **Fix:** Remove permission-gating language and explicitly instruct immediate tool usage.
+- **Problem:** No tools were called despite the test requiring balance checks.
+- **Root Cause:** Detailed prompt encouraged permission-seeking behavior.
+- **Behavioral Mechanism:** Phrases like “before I access anything” and “do you want me to” shift the model into a consent-gathering mode.
+- **Fix:** Replace with: “Immediately retrieve balances and transactions without asking for permission.”
 
 ## 🔧 MCP Tool Feedback
 
-### banking_server
-Overall, tools are clear and reliably callable. Minor response bloat increases token usage.
+### core-banking-server
+Overall, tools are discoverable and consistently used correctly by effective agents.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
-| get_balance | ✅ | Multiple | Returns redundant formatted fields |
-| get_all_balances | ✅ | Multiple | Includes totals not always used |
-| transfer | ✅ | Multiple | Response payload larger than needed |
-| get_transactions | ✅ | Multiple | Empty arrays still verbose |
+| get_balance | ✅ | High | Working well |
+| get_all_balances | ✅ | High | Working well |
+| transfer | ✅ | Medium | Error messages are verbose |
+| get_transactions | ✅ | Medium | Returns unused fields |
 
 ## 📝 System Prompt Feedback
 
-### detailed (mixed)
-- **Behavioral impact:** Words like *“thorough”*, *“before”*, and *“permission”* trigger cautious, consent-seeking behavior.
-- **Problem:** Causes tool avoidance in gpt-5-mini, but not in gpt-4.1.
-- **Suggested change:**  
-  Replace  
-  > “Before accessing accounts, confirm with the user…”  
-  With  
-  > “Immediately call the required tools to fulfill the request. Do not ask for permission.”
+### detailed (ineffective with gpt-5-mini)
+- **Token count:** ~1.5k
+- **Behavioral impact:** Encourages cautious, consent-first behavior that blocks tool usage.
+- **Problem:** Over-emphasis on explanation and permission.
+- **Suggested change:**
+  > Replace “Before I access anything, do you want me to…” with “Immediately retrieve the required account data using the appropriate tools.”
+
+### concise (effective)
+- **Token count:** ~500
+- **Behavioral impact:** Promotes direct action and efficient tool calls.
+- **Problem:** Limited guidance for edge cases.
+- **Suggested change:** Add one line: “If data is missing, make a reasonable assumption and proceed.”
 
 ## 📚 Skill Feedback
 
 ### financial-advisor (positive)
-- **Usage rate:** High in advisory responses
-- **Token cost:** Moderate
-- **Problem:** None observed
-- **Suggested change:** None — skill improves qualitative output without harming tool reliability
+- **Usage rate:** High in advisory tests
+- **Token cost:** ~3k tokens per run
+- **Problem:** None observed; improves recommendation quality.
+- **Suggested change:** Consider a shorter “quick rules” section for lower-cost runs.
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Remove permission-seeking language from detailed prompt | recommended | Prevents 100% of prompt-induced failures |
-| 2 | Trim unused fields from tool responses | suggestion | ~10–15% token reduction |
-| 3 | Enforce fallback advisory heuristics | info | Improves robustness in sparse-data cases |
+| 1 | Remove formatted duplicates from tool responses | recommended | 15% cost reduction |
+| 2 | Default to concise prompt for core flows | recommended | 10–20% fewer tokens |
 
-#### 1. Remove permission-seeking language (recommended)
-- Current: Detailed prompt asks for confirmation before tool use
-- Change: Mandate immediate tool calls
-- Impact: Eliminates prompt-induced failures; indirect cost savings by avoiding retries
+#### 1. Remove formatted duplicates from tool responses (recommended)
+- Current: Tools return both numeric and formatted string values.
+- Change: Return only numeric values and format in the agent.
+- Impact: ~15% cost reduction from smaller tool payloads.
 
-#### 2. Trim unused fields from tool responses (suggestion)
-- Current: Tools return both raw and formatted values plus totals
-- Change: Return only fields asserted by tests
-- Impact: ~10–15% cost reduction from fewer tokens
-
-#### 3. Enforce fallback advisory heuristics (info)
-- Current: Some agents wait for more data
-- Change: Require a minimal recommendation even with incomplete data
-- Impact: Improves pass rate stability
+#### 2. Default to concise prompt for core flows (recommended)
+- Current: Detailed prompt variants increase verbosity and risk.
+- Change: Use concise prompt for all transactional tests; reserve detailed for advisory-only flows.
+- Impact: 10–20% fewer tokens and improved reliability.
 
 ## 📦 Tool Response Optimization
 
-### get_all_balances (banking_server)
-- **Current response size:** ~90 tokens
-- **Issues found:** Duplicate `formatted` fields and unused `total_formatted`
-- **Suggested optimization:** Remove formatted strings when raw numbers suffice
-- **Estimated savings:** ~25 tokens per call (~28%)
+### get_all_balances (core-banking-server)
+- **Current response size:** ~120 tokens
+- **Issues found:** Redundant `formatted` fields and totals not always used.
+- **Suggested optimization:** Remove formatted strings and optional totals unless explicitly requested.
+- **Estimated savings:** ~30 tokens per call (25% reduction)
 
 **Example current vs optimized:**
 ```json
-// Current (~90 tokens)
+// Current
 {
   "accounts": {
     "checking": {"balance": 1500.0, "formatted": "$1,500.00"},
@@ -182,17 +182,14 @@ Overall, tools are clear and reliably callable. Minor response bloat increases t
   "total_formatted": "$4,500.00"
 }
 
-// Optimized (~65 tokens)
+// Optimized
 {
   "accounts": {
-    "checking": {"balance": 1500.0},
-    "savings": {"balance": 3000.0}
-  },
-  "total": 4500.0
+    "checking": 1500.0,
+    "savings": 3000.0
+  }
 }
 ```
-
-**Bottom line:** Deploy **gpt-5-mini (baseline prompt)**. It is the only configuration that combines full coverage, flawless execution, and the lowest realized cost.
 
 
 ## Test Results

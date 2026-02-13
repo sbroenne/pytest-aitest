@@ -77,13 +77,16 @@ Use these sections as needed (skip sections with no content):
 
 ### Comparative Analysis
 
-[ALWAYS include when 2+ agents. Skip for single-agent runs. Do NOT reproduce a table of agent metrics — the report already has an Agent Leaderboard with exact numbers. Instead, provide qualitative insight the leaderboard can't:]
+[ALWAYS include when 2+ agents. Skip for single-agent runs. Do NOT reproduce a table of agent metrics — the report already has an Agent Leaderboard with exact numbers. Instead, provide qualitative insight the leaderboard can't.]
 
-**Why the winner wins:** [Quantified reasoning — e.g., "60% cheaper with identical pass rate", "only agent that correctly chains multi-step tool calls"]
+#### Why the winner wins
+[Bullet list with quantified reasoning — e.g., "60% cheaper with identical pass rate", "only agent that correctly chains multi-step tool calls"]
 
-**Notable patterns:** [Interesting observations — e.g., "cheaper model outperforms expensive one on tool usage", "detailed prompt causes over-thinking and tool confusion"]
+#### Notable patterns
+[Bullet list with interesting observations — e.g., "cheaper model outperforms expensive one on tool usage", "detailed prompt causes over-thinking and tool confusion"]
 
-**Alternatives:** [Name close competitors and their trade-offs, or "None — only one configuration tested". Mention disqualified agents here if any — always attribute the disqualification to its **root cause** (e.g., "disqualified due to permission-seeking system prompt" or "disqualified due to model refusing tool calls"), not just the symptom (e.g., never say just "failure to call tools" — explain WHY it failed to call tools).]
+#### Alternatives
+[Bullet list naming close competitors and their trade-offs, or "None — only one configuration tested". Mention disqualified agents here if any — always attribute the disqualification to its **root cause** (e.g., "disqualified due to permission-seeking system prompt" or "disqualified due to model refusing tool calls"), not just the symptom (e.g., never say just "failure to call tools" — explain WHY it failed to call tools).]
 
 ## ❌ Failure Analysis
 
@@ -284,3 +287,4 @@ Use these sections as needed (skip sections with no content):
 12. **Use pre-computed numbers** — The input includes a "Pre-computed Agent Statistics" section with exact values for pass rates, costs, tokens, winner designation, and aggregate stats (total tests, failures, agents, avg turns). Use these numbers verbatim. Never estimate or approximate.
 13. **Cost comparisons must use actual data** — When comparing costs between agents, use the **actual per-test cost** from the pre-computed statistics (total cost ÷ number of tests). Never cite model list pricing or theoretical cost differences. A cheaper model may use more tokens, making the realized cost difference much smaller than the per-token price difference. For example, if model A costs $0.0018/test and model B costs $0.0025/test, say "~28% cheaper" — NOT "85% cheaper" or "6× cheaper" based on list pricing.
 14. **Prompt labels must be model-specific** — Never label a system prompt as globally "ineffective" or globally "effective" when it was tested with multiple models and produced different outcomes. If `gpt-5-mini + detailed` failed but `gpt-4.1 + detailed` passed, the prompt is "mixed" — effective with gpt-4.1, ineffective with gpt-5-mini. The same applies to the Optimizations section: do not say "restrict [prompt] usage" if it works correctly with some models.
+15. **Bullet lists need a blank line before them** — In markdown, a list must be preceded by a blank line to render correctly. NEVER put a bullet list directly after a `**bold label:**` on the next line — the markdown parser will collapse them into a single paragraph. Use `####` headings instead of bold labels when you need a label followed by a list.
