@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **4** tests | **3** passed | **1** failed | **75%** pass rate  
-> Duration: 72.1s | Cost: 🧪 $-0.010143 · 🤖 $0.0204 · 💰 $0.0102 | Tokens: 1,286–2,169  
+> Duration: 72.1s | Cost: 🧪 $-0.011550 · 🤖 $0.0218 · 💰 $0.0102 | Tokens: 1,286–2,169  
 > February 07, 2026 at 07:39 PM
 
 *Skill improvement — baseline vs skilled agent.*
@@ -23,7 +23,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">baseline</div>
-<div class="winner-summary">Delivers a 100% pass rate at the lowest total cost, with decisive tool usage and no permission-seeking delays. Consistently answers immediately when account data is required.</div>
+<div class="winner-summary">Delivers a perfect pass rate at lower cost while reliably calling account tools when needed. Avoids permission-seeking behavior that caused missed tool usage in the skilled variant.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.004625</span><span class="winner-stat-label">Total Cost</span></div>
@@ -52,16 +52,21 @@
 
 ## Comparative Analysis
 
-**Why the winner wins:**  
-Baseline achieves the same functional outcomes with a perfect pass rate while costing less overall. The decisive factor is behavior: baseline immediately calls `get_all_balances` when allocation advice requires concrete data, whereas the skilled variant hesitates and asks for permission. That single hesitation accounts for the only failure and makes baseline the safer deploy choice.
+### Why the winner wins
 
-**Notable patterns:**  
-- Injecting the financial skill increased verbosity and caution, leading to permission-seeking language before acting.  
-- The cheaper configuration (baseline) outperformed the augmented one on tool usage reliability, despite having less domain context.  
-- When no tool call is required (general savings advice), both agents perform well and mention emergency funds correctly.
+- Achieves **100% pass rate** at **~18% lower total cost** than the alternative while handling the same scenarios.
+- Correctly **initiates balance lookup tools without asking permission**, satisfying tests that require immediate tool usage.
+- Uses fewer tokens overall, indicating more direct task execution rather than extended preambles.
 
-**Alternatives:**  
-- **with-financial-skill**: Provides richer narrative guidance but is unreliable for tasks that require immediate tool invocation. Trade-off is higher cost with lower pass rate due to prompt-induced hesitation. No agents were disqualified.
+### Notable patterns
+
+- Adding the financial skill increased verbosity and introduced **permission-seeking behavior** (“do you want general guidance, or do you want me to look up your balances”) that delayed or prevented tool calls.
+- The baseline agent implicitly followed the expected flow: retrieve balances first, then reason about allocation.
+- The skill content helped with qualitative advice (emergency fund, prioritization) but conflicted with tests that expect **action-first behavior**.
+
+### Alternatives
+
+- **with-financial-skill**: Close in cost but failed allocation advice due to not calling tools. The root cause is not missing knowledge, but a **prompt/skill interaction that encourages asking clarifying questions before acting**.
 
 ## ❌ Failure Analysis
 
@@ -71,59 +76,66 @@ Baseline achieves the same functional outcomes with a perfect pass rate while co
 
 | Test | Root Cause | Fix |
 |------|------------|-----|
-| Ask for allocation advice — skilled agent should apply 50/30/20 rule. | Permission-seeking prevented required tool call | Add explicit instruction to call balance tools without asking |
+| Ask for allocation advice — skilled agent should apply 50/30/20 rule | Permission-seeking response prevented required tool call | Instruct agent to fetch balances immediately when allocation is requested |
 
-### Ask for allocation advice — skilled agent should apply 50/30/20 rule. (with-financial-skill)
-- **Problem:** The agent asked whether it should look up balances instead of doing so, causing the test to fail because no balance tool was called.
-- **Root Cause:** The system prompt + skill content primes caution and user consent before action, even when the task implicitly authorizes data lookup.
-- **Behavioral Mechanism:** Phrases like “to give specific transfers I’ll need a little info” and “do you want me to look up your current balances” trigger a deliberative, permission-seeking mode. This delays action and suppresses automatic tool calls.
-- **Fix:** Add an explicit override to the system prompt:  
-  > “When a user asks for allocation or transfer advice, automatically call balance tools as needed without asking for permission or clarification.”
+### Ask for allocation advice — skilled agent should apply 50/30/20 rule (with-financial-skill)
+- **Problem:** The agent provided high-level guidance and asked for confirmation instead of retrieving balances.
+- **Root Cause:** The agent never called `get_all_balances` or `get_balance`, violating the test’s expectation of tool usage.
+- **Behavioral Mechanism:** The skill and system context emphasize phrases like “to give specific transfers I’ll need a little info” and “Quick question first,” which primes the model into a cautious, consultative mode. This shifts behavior from acting to **seeking user permission**, even when sufficient context exists to proceed.
+- **Fix:** Add an explicit instruction to the system prompt or skill:
+  > “When a user asks how to allocate money across accounts, immediately retrieve current balances using the appropriate account tools before asking any clarifying questions.”
 
 ## 🔧 MCP Tool Feedback
 
-### banking-server
-Overall, tool discoverability is good and the baseline agent uses it correctly when required.
+### accounts_server
+Overall, tools are simple and discoverable. Failures were not due to tool design but to agent hesitation.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | get_all_balances | ✅ | 1 | Working well |
+| get_balance | ✅ | 0 | Not used; no test required it explicitly |
 
 ## 📝 System Prompt Feedback
 
-### with-financial-skill prompt (mixed)
-- **Token count:** Not provided
-- **Behavioral impact:** Emphasizes thoroughness and user consent, which increases verbosity and primes permission-seeking before acting.
-- **Problem:** Lacks an instruction that authorizes immediate tool usage for implicit data requests.
-- **Suggested change:** Add the following line verbatim:  
-  > “Do not ask the user for permission to call tools when the request clearly requires account data; proceed directly.”
+### baseline (effective)
+- **Token count:** Low
+- **Behavioral impact:** Encourages direct action and tool usage without excessive framing.
+- **Problem:** None observed.
+- **Suggested change:** None.
+
+### with-financial-skill prompt (mixed — ineffective with gpt-5-mini in allocation task)
+- **Token count:** Higher due to skill injection
+- **Behavioral impact:** Language around “guidance,” “priorities,” and “quick questions” encourages explanation before execution.
+- **Problem:** Lacks a clear directive on **when to act vs. ask**.
+- **Suggested change:** Append:
+  > “Default to action: if the user asks for advice that depends on account data, call the relevant tools immediately and explain after.”
 
 ## 📚 Skill Feedback
 
 ### financial-skill (mixed)
-- **Usage rate:** High in narrative advice; low in procedural/tool-driven steps
-- **Token cost:** Not provided
-- **Problem:** Encourages explanatory depth at the expense of action, interfering with tests that assert tool usage.
-- **Suggested change:** Split the skill into two sections:  
-  - “Principles” (kept concise)  
-  - “Execution rules” with a first rule: *“If balances are needed, call tools immediately.”*
+- **Usage rate:** High in advisory responses
+- **Token cost:** Moderate
+- **Problem:** Overemphasizes planning and prioritization, which can override test expectations for immediate tool calls.
+- **Suggested change:** Split skill into two sections:
+  - “Action rules” (tool-first behaviors)
+  - “Advisory principles” (50/30/20, emergency fund guidance)
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Enforce automatic balance lookup | recommended | Prevents retries and failures |
-| 2 | Reduce narrative preambles in skill | suggestion | ~10% token reduction |
+| 1 | Enforce tool-first rule for allocation queries | recommended | Avoid 100% of similar failures |
+| 2 | Trim advisory preambles in skilled agent | suggestion | ~10% cost reduction |
 
-#### 1. Enforce automatic balance lookup (recommended)
-- Current: Skilled agent asks clarifying questions before acting.
-- Change: Explicitly authorize immediate tool calls for allocation tasks.
-- Impact: Eliminates failure risk and avoids wasted turns, improving reliability more than cost.
+#### 1. Enforce tool-first rule for allocation queries (recommended)
+- Current: Skilled agent asks clarifying questions before fetching balances.
+- Change: Add an explicit system/skill rule to always fetch balances first.
+- Impact: Prevents test failures; reduces retries and wasted turns.
 
-#### 2. Reduce narrative preambles in skill (suggestion)
-- Current: Skill front-loads high-level guidance before execution.
-- Change: Move high-level principles after any required tool calls.
-- Impact: ~10% cost reduction from fewer tokens per response.
+#### 2. Trim advisory preambles in skilled agent (suggestion)
+- Current: Long high-level explanations precede any action.
+- Change: Move explanations after tool results.
+- Impact: ~10% cost reduction through fewer tokens and turns.
 
 
 ## Test Results

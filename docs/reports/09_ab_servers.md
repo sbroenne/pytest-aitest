@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **4** tests | **4** passed | **0** failed | **100%** pass rate  
-> Duration: 32.7s | Cost: 🧪 $-0.018086 · 🤖 $0.0204 · 💰 $0.002304 | Tokens: 892–2,033  
+> Duration: 32.7s | Cost: 🧪 $-0.018149 · 🤖 $0.0205 · 💰 $0.002304 | Tokens: 892–2,033  
 > February 07, 2026 at 08:33 PM
 
 *A/B server comparison — verbose vs terse system prompts.*
@@ -23,7 +23,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">terse-prompt</div>
-<div class="winner-summary">Delivers a 100% pass rate at lower realized cost than the verbose alternative while maintaining reliable multi-step tool chaining.</div>
+<div class="winner-summary">Delivers a 100% pass rate at lower realized cost than the verbose alternative, with equally reliable multi-step tool usage and faster, more concise responses.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.001062</span><span class="winner-stat-label">Total Cost</span></div>
@@ -52,94 +52,61 @@
 
 ## Comparative Analysis
 
-**Why the winner wins:**  
-terse-prompt achieves the same 100% pass rate as verbose-prompt at a lower realized cost ($0.001062 vs $0.001242 total) and with fewer tokens. It consistently chains tools correctly (transfer → get_all_balances) without extra verbosity.
+### Why the winner wins
+- **Lower cost with identical reliability:** terse-prompt achieves the same 100% pass rate as verbose-prompt at a lower total cost ($0.001062 vs $0.001242), a ~15% realized savings across the suite.
+- **Equivalent tool chaining:** Both agents correctly executed multi-step sequences (`transfer` → `get_all_balances`) without retries or ordering errors.
+- **Lean responses:** The terse prompt avoids additional conversational flourishes while still confirming outcomes, keeping token usage lower in both single-step and multi-step tests.
 
-**Notable patterns:**  
-- The verbose prompt did not improve correctness on multi-step tasks; both agents executed identical tool sequences successfully.  
-- Verbosity primarily increased response length and token usage rather than tool reliability or accuracy.
+### Notable patterns
+- **Verbosity does not improve correctness here:** Despite expectations that verbosity might help multi-step tasks, both prompts performed identically on tool selection and sequencing.
+- **Extra helpfulness adds cost:** The verbose-prompt consistently adds follow-up questions and optional offers (e.g., receipts, transaction IDs), increasing tokens without improving test outcomes.
+- **Model robustness:** With `gpt-5-mini`, both prompts reliably inferred required tools from natural language without explicit step-by-step instruction.
 
-**Alternatives:**  
-- **verbose-prompt:** Identical pass rate with slightly higher cost and token usage. Choose only if the additional conversational detail (e.g., receipts prompts) is explicitly desired.
+### Alternatives
+- **verbose-prompt:** A viable alternative if product requirements favor more conversational guidance and optional follow-ups, but it carries higher cost with no measurable reliability gain in this test set.
+
+## 🔧 MCP Tool Feedback
+
+### banking-server
+Overall, tool discoverability and usage are strong. The agent consistently selected the correct tool and parameters from natural language instructions, including correct sequencing for multi-step operations.
+
+| Tool | Status | Calls | Issues |
+|------|--------|-------|--------|
+| get_balance | ✅ | 2 | Working well |
+| transfer | ✅ | 2 | Working well |
+| get_all_balances | ✅ | 2 | Working well |
 
 ## 📝 System Prompt Feedback
 
 ### terse-prompt (effective)
-- **Token count:** Lower overall usage across both tests
-- **Behavioral impact:** Direct language encourages immediate tool invocation and concise confirmations without preambles.
-- **Problem:** None observed.
+- **Token count:** Low relative to verbose variant
+- **Behavioral impact:** Direct language encourages immediate tool invocation and concise confirmations without unnecessary preambles.
+- **Problem:** None observed in this test suite.
 - **Suggested change:** None required.
 
-### verbose-prompt (effective)
-- **Token count:** Higher due to expanded confirmations and follow-up questions
-- **Behavioral impact:** Polite, explanatory phrasing adds conversational value but increases verbosity after tool calls.
-- **Problem:** Extra language increases cost without improving outcomes.
-- **Suggested change:** Remove optional follow-ups unless explicitly requested.
-  > Replace: “Would you like a receipt for the transfer or the transaction ID?”  
-  > With: “(Receipt available on request.)”
+### verbose-prompt (effective, higher cost)
+- **Token count:** Higher due to additional explanatory and conversational text
+- **Behavioral impact:** Language that invites helpfulness (“Would you like…”, offering receipts/IDs) increases verbosity but does not alter tool behavior.
+- **Problem:** Adds tokens without improving correctness or coverage.
+- **Suggested change:** Remove optional follow-up offers unless explicitly requested by the user:
+  > Remove sentences offering receipts, transaction IDs, or next actions unless the user asks for them.
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Prefer terse system prompt | recommended | ~15% cost reduction |
-| 2 | Trim tool response payloads | suggestion | ~20–30% fewer tokens per call |
+| 1 | Trim optional follow-up text in verbose prompt | recommended | ~15% cost reduction |
+| 2 | Standardize concise confirmation pattern | suggestion | ~5–10% fewer tokens |
 
-#### 1. Prefer terse system prompt (recommended)
-- Current: Two prompts yield identical correctness.
-- Change: Standardize on terse-prompt for production.
-- Impact: ~15% cost reduction with no loss in pass rate.
+#### 1. Trim optional follow-up text in verbose prompt (recommended)
+- Current: Responses include optional offers (receipts, transaction IDs, next actions) after successful operations.
+- Change: Restrict responses to confirmation + requested data only.
+- Impact: ~15% cost reduction across similar transactional tests.
 
-#### 2. Trim tool response payloads (suggestion)
-- Current: Tool responses include formatted strings and totals not always used.
-- Change: Return only fields required by tests and common responses.
-- Impact: ~20–30% fewer tokens per tool call, compounding savings in multi-step flows.
-
-## 📦 Tool Response Optimization
-
-### transfer
-- **Current response size:** Includes redundant formatted fields and message text.
-- **Issues found:** `amount_formatted`, `message` duplicate information already inferable.
-- **Suggested optimization:** Return balances and IDs only.
-- **Estimated savings:** ~25 tokens per call (≈20% reduction)
-
-**Example current vs optimized:**
-```json
-// Current
-{
-  "transaction_id":"TX0001",
-  "type":"transfer",
-  "from_account":"checking",
-  "to_account":"savings",
-  "amount":100,
-  "amount_formatted":"$100.00",
-  "new_balance_from":1400.0,
-  "new_balance_to":3100.0,
-  "message":"Successfully transferred $100.00 from checking to savings."
-}
-
-// Optimized
-{
-  "transaction_id":"TX0001",
-  "new_balance_from":1400.0,
-  "new_balance_to":3100.0
-}
-```
-
-### get_all_balances
-- **Current response size:** Includes totals and formatted strings.
-- **Issues found:** `total` and `total_formatted` are optional for most replies.
-- **Suggested optimization:** Omit totals unless explicitly requested.
-- **Estimated savings:** ~15 tokens per call (≈25% reduction)
-
-**Example current vs optimized:**
-```json
-// Current
-{"accounts":{"checking":{"balance":1400.0,"formatted":"$1,400.00"},"savings":{"balance":3100.0,"formatted":"$3,100.00"}},"total":4500.0,"total_formatted":"$4,500.00"}
-
-// Optimized
-{"accounts":{"checking":{"balance":1400.0},"savings":{"balance":3100.0}}}
-```
+#### 2. Standardize concise confirmation pattern (suggestion)
+- Current: Confirmation phrasing varies and sometimes repeats information already present in tool output.
+- Change: Use a fixed, minimal confirmation template for successful operations.
+- Impact: ~5–10% fewer tokens per multi-step test, with no loss in clarity.
 
 
 ## Test Results

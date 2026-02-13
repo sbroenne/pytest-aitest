@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **8** tests | **8** passed | **0** failed | **100%** pass rate  
-> Duration: 64.0s | Cost: 🧪 $-0.020777 · 🤖 $0.0247 · 💰 $0.003920 | Tokens: 706–2,629  
+> Duration: 64.0s | Cost: 🧪 $-0.020056 · 🤖 $0.0240 · 💰 $0.003920 | Tokens: 706–2,629  
 > February 07, 2026 at 07:38 PM
 
 *2×2 matrix: 2 models × 2 prompts = 4 agent configurations.*
@@ -29,7 +29,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-5-mini + concise</div>
-<div class="winner-summary">Delivers a 100% pass rate at the lowest observed cost, with direct tool usage and minimal turns. It consistently executes transfers without redundant balance checks, keeping latency and spend down.</div>
+<div class="winner-summary">Delivers a perfect pass rate at the lowest observed cost, with direct tool usage and minimal conversational overhead across both balance and transfer workflows.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.000299</span><span class="winner-stat-label">Total Cost</span></div>
@@ -58,76 +58,76 @@
 
 ## Comparative Analysis
 
-**Why the winner wins:**  
-The winning configuration achieves identical functional outcomes (100% pass rate) at the lowest realized cost. It is cheaper than the next-best alternative by a small but consistent margin and avoids extra tool calls (e.g., no pre- or post-transfer balance polling), which directly reduces turns, tokens, and latency.
+#### Why the winner wins
+- Lowest realized cost per test while maintaining a 100% pass rate, edging out the next-best configuration by a measurable margin despite similar behavior.
+- Concise prompt consistently triggers **immediate, correct tool calls** (e.g., direct `transfer` without pre-check balance calls), reducing turns and tool-response tokens.
+- gpt-5-mini handles both single-step (balance) and multi-step (transfer) intents without verbose confirmations or exploratory calls.
 
-**Notable patterns:**  
-- **Concise prompts outperform detailed prompts on cost** across both models. Detailed prompts encouraged extra verification steps (e.g., `get_all_balances` before and after transfer), inflating tokens without improving correctness.  
-- **Model choice mattered less than prompt choice** for correctness, but prompt choice materially affected cost. Both models passed all tests; the concise prompt kept behavior action-oriented.  
-- **Direct tool execution is safe here:** The concise variants executed `transfer` immediately when the user intent was unambiguous, demonstrating that confirmation steps are unnecessary for this test suite.
+#### Notable patterns
+- **Prompt verbosity directly impacts cost**: detailed prompts often triggered extra tool calls (`get_all_balances`) and longer final messages, inflating tokens without improving correctness.
+- **Model choice mattered less than prompt style** for correctness: all model × prompt permutations passed, but concise prompts were cheaper across both models.
+- gpt-4.1-mini was competitive on balance queries (slightly fewer tokens), but lost its edge on transfers due to less aggressive shortcutting.
 
-**Alternatives:**  
-- **gpt-4.1-mini + concise:** Very close runner-up with identical correctness and similar behavior; slightly higher cost makes it a reasonable fallback if model availability or latency differs.  
-- **Detailed prompt variants (both models):** Functionally correct but consistently more expensive due to redundant balance checks and verbose confirmations. No disqualifications in this run.
+#### Alternatives
+- **gpt-4.1-mini + concise**: Near-parity behavior with slightly higher cost; a viable fallback if gpt-5-mini availability is constrained.
+- **Detailed prompt variants**: Functionally correct but consistently more expensive due to additional narration and safety checks. Not recommended where cost efficiency matters.
 
 ## 🔧 MCP Tool Feedback
 
 ### banking_server
-Overall, tools are clear and reliably invoked. The suite shows correct selection between `get_balance`, `get_all_balances`, and `transfer`. However, overlap between balance tools encourages redundant calls under verbose prompts.
+Overall, tools are discoverable and well-used. The concise prompt variants demonstrate that the tool schemas are clear enough to enable direct invocation without exploratory calls.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
-| get_balance | ✅ | Multiple | Works well for single-account queries |
-| get_all_balances | ⚠️ | Few | Often unnecessary for simple transfers |
-| transfer | ✅ | Multiple | Clear schema; correctly preferred by concise prompts |
+| get_balance | ✅ | 3 | Working well |
+| get_all_balances | ⚠️ | 1 | Used only by detailed prompt, not strictly required |
+| transfer | ✅ | 4 | Working well |
 
 **Suggested rewrite for `get_all_balances`:**
-> Returns balances for all accounts. **Use only when the user explicitly asks for all balances or totals, or when balances are required to resolve ambiguity. Do not call for straightforward transfers when source and destination are specified.**
+> Returns balances for all accounts. Use only when the user explicitly asks for multiple accounts or a total overview; not required for single-account transfers.
 
 ## 📝 System Prompt Feedback
 
 ### concise (effective)
 - **Token count:** Low
-- **Behavioral impact:** Language emphasizes direct action and brevity, priming the model to call the required tool immediately without exploratory checks.
+- **Behavioral impact:** Language emphasizes direct action (“answer succinctly”, “call tools when needed”), priming the model to skip confirmations and narration.
 - **Problem:** None observed.
-- **Suggested change:** None.
+- **Suggested change:** None — this prompt is well-calibrated.
 
 ### detailed (mixed)
 - **Token count:** Higher
-- **Behavioral impact:** Words like “thorough,” “confirm,” and “provide details” prime verification-oriented behavior, leading to extra balance queries before and after transfers.
-- **Problem:** Encourages redundant tool calls that do not improve correctness.
-- **Suggested change:** Replace verification language with an action-first clause:  
-  **Replace:** “Be thorough and confirm account details before completing actions.”  
-  **With:** “When user intent is explicit, perform the action immediately. Do not fetch additional data unless required to resolve ambiguity.”
+- **Behavioral impact:** Words like “thorough” and “provide context” encourage precautionary steps (e.g., checking all balances) and longer summaries.
+- **Problem:** Unnecessary tool calls and verbose responses increase cost without improving outcomes.
+- **Suggested change:** Replace “Be thorough and explain the result” with “Be accurate; omit intermediate reasoning unless the user asks.”
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Remove redundant balance checks | recommended | ~30–40% cost reduction on transfers |
-| 2 | Narrow use of get_all_balances | suggestion | ~15% fewer tokens per transfer |
+| 1 | Remove pre-transfer balance checks | recommended | ~20% cost reduction |
+| 2 | Slim tool response fields | suggestion | ~10–15% fewer tokens |
 
-#### 1. Remove redundant balance checks (recommended)
-- Current: Detailed prompts trigger `get_all_balances` before and after transfers.
-- Change: Update the system prompt to allow immediate `transfer` calls when accounts and amount are explicit.
-- Impact: Largest cost reduction in transfer workflows due to fewer turns and tool responses.
+#### 1. Remove pre-transfer balance checks (recommended)
+- Current: Detailed prompts sometimes call `get_balance` or `get_all_balances` before `transfer`.
+- Change: Update prompt to state: “For transfers, call `transfer` directly unless the user asks to verify balances.”
+- Impact: ~20% cost reduction by eliminating redundant tool calls.
 
-#### 2. Narrow use of get_all_balances (suggestion)
-- Current: Tool overlap causes conservative models to overuse the broader balance tool.
-- Change: Clarify tool descriptions to reserve `get_all_balances` for explicit user requests.
-- Impact: Moderate token savings and simpler agent behavior.
+#### 2. Slim tool response fields (suggestion)
+- Current: Tool responses include formatted strings and messages that are rephrased by the assistant anyway.
+- Change: Return only numeric balances and IDs by default.
+- Impact: ~10–15% fewer tokens per tool call.
 
 ## 📦 Tool Response Optimization
 
 ### transfer (from banking_server)
-- **Current response size:** Moderate
-- **Issues found:** Includes verbose fields (`type`, repeated account names, human-readable `message`) that the agent does not reuse.
-- **Suggested optimization:** Return only machine-essential fields; let the agent format user-facing text.
-- **Estimated savings:** ~20–25% tokens per call
+- **Current response size:** ~90 tokens
+- **Issues found:** Redundant fields (`message`, `amount_formatted`) duplicate information the assistant restates.
+- **Suggested optimization:** Remove human-readable strings; keep structured data only.
+- **Estimated savings:** ~25 tokens per call (~28% reduction)
 
 **Example current vs optimized:**
 ```json
-// Current
+// Current (~90 tokens)
 {
   "transaction_id": "TX0001",
   "type": "transfer",
@@ -140,15 +140,16 @@ Overall, tools are clear and reliably invoked. The suite shows correct selection
   "message": "Successfully transferred $100.00 from checking to savings."
 }
 
-// Optimized
+// Optimized (~65 tokens)
 {
   "transaction_id": "TX0001",
+  "from": "checking",
+  "to": "savings",
+  "amount": 100,
   "new_balance_from": 1400.0,
   "new_balance_to": 3100.0
 }
 ```
-
-This optimization preserves all data required by the tests while reducing response verbosity and overall cost.
 
 
 ## Test Results

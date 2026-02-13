@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **6** tests | **6** passed | **0** failed | **100%** pass rate  
-> Duration: 50.1s | Cost: 🧪 $-0.018304 · 🤖 $0.0221 · 💰 $0.003773 | Tokens: 711–1,941  
+> Duration: 50.1s | Cost: 🧪 $-0.015497 · 🤖 $0.0193 · 💰 $0.003773 | Tokens: 711–1,941  
 > February 07, 2026 at 02:01 PM
 
 *Multi-turn banking session with 2 agents.*
@@ -23,7 +23,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-4.1-mini</div>
-<div class="winner-summary">Delivers a 100% pass rate at ~40% lower total cost than the alternative, with faster responses, fewer tokens, and consistently correct tool selection across a multi-turn session.</div>
+<div class="winner-summary">Delivers a 100% pass rate at ~40% lower total cost than the alternative, with faster responses, fewer tokens, and consistent multi-turn tool usage.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.001419</span><span class="winner-stat-label">Total Cost</span></div>
@@ -50,23 +50,25 @@
 </div>
 </div>
 
-## Comparative Analysis
+### Comparative Analysis
 
-**Why the winner wins:**  
-Both agents achieved identical functional outcomes (100% pass rate across all turns), but **gpt-4.1-mini** did so at **~40% lower total cost** ($0.001419 vs $0.002354) and **~28% fewer tokens**. It also responded faster on every turn, indicating lower latency overhead while maintaining correct tool usage.
+#### Why the winner wins
+- **Lower realized cost:** Achieves the same 100% pass rate at **~40% lower total cost** than gpt-5-mini ($0.001419 vs $0.002354 across identical tests).
+- **Token efficiency:** Uses **~28% fewer tokens** (3,005 vs 4,180), indicating tighter reasoning and less verbose responses without sacrificing correctness.
+- **Faster execution:** Consistently lower durations per turn, improving perceived latency in multi-turn sessions.
 
-**Notable patterns:**  
-- The cheaper winner is not just “good enough” — it is **strictly more efficient**: fewer tokens per turn without sacrificing clarity or correctness.  
-- Both agents demonstrated correct **tool chaining across a multi-turn session** (balance → transfer → verify), showing no degradation from session carry-over.  
-- Response verbosity differed slightly: gpt-5-mini tended to add extra conversational framing (“Would you like to…”) that increased token usage without adding test-relevant value.
+#### Notable patterns
+- **Equivalent tool correctness:** Both agents correctly chained tools across a 3-turn session (get_balance → transfer → get_all_balances) with no retries or confusion.
+- **Verbosity differences:** gpt-5-mini tended to add longer follow-ups and prompts, increasing token usage and cost despite identical outcomes.
+- **Stable session context:** Neither agent exhibited context drift across turns; balances and actions remained coherent.
 
-**Alternatives:**  
-- **gpt-5-mini** — Functionally reliable with a 100% pass rate, but incurs higher cost and token usage for the same tasks. Suitable only if gpt-5-mini is required for consistency with other deployments; otherwise, it is dominated on efficiency.
+#### Alternatives
+- **gpt-5-mini:** Same pass rate and correct tool usage, but **higher cost per test** and more verbose outputs. Viable if model-specific features are needed; otherwise not cost-optimal.
 
 ## 🔧 MCP Tool Feedback
 
 ### banking_server
-Overall, tools are easy to discover and were invoked correctly by both agents on the first attempt in all tests. Tool naming is intuitive and aligned with user intent.
+Overall, tools are **clear and reliably discoverable**. Agents selected the correct tool each time with valid parameters.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
@@ -74,36 +76,30 @@ Overall, tools are easy to discover and were invoked correctly by both agents on
 | transfer | ✅ | 2 | Working well |
 | get_all_balances | ✅ | 2 | Working well |
 
-**Observation (non-blocking):**  
-In the verification step, `get_all_balances` returned balances that matched the original state rather than reflecting the prior transfer. Tests passed because assertions likely checked structure/tool usage rather than state consistency, but this is worth reviewing if session state accuracy is a goal of the MCP server rather than the test harness.
-
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Reduce conversational filler in responses | recommended | ~15–20% cost reduction |
-| 2 | Slim down tool response payloads | suggestion | ~10–15% fewer tokens |
+| 1 | Trim conversational follow-ups | recommended | ~15% cost reduction |
+| 2 | Compact tool responses | suggestion | ~20–30% fewer tool-response tokens |
 
-#### 1. Reduce conversational filler in responses (recommended)
-- Current: Agents often append follow-up questions and friendly prompts (“Would you like to do anything else…”) that are not required by the tests.
-- Change: Update the system prompt to add:  
-  > “After completing a task, respond concisely and do not add follow-up questions unless explicitly requested by the user.”
-- Impact: ~15–20% cost reduction through shorter completions, especially noticeable with higher-cost models.
+#### 1. Trim conversational follow-ups (recommended)
+- Current: Agents often append open-ended follow-up questions after completing the task.
+- Change: In the system prompt, add: “After completing the user’s request successfully, provide the result succinctly and do not ask follow-up questions unless explicitly requested.”
+- Impact: ~15% cost reduction from fewer generated tokens per turn.
 
-#### 2. Slim down tool response payloads (suggestion)
-- Current: Tool responses include both raw numeric values and formatted strings, plus message fields that the agent paraphrases anyway.
-- Change: Remove redundant formatted fields or messages when not required by tests.
-- Impact: ~10–15% fewer tokens per tool call, compounding over multi-turn sessions.
+#### 2. Compact tool responses (suggestion)
+- Current: Tool JSON includes both raw values and formatted strings plus descriptive messages.
+- Change: Return only fields required for the response text (omit redundant formatted strings and messages).
+- Impact: ~20–30% fewer tool-response tokens, compounding savings in multi-turn sessions.
 
 ## 📦 Tool Response Optimization
 
 ### get_all_balances (from banking_server)
-- **Current response size:** Verbose due to nested objects and duplicated formatted values
-- **Issues found:**  
-  - Both `balance` and `formatted` are returned for each account  
-  - `total_formatted` duplicates information derivable from `total`
-- **Suggested optimization:** Return only numeric balances and let the agent format if needed.
-- **Estimated savings:** ~25–30 tokens per call (~15% reduction)
+- **Current response size:** ~90–110 tokens
+- **Issues found:** Redundant `formatted` fields and `total_formatted` duplicate information the agent can derive or format itself.
+- **Suggested optimization:** Remove formatted strings and return numeric balances only.
+- **Estimated savings:** ~30 tokens per call (~25% reduction)
 
 **Example current vs optimized:**
 ```json
@@ -127,7 +123,7 @@ In the verification step, `get_all_balances` returned balances that matched the 
 }
 ```
 
-This optimization preserves all information required by the tests while reducing token overhead and improving LLM efficiency.
+This optimization preserves all necessary information while reducing token overhead for every verification step.
 
 
 ## Test Results

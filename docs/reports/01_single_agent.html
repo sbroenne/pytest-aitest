@@ -967,10 +967,10 @@ a:hover {
   height: auto;
   min-height: 60vh;
 }
-</style></head><body class="bg-surface text-text min-h-screen"><div class="max-w-6xl mx-auto px-6 py-8"><header class="report-header mb-8"><div class="flex justify-between items-start gap-4 mb-4"><div class="flex-1"><h1 class="text-2xl font-medium mb-1">Single agent tests - basic report without comparison UI.</h1></div><div class="status-failed"><span>✗</span><span>1 Failed</span></div></div><div class="flex flex-wrap gap-x-6 gap-y-1 py-3 border-t border-white/10 text-sm"><span class="opacity-70">February 07, 2026 at 07:19 PM</span><span>📄 <span class="text-text-light hover:text-blue-400 cursor-pointer" title="tests/fixtures/scenario_01_single_agent.py">scenario_01_single_agent.py</span></span><span class="tabular-nums">4 tests</span><span class="tabular-nums">37.2s</span><span class="tabular-nums" title="Token range (min-max per test)">509–1,322 tok</span><span class="tabular-nums" title="Test execution cost">🧪 $-0.013151</span><span class="tabular-nums" title="AI analysis cost">🤖 $0.0153</span><span class="tabular-nums font-semibold" title="Total cost">💰 $0.002150</span></div></header><section class="mb-8"><div class="ai-insights"><div class="ai-insights-header"><span>🤖</span><span>AI Analysis</span><button class="ml-auto text-text-muted hover:text-text-light text-sm" onclick="this.closest(&#39;.ai-insights&#39;).querySelector(&#39;.card-body&#39;).classList.toggle(&#39;hidden&#39;)">Toggle</button></div><div class="card-body"><div class="markdown-content"><div class="winner-card">
+</style></head><body class="bg-surface text-text min-h-screen"><div class="max-w-6xl mx-auto px-6 py-8"><header class="report-header mb-8"><div class="flex justify-between items-start gap-4 mb-4"><div class="flex-1"><h1 class="text-2xl font-medium mb-1">Single agent tests - basic report without comparison UI.</h1></div><div class="status-failed"><span>✗</span><span>1 Failed</span></div></div><div class="flex flex-wrap gap-x-6 gap-y-1 py-3 border-t border-white/10 text-sm"><span class="opacity-70">February 07, 2026 at 07:19 PM</span><span>📄 <span class="text-text-light hover:text-blue-400 cursor-pointer" title="tests/fixtures/scenario_01_single_agent.py">scenario_01_single_agent.py</span></span><span class="tabular-nums">4 tests</span><span class="tabular-nums">37.2s</span><span class="tabular-nums" title="Token range (min-max per test)">509–1,322 tok</span><span class="tabular-nums" title="Test execution cost">🧪 $-0.016434</span><span class="tabular-nums" title="AI analysis cost">🤖 $0.0186</span><span class="tabular-nums font-semibold" title="Total cost">💰 $0.002150</span></div></header><section class="mb-8"><div class="ai-insights"><div class="ai-insights-header"><span>🤖</span><span>AI Analysis</span><button class="ml-auto text-text-muted hover:text-text-light text-sm" onclick="this.closest(&#39;.ai-insights&#39;).querySelector(&#39;.card-body&#39;).classList.toggle(&#39;hidden&#39;)">Toggle</button></div><div class="card-body"><div class="markdown-content"><div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">banking-agent</div>
-<div class="winner-summary">Handles core banking actions reliably with correct tool usage and low total cost. All single-step and standard multi-step tests pass; the only failure is due to an external turn-limit constraint, not tool misuse.</div>
+<div class="winner-summary">Reliable single-agent setup that passes core banking workflows with correct tool usage at very low cost. One failure is attributable to an artificially strict turn limit, not tool or prompt correctness.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value amber">75%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.002150</span><span class="winner-stat-label">Total Cost</span></div>
@@ -1010,22 +1010,22 @@ a:hover {
 </thead>
 <tbody>
 <tr>
-<td>Test that fails due to turn limit — for report variety</td>
-<td>Max turns set to 1 prevents completing a required multi-step workflow</td>
-<td>Increase <code>max_turns</code> to ≥3 or split into sequential tests</td>
+<td>Test that fails due to turn limit — for report variety.</td>
+<td>max_turns=1 prevents multi-step execution</td>
+<td>Increase turn limit or allow tool chaining in one turn</td>
 </tr>
 </tbody>
 </table>
-<h3>Test that fails due to turn limit — for report variety (banking-agent)</h3>
+<h3>Test that fails due to turn limit — for report variety. (banking-agent)</h3>
 <ul>
-<li><strong>Problem:</strong> The user requested a compound workflow: check balances → transfer funds → show updated balances → show transaction history.</li>
-<li><strong>Root Cause:</strong> Test configuration enforced <code>max_turns=1</code>, terminating the agent after the first tool call (<code>get_all_balances</code>) before it could proceed to <code>transfer</code> and <code>get_transactions</code>.</li>
-<li><strong>Behavioral Mechanism:</strong> Not prompt-induced. The agent correctly interpreted the multi-step intent but was hard-stopped by the turn limit before planning and executing subsequent tool calls.</li>
-<li><strong>Fix:</strong> Increase the test configuration to <code>max_turns: 3</code> (or higher), or refactor the scenario into multiple sequential tests with shared session context.</li>
+<li><strong>Problem:</strong> The user requested a compound workflow: check balances, transfer funds, then show updated balances and transaction history.</li>
+<li><strong>Root Cause:</strong> The test enforces <code>max_turns=1</code>, but the workflow inherently requires multiple tool calls and at least one follow-up response. The agent correctly initiated the first step (<code>get_all_balances</code>) but was cut off before completing the sequence.</li>
+<li><strong>Behavioral Mechanism:</strong> Not prompt-induced. The failure is caused by the test harness constraint, not by hesitation or permission-seeking language in the system prompt.</li>
+<li><strong>Fix:</strong> Increase the test configuration to <code>max_turns &gt;= 3</code>, or refactor the test to assert partial progress when <code>max_turns=1</code>.</li>
 </ul>
 <h2>🔧 MCP Tool Feedback</h2>
-<h3>banking-server</h3>
-<p>Overall, tools are well-described and consistently invoked. The agent selected the correct tool in all passing tests without hesitation or confusion.</p>
+<h3>banking-mcp</h3>
+<p>Overall, tools are clearly named and correctly invoked. The agent consistently selects the right tool without confusion.</p>
 <table>
 <thead>
 <tr>
@@ -1075,30 +1075,62 @@ a:hover {
 <tbody>
 <tr>
 <td>1</td>
-<td>Increase turn limit for compound workflows</td>
+<td>Increase turn limit for compound tasks</td>
 <td>recommended</td>
-<td>Prevents ~25% test failure rate</td>
+<td>Prevents 25% test failure rate</td>
 </tr>
 <tr>
 <td>2</td>
-<td>Reduce verbosity in user-facing follow-ups</td>
+<td>Trim verbose assistant follow-ups</td>
 <td>suggestion</td>
 <td>~10–15% token reduction</td>
 </tr>
 </tbody>
 </table>
-<h4>1. Increase turn limit for compound workflows (recommended)</h4>
+<h4>1. Increase turn limit for compound tasks (recommended)</h4>
 <ul>
-<li>Current: Tests with <code>max_turns=1</code> fail when a user request explicitly requires multiple tool calls.</li>
-<li>Change: Set <code>max_turns</code> to at least 3 for scenarios involving chained actions (balance → transfer → report).</li>
-<li>Impact: Eliminates the only observed failure, raising pass rate from 75% to 100% with no cost increase.</li>
+<li>Current: Complex requests are tested with <code>max_turns=1</code>, causing premature failure.</li>
+<li>Change: Set <code>max_turns</code> to at least 3 for workflows involving multiple tool calls.</li>
+<li>Impact: Eliminates the only observed failure without increasing per-test cost.</li>
 </ul>
-<h4>2. Reduce verbosity in user-facing follow-ups (suggestion)</h4>
+<h4>2. Trim verbose assistant follow-ups (suggestion)</h4>
 <ul>
-<li>Current: After successful tool calls, the agent offers multiple optional next steps in bullet lists.</li>
-<li>Change: Trim follow-up prompts to a single concise question (e.g., “Anything else I can help with?”).</li>
-<li>Impact: ~10–15% cost reduction from fewer completion tokens, especially in high-volume usage.</li>
-</ul></div></div></div></section><section class="mb-8"><h2 class="section-title">📋 Test Results</h2><div class="mb-4 flex items-center justify-between"><div class="flex gap-2"><button class="filter-btn active" data-filter="all" onclick="filterTests(&#39;all&#39;)">All</button><button class="filter-btn " data-filter="failed" onclick="filterTests(&#39;failed&#39;)">Failed ❌</button></div><div class="text-sm text-text-muted"><span id="visible-count">4</span> / 4 tests</div></div><div class="space-y-4" id="test-groups"><div class="card overflow-hidden test-group" data-group-type="standalone"><div class="group-header px-5 py-3 bg-surface-elevated border-b border-white/10 flex justify-between items-center cursor-pointer" onclick="toggleGroup(this.parentElement)"><div class="flex items-center gap-3"><span class="text-lg">📋</span><span class="font-medium text-text-light">tests/fixtures/scenario_01_single_agent.py</span><span class="text-sm text-text-muted">(4 tests)</span></div><div class="flex items-center gap-4"><span class="text-text-muted transition-transform duration-200 expand-icon">▼</span></div></div><div class="group-content"><div class="test-row border-b border-white/5" data-test-id="test_check_balance" data-has-diff="false" data-has-failed="false"><div class="px-5 py-3 hover:bg-white/[0.02] cursor-pointer transition-colors" onclick="toggleTestDetail(this.parentElement)"><div class="flex items-center justify-between"><div class="flex items-center gap-3 min-w-0 flex-1"><span class="text-green-400">✅</span><span class="text-text-light truncate">Basic balance check — should pass.</span></div><div class="flex items-center gap-4 text-sm text-text-muted"><span class="tabular-nums">13.7s</span><span class="text-text-muted">·</span><span class="tabular-nums">1🔧</span><span class="text-text-muted">·</span><span class="tabular-nums">931 tok</span><span class="text-text-muted">·</span><span class="tabular-nums">$0.000338</span></div></div></div><div class="test-detail hidden border-t border-white/10 bg-surface-elevated"><div class="comparison-grid grid gap-4 p-5" style="grid-template-columns: repeat(1, 1fr);"><div class="comparison-column  border-l-[3px] border-green-500" data-agent-id="8fa82e98-35c0-4a0d-b3c3-8f81e3669c46"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">banking-agent</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400">passed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">13.73s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">3</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">931</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.000338</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
+<li>Current: After successful tool calls, the assistant offers multiple optional next steps, adding tokens.</li>
+<li>Change: Replace multi-option follow-ups with a single concise question, e.g., “Anything else I can help with?”</li>
+<li>Impact: ~10–15% cost reduction through fewer output tokens.</li>
+</ul>
+<h2>📦 Tool Response Optimization</h2>
+<h3>transfer (from banking-mcp)</h3>
+<ul>
+<li><strong>Current response size:</strong> ~70–80 tokens</li>
+<li><strong>Issues found:</strong> Includes redundant formatted fields and a human-readable message that the assistant restates anyway.</li>
+<li><strong>Suggested optimization:</strong> Remove <code>message</code> and pre-formatted fields when not required by tests.</li>
+<li><strong>Estimated savings:</strong> ~25 tokens per call (~30% reduction)</li>
+</ul>
+<p><strong>Example current vs optimized:</strong></p>
+<pre><code class="language-json">// Current (~75 tokens)
+{
+  &quot;transaction_id&quot;: &quot;TX0001&quot;,
+  &quot;type&quot;: &quot;transfer&quot;,
+  &quot;from_account&quot;: &quot;checking&quot;,
+  &quot;to_account&quot;: &quot;savings&quot;,
+  &quot;amount&quot;: 200,
+  &quot;amount_formatted&quot;: &quot;$200.00&quot;,
+  &quot;new_balance_from&quot;: 1300.0,
+  &quot;new_balance_to&quot;: 3200.0,
+  &quot;message&quot;: &quot;Successfully transferred $200.00 from checking to savings.&quot;
+}
+
+// Optimized (~50 tokens)
+{
+  &quot;transaction_id&quot;: &quot;TX0001&quot;,
+  &quot;from_account&quot;: &quot;checking&quot;,
+  &quot;to_account&quot;: &quot;savings&quot;,
+  &quot;amount&quot;: 200,
+  &quot;new_balance_from&quot;: 1300.0,
+  &quot;new_balance_to&quot;: 3200.0
+}
+</code></pre></div></div></div></section><section class="mb-8"><h2 class="section-title">📋 Test Results</h2><div class="mb-4 flex items-center justify-between"><div class="flex gap-2"><button class="filter-btn active" data-filter="all" onclick="filterTests(&#39;all&#39;)">All</button><button class="filter-btn " data-filter="failed" onclick="filterTests(&#39;failed&#39;)">Failed ❌</button></div><div class="text-sm text-text-muted"><span id="visible-count">4</span> / 4 tests</div></div><div class="space-y-4" id="test-groups"><div class="card overflow-hidden test-group" data-group-type="standalone"><div class="group-header px-5 py-3 bg-surface-elevated border-b border-white/10 flex justify-between items-center cursor-pointer" onclick="toggleGroup(this.parentElement)"><div class="flex items-center gap-3"><span class="text-lg">📋</span><span class="font-medium text-text-light">tests/fixtures/scenario_01_single_agent.py</span><span class="text-sm text-text-muted">(4 tests)</span></div><div class="flex items-center gap-4"><span class="text-text-muted transition-transform duration-200 expand-icon">▼</span></div></div><div class="group-content"><div class="test-row border-b border-white/5" data-test-id="test_check_balance" data-has-diff="false" data-has-failed="false"><div class="px-5 py-3 hover:bg-white/[0.02] cursor-pointer transition-colors" onclick="toggleTestDetail(this.parentElement)"><div class="flex items-center justify-between"><div class="flex items-center gap-3 min-w-0 flex-1"><span class="text-green-400">✅</span><span class="text-text-light truncate">Basic balance check — should pass.</span></div><div class="flex items-center gap-4 text-sm text-text-muted"><span class="tabular-nums">13.7s</span><span class="text-text-muted">·</span><span class="tabular-nums">1🔧</span><span class="text-text-muted">·</span><span class="tabular-nums">931 tok</span><span class="text-text-muted">·</span><span class="tabular-nums">$0.000338</span></div></div></div><div class="test-detail hidden border-t border-white/10 bg-surface-elevated"><div class="comparison-grid grid gap-4 p-5" style="grid-template-columns: repeat(1, 1fr);"><div class="comparison-column  border-l-[3px] border-green-500" data-agent-id="8fa82e98-35c0-4a0d-b3c3-8f81e3669c46"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">banking-agent</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400">passed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">13.73s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">3</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">931</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.000338</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
     participant User
     participant Agent
     participant Tools

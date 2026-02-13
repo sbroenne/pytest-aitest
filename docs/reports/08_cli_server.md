@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **2** tests | **2** passed | **0** failed | **100%** pass rate  
-> Duration: 15.8s | Cost: 🧪 $-0.011485 · 🤖 $0.0133 · 💰 $0.001814 | Tokens: 473–1,106  
+> Duration: 15.8s | Cost: 🧪 $-0.012878 · 🤖 $0.0147 · 💰 $0.001814 | Tokens: 473–1,106  
 > February 07, 2026 at 08:33 PM
 
 *CLI server tests — demonstrates CLIServer usage.*
@@ -16,7 +16,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">cli-agent</div>
-<div class="winner-summary">Passes all CLI interaction tests with reliable tool invocation and minimal overhead, achieving full coverage at extremely low total cost.</div>
+<div class="winner-summary">Achieves a 100% pass rate at extremely low cost with reliable CLI tool usage and clean, deterministic outputs.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.001814</span><span class="winner-stat-label">Total Cost</span></div>
@@ -45,59 +45,67 @@
 
 ## ✅ Overall Assessment
 
-This run validates the **baseline reliability of CLI tool execution** under pytest-aitest. The agent consistently:
-- Correctly selects the `echo_execute` tool without hesitation
-- Passes arguments verbatim to the CLI
-- Interprets `stdout` and `exit_code` accurately
-- Responds concisely without unnecessary deliberation or permission-seeking
+This is a **clean single-agent run** with full coverage of the intended behavior. The agent consistently:
+- Correctly selected and invoked the CLI tool without hesitation
+- Interpreted tool output accurately
+- Confirmed success using concrete signals (stdout + exit code)
+- Stayed concise while still explaining results when asked
 
-With all tests passing and no competing configurations, **cli-agent is safe to deploy as-is**.
+Given the **100% pass rate at a total cost of $0.001814**, this configuration is safe to deploy as-is for basic CLI command validation and confirmation tasks.
 
 ## 🔧 MCP Tool Feedback
 
-### cli (echo server)
-The tool is discoverable, unambiguous, and used correctly in all tests.
+### cli (echo_execute)
+The tool is easy to discover and was invoked correctly in all tests. The agent showed no confusion and used the tool exactly when required.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | echo_execute | ✅ | 2 | Working well |
 
-**Observations:**
-- The agent immediately calls the tool when instructed, even when the user asks for confirmation/explanation afterward.
-- Tool output (`stdout`, `exit_code`) is correctly interpreted and summarized in natural language.
-
 ## 📦 Tool Response Optimization
 
-### echo_execute (cli server)
-- **Current response size:** Moderate (includes `exit_code`, `stdout`, `stderr`)
-- **Issues found:** Line-broken `stdout` increases token usage without adding semantic value for simple echo tests.
-- **Suggested optimization:** Return `stdout` as a single string with normalized whitespace when possible.
-- **Estimated savings:** ~15–25 tokens per call (small but consistent)
+### echo_execute (from cli)
+- **Current response size:** ~25–30 tokens per call
+- **Issues found:**
+  - `stdout` includes line breaks between words (`\r\n`), which increases token count
+  - Output formatting is not ideal for LLM consumption when the command intent is a single string
+- **Suggested optimization:** Normalize `stdout` to preserve spaces instead of inserting line breaks for each tokenized word
+- **Estimated savings:** ~10–15 tokens per call (40–50% reduction for this tool)
 
 **Example current vs optimized:**
 ```json
-// Current
-{"exit_code": 0, "stdout": "pytest-aitest\r\nworks\r\n", "stderr": ""}
+// Current (~28 tokens)
+{
+  "exit_code": 0,
+  "stdout": "pytest-aitest\r\nworks\r\n",
+  "stderr": ""
+}
 
-// Optimized
-{"exit_code": 0, "stdout": "pytest-aitest works"}
+// Optimized (~14 tokens)
+{
+  "exit_code": 0,
+  "stdout": "pytest-aitest works",
+  "stderr": ""
+}
 ```
+
+This change would not affect correctness but would meaningfully reduce token usage across large test suites.
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Normalize CLI stdout formatting | suggestion | ~10–15% fewer tool-response tokens |
+| 1 | Normalize CLI stdout formatting | recommended | ~40–50% fewer tool-response tokens |
 
-#### 1. Normalize CLI stdout formatting (suggestion)
-- Current: CLI responses preserve raw line breaks from `echo`, which are then re-rendered by the agent.
-- Change: Collapse trivial multi-line output into a single-line string in the tool response.
-- Impact: Small but consistent token reduction across high-volume CLI tests, with no loss of fidelity.
+#### 1. Normalize CLI stdout formatting (recommended)
+- Current: `echo_execute` returns line-broken output that inflates token count and requires interpretation
+- Change: Return space-preserved strings for simple echo-style commands
+- Impact: Small per-call savings, but compounds across large test matrices; improves readability and reduces parsing ambiguity
 
 ---
 
-**Final Recommendation:**  
-Deploy **cli-agent** as the default CLI test harness. It demonstrates correct tool usage, clear result interpretation, and excellent cost efficiency with zero failures.
+**Deployment recommendation:** ✅ **Deploy `cli-agent` unchanged.**  
+Optional tool-response optimization can further reduce costs but is not required for correctness.
 
 
 ## Test Results

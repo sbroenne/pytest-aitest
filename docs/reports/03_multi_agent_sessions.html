@@ -967,10 +967,10 @@ a:hover {
   height: auto;
   min-height: 60vh;
 }
-</style></head><body class="bg-surface text-text min-h-screen"><div class="max-w-6xl mx-auto px-6 py-8"><header class="report-header mb-8"><div class="flex justify-between items-start gap-4 mb-4"><div class="flex-1"><h1 class="text-2xl font-medium mb-1">Multi-turn banking session with 2 agents.</h1></div><div class="status-passed"><span>✓</span><span>All Passed</span></div></div><div class="flex flex-wrap gap-x-6 gap-y-1 py-3 border-t border-white/10 text-sm"><span class="opacity-70">February 07, 2026 at 02:01 PM</span><span>📄 <span class="text-text-light hover:text-blue-400 cursor-pointer" title="tests/fixtures/scenario_03_sessions.py">scenario_03_sessions.py</span></span><span class="tabular-nums">6 tests</span><span class="tabular-nums">50.1s</span><span class="tabular-nums" title="Token range (min-max per test)">711–1,941 tok</span><span class="tabular-nums" title="Test execution cost">🧪 $-0.018304</span><span class="tabular-nums" title="AI analysis cost">🤖 $0.0221</span><span class="tabular-nums font-semibold" title="Total cost">💰 $0.003773</span></div></header><section class="mb-8"><div class="ai-insights"><div class="ai-insights-header"><span>🤖</span><span>AI Analysis</span><button class="ml-auto text-text-muted hover:text-text-light text-sm" onclick="this.closest(&#39;.ai-insights&#39;).querySelector(&#39;.card-body&#39;).classList.toggle(&#39;hidden&#39;)">Toggle</button></div><div class="card-body"><div class="markdown-content"><div class="winner-card">
+</style></head><body class="bg-surface text-text min-h-screen"><div class="max-w-6xl mx-auto px-6 py-8"><header class="report-header mb-8"><div class="flex justify-between items-start gap-4 mb-4"><div class="flex-1"><h1 class="text-2xl font-medium mb-1">Multi-turn banking session with 2 agents.</h1></div><div class="status-passed"><span>✓</span><span>All Passed</span></div></div><div class="flex flex-wrap gap-x-6 gap-y-1 py-3 border-t border-white/10 text-sm"><span class="opacity-70">February 07, 2026 at 02:01 PM</span><span>📄 <span class="text-text-light hover:text-blue-400 cursor-pointer" title="tests/fixtures/scenario_03_sessions.py">scenario_03_sessions.py</span></span><span class="tabular-nums">6 tests</span><span class="tabular-nums">50.1s</span><span class="tabular-nums" title="Token range (min-max per test)">711–1,941 tok</span><span class="tabular-nums" title="Test execution cost">🧪 $-0.015497</span><span class="tabular-nums" title="AI analysis cost">🤖 $0.0193</span><span class="tabular-nums font-semibold" title="Total cost">💰 $0.003773</span></div></header><section class="mb-8"><div class="ai-insights"><div class="ai-insights-header"><span>🤖</span><span>AI Analysis</span><button class="ml-auto text-text-muted hover:text-text-light text-sm" onclick="this.closest(&#39;.ai-insights&#39;).querySelector(&#39;.card-body&#39;).classList.toggle(&#39;hidden&#39;)">Toggle</button></div><div class="card-body"><div class="markdown-content"><div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-4.1-mini</div>
-<div class="winner-summary">Delivers a 100% pass rate at ~40% lower total cost than the alternative, with faster responses, fewer tokens, and consistently correct tool selection across a multi-turn session.</div>
+<div class="winner-summary">Delivers a 100% pass rate at ~40% lower total cost than the alternative, with faster responses, fewer tokens, and consistent multi-turn tool usage.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.001419</span><span class="winner-stat-label">Total Cost</span></div>
@@ -997,18 +997,26 @@ a:hover {
 </div>
 </div>
 
-<h2>Comparative Analysis</h2>
-<p><strong>Why the winner wins:</strong><br />
-Both agents achieved identical functional outcomes (100% pass rate across all turns), but <strong>gpt-4.1-mini</strong> did so at <strong>~40% lower total cost</strong> ($0.001419 vs $0.002354) and <strong>~28% fewer tokens</strong>. It also responded faster on every turn, indicating lower latency overhead while maintaining correct tool usage.</p>
-<p><strong>Notable patterns:</strong><br />
-- The cheaper winner is not just “good enough” — it is <strong>strictly more efficient</strong>: fewer tokens per turn without sacrificing clarity or correctness.<br />
-- Both agents demonstrated correct <strong>tool chaining across a multi-turn session</strong> (balance → transfer → verify), showing no degradation from session carry-over.<br />
-- Response verbosity differed slightly: gpt-5-mini tended to add extra conversational framing (“Would you like to…”) that increased token usage without adding test-relevant value.</p>
-<p><strong>Alternatives:</strong><br />
-- <strong>gpt-5-mini</strong> — Functionally reliable with a 100% pass rate, but incurs higher cost and token usage for the same tasks. Suitable only if gpt-5-mini is required for consistency with other deployments; otherwise, it is dominated on efficiency.</p>
+<h3>Comparative Analysis</h3>
+<h4>Why the winner wins</h4>
+<ul>
+<li><strong>Lower realized cost:</strong> Achieves the same 100% pass rate at <strong>~40% lower total cost</strong> than gpt-5-mini ($0.001419 vs $0.002354 across identical tests).</li>
+<li><strong>Token efficiency:</strong> Uses <strong>~28% fewer tokens</strong> (3,005 vs 4,180), indicating tighter reasoning and less verbose responses without sacrificing correctness.</li>
+<li><strong>Faster execution:</strong> Consistently lower durations per turn, improving perceived latency in multi-turn sessions.</li>
+</ul>
+<h4>Notable patterns</h4>
+<ul>
+<li><strong>Equivalent tool correctness:</strong> Both agents correctly chained tools across a 3-turn session (get_balance → transfer → get_all_balances) with no retries or confusion.</li>
+<li><strong>Verbosity differences:</strong> gpt-5-mini tended to add longer follow-ups and prompts, increasing token usage and cost despite identical outcomes.</li>
+<li><strong>Stable session context:</strong> Neither agent exhibited context drift across turns; balances and actions remained coherent.</li>
+</ul>
+<h4>Alternatives</h4>
+<ul>
+<li><strong>gpt-5-mini:</strong> Same pass rate and correct tool usage, but <strong>higher cost per test</strong> and more verbose outputs. Viable if model-specific features are needed; otherwise not cost-optimal.</li>
+</ul>
 <h2>🔧 MCP Tool Feedback</h2>
 <h3>banking_server</h3>
-<p>Overall, tools are easy to discover and were invoked correctly by both agents on the first attempt in all tests. Tool naming is intuitive and aligned with user intent.</p>
+<p>Overall, tools are <strong>clear and reliably discoverable</strong>. Agents selected the correct tool each time with valid parameters.</p>
 <table>
 <thead>
 <tr>
@@ -1039,8 +1047,6 @@ Both agents achieved identical functional outcomes (100% pass rate across all tu
 </tr>
 </tbody>
 </table>
-<p><strong>Observation (non-blocking):</strong><br />
-In the verification step, <code>get_all_balances</code> returned balances that matched the original state rather than reflecting the prior transfer. Tests passed because assertions likely checked structure/tool usage rather than state consistency, but this is worth reviewing if session state accuracy is a goal of the MCP server rather than the test harness.</p>
 <h2>💡 Optimizations</h2>
 <table>
 <thead>
@@ -1054,42 +1060,37 @@ In the verification step, <code>get_all_balances</code> returned balances that m
 <tbody>
 <tr>
 <td>1</td>
-<td>Reduce conversational filler in responses</td>
+<td>Trim conversational follow-ups</td>
 <td>recommended</td>
-<td>~15–20% cost reduction</td>
+<td>~15% cost reduction</td>
 </tr>
 <tr>
 <td>2</td>
-<td>Slim down tool response payloads</td>
+<td>Compact tool responses</td>
 <td>suggestion</td>
-<td>~10–15% fewer tokens</td>
+<td>~20–30% fewer tool-response tokens</td>
 </tr>
 </tbody>
 </table>
-<h4>1. Reduce conversational filler in responses (recommended)</h4>
+<h4>1. Trim conversational follow-ups (recommended)</h4>
 <ul>
-<li>Current: Agents often append follow-up questions and friendly prompts (“Would you like to do anything else…”) that are not required by the tests.</li>
-<li>Change: Update the system prompt to add:  <blockquote>
-<p>“After completing a task, respond concisely and do not add follow-up questions unless explicitly requested by the user.”</p>
-</blockquote>
-</li>
-<li>Impact: ~15–20% cost reduction through shorter completions, especially noticeable with higher-cost models.</li>
+<li>Current: Agents often append open-ended follow-up questions after completing the task.</li>
+<li>Change: In the system prompt, add: “After completing the user’s request successfully, provide the result succinctly and do not ask follow-up questions unless explicitly requested.”</li>
+<li>Impact: ~15% cost reduction from fewer generated tokens per turn.</li>
 </ul>
-<h4>2. Slim down tool response payloads (suggestion)</h4>
+<h4>2. Compact tool responses (suggestion)</h4>
 <ul>
-<li>Current: Tool responses include both raw numeric values and formatted strings, plus message fields that the agent paraphrases anyway.</li>
-<li>Change: Remove redundant formatted fields or messages when not required by tests.</li>
-<li>Impact: ~10–15% fewer tokens per tool call, compounding over multi-turn sessions.</li>
+<li>Current: Tool JSON includes both raw values and formatted strings plus descriptive messages.</li>
+<li>Change: Return only fields required for the response text (omit redundant formatted strings and messages).</li>
+<li>Impact: ~20–30% fewer tool-response tokens, compounding savings in multi-turn sessions.</li>
 </ul>
 <h2>📦 Tool Response Optimization</h2>
 <h3>get_all_balances (from banking_server)</h3>
 <ul>
-<li><strong>Current response size:</strong> Verbose due to nested objects and duplicated formatted values</li>
-<li><strong>Issues found:</strong>  </li>
-<li>Both <code>balance</code> and <code>formatted</code> are returned for each account  </li>
-<li><code>total_formatted</code> duplicates information derivable from <code>total</code></li>
-<li><strong>Suggested optimization:</strong> Return only numeric balances and let the agent format if needed.</li>
-<li><strong>Estimated savings:</strong> ~25–30 tokens per call (~15% reduction)</li>
+<li><strong>Current response size:</strong> ~90–110 tokens</li>
+<li><strong>Issues found:</strong> Redundant <code>formatted</code> fields and <code>total_formatted</code> duplicate information the agent can derive or format itself.</li>
+<li><strong>Suggested optimization:</strong> Remove formatted strings and return numeric balances only.</li>
+<li><strong>Estimated savings:</strong> ~30 tokens per call (~25% reduction)</li>
 </ul>
 <p><strong>Example current vs optimized:</strong></p>
 <pre><code class="language-json">// Current
@@ -1111,7 +1112,7 @@ In the verification step, <code>get_all_balances</code> returned balances that m
   &quot;total&quot;: 4500.0
 }
 </code></pre>
-<p>This optimization preserves all information required by the tests while reducing token overhead and improving LLM efficiency.</p></div></div></div></section><section class="mb-8"><h2 class="section-title">🏆 Agent Leaderboard</h2><div class="card overflow-hidden"><table class="leaderboard-table"><thead><tr><th class="w-10"></th><th>Agent</th><th class="text-center">Tests</th><th class="text-center">Pass Rate</th><th class="text-right">Tokens</th><th class="text-right">Cost</th><th class="text-right">Duration</th></tr></thead><tbody><tr class="winner-row"><td class="text-center text-xl">🥇</td><td><div class="font-medium text-text-light"><span>gpt-4.1-mini</span></div></td><td class="text-center tabular-nums"><span class="text-green-400">3</span>/<span class="text-text-muted">3</span></td><td class="text-center"><span class="text-green-400 font-semibold tabular-nums">100%</span></td><td class="text-right tabular-nums text-text-muted">3,005</td><td class="text-right tabular-nums text-text-muted">$0.001419</td><td class="text-right tabular-nums text-text-muted">19.9s</td></tr><tr><td class="text-center text-xl">🥈</td><td><div class="font-medium text-text-light"><span>gpt-5-mini</span></div></td><td class="text-center tabular-nums"><span class="text-green-400">3</span>/<span class="text-text-muted">3</span></td><td class="text-center"><span class="text-green-400 font-semibold tabular-nums">100%</span></td><td class="text-right tabular-nums text-text-muted">4,180</td><td class="text-right tabular-nums text-text-muted">$0.002354</td><td class="text-right tabular-nums text-text-muted">30.2s</td></tr></tbody></table></div></section><section class="mb-8"><h2 class="section-title">📋 Test Results</h2><div class="mb-4 flex items-center justify-between"><div class="flex gap-2"><button class="filter-btn active" data-filter="all" onclick="filterTests(&#39;all&#39;)">All</button><button class="filter-btn " data-filter="diff" onclick="filterTests(&#39;diff&#39;)">Differences ⚡</button><button class="filter-btn " data-filter="failed" onclick="filterTests(&#39;failed&#39;)">Failed ❌</button></div><div class="text-sm text-text-muted"><span id="visible-count">6</span> / 6 tests</div></div><div class="space-y-4" id="test-groups"><div class="card overflow-hidden test-group" data-group-type="session"><div class="group-header px-5 py-3 bg-surface-elevated border-b border-white/10 flex justify-between items-center cursor-pointer" onclick="toggleGroup(this.parentElement)"><div class="flex items-center gap-3"><span class="text-lg">🔗</span><span class="font-medium text-text-light">Multi-turn banking session with 2 agents.</span><span class="text-sm text-text-muted">(3 tests)</span></div><div class="flex items-center gap-4"><div class="text-sm text-green-400">3/3</div><div class="text-sm text-green-400">3/3</div><span class="text-text-muted transition-transform duration-200 expand-icon">▼</span></div></div><div class="group-content"><div class="test-row border-b border-white/5" data-test-id="test_check_balance" data-has-diff="false" data-has-failed="false"><div class="px-5 py-3 hover:bg-white/[0.02] cursor-pointer transition-colors" onclick="toggleTestDetail(this.parentElement)"><div class="flex items-center justify-between"><div class="flex items-center gap-3 min-w-0 flex-1"><span class="text-green-400">✅</span><span class="text-text-light truncate">First turn: check account balance.</span></div><div class="flex items-center gap-4 text-sm text-text-muted"><span class="tabular-nums" title="Total tokens across selected agents">Total 1,617 tok</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Total cost across selected agents">Total $0.000666</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Token difference between selected agents (%difference)">Δ +27%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Duration difference between selected agents (%difference)">Δ +71%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Cost difference between selected agents (%difference)">Δ +0%</span></div></div><div class="flex gap-4 mt-2 pl-8"><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="90398279-ac53-4bc6-b061-bf8e18330266"><span class="text-text-muted">gpt-4.1-mini:</span><span class="text-green-400">✅</span><span class="text-text-muted tabular-nums">6.6s</span></div><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="b3fda238-c3a7-4847-8894-859dc56ba22a"><span class="text-text-muted">gpt-5-mini:</span><span class="text-green-400">✅</span><span class="text-text-muted tabular-nums">11.4s</span></div></div></div><div class="test-detail hidden border-t border-white/10 bg-surface-elevated"><div class="comparison-grid grid gap-4 p-5" style="grid-template-columns: repeat(2, 1fr);"><div class="comparison-column  border-l-[3px] border-green-500" data-agent-id="90398279-ac53-4bc6-b061-bf8e18330266"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">gpt-4.1-mini</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400">passed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">6.65s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">3</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">711</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.000332</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
+<p>This optimization preserves all necessary information while reducing token overhead for every verification step.</p></div></div></div></section><section class="mb-8"><h2 class="section-title">🏆 Agent Leaderboard</h2><div class="card overflow-hidden"><table class="leaderboard-table"><thead><tr><th class="w-10"></th><th>Agent</th><th class="text-center">Tests</th><th class="text-center">Pass Rate</th><th class="text-right">Tokens</th><th class="text-right">Cost</th><th class="text-right">Duration</th></tr></thead><tbody><tr class="winner-row"><td class="text-center text-xl">🥇</td><td><div class="font-medium text-text-light"><span>gpt-4.1-mini</span></div></td><td class="text-center tabular-nums"><span class="text-green-400">3</span>/<span class="text-text-muted">3</span></td><td class="text-center"><span class="text-green-400 font-semibold tabular-nums">100%</span></td><td class="text-right tabular-nums text-text-muted">3,005</td><td class="text-right tabular-nums text-text-muted">$0.001419</td><td class="text-right tabular-nums text-text-muted">19.9s</td></tr><tr><td class="text-center text-xl">🥈</td><td><div class="font-medium text-text-light"><span>gpt-5-mini</span></div></td><td class="text-center tabular-nums"><span class="text-green-400">3</span>/<span class="text-text-muted">3</span></td><td class="text-center"><span class="text-green-400 font-semibold tabular-nums">100%</span></td><td class="text-right tabular-nums text-text-muted">4,180</td><td class="text-right tabular-nums text-text-muted">$0.002354</td><td class="text-right tabular-nums text-text-muted">30.2s</td></tr></tbody></table></div></section><section class="mb-8"><h2 class="section-title">📋 Test Results</h2><div class="mb-4 flex items-center justify-between"><div class="flex gap-2"><button class="filter-btn active" data-filter="all" onclick="filterTests(&#39;all&#39;)">All</button><button class="filter-btn " data-filter="diff" onclick="filterTests(&#39;diff&#39;)">Differences ⚡</button><button class="filter-btn " data-filter="failed" onclick="filterTests(&#39;failed&#39;)">Failed ❌</button></div><div class="text-sm text-text-muted"><span id="visible-count">6</span> / 6 tests</div></div><div class="space-y-4" id="test-groups"><div class="card overflow-hidden test-group" data-group-type="session"><div class="group-header px-5 py-3 bg-surface-elevated border-b border-white/10 flex justify-between items-center cursor-pointer" onclick="toggleGroup(this.parentElement)"><div class="flex items-center gap-3"><span class="text-lg">🔗</span><span class="font-medium text-text-light">Multi-turn banking session with 2 agents.</span><span class="text-sm text-text-muted">(3 tests)</span></div><div class="flex items-center gap-4"><div class="text-sm text-green-400">3/3</div><div class="text-sm text-green-400">3/3</div><span class="text-text-muted transition-transform duration-200 expand-icon">▼</span></div></div><div class="group-content"><div class="test-row border-b border-white/5" data-test-id="test_check_balance" data-has-diff="false" data-has-failed="false"><div class="px-5 py-3 hover:bg-white/[0.02] cursor-pointer transition-colors" onclick="toggleTestDetail(this.parentElement)"><div class="flex items-center justify-between"><div class="flex items-center gap-3 min-w-0 flex-1"><span class="text-green-400">✅</span><span class="text-text-light truncate">First turn: check account balance.</span></div><div class="flex items-center gap-4 text-sm text-text-muted"><span class="tabular-nums" title="Total tokens across selected agents">Total 1,617 tok</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Total cost across selected agents">Total $0.000666</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Token difference between selected agents (%difference)">Δ +27%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Duration difference between selected agents (%difference)">Δ +71%</span><span class="text-text-muted">·</span><span class="tabular-nums" title="Cost difference between selected agents (%difference)">Δ +0%</span></div></div><div class="flex gap-4 mt-2 pl-8"><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="90398279-ac53-4bc6-b061-bf8e18330266"><span class="text-text-muted">gpt-4.1-mini:</span><span class="text-green-400">✅</span><span class="text-text-muted tabular-nums">6.6s</span></div><div class="agent-result-item flex items-center gap-2 text-xs " data-agent-id="b3fda238-c3a7-4847-8894-859dc56ba22a"><span class="text-text-muted">gpt-5-mini:</span><span class="text-green-400">✅</span><span class="text-text-muted tabular-nums">11.4s</span></div></div></div><div class="test-detail hidden border-t border-white/10 bg-surface-elevated"><div class="comparison-grid grid gap-4 p-5" style="grid-template-columns: repeat(2, 1fr);"><div class="comparison-column  border-l-[3px] border-green-500" data-agent-id="90398279-ac53-4bc6-b061-bf8e18330266"><div class="flex items-center justify-between mb-4"><div class="font-medium text-text-light">gpt-4.1-mini</div><span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400">passed</span></div><div class="space-y-2 mb-4"><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">6.65s</div><div class="text-xs text-text-muted">duration</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">3</div><div class="text-xs text-text-muted">turns</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">1</div><div class="text-xs text-text-muted">tools</div></div><div><div class="text-sm font-medium text-text-light tabular-nums">711</div><div class="text-xs text-text-muted">tokens</div></div></div><div class="grid grid-cols-4 gap-2 p-3 bg-surface-elevated rounded-material text-center"><div><div class="text-sm font-medium text-text-light tabular-nums">$0.000332</div><div class="text-xs text-text-muted">cost</div></div></div></div><div class="mb-4"><div class="text-sm font-medium text-text-light mb-3 flex items-center gap-2"><span>📊</span><span>Sequence</span></div><div class="p-3 bg-surface-code rounded-material border border-white/5 cursor-pointer hover:border-primary/30 transition-colors" onclick="event.stopPropagation(); showDiagram(this.dataset.mermaidCode);" data-mermaid-code="sequenceDiagram
     participant User
     participant Agent
     participant Tools

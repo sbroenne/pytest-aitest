@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **4** tests | **3** passed | **1** failed | **75%** pass rate  
-> Duration: 37.2s | Cost: 🧪 $-0.013151 · 🤖 $0.0153 · 💰 $0.002150 | Tokens: 509–1,322  
+> Duration: 37.2s | Cost: 🧪 $-0.016434 · 🤖 $0.0186 · 💰 $0.002150 | Tokens: 509–1,322  
 > February 07, 2026 at 07:19 PM
 
 *Single agent tests - basic report without comparison UI.*
@@ -16,7 +16,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">banking-agent</div>
-<div class="winner-summary">Handles core banking actions reliably with correct tool usage and low total cost. All single-step and standard multi-step tests pass; the only failure is due to an external turn-limit constraint, not tool misuse.</div>
+<div class="winner-summary">Reliable single-agent setup that passes core banking workflows with correct tool usage at very low cost. One failure is attributable to an artificially strict turn limit, not tool or prompt correctness.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value amber">75%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.002150</span><span class="winner-stat-label">Total Cost</span></div>
@@ -51,18 +51,18 @@
 
 | Test | Root Cause | Fix |
 |------|------------|-----|
-| Test that fails due to turn limit — for report variety | Max turns set to 1 prevents completing a required multi-step workflow | Increase `max_turns` to ≥3 or split into sequential tests |
+| Test that fails due to turn limit — for report variety. | max_turns=1 prevents multi-step execution | Increase turn limit or allow tool chaining in one turn |
 
-### Test that fails due to turn limit — for report variety (banking-agent)
-- **Problem:** The user requested a compound workflow: check balances → transfer funds → show updated balances → show transaction history.
-- **Root Cause:** Test configuration enforced `max_turns=1`, terminating the agent after the first tool call (`get_all_balances`) before it could proceed to `transfer` and `get_transactions`.
-- **Behavioral Mechanism:** Not prompt-induced. The agent correctly interpreted the multi-step intent but was hard-stopped by the turn limit before planning and executing subsequent tool calls.
-- **Fix:** Increase the test configuration to `max_turns: 3` (or higher), or refactor the scenario into multiple sequential tests with shared session context.
+### Test that fails due to turn limit — for report variety. (banking-agent)
+- **Problem:** The user requested a compound workflow: check balances, transfer funds, then show updated balances and transaction history.
+- **Root Cause:** The test enforces `max_turns=1`, but the workflow inherently requires multiple tool calls and at least one follow-up response. The agent correctly initiated the first step (`get_all_balances`) but was cut off before completing the sequence.
+- **Behavioral Mechanism:** Not prompt-induced. The failure is caused by the test harness constraint, not by hesitation or permission-seeking language in the system prompt.
+- **Fix:** Increase the test configuration to `max_turns >= 3`, or refactor the test to assert partial progress when `max_turns=1`.
 
 ## 🔧 MCP Tool Feedback
 
-### banking-server
-Overall, tools are well-described and consistently invoked. The agent selected the correct tool in all passing tests without hesitation or confusion.
+### banking-mcp
+Overall, tools are clearly named and correctly invoked. The agent consistently selects the right tool without confusion.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
@@ -75,18 +75,52 @@ Overall, tools are well-described and consistently invoked. The agent selected t
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Increase turn limit for compound workflows | recommended | Prevents ~25% test failure rate |
-| 2 | Reduce verbosity in user-facing follow-ups | suggestion | ~10–15% token reduction |
+| 1 | Increase turn limit for compound tasks | recommended | Prevents 25% test failure rate |
+| 2 | Trim verbose assistant follow-ups | suggestion | ~10–15% token reduction |
 
-#### 1. Increase turn limit for compound workflows (recommended)
-- Current: Tests with `max_turns=1` fail when a user request explicitly requires multiple tool calls.
-- Change: Set `max_turns` to at least 3 for scenarios involving chained actions (balance → transfer → report).
-- Impact: Eliminates the only observed failure, raising pass rate from 75% to 100% with no cost increase.
+#### 1. Increase turn limit for compound tasks (recommended)
+- Current: Complex requests are tested with `max_turns=1`, causing premature failure.
+- Change: Set `max_turns` to at least 3 for workflows involving multiple tool calls.
+- Impact: Eliminates the only observed failure without increasing per-test cost.
 
-#### 2. Reduce verbosity in user-facing follow-ups (suggestion)
-- Current: After successful tool calls, the agent offers multiple optional next steps in bullet lists.
-- Change: Trim follow-up prompts to a single concise question (e.g., “Anything else I can help with?”).
-- Impact: ~10–15% cost reduction from fewer completion tokens, especially in high-volume usage.
+#### 2. Trim verbose assistant follow-ups (suggestion)
+- Current: After successful tool calls, the assistant offers multiple optional next steps, adding tokens.
+- Change: Replace multi-option follow-ups with a single concise question, e.g., “Anything else I can help with?”
+- Impact: ~10–15% cost reduction through fewer output tokens.
+
+## 📦 Tool Response Optimization
+
+### transfer (from banking-mcp)
+- **Current response size:** ~70–80 tokens
+- **Issues found:** Includes redundant formatted fields and a human-readable message that the assistant restates anyway.
+- **Suggested optimization:** Remove `message` and pre-formatted fields when not required by tests.
+- **Estimated savings:** ~25 tokens per call (~30% reduction)
+
+**Example current vs optimized:**
+```json
+// Current (~75 tokens)
+{
+  "transaction_id": "TX0001",
+  "type": "transfer",
+  "from_account": "checking",
+  "to_account": "savings",
+  "amount": 200,
+  "amount_formatted": "$200.00",
+  "new_balance_from": 1300.0,
+  "new_balance_to": 3200.0,
+  "message": "Successfully transferred $200.00 from checking to savings."
+}
+
+// Optimized (~50 tokens)
+{
+  "transaction_id": "TX0001",
+  "from_account": "checking",
+  "to_account": "savings",
+  "amount": 200,
+  "new_balance_from": 1300.0,
+  "new_balance_to": 3200.0
+}
+```
 
 
 ## Test Results

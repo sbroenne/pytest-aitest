@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **6** tests | **5** passed | **1** failed | **83%** pass rate  
-> Duration: 55.8s | Cost: 🧪 $-0.018561 · 🤖 $0.0231 · 💰 $0.004565 | Tokens: 738–2,232  
+> Duration: 55.8s | Cost: 🧪 $-0.019128 · 🤖 $0.0237 · 💰 $0.004565 | Tokens: 738–2,232  
 > February 07, 2026 at 07:20 PM
 
 *Two agents compared side-by-side.*
@@ -23,7 +23,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-5-mini</div>
-<div class="winner-summary">Delivers a perfect pass rate with reliable multi-step tool usage and correct error recovery. While not the cheapest overall, it is the only configuration that consistently executes required tools under failure conditions.</div>
+<div class="winner-summary">Achieves a 100% pass rate while correctly executing multi-step tool flows and error recovery. Slightly higher cost than the alternative, but the only configuration that consistently follows the required tool-first behavior in failure scenarios.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.003314</span><span class="winner-stat-label">Total Cost</span></div>
@@ -52,15 +52,17 @@
 
 ## Comparative Analysis
 
-**Why the winner wins:**  
-gpt-5-mini is the only agent to pass **all tests**, including the error-recovery scenario that explicitly requires invoking the `withdraw` tool even when funds are insufficient. The alternative agent is cheaper overall but fails a critical behavioral requirement, making it unsuitable for deployment despite lower cost.
+### Why the winner wins
+- **Only agent with correct error-path tool usage:** gpt-5-mini is the only configuration that attempted the `withdraw` tool even when funds were insufficient, satisfying the test’s requirement to exercise error recovery logic.
+- **Reliable multi-step chaining:** Successfully chains `transfer → get_all_balances` without hesitation or re-asking the user, matching the intended MCP workflow.
+- **Higher correctness outweighs marginal cost:** Although gpt-4.1-mini is cheaper in absolute terms, its 67% pass rate makes it unsuitable for deployment where correctness is mandatory.
 
-**Notable patterns:**  
-- Both agents handle straightforward balance queries and multi-step transfers correctly.  
-- The differentiator appears under **error conditions**: gpt-5-mini attempts the requested action and lets the tool return a domain error, while gpt-4.1-mini short-circuits by reasoning from balances and avoids the tool call entirely.
+### Notable patterns
+- **Cheaper model avoided “failing” tools:** gpt-4.1-mini inferred insufficiency from `get_balance` and responded conversationally instead of calling `withdraw`, indicating a bias toward helpful explanation over tool execution.
+- **Error tests expose prompt–model interaction:** The insufficient-funds scenario is the only place where the models diverge, suggesting that tool-error paths are the critical discriminator.
 
-**Alternatives:**  
-- **gpt-4.1-mini**: Lower total cost, but fails the insufficient-funds scenario because it does not call the required tool. This is a behavioral limitation in tool adherence, not a pricing or latency issue.
+### Alternatives
+- **gpt-4.1-mini:** Lower total cost, but failed a core error-recovery test because it did not call the required tool. Not recommended unless the prompt is adjusted to force tool invocation on withdrawal intents.
 
 ## ❌ Failure Analysis
 
@@ -70,55 +72,55 @@ gpt-5-mini is the only agent to pass **all tests**, including the error-recovery
 
 | Test | Root Cause | Fix |
 |------|------------|-----|
-| Insufficient funds — tests error recovery | Model avoided calling `withdraw` and answered from balance check instead | Instruct agent to always attempt requested financial actions via tools, even when failure is likely |
+| Insufficient funds — tests error recovery | Model chose to explain insufficiency instead of invoking `withdraw` | Update system prompt to mandate calling `withdraw` for any withdrawal request, even if funds appear insufficient |
 
 ### Insufficient funds — tests error recovery (gpt-4.1-mini)
-- **Problem:** The test expects the agent to attempt a withdrawal so the system can validate error handling.
-- **Root Cause:** The agent reasoned that funds were insufficient after calling `get_balance` and declined to execute the `withdraw` tool.
-- **Behavioral Mechanism:** The model optimized for “helpfulness” by preventing an action it deemed invalid, instead of following the implicit contract that user-requested actions must be executed and allowed to fail at the tool layer.
-- **Fix:** Add explicit instruction to the system prompt:  
-  > “When a user requests an account action (withdraw, transfer), always call the corresponding tool first. Do not preemptively block the action based on inferred constraints; let the tool return errors.”
+- **Problem:** The agent responded with a balance explanation and options without ever calling the `withdraw` tool.
+- **Root Cause:** The model inferred the failure outcome after calling `get_balance` and optimized for a helpful natural-language response rather than executing the requested action via the tool.
+- **Behavioral Mechanism:** The absence of explicit language like “always attempt the requested banking action via tools” allows the model to short-circuit. Phrases implying helpfulness or user guidance (e.g., offering alternatives) prime it to stop after explanation instead of acting.
+- **Fix:** Add an explicit instruction to the system prompt:  
+  > “For any user request to withdraw funds, you MUST call the `withdraw` tool exactly once, even if you expect it to fail due to insufficient funds.”
 
 ## 🔧 MCP Tool Feedback
 
 ### banking_server
-Overall, tools are clear and consistently used. Error responses are correctly surfaced and easy for the agent to explain.
+Overall, tools are discoverable and consistently named. Error responses are clear, enabling the agent to recover and explain outcomes.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | get_balance | ✅ | 3 | Working well |
 | get_all_balances | ✅ | 3 | Working well |
 | transfer | ✅ | 2 | Working well |
-| withdraw | ✅ | 1 | Working well; behavior depends on agent calling it |
+| withdraw | ✅ | 1 | Error surfaced correctly |
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Enforce action-first tool calls | recommended | Avoids 100% of similar test failures |
-| 2 | Trim unused fields from balance summaries | suggestion | ~10–15% token reduction on balance-heavy tests |
+| 1 | Force tool-first behavior for withdrawals | recommended | Prevents 33% failure rate |
+| 2 | Trim unused fields from balance responses | suggestion | ~15% token reduction |
 
-#### 1. Enforce action-first tool calls (recommended)
-- Current: Some agents infer failure conditions and skip required tools.
-- Change: Add a system-level rule to always execute user-requested financial actions via tools.
-- Impact: Eliminates an entire class of behavioral failures; reliability gain outweighs minor cost increase.
+#### 1. Force tool-first behavior for withdrawals (recommended)
+- Current: Models may infer failure from balances and skip calling `withdraw`.
+- Change: Explicitly require a `withdraw` tool call for any withdrawal intent.
+- Impact: Eliminates the observed failure mode; improves pass rate from 67% to 100% for gpt-4.1-mini.
 
-#### 2. Trim unused fields from balance summaries (suggestion)
-- Current: `get_all_balances` returns totals and formatted strings not always used.
-- Change: Remove `total` and `total_formatted` when tests only assert per-account balances.
-- Impact: ~10–15% cost reduction on tests that call `get_all_balances`.
+#### 2. Trim unused fields from balance responses (suggestion)
+- Current: Tools return both raw and formatted totals that are not always referenced.
+- Change: Remove aggregate totals when per-account balances are sufficient.
+- Impact: ~15% token reduction in multi-balance responses.
 
 ## 📦 Tool Response Optimization
 
 ### get_all_balances (from banking_server)
-- **Current response size:** ~120 tokens
-- **Issues found:** Includes aggregate totals and formatted strings that the agent often paraphrases or ignores.
-- **Suggested optimization:** Return only raw balances unless totals are explicitly requested.
-- **Estimated savings:** ~20 tokens per call (~15% reduction)
+- **Current response size:** ~80 tokens
+- **Issues found:** Includes `total` and `total_formatted` even when the agent only lists per-account balances.
+- **Suggested optimization:** Make totals optional via a parameter (e.g., `include_total=false`).
+- **Estimated savings:** ~15 tokens per call (~18% reduction)
 
 **Example current vs optimized:**
 ```json
-// Current
+// Current (~80 tokens)
 {
   "accounts": {
     "checking": {"balance": 1400.0, "formatted": "$1,400.00"},
@@ -128,11 +130,11 @@ Overall, tools are clear and consistently used. Error responses are correctly su
   "total_formatted": "$4,500.00"
 }
 
-// Optimized
+// Optimized (~65 tokens)
 {
   "accounts": {
-    "checking": 1400.0,
-    "savings": 3100.0
+    "checking": {"formatted": "$1,400.00"},
+    "savings": {"formatted": "$3,100.00"}
   }
 }
 ```

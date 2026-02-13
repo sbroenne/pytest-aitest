@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **4** tests | **4** passed | **0** failed | **100%** pass rate  
-> Duration: 23.6s | Cost: 🧪 $-0.018057 · 🤖 $0.0194 · 💰 $0.001297 | Tokens: 706–913  
+> Duration: 23.6s | Cost: 🧪 $-0.019520 · 🤖 $0.0208 · 💰 $0.001297 | Tokens: 706–913  
 > February 07, 2026 at 08:34 PM
 
 *2×2 matrix proving dimension auto-detection.*
@@ -25,7 +25,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-5-mini + concise</div>
-<div class="winner-summary">Achieves a 100% pass rate at the lowest realized cost, ~6% cheaper than the next-best alternative and ~14% cheaper than detailed-prompt variants, with clean, direct tool usage.</div>
+<div class="winner-summary">Delivers a 100% pass rate at the lowest realized cost, with direct tool usage and minimal conversational overhead.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.000297</span><span class="winner-stat-label">Total Cost</span></div>
@@ -54,65 +54,72 @@
 
 ## Comparative Analysis
 
-**Why the winner wins:**  
-- Same 100% pass rate as all alternatives, but at the **lowest realized cost** ($0.000297/test). That’s ~6% cheaper than *gpt-4.1-mini + concise* and ~14% cheaper than *gpt-5-mini + detailed*, despite similar behavior and identical tool chaining.
+#### Why the winner wins
+- **Lowest cost at identical pass rate:** gpt-5-mini + concise achieves the same 100% pass rate as all alternatives at the **lowest total cost ($0.000297)**.
+- **Direct tool execution:** The concise prompt consistently triggers an immediate `get_balance` call without extra framing or follow-up questions.
+- **Controlled verbosity:** Produces a short, task-complete response, avoiding optional suggestions that add tokens without improving correctness.
 
-**Notable patterns:**  
-- **Concise prompts reduce cost without hurting correctness** across both models. Detailed prompts consistently increased tokens and cost with no functional gain on this task.  
-- **Model choice matters less than prompt brevity** here: both models behaved identically with respect to tool usage; cost differences were driven primarily by prompt verbosity.
+#### Notable patterns
+- **Prompt verbosity impacts cost more than model choice:** Across both models, the **concise** prompt is cheaper than **detailed**, even when tokens are similar.
+- **Cheaper model isn’t always fewer tokens:** gpt-5-mini + concise uses more tokens than gpt-4.1-mini + concise, yet still costs less overall—reinforcing that **realized cost**, not token count, should drive selection.
+- **No tool confusion across the matrix:** All agents correctly identified and called `get_balance`, validating MCP tool discoverability.
 
-**Alternatives:**  
-- *gpt-4.1-mini + concise*: Slightly higher cost (~6%) with marginally fewer tokens; viable if you prefer the 4.1 family.  
-- *Detailed prompts (both models)*: No accuracy benefit; higher cost. Not recommended for this tool-simple workload.
+#### Alternatives
+- **gpt-4.1-mini + concise:** Slightly higher cost with marginally fewer tokens; acceptable if standardizing on the 4.1 family.
+- **Detailed prompts (both models):** Functionally correct but add conversational padding (follow-up offers), increasing cost without test benefit.
 
 ## 🔧 MCP Tool Feedback
 
 ### banking-server
-Tooling is clear and discoverable; all agents correctly invoked the balance lookup on first turn.
+The tool is easy to discover and consistently called correctly across all agents.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | get_balance | ✅ | 4 | Working well |
 
+**Suggested rewrite for `get_balance`:**  
+> *Optional optimization* — clarify minimal return fields for balance-only queries:  
+> “Returns the numeric balance for the specified account. Include formatted strings only if explicitly requested.”
+
 ## 📝 System Prompt Feedback
 
-### concise (effective with gpt-5-mini and gpt-4.1-mini)
+### concise (effective with gpt-5-mini, gpt-4.1-mini)
 - **Token count:** Low
-- **Behavioral impact:** Direct, action-oriented language primes immediate tool use and short confirmations.
+- **Behavioral impact:** Language such as “answer directly” and absence of “explain” or “offer options” primes immediate tool use and brief completion.
 - **Problem:** None observed.
 - **Suggested change:** None.
 
-### detailed (effective but inefficient with gpt-5-mini and gpt-4.1-mini)
-- **Token count:** Higher than necessary
-- **Behavioral impact:** Extra explanatory framing increases verbosity after the tool call without improving outcomes.
-- **Problem:** Token bloat for simple queries.
-- **Suggested change:** Remove conversational expansions after tool results.  
-  **Exact change:** Delete sentences offering multiple follow-up options unless explicitly requested.
+### detailed (mixed — effective but costlier with both models)
+- **Token count:** Higher
+- **Behavioral impact:** Words like “helpful” and implied completeness encourage follow-up suggestions (“Would you like to…”) after the tool result.
+- **Problem:** Adds unnecessary conversational turns and tokens for simple retrieval tasks.
+- **Suggested change:**  
+  Replace any closing guidance with:  
+  > “After completing the request, stop unless the user asks for next steps.”
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Slim tool response payload | recommended | ~10–15% cost reduction per call |
-| 2 | Default to concise prompt for balance queries | recommended | ~6–14% cost reduction |
+| 1 | Trim post-answer suggestions | recommended | ~10–15% cost reduction |
+| 2 | Minimize tool response fields | suggestion | ~5–10% token reduction per call |
 
-#### 1. Slim tool response payload (recommended)
-- Current: Tool returns both raw numeric balance and a formatted string.
-- Change: Return a single display-ready field unless raw math is required.
-- Impact: ~10–15% cost reduction from smaller tool responses.
+#### 1. Trim post-answer suggestions (recommended)
+- Current: Detailed prompts elicit follow-up offers after returning the balance.
+- Change: Instruct the agent to stop after fulfilling the user’s request unless prompted.
+- Impact: ~10–15% cost reduction from shorter final messages.
 
-#### 2. Default to concise prompt for balance queries (recommended)
-- Current: Detailed prompt variants add verbosity post-tool.
-- Change: Use the concise prompt as default for single-step lookup tools.
-- Impact: ~6–14% cost reduction with identical accuracy.
+#### 2. Minimize tool response fields (suggestion)
+- Current: Tool returns both `balance` and `formatted`, but the agent only needs one.
+- Change: Default to returning a single numeric field unless formatting is requested.
+- Impact: ~5–10% token reduction per call.
 
 ## 📦 Tool Response Optimization
 
 ### get_balance (from banking-server)
-- **Current response size:** Includes redundant fields
-- **Issues found:** `balance` and `formatted` duplicate the same information for this test.
-- **Suggested optimization:** Return only the formatted balance string.
-- **Estimated savings:** ~15–20 tokens per call
+- **Current response size:** Includes redundant fields for this test.
+- **Issues found:** Both numeric and formatted values returned; the agent uses only one.
+- **Suggested optimization:** Return a minimal schema by default.
 
 **Example current vs optimized:**
 ```json
@@ -120,8 +127,14 @@ Tooling is clear and discoverable; all agents correctly invoked the balance look
 {"account":"checking","balance":1500.0,"formatted":"$1,500.00"}
 
 // Optimized
-{"account":"checking","formatted":"$1,500.00"}
+{"balance":1500.0}
 ```
+
+- **Estimated savings:** ~8–12 tokens per call (≈10% reduction)
+
+---
+
+**Bottom line:** Deploy **gpt-5-mini + concise**. It matches perfect correctness at the lowest observed cost, with clean tool usage and no behavioral risk.
 
 
 ## Test Results

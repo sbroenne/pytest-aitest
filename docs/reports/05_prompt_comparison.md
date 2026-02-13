@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **6** tests | **6** passed | **0** failed | **100%** pass rate  
-> Duration: 67.9s | Cost: 🧪 $-0.016718 · 🤖 $0.0233 · 💰 $0.006595 | Tokens: 910–3,452  
+> Duration: 67.9s | Cost: 🧪 $-0.016375 · 🤖 $0.0230 · 💰 $0.006595 | Tokens: 910–3,452  
 > February 07, 2026 at 07:36 PM
 
 *Prompt comparison — same model, different system prompts.*
@@ -24,7 +24,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-5-mini + concise</div>
-<div class="winner-summary">Delivers a perfect pass rate at the lowest cost, using only the necessary tools and producing clear, compact answers without extra steps.</div>
+<div class="winner-summary">Delivers a 100% pass rate at the lowest cost, producing clear, direct responses with minimal tool calls and no unnecessary verbosity.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.000727</span><span class="winner-stat-label">Total Cost</span></div>
@@ -51,24 +51,26 @@
 </div>
 </div>
 
-## Comparative Analysis
+### Comparative Analysis
 
-**Why the winner wins:**  
-The concise prompt achieves the same 100% pass rate as the structured and detailed variants at a fraction of the cost. It avoids unnecessary pre- and post-action tool calls and limits explanation length, resulting in the lowest realized cost per test while still satisfying response quality requirements.
+#### Why the winner wins
+- Achieves the same 100% pass rate as all other configurations at **~74% lower total cost** than the next cheapest alternative.
+- Uses only the **minimum required tool calls**, avoiding redundant balance checks before and after transfers.
+- Produces concise explanations that satisfy test requirements without inflating token usage.
 
-**Notable patterns:**  
-- Prompt verbosity directly drives tool usage. The detailed prompt triggered extra `get_all_balances` calls before and after transfers, inflating tokens and cost without improving test outcomes.  
-- Structured formatting adds moderate overhead. Emoji headers and repeated status blocks increased tokens compared to concise free-text, with no functional gain.  
-- The cheaper configuration is not a weaker one. All agents used the same model; cost differences are entirely attributable to prompt-induced behavior, not model capability.
+#### Notable patterns
+- Prompt verbosity directly correlates with cost: **concise < structured < detailed** in both tokens and dollars, despite identical correctness.
+- The detailed prompt consistently triggers **extra exploratory tool calls** (e.g., pre/post `get_all_balances`) even when not required by the test.
+- Structured formatting improves readability but adds moderate overhead without improving outcomes.
 
-**Alternatives:**  
-- **gpt-5-mini + structured:** Same correctness with clearer visual structure, but ~4× higher total cost. Suitable only if formatted, dashboard-like output is a hard requirement.  
-- **gpt-5-mini + detailed:** Most verbose and most expensive. Provides narrative explanations and redundant balance checks that are unnecessary for these tasks.
+#### Alternatives
+- **gpt-5-mini + structured**: Same pass rate with clearer visual formatting, but ~3.8× higher cost due to longer responses.
+- **gpt-5-mini + detailed**: Most explanatory, but highest cost and longest runtimes; suitable only if verbose audit-style explanations are explicitly required.
 
 ## 🔧 MCP Tool Feedback
 
 ### banking_server
-Overall, tools are discoverable and correctly invoked. The main inefficiency comes from prompt-driven overuse rather than tool design flaws.
+Overall, tools are discoverable and used correctly. The agent consistently selected the correct action without confusion between balance and transfer operations.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
@@ -77,70 +79,76 @@ Overall, tools are discoverable and correctly invoked. The main inefficiency com
 | get_all_balances | ⚠️ | 2 | Called unnecessarily by detailed prompt |
 
 **Suggested rewrite for `get_all_balances`:**
-> Returns balances for all accounts. Use only when the user explicitly asks for *all* balances or a portfolio summary. Do not call this tool for single-account queries or simple transfers.
+> Returns balances for all accounts. Use only when a user explicitly asks for an overview of multiple accounts or total balances; not required for single-account queries or transfers unless requested.
 
 ## 📝 System Prompt Feedback
 
 ### concise (effective)
 - **Token count:** Low
-- **Behavioral impact:** Language emphasizes direct action and brief explanation, priming the model to call exactly one required tool and respond succinctly.
-- **Problem:** None observed
-- **Suggested change:** None
+- **Behavioral impact:** Language such as “respond directly” and absence of words like “thorough” or “step-by-step” primes the model to act immediately and avoid exploratory reasoning.
+- **Problem:** None observed.
+- **Suggested change:** None.
 
 ### structured (effective)
-- **Token count:** Medium
-- **Behavioral impact:** Encourages labeled sections and status indicators, increasing response length but not altering tool correctness.
-- **Problem:** Extra formatting tokens without functional benefit
-- **Suggested change:** Remove repeated “Status: success” lines to reduce output length.
+- **Token count:** Moderate
+- **Behavioral impact:** Encourages formatted summaries without encouraging extra reasoning or tool calls.
+- **Problem:** Slight verbosity for simple queries.
+- **Suggested change:** Remove optional status emojis for single-step actions to save tokens.
 
-### detailed (mixed)
+### detailed (mixed: effective but inefficient)
 - **Token count:** High
-- **Behavioral impact:** Words like “explain” and the implied expectation of completeness prime the model to gather before/after state, leading to redundant balance checks.
-- **Problem:** Over-instrumentation and narrative verbosity
-- **Suggested change:** Replace “explain what happened” guidance with:  
-  > “Briefly summarize the result in 1–2 sentences without additional verification steps.”
+- **Behavioral impact:** Terms like “explain in detail” and “show what happened” push the model into an audit-style workflow, causing redundant balance checks.
+- **Problem:** Over-fetching data not required by the tests.
+- **Suggested change:** Replace “explain what happened in detail” with “briefly explain the result after completing the action.”
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Default to concise prompt | recommended | ~70% cost reduction |
-| 2 | Constrain explanatory language | recommended | ~30% fewer tokens |
+| 1 | Prefer concise prompt for production | recommended | ~70% cost reduction |
+| 2 | Constrain balance lookups | suggestion | ~15% fewer tokens |
 
-#### 1. Default to concise prompt (recommended)
+#### 1. Prefer concise prompt for production (recommended)
 - Current: Multiple prompt styles used with identical correctness.
-- Change: Make the concise prompt the default for transactional flows.
+- Change: Standardize on the concise system prompt for default runs.
 - Impact: ~70% cost reduction with no loss in pass rate.
 
-#### 2. Constrain explanatory language (recommended)
-- Current: “Explain what happened” triggers extra narration and tool calls in detailed prompts.
-- Change: Explicitly cap explanations to 1–2 sentences and forbid additional verification tools.
-- Impact: ~30% fewer tokens on transfer-style tests.
+#### 2. Constrain balance lookups (suggestion)
+- Current: Detailed prompt triggers `get_all_balances` before and after transfers.
+- Change: Add explicit instruction: “Do not fetch balances unless the user asks.”
+- Impact: ~15% fewer tokens and faster execution.
 
 ## 📦 Tool Response Optimization
 
-### get_all_balances (from banking_server)
-- **Current response size:** High (includes totals and formatted duplicates)
-- **Issues found:** Redundant fields (`total`, `total_formatted`) not used by any agent; verbose nested structure.
-- **Suggested optimization:** Return only per-account balances when called in test contexts.
-- **Estimated savings:** ~40% tokens per call
+### transfer (from banking_server)
+- **Current response size:** Verbose, includes formatted strings and message text.
+- **Issues found:** Fields like `message` and both raw and formatted amounts are redundant for most tests.
+- **Suggested optimization:** Return numeric values only; let the agent format for display.
+- **Estimated savings:** ~20–25 tokens per call (≈10% reduction)
 
 **Example current vs optimized:**
 ```json
 // Current
 {
-  "accounts": {
-    "checking": {"balance": 1500.0, "formatted": "$1,500.00"},
-    "savings": {"balance": 3000.0, "formatted": "$3,000.00"}
-  },
-  "total": 4500.0,
-  "total_formatted": "$4,500.00"
+  "transaction_id": "TX0001",
+  "type": "transfer",
+  "from_account": "checking",
+  "to_account": "savings",
+  "amount": 300,
+  "amount_formatted": "$300.00",
+  "new_balance_from": 1200.0,
+  "new_balance_to": 3300.0,
+  "message": "Successfully transferred $300.00 from checking to savings."
 }
 
 // Optimized
 {
-  "checking": 1500.0,
-  "savings": 3000.0
+  "transaction_id": "TX0001",
+  "from": "checking",
+  "to": "savings",
+  "amount": 300,
+  "balance_from": 1200.0,
+  "balance_to": 3300.0
 }
 ```
 

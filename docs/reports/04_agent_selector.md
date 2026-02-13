@@ -2,7 +2,7 @@
 # pytest-aitest
 
 > **6** tests | **5** passed | **1** failed | **83%** pass rate  
-> Duration: 75.7s | Cost: 🧪 $-0.014494 · 🤖 $0.0236 · 💰 $0.009104 | Tokens: 377–3,235  
+> Duration: 75.7s | Cost: 🧪 $-0.016951 · 🤖 $0.0261 · 💰 $0.009104 | Tokens: 377–3,235  
 > February 07, 2026 at 07:22 PM
 
 *Three agents for testing the agent selector UI.*
@@ -24,7 +24,7 @@
 <div class="winner-card">
 <div class="winner-title">Recommended for Deploy</div>
 <div class="winner-name">gpt-5-mini</div>
-<div class="winner-summary">Achieves a perfect pass rate while reliably invoking balance tools for advisory tasks, delivering correct behavior at lower total cost than the skill-augmented variant.</div>
+<div class="winner-summary">Delivers a perfect pass rate with reliable tool usage and the lowest total cost among agents that handled multi-step financial queries correctly.</div>
 <div class="winner-stats">
 <div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
 <div class="winner-stat"><span class="winner-stat-value blue">$0.003737</span><span class="winner-stat-label">Total Cost</span></div>
@@ -51,19 +51,21 @@
 </div>
 </div>
 
-### Comparative Analysis
+## Comparative Analysis
 
-**Why the winner wins:**  
-gpt-5-mini is the only configuration that combined a 100% pass rate with consistent, proactive tool usage on advisory queries, at a lower total cost than the skill-augmented alternative. It correctly fetched balances before giving guidance, avoiding permission-seeking delays.
+### Why the winner wins
+- **100% pass rate at lower realized cost** than the skill-augmented variant while still correctly chaining `get_all_balances` for advice.
+- **Decisive tool usage**: immediately fetches balances without asking permission, avoiding extra turns and failures.
+- **Balanced verbosity**: provides actionable guidance without the token bloat seen in the skill variant.
 
-**Notable patterns:**  
-- The cheaper configuration without the financial-advisor skill still performed the critical behavior: calling `get_all_balances` when advice required context.  
-- The skill-augmented agent produced richer recommendations but at higher token and cost overhead, without improving pass rate.  
-- gpt-4.1-mini showed a tendency to ask the user for permission or additional information instead of using available tools, causing the only failure.
+### Notable patterns
+- **Skill increases quality but costs more**: `gpt-5-mini + financial-advisor` adds structured advice and options, but at higher cost and tokens.
+- **Permission-seeking hurts reliability**: `gpt-4.1-mini` asked the user to provide balances or permission instead of calling tools, causing the only failure.
+- **Tool descriptions were clear enough**: failures stemmed from agent behavior, not tool ambiguity.
 
-**Alternatives:**  
-- **gpt-5-mini + financial-advisor:** Same pass rate, higher cost due to longer advisory responses. Choose only if richer financial guidance is a hard requirement.  
-- **gpt-4.1-mini:** Not recommended; failed an advisory test due to permission-seeking behavior that prevented required tool calls.
+### Alternatives
+- **gpt-5-mini + financial-advisor**: Same pass rate with richer financial guidance; trade-off is higher cost and tokens.
+- **gpt-4.1-mini**: Lowest cost per run, but unreliable due to permission-seeking behavior; not recommended for autonomous tool-first workflows.
 
 ## ❌ Failure Analysis
 
@@ -73,80 +75,99 @@ gpt-5-mini is the only configuration that combined a 100% pass rate with consist
 
 | Test | Root Cause | Fix |
 |------|------------|-----|
-| Financial advice — tests differentiation between agents (skill vs no skill) | Asked user for balances instead of calling available balance tools | Instruct agent to always retrieve balances via tools before asking clarifying questions |
+| Financial advice — tests differentiation between agents (skill vs no skill). | Agent asked for user-provided balances instead of calling available tools. | Instruct the agent to proactively fetch balances when advice depends on account data. |
 
-### Financial advice — tests differentiation between agents (skill vs no skill) (gpt-4.1-mini)
-- **Problem:** The agent did not retrieve checking and savings balances before giving advice.
-- **Root Cause:** The model defaulted to a cautious, permission-seeking interaction pattern, asking the user to provide balances rather than using available tools.
-- **Behavioral Mechanism:** The phrasing “could you please share your current balances… If you want, I can retrieve…” signals deference and optional action, priming the model to wait for user confirmation instead of acting.
-- **Fix:** Add an explicit instruction to the system prompt:  
-  > “When a question requires account context (balances, totals), **always call the relevant balance tool first without asking for permission**, then ask follow-up questions.”
+### Financial advice — tests differentiation between agents (skill vs no skill). (gpt-4.1-mini)
+- **Problem:** The agent did not call `get_all_balances` or `get_balance`, causing the assertion failure.
+- **Root Cause:** The system prompt allowed or encouraged deference to the user for data retrieval.
+- **Behavioral Mechanism:** Language implying optionality (“If you want, I can retrieve…”) primed the model into permission-seeking mode, delaying action and skipping tool calls.
+- **Fix:** Add explicit instruction:  
+  > “When a user asks for advice that depends on account data, always call the appropriate balance tool immediately without asking for permission.”
 
 ## 🔧 MCP Tool Feedback
 
-### banking-server
-Overall, tools are discoverable and correctly named. Agents that failed did so due to prompt/model behavior, not tool design.
+### banking_server
+Overall, tools are discoverable and consistently used by compliant agents.
 
 | Tool | Status | Calls | Issues |
 |------|--------|-------|--------|
 | get_balance | ✅ | 3 | Working well |
 | get_all_balances | ✅ | 2 | Working well |
 
+## 📝 System Prompt Feedback
+
+### default prompt (mixed)
+- **Token count:** Not provided
+- **Behavioral impact:** Neutral wording allows model discretion; with `gpt-4.1-mini` this led to permission-seeking.
+- **Problem:** Lacks a hard requirement to act autonomously.
+- **Suggested change:**  
+  > “Do not ask the user to provide information that can be retrieved via tools. Fetch required data first, then respond.”
+
+### financial-advisor (effective with gpt-5-mini)
+- **Token count:** Not provided
+- **Behavioral impact:** Encourages structured, proactive financial guidance.
+- **Problem:** Higher verbosity than necessary for tests.
+- **Suggested change:** Remove optional exploratory prompts unless user asks for deeper planning.
+
 ## 📚 Skill Feedback
 
 ### financial-advisor (positive)
-- **Usage rate:** High in advisory responses
-- **Token cost:** Contributed to higher token usage and cost
-- **Problem:** Adds verbosity without improving pass rate
-- **Suggested change:** Add a concise-mode variant that limits recommendations to bullet points unless the user asks for a detailed plan.
+- **Usage rate:** High in advice responses
+- **Token cost:** Increased vs no-skill agent
+- **Problem:** Some boilerplate suggestions not required for test success.
+- **Suggested change:** Split skill into “core rules” and “extended guidance” and load extended guidance only when requested.
 
 ## 💡 Optimizations
 
 | # | Optimization | Priority | Estimated Savings |
 |---|-------------|----------|-------------------|
-| 1 | Enforce proactive balance retrieval | recommended | Prevents advisory failures |
-| 2 | Introduce concise advisory mode | suggestion | ~15% cost reduction |
+| 1 | Enforce autonomous tool-first behavior | recommended | Avoids failures; fewer retries |
+| 2 | Trim skill verbosity | suggestion | ~15% cost reduction |
+| 3 | Compact tool responses | info | ~10–20 tokens per call |
 
-#### 1. Enforce proactive balance retrieval (recommended)
-- Current: Some agents ask for balances instead of using tools.
-- Change: Add explicit prompt instruction to always fetch balances when advice depends on them.
-- Impact: Eliminates permission-seeking failures; improves reliability.
+#### 1. Enforce autonomous tool-first behavior (recommended)
+- Current: Some agents ask permission before calling tools.
+- Change: Add explicit system instruction to always fetch required data first.
+- Impact: Reliability improvement; prevents test failures.
 
-#### 2. Introduce concise advisory mode (suggestion)
-- Current: Skill-augmented responses are verbose by default.
-- Change: Default to brief recommendations with optional expansion.
-- Impact: ~15% cost reduction from shorter responses.
+#### 2. Trim skill verbosity (suggestion)
+- Current: Financial-advisor skill includes optional planning prompts.
+- Change: Remove or gate extended advice.
+- Impact: ~15% cost reduction.
+
+#### 3. Compact tool responses (info)
+- Current: Tool responses include both raw and formatted fields.
+- Change: Return only one representation where possible.
+- Impact: ~10–20 token savings per call.
 
 ## 📦 Tool Response Optimization
 
-### get_balance (banking-server)
-- **Current response size:** ~25 tokens
-- **Issues found:** Redundant `formatted` field duplicates numeric balance.
-- **Suggested optimization:** Remove `formatted` and let the agent format currency.
-- **Estimated savings:** ~8 tokens per call (≈30% reduction)
+### get_all_balances (from banking_server)
+- **Current response size:** Includes duplicate numeric and formatted strings.
+- **Issues found:** Redundant `formatted` fields increase tokens.
+- **Suggested optimization:** Return numeric balances only; format in the assistant.
+- **Estimated savings:** ~20 tokens per call
 
 **Example current vs optimized:**
 ```json
 // Current
-{"account":"checking","balance":1500.0,"formatted":"$1,500.00"}
+{
+  "accounts": {
+    "checking": {"balance": 1500.0, "formatted": "$1,500.00"},
+    "savings": {"balance": 3000.0, "formatted": "$3,000.00"}
+  },
+  "total": 4500.0,
+  "total_formatted": "$4,500.00"
+}
 
 // Optimized
-{"account":"checking","balance":1500.0}
-```
-
-### get_all_balances (banking-server)
-- **Current response size:** ~60 tokens
-- **Issues found:** Both per-account and total formatted strings are redundant.
-- **Suggested optimization:** Remove all `formatted` fields.
-- **Estimated savings:** ~18 tokens per call (≈30% reduction)
-
-**Example current vs optimized:**
-```json
-// Current
-{"accounts":{"checking":{"balance":1500.0,"formatted":"$1,500.00"},"savings":{"balance":3000.0,"formatted":"$3,000.00"}},"total":4500.0,"total_formatted":"$4,500.00"}
-
-// Optimized
-{"accounts":{"checking":{"balance":1500.0},"savings":{"balance":3000.0}},"total":4500.0}
+{
+  "accounts": {
+    "checking": 1500.0,
+    "savings": 3000.0
+  },
+  "total": 4500.0
+}
 ```
 
 
