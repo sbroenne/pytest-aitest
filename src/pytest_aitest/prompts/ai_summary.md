@@ -30,30 +30,88 @@ You will receive:
 
 ## Output Requirements
 
-Output **markdown** that will be rendered directly in an HTML report. Your analysis should be **actionable and specific**.
+Output **markdown** that will be rendered directly in an HTML report. The report supports:
+- Standard markdown (headings, bold, lists, tables, code blocks)
+- **Mermaid diagrams** via fenced code blocks (````mermaid`). The report loads Mermaid.js v10 and auto-renders them.
+
+Your analysis should be **actionable, specific, and visually rich**. Use tables for structured data and Mermaid charts where they add clarity.
 
 ### Structure
 
 Use these sections as needed (skip sections with no content):
 
-```markdown
+````markdown
 ## 🎯 Recommendation
 
-**Deploy: [agent-name or configuration]**
+[ALWAYS start with the Winner Spotlight card. This is a glowing hero card with gradient background.]
 
-[One sentence summary - e.g., "Achieves 100% pass rate at 60% lower cost than alternatives"]
+<div class="winner-card">
+<div class="winner-title">Recommended for Deploy</div>
+<div class="winner-name">agent-name</div>
+<div class="winner-summary">Achieves 100% pass rate at 60% lower cost than alternatives, with consistent tool usage and reliable responses.</div>
+<div class="winner-stats">
+<div class="winner-stat"><span class="winner-stat-value green">100%</span><span class="winner-stat-label">Pass Rate</span></div>
+<div class="winner-stat"><span class="winner-stat-value blue">$0.016</span><span class="winner-stat-label">Total Cost</span></div>
+<div class="winner-stat"><span class="winner-stat-value amber">~19k</span><span class="winner-stat-label">Tokens</span></div>
+</div>
+</div>
 
-**Reasoning:** [Why this configuration wins - compare pass rates first, then cost savings with percentages, then response quality]
+[ALWAYS include metric cards after the winner card:]
 
-**Alternatives:** [Trade-offs of other options with cost comparison, or "None - only one configuration tested"]
+<div class="metric-grid">
+<div class="metric-card green">
+<div class="metric-value green">40</div>
+<div class="metric-label">Total Tests</div>
+</div>
+<div class="metric-card red">
+<div class="metric-value red">3</div>
+<div class="metric-label">Failures</div>
+</div>
+<div class="metric-card blue">
+<div class="metric-value blue">2</div>
+<div class="metric-label">Agents</div>
+</div>
+<div class="metric-card amber">
+<div class="metric-value amber">3.2</div>
+<div class="metric-label">Avg Turns</div>
+</div>
+</div>
+
+### Comparative Analysis
+
+[ALWAYS include when 2+ agents. Skip for single-agent runs. Do NOT reproduce a table of agent metrics — the report already has an Agent Leaderboard with exact numbers. Instead, provide qualitative insight the leaderboard can't:]
+
+**Why the winner wins:** [Quantified reasoning — e.g., "60% cheaper with identical pass rate", "only agent that correctly chains multi-step tool calls"]
+
+**Notable patterns:** [Interesting observations — e.g., "cheaper model outperforms expensive one on tool usage", "detailed prompt causes over-thinking and tool confusion"]
+
+**Alternatives:** [Name close competitors and their trade-offs, or "None — only one configuration tested". Mention disqualified agents here if any.]
 
 ## ❌ Failure Analysis
 
-[For each failed test - skip if all passed:]
+[Skip if all tests passed.]
+
+### Failure Summary
+
+[ALWAYS include failure tables GROUPED BY AGENT. One table per agent that has failures:]
+
+**agent-name** (2 failures)
+
+| Test | Root Cause | Fix |
+|------|------------|-----|
+| human-readable test name | Brief root cause | Brief fix |
+| another test name | Brief root cause | Brief fix |
+
+**agent-name-2** (1 failure)
+
+| Test | Root Cause | Fix |
+|------|------------|-----|
+| human-readable test name | Brief root cause | Brief fix |
 
 ### [human-readable test description] (agent/configuration)
 - **Problem:** [User-friendly description]
 - **Root Cause:** [Technical explanation - tool issue? prompt ambiguity? model limitation?]
+- **Behavioral Mechanism:** [IMPORTANT: When the failure stems from a prompt variant, explain HOW the prompt's specific language influenced the LLM's behavior. For example: words like "thorough", "comprehensive", "explain reasoning" prime the LLM into a cautious/deliberative mode where it asks for permission instead of acting. Phrases like "consider multiple perspectives" encourage lengthy preambles instead of tool calls. Identify the specific words/phrases that caused the behavioral shift. Skip this field only if the failure is purely a tool or infrastructure issue.]
 - **Fix:** [Exact text/code changes]
 
 ## 🔧 MCP Tool Feedback
@@ -76,6 +134,7 @@ Use these sections as needed (skip sections with no content):
 
 ### system_prompt_name (effective/mixed/ineffective)
 - **Token count:** N
+- **Behavioral impact:** [How does this prompt's language influence the LLM? E.g., "thorough/comprehensive" primes cautious behavior and permission-seeking; "concise" encourages direct tool usage; "friendly" adds warmth without affecting tool reliability. Explain the cause-and-effect between specific words and observed LLM actions.]
 - **Problem:** [What's wrong - too verbose? missing instructions? confusing?]
 - **Suggested change:** [Exact text to add/remove/replace]
 
@@ -91,12 +150,19 @@ Use these sections as needed (skip sections with no content):
 
 ## 💡 Optimizations
 
-[Cross-cutting improvements - skip if none:]
+[Cross-cutting improvements - skip if none. ALWAYS use a table:]
 
-1. **[Title]** (recommended/suggestion/info)
-   - Current: [What's happening]
-   - Change: [What to do]
-   - Impact: [Expected cost savings first (e.g., "15% cost reduction"), then token savings if significant]
+| # | Optimization | Priority | Estimated Savings |
+|---|-------------|----------|-------------------|
+| 1 | Brief title | recommended/suggestion/info | 15% cost reduction |
+| 2 | Brief title | recommended/suggestion/info | 10% fewer tokens |
+
+[Then expand each with a heading and bullets — do NOT use numbered lists with nested sub-bullets:]
+
+#### 1. [Title] (recommended/suggestion/info)
+- Current: [What's happening]
+- Change: [What to do]
+- Impact: [Expected cost savings first (e.g., "15% cost reduction"), then token savings if significant]
 
 ## 📦 Tool Response Optimization
 
@@ -116,12 +182,13 @@ Use these sections as needed (skip sections with no content):
 // Optimized (M tokens)
 {"city": "Paris", ...}
 ```
-```
+````
 
 ## Analysis Guidelines
 
 ### Recommendation
 - **Compare by**: pass rate → **cost** (primary metric) → response quality
+- **Use pre-computed statistics**: The input includes a "Pre-computed Agent Statistics" section with exact per-agent numbers and a designated winner. Use these numbers verbatim in your Winner Card and metric cards. Do NOT re-derive statistics from raw test data.
 - **Disqualified agents**: If a minimum pass rate threshold is specified, agents below it are disqualified. Never recommend a disqualified agent for deployment. Mention them as disqualified in the Alternatives section.
 - **Emphasize cost over tokens**: Cost is what matters for ranking - mention cost first, then tokens
   - ✅ Good: "Achieves 100% pass rate at 60% lower cost (~65% fewer tokens)"
@@ -130,8 +197,15 @@ Use these sections as needed (skip sections with no content):
 - **Single config?** Still assess: "Deploy X - all tests pass at $0.XX total cost"
 - **Model comparison?** Focus on which model achieves lower cost while handling tools correctly
 - **Prompt comparison?** Focus on which prompt achieves lower cost while following instructions
+- **Winner Spotlight card is mandatory** — ALWAYS start with `<div class="winner-card">` showing the recommended agent
+- **Metric cards are mandatory** — ALWAYS include `<div class="metric-grid">` after the winner card. Metric cards must NOT repeat winner card data (pass rate, cost, tokens are already there). Show DIFFERENT insights: Total Tests, Failures, Agents count, Avg Turns per test.
+- **Comparative Analysis is mandatory** when 2+ agents exist — provide qualitative insight, NOT a metrics table (the Agent Leaderboard section already shows exact per-agent numbers)
+- **No agent metrics tables** — do NOT reproduce pass rate, cost, tokens, or test counts per agent in a table. The report's Agent Leaderboard already renders this data accurately from ground truth. The AI's job is insight, not data regurgitation.
+- **No donut/pie charts** — do NOT use donut-container or any chart in Failure Analysis. Use tables grouped by agent instead.
+- **No circular gauges** — do NOT use gauge-grid or gauge components.
 
 ### Failure Analysis
+- **Failure Summary tables are mandatory** when failures exist — group failures by agent, one table per agent with failures
 - **Read the conversation** to understand what happened
 - **Identify root cause**: Tool description unclear? Prompt missing instruction? Model limitation?
 - **Provide exact fix**: The specific text change that would help
@@ -198,3 +272,14 @@ Use these sections as needed (skip sections with no content):
 
    2. **Title**
    ```
+10. **Tables over prose** - Whenever you present structured data (comparisons, summaries, lists of items with attributes), use a markdown table instead of bullet points or sentences
+11. **HTML visualization rules** — The report CSS provides dashboard components you MUST use:
+    - **Winner Card**: `<div class="winner-card">` with children `winner-title`, `winner-name`, `winner-summary`, and `winner-stats` containing `winner-stat` items. The card has a gradient glow effect. Always use this as the FIRST visual element.
+    - **Metric Cards**: `<div class="metric-grid">` with `<div class="metric-card [green|blue|amber|red]">`. Each has `metric-value` and `metric-label`. Cards have a colored top-border gradient. NEVER duplicate data from the winner card (no "Best Pass Rate" or "Winner Cost" — those are already in the winner card). Show: Total Tests, Failures, Agents, Avg Turns.
+    - **No Gauges**: Do NOT use gauge-grid, gauge-item, or gauge components.
+    - **No Donut/Pie Charts**: Do NOT use donut-container or any chart components. Failure data belongs in tables grouped by agent.
+    - **No Agent Metrics Tables**: Do NOT create tables with per-agent pass rate, cost, tokens, etc. The report's Agent Leaderboard already shows this data accurately. Focus on qualitative analysis instead.
+    - **No Mermaid charts** in the Recommendation section — use the CSS visualizations instead. Mermaid is only for sequence diagrams in test details.
+    - **No inline color styles** — use only the CSS class names (green, blue, amber, red) on metric-card and metric-value
+    - **Gauge color values**: green=#4ade80, amber=#facc15, red=#f87171, blue=#60a5fa
+12. **Use pre-computed numbers** — The input includes a "Pre-computed Agent Statistics" section with exact values for pass rates, costs, tokens, winner designation, and aggregate stats (total tests, failures, agents, avg turns). Use these numbers verbatim. Never estimate or approximate.
