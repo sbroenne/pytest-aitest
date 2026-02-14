@@ -76,11 +76,16 @@ class AgentEngine:
         # Build PydanticAI agent
         self._pydantic_agent = build_pydantic_agent(self.agent, self._toolsets)
 
-        # Enter the agent context (starts MCP servers, etc.)
-        await self._exit_stack.enter_async_context(self._pydantic_agent)
+        try:
+            # Enter the agent context (starts MCP servers, etc.)
+            await self._exit_stack.enter_async_context(self._pydantic_agent)
 
-        # Collect tool info for AI analysis after servers are started
-        self._available_tools = await self._collect_tool_info()
+            # Collect tool info for AI analysis after servers are started
+            self._available_tools = await self._collect_tool_info()
+        except Exception:
+            await self._exit_stack.aclose()
+            self._exit_stack = None
+            raise
 
         # Build SkillInfo for AI analysis
         if self.agent.skill:

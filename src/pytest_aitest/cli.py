@@ -84,7 +84,11 @@ def load_suite_report(
     data = json.loads(json_path.read_text(encoding="utf-8"))
 
     schema_version = data.get("schema_version")
-    if not schema_version or schema_version < "2.0":
+    try:
+        major = int(schema_version.split(".")[0]) if schema_version else 0
+    except (ValueError, AttributeError):
+        major = 0
+    if major < 2:
         msg = (
             f"Unsupported schema version: {schema_version!r}. "
             "Only v2.0+ is supported. Re-run tests to generate a new JSON file."

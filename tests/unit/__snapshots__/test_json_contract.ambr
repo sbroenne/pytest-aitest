@@ -395,7 +395,26 @@
             '<empty>',
           ]),
           'available_tools': list([
-            '<empty>',
+            dict({
+              'description': 'str',
+              'input_schema': dict({
+                'properties': dict({
+                  'account': dict({
+                    'description': 'str',
+                    'enum': list([
+                      'str',
+                    ]),
+                    'type': 'str',
+                  }),
+                }),
+                'required': list([
+                  'str',
+                ]),
+                'type': 'str',
+              }),
+              'name': 'str',
+              'server_name': 'str',
+            }),
           ]),
           'clarification_stats': 'NoneType',
           'cost_usd': 'float',
@@ -461,7 +480,26 @@
             '<empty>',
           ]),
           'available_tools': list([
-            '<empty>',
+            dict({
+              'description': 'str',
+              'input_schema': dict({
+                'properties': dict({
+                  'account': dict({
+                    'description': 'str',
+                    'enum': list([
+                      'str',
+                    ]),
+                    'type': 'str',
+                  }),
+                }),
+                'required': list([
+                  'str',
+                ]),
+                'type': 'str',
+              }),
+              'name': 'str',
+              'server_name': 'str',
+            }),
           ]),
           'clarification_stats': 'NoneType',
           'cost_usd': 'float',
@@ -527,7 +565,26 @@
             '<empty>',
           ]),
           'available_tools': list([
-            '<empty>',
+            dict({
+              'description': 'str',
+              'input_schema': dict({
+                'properties': dict({
+                  'account': dict({
+                    'description': 'str',
+                    'enum': list([
+                      'str',
+                    ]),
+                    'type': 'str',
+                  }),
+                }),
+                'required': list([
+                  'str',
+                ]),
+                'type': 'str',
+              }),
+              'name': 'str',
+              'server_name': 'str',
+            }),
           ]),
           'clarification_stats': 'NoneType',
           'cost_usd': 'float',
@@ -593,7 +650,26 @@
             '<empty>',
           ]),
           'available_tools': list([
-            '<empty>',
+            dict({
+              'description': 'str',
+              'input_schema': dict({
+                'properties': dict({
+                  'account': dict({
+                    'description': 'str',
+                    'enum': list([
+                      'str',
+                    ]),
+                    'type': 'str',
+                  }),
+                }),
+                'required': list([
+                  'str',
+                ]),
+                'type': 'str',
+              }),
+              'name': 'str',
+              'server_name': 'str',
+            }),
           ]),
           'clarification_stats': 'NoneType',
           'cost_usd': 'float',

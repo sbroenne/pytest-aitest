@@ -129,6 +129,9 @@ def aitest_run(
         )
 
         # Auto-save messages for next test in session
+        # Note: Session storage is not thread-safe. Session tests must run
+        # sequentially (not with pytest-xdist). This is by design — session
+        # tests have ordered dependencies and cannot be parallelized.
         if session_key:
             session_storage = request.config.stash.get(SESSION_MESSAGES_KEY, {})
             session_storage[session_key] = result.messages
