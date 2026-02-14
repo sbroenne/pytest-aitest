@@ -181,7 +181,7 @@ def _agent_result_column(
     else:
         border_class = "opacity-50"
         status_text = None
-        status_class = None
+        status_class = ""
 
     status_span = None
     if status_text:

@@ -129,7 +129,7 @@ class MCPServerProcess:
                 )
                 return streams[0], streams[1]
 
-            case _:
+            case _:  # pragma: no cover
                 msg = f"Unknown transport: {self.config.transport}"
                 raise ValueError(msg)
 
@@ -138,7 +138,7 @@ class MCPServerProcess:
         if self._exit_stack:
             try:
                 await self._exit_stack.aclose()
-            except BaseException:
+            except Exception:
                 _logger.debug(
                     "Server cleanup encountered async teardown error",
                     exc_info=True,
