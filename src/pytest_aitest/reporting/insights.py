@@ -65,14 +65,12 @@ def _build_analysis_input(
             "Still analyze their failures in the Failure Analysis section.\n"
         )
 
-    # Pre-computed agent statistics for AI accuracy
+    # Pre-computed agent statistics for AI accuracy (grouped by agent name)
     agent_agg: dict[str, dict[str, Any]] = {}
     for test in suite_report.tests:
-        aid = test.agent_id
-        if not aid:
-            continue
-        if aid not in agent_agg:
-            agent_agg[aid] = {
+        agent_name = test.agent_name or test.model or "unknown"
+        if agent_name not in agent_agg:
+            agent_agg[agent_name] = {
                 "name": test.agent_name or test.model or "unknown",
                 "passed": 0,
                 "failed": 0,
@@ -81,7 +79,7 @@ def _build_analysis_input(
                 "tokens": 0,
                 "turn_counts": [],
             }
-        agg = agent_agg[aid]
+        agg = agent_agg[agent_name]
         agg["total"] += 1
         if test.outcome == "passed":
             agg["passed"] += 1

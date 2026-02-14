@@ -259,12 +259,10 @@ def _build_agents(
     )
 
     for test in report.tests:
-        agent_id = _resolve_agent_id(test)
-
         model = test.model or "unknown"
         agent_name = test.agent_name or model  # Agent.name is always set; fallback for legacy JSON
 
-        stats = agent_stats[agent_id]
+        stats = agent_stats[agent_name]
         stats["model"] = model
         stats["agent_name"] = agent_name
         stats["total"] += 1
@@ -285,7 +283,7 @@ def _build_agents(
                 stats["tokens"] += usage.get("prompt", 0) + usage.get("completion", 0)
 
     agents = []
-    for agent_id, stats in agent_stats.items():
+    for agent_name_key, stats in agent_stats.items():
         total = stats["total"]
         passed = stats["passed"]
         pass_rate = (passed / total * 100) if total > 0 else 0
@@ -294,7 +292,7 @@ def _build_agents(
 
         agents.append(
             AgentData(
-                id=agent_id,
+                id=agent_name_key,
                 name=stats["agent_name"],
                 passed=passed,
                 failed=stats["failed"],
@@ -373,9 +371,9 @@ def _build_test_groups_typed(
             first_test = test_variants[0] if test_variants else None
 
             for test in test_variants:
-                agent_id = _resolve_agent_id(test)
+                agent_name = test.agent_name or test.model or "unknown"
 
-                if agent_id in all_agent_ids:
+                if agent_name in all_agent_ids:
                     outcome = test.outcome or "unknown"
                     outcomes.add(outcome)
 
@@ -430,7 +428,7 @@ def _build_test_groups_typed(
                     agent_result = test.agent_result
                     mermaid = generate_mermaid_sequence(agent_result) if agent_result else None
                     final_resp = agent_result.final_response if agent_result else None
-                    results_by_agent[agent_id] = TestResultData(
+                    results_by_agent[agent_name] = TestResultData(
                         outcome=outcome,
                         passed=outcome == "passed",
                         duration_s=duration_ms / 1000,
