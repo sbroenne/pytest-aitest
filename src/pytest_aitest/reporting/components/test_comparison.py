@@ -19,6 +19,19 @@ def _metric_cell(value: str, label: str) -> Node:
 
 def _metrics_row(result: TestResultData) -> Node:
     """Render the metrics row for a test result (2 rows of metrics)."""
+    cost_cells: list[Node] = [_metric_cell(format_cost(result.cost), "cost")]
+
+    # Iteration stats when aggregated across multiple runs
+    if result.iterations and result.iteration_pass_rate is not None:
+        n = len(result.iterations)
+        n_passed = sum(1 for it in result.iterations if it.passed)
+        cost_cells.append(
+            _metric_cell(f"{n_passed}/{n}", "iterations passed"),
+        )
+        cost_cells.append(
+            _metric_cell(f"{result.iteration_pass_rate:.0f}%", "iter pass rate"),
+        )
+
     return div(".space-y-2.mb-4")[
         # First row: duration, turns, tools
         div(".grid.grid-cols-4.gap-2.p-3.bg-surface-elevated.rounded-material.text-center")[
@@ -27,9 +40,9 @@ def _metrics_row(result: TestResultData) -> Node:
             _metric_cell(str(result.tool_count), "tools"),
             _metric_cell(f"{result.tokens:,}", "tokens"),
         ],
-        # Second row: cost
+        # Second row: cost + iterations
         div(".grid.grid-cols-4.gap-2.p-3.bg-surface-elevated.rounded-material.text-center")[
-            _metric_cell(format_cost(result.cost), "cost"),
+            *cost_cells,
         ],
     ]
 

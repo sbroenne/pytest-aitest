@@ -45,6 +45,7 @@ class TestReport:
     model: str = ""
     system_prompt_name: str | None = None
     skill_name: str | None = None
+    iteration: int | None = None
 
     @property
     def is_passed(self) -> bool:

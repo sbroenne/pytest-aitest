@@ -185,6 +185,19 @@ def pytest_addoption(parser: Parser) -> None:
         ),
     )
 
+    # Iteration support for statistical baselines
+    group.addoption(
+        "--aitest-iterations",
+        metavar="N",
+        type=int,
+        default=1,
+        help=(
+            "Run each test N times and aggregate results across iterations. "
+            "Useful for establishing stable baselines with noisy AI tests. "
+            "Example: --aitest-iterations=3"
+        ),
+    )
+
     # LLM judge model for llm_assert fixture
     group.addoption(
         "--llm-model",
@@ -222,6 +235,26 @@ def pytest_configure(config: Config) -> None:
     config.stash[COLLECTOR_KEY] = []
     # Initialize session message storage
     config.stash[SESSION_MESSAGES_KEY] = {}
+
+
+def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
+    """Parametrize tests with iteration index when ``--aitest-iterations`` > 1.
+
+    Follows the same pattern as *pytest-repeat*: the fixture name is
+    appended to ``metafunc.fixturenames`` so every test function
+    receives the parameter even though it does not declare the fixture
+    explicitly.
+    """
+    count: int = metafunc.config.getoption("--aitest-iterations", default=1)
+    if count <= 1:
+        return
+    metafunc.fixturenames.append("_aitest_iteration")
+    metafunc.parametrize(
+        "_aitest_iteration",
+        range(1, count + 1),
+        ids=[f"iter-{i}" for i in range(1, count + 1)],
+        indirect=True,
+    )
 
 
 def pytest_collection_modifyitems(
@@ -323,6 +356,12 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
     system_prompt_name = agent.system_prompt_name if agent else None
     skill_name = agent.skill.name if agent and agent.skill else None
 
+    # Detect iteration index from _aitest_iteration fixture
+    iteration: int | None = None
+    callspec = getattr(item, "callspec", None)
+    if callspec and "_aitest_iteration" in callspec.params:
+        iteration = callspec.params["_aitest_iteration"]
+
     # Create test report with typed identity fields
     test_report = TestReport(
         name=item.nodeid,
@@ -338,6 +377,7 @@ def pytest_runtest_makereport(item: Item, call: Any) -> Any:
         model=model,
         system_prompt_name=system_prompt_name,
         skill_name=skill_name,
+        iteration=iteration,
     )
 
     tests.append(test_report)

@@ -187,6 +187,7 @@ def build_pydantic_agent(
         instructions=instructions,
         toolsets=toolsets,
         model_settings=settings,
+        retries=agent.retries,
     )
 
 

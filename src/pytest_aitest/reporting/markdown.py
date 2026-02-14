@@ -235,6 +235,12 @@ def _test_result_detail(
     else:
         summary = metrics
 
+    # Append iteration pass rate when aggregated across multiple runs
+    if result.iterations and result.iteration_pass_rate is not None:
+        n = len(result.iterations)
+        n_passed = sum(1 for it in result.iterations if it.passed)
+        summary += f" · {n_passed}/{n} iterations passed ({result.iteration_pass_rate:.0f}%)"
+
     parts.append("<details>")
     parts.append(f"<summary>{summary}</summary>")
     parts.append("")
@@ -246,6 +252,32 @@ def _test_result_detail(
         for a in result.assertions:
             icon = "✅" if a.passed else "❌"
             parts.append(f"- {icon} `{a.type}`: {a.message}")
+        parts.append("")
+
+    # Iteration breakdown (when --aitest-iterations produced multiple runs)
+    if result.iterations:
+        parts.append("**Iterations:**")
+        parts.append("")
+        header = ["#", "Result", "Duration", "Tokens", "Cost"]
+        rows: list[list[str]] = [header]
+        for it in result.iterations:
+            icon = "✅" if it.passed else "❌"
+            rows.append(
+                [
+                    str(it.iteration),
+                    icon,
+                    f"{it.duration_s:.1f}s",
+                    f"{it.tokens:,}",
+                    format_cost(it.cost),
+                ]
+            )
+        table = Table().create_table(
+            columns=len(header),
+            rows=len(rows),
+            text=[cell for row in rows for cell in row],
+            text_align=["center", "center", "right", "right", "right"],
+        )
+        parts.append(table)
         parts.append("")
 
     # Tool calls

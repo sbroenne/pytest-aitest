@@ -49,8 +49,26 @@ class AssertionData:
 
 
 @dataclass(slots=True)
+class IterationData:
+    """Stats for a single iteration of a repeated test."""
+
+    iteration: int
+    outcome: str
+    passed: bool
+    duration_s: float
+    tokens: int
+    cost: float
+    error: str | None = None
+
+
+@dataclass(slots=True)
 class TestResultData:
-    """Data for a single test result for one agent."""
+    """Data for a single test result for one agent.
+
+    When ``iterations`` is non-empty the top-level fields contain
+    **aggregated** values (mean duration, total cost, overall pass rate)
+    while individual run data lives in ``iterations``.
+    """
 
     outcome: str
     passed: bool
@@ -64,6 +82,8 @@ class TestResultData:
     final_response: str | None = None
     error: str | None = None
     assertions: list[AssertionData] = field(default_factory=list)
+    iterations: list[IterationData] = field(default_factory=list)
+    iteration_pass_rate: float | None = None
 
 
 @dataclass(slots=True)
