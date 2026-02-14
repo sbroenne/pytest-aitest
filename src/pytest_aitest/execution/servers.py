@@ -278,8 +278,8 @@ class CLIServerProcess:
                 "args": args,
                 "full_cmd": full_cmd,
                 "exit_code": proc.returncode or 0,
-                "stdout": stdout.decode() if stdout else "",
-                "stderr": stderr.decode() if stderr else "",
+                "stdout": stdout.decode(errors="replace") if stdout else "",
+                "stderr": stderr.decode(errors="replace") if stderr else "",
                 "duration_ms": duration_ms,
             }
 
@@ -287,6 +287,10 @@ class CLIServerProcess:
             return execution
 
         except TimeoutError:
+            # Kill the subprocess to avoid process leak
+            if proc.returncode is None:
+                proc.kill()
+                await proc.wait()
             duration_ms = int((time.perf_counter() - start_time) * 1000)
             execution = {
                 "command": self.config.command,

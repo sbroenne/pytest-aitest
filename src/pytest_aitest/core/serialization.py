@@ -78,6 +78,45 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
                     examples=cs_data.get("examples", []),
                 )
 
+            # Reconstruct assertions if present
+            from pytest_aitest.core.result import Assertion
+
+            assertions = []
+            for a_data in ar_data.get("assertions", []):
+                assertions.append(
+                    Assertion(
+                        type=a_data["type"],
+                        passed=a_data["passed"],
+                        message=a_data["message"],
+                        details=a_data.get("details"),
+                    )
+                )
+
+            # Reconstruct available tools if present
+            from pytest_aitest.core.result import SkillInfo, ToolInfo
+
+            available_tools = []
+            for t_data in ar_data.get("available_tools", []):
+                available_tools.append(
+                    ToolInfo(
+                        name=t_data["name"],
+                        description=t_data["description"],
+                        input_schema=t_data.get("input_schema", {}),
+                        server_name=t_data.get("server_name", ""),
+                    )
+                )
+
+            # Reconstruct skill info if present
+            skill_info = None
+            si_data = ar_data.get("skill_info")
+            if si_data:
+                skill_info = SkillInfo(
+                    name=si_data["name"],
+                    description=si_data["description"],
+                    instruction_content=si_data.get("instruction_content", ""),
+                    reference_names=si_data.get("reference_names", []),
+                )
+
             # Reconstruct agent result
             agent_result = AgentResult(
                 turns=turns,
@@ -88,6 +127,10 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
                 cost_usd=ar_data.get("cost_usd", 0.0),
                 session_context_count=ar_data.get("session_context_count", 0),
                 clarification_stats=clarification_stats,
+                assertions=assertions,
+                available_tools=available_tools,
+                skill_info=skill_info,
+                effective_system_prompt=ar_data.get("effective_system_prompt", ""),
             )
 
         # Read identity from typed fields

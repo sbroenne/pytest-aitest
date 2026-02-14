@@ -34,10 +34,17 @@ class CLIToolset(AbstractToolset[Any]):
 
     async def __aenter__(self) -> CLIToolset:
         """Start all CLI server processes."""
-        for process in self._processes:
-            await process.start()
-            for tool_name in process.get_tools():
-                self._tool_to_process[tool_name] = process
+        started: list[CLIServerProcess] = []
+        try:
+            for process in self._processes:
+                await process.start()
+                started.append(process)
+                for tool_name in process.get_tools():
+                    self._tool_to_process[tool_name] = process
+        except Exception:
+            for process in started:
+                await process.stop()
+            raise
         return self
 
     async def __aexit__(self, *args: Any) -> None:
