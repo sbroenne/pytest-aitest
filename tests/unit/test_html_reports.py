@@ -8,7 +8,6 @@ Runs in <2s vs 136s for the Playwright equivalents.
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import pytest
@@ -45,8 +44,35 @@ def _strip_css_js(html: str) -> str:
     CSS class names and JS references can cause false matches when checking
     for rendered HTML elements. This helper removes those blocks.
     """
-    result = re.sub(r"<style[^>]*>.*?</style>", "", html, flags=re.DOTALL)
-    return re.sub(r"<script[^>]*>.*?</script>", "", result, flags=re.DOTALL)
+    # Use an HTML parser to properly strip style/script elements
+    from html.parser import HTMLParser
+
+    class _Stripper(HTMLParser):
+        def __init__(self) -> None:
+            super().__init__()
+            self._skip = False
+            self._parts: list[str] = []
+
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            if tag in ("style", "script"):
+                self._skip = True
+            elif not self._skip:
+                attr_str = "".join(f' {k}="{v}"' if v else f" {k}" for k, v in attrs)
+                self._parts.append(f"<{tag}{attr_str}>")
+
+        def handle_endtag(self, tag: str) -> None:
+            if tag in ("style", "script"):
+                self._skip = False
+            elif not self._skip:
+                self._parts.append(f"</{tag}>")
+
+        def handle_data(self, data: str) -> None:
+            if not self._skip:
+                self._parts.append(data)
+
+    stripper = _Stripper()
+    stripper.feed(html)
+    return "".join(stripper._parts)
 
 
 def _leaderboard_row_count(html: str) -> int:

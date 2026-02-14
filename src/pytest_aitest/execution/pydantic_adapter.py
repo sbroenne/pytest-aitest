@@ -6,6 +6,9 @@ and converts PydanticAI AgentRunResult back into our AgentResult for reporting.
 
 from __future__ import annotations
 
+import functools
+import json
+import logging
 import os
 import time
 from typing import TYPE_CHECKING, Any
@@ -33,6 +36,8 @@ if TYPE_CHECKING:
 
     from pytest_aitest.core.agent import Agent, MCPServer
 
+_logger = logging.getLogger(__name__)
+
 
 def build_pydantic_model(agent: Agent) -> Model:
     """Convert our Provider config into a PydanticAI Model instance.
@@ -59,8 +64,12 @@ def build_model_from_string(model_str: str) -> Any:
     return model_str
 
 
+@functools.lru_cache(maxsize=8)
 def _build_azure_model(model_str: str) -> Any:
-    """Build an Azure OpenAI model with Entra ID or API key auth."""
+    """Build an Azure OpenAI model with Entra ID or API key auth.
+
+    Cached to reuse the same AsyncAzureOpenAI client across calls.
+    """
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -226,7 +235,12 @@ def adapt_result(
 
 
 def _extract_turns(messages: list[ModelMessage]) -> list[Turn]:
-    """Convert PydanticAI message history into our Turn list."""
+    """Convert PydanticAI message history into our Turn list.
+
+    Extracts user prompts, assistant text, and tool calls into our Turn format.
+    System prompts and tool return parts are intentionally skipped (they're
+    infrastructure, not user-visible conversation turns).
+    """
     turns: list[Turn] = []
 
     for msg in messages:
@@ -235,6 +249,7 @@ def _extract_turns(messages: list[ModelMessage]) -> list[Turn]:
                 if isinstance(part, UserPromptPart):
                     content = part.content if isinstance(part.content, str) else str(part.content)
                     turns.append(Turn(role="user", content=content))
+                # SystemPromptPart and ToolReturnPart are intentionally skipped
         elif isinstance(msg, ModelResponse):
             tool_calls: list[ToolCall] = []
             text_content = ""
@@ -243,8 +258,6 @@ def _extract_turns(messages: list[ModelMessage]) -> list[Turn]:
                 if isinstance(part, ToolCallPart):
                     # Parse args — could be string or dict
                     if isinstance(part.args, str):
-                        import json
-
                         try:
                             arguments = json.loads(part.args)
                         except (json.JSONDecodeError, TypeError):
@@ -264,6 +277,8 @@ def _extract_turns(messages: list[ModelMessage]) -> list[Turn]:
                     )
                 elif isinstance(part, TextPart):
                     text_content += part.content
+                else:
+                    _logger.debug("Skipping unhandled response part type: %s", type(part).__name__)
 
             turns.append(Turn(role="assistant", content=text_content, tool_calls=tool_calls))
 

@@ -101,7 +101,7 @@ class AgentEngine:
         if self._exit_stack:
             try:
                 await self._exit_stack.aclose()
-            except BaseException:
+            except Exception:
                 _logger.debug("Engine cleanup error", exc_info=True)
             finally:
                 self._exit_stack = None

@@ -476,9 +476,6 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     default_json_path = _get_timestamped_path(
         "results.json", test_name=suite_report.name, default_dir=default_dir
     )
-    default_html_path = _get_timestamped_path(
-        "report.html", test_name=suite_report.name, default_dir=default_dir
-    )
 
     # Generate AI insights if HTML/MD report requested OR summary model specified
     summary_model = config.getoption("--aitest-summary-model")
@@ -494,17 +491,19 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     generate_json(suite_report, json_output_path, insights=insights)
     _log_report_path(config, "JSON", json_output_path)
 
-    # Generate HTML report (use default timestamped name if not specified)
-    html_output_path = Path(html_path) if html_path else default_html_path
-    html_output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Generate HTML report only when explicitly requested
+    if html_path:
+        html_output_path = Path(html_path)
+        html_output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Generate AI insights if HTML requested (even if using default path)
-    if insights is None:
-        insights = _generate_structured_insights(config, suite_report, required=True)
+        if insights is None:
+            insights = _generate_structured_insights(config, suite_report, required=True)
 
-    assert insights is not None  # guaranteed by required=True above
-    generate_html(suite_report, html_output_path, insights=insights, min_pass_rate=min_pass_rate)
-    _log_report_path(config, "HTML", html_output_path)
+        assert insights is not None  # guaranteed by required=True above
+        generate_html(
+            suite_report, html_output_path, insights=insights, min_pass_rate=min_pass_rate
+        )
+        _log_report_path(config, "HTML", html_output_path)
 
     # Generate Markdown report if requested
     if md_path:
@@ -514,7 +513,6 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         if insights is None:
             insights = _generate_structured_insights(config, suite_report, required=True)
 
-        # required=True guarantees insights is not None (raises on failure)
         assert insights is not None  # noqa: S101
         generate_md(suite_report, md_output_path, insights=insights, min_pass_rate=min_pass_rate)
         _log_report_path(config, "Markdown", md_output_path)
