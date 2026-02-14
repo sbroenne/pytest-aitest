@@ -37,8 +37,8 @@ if _env_file.exists():
 
     load_dotenv(_env_file)
 
-# LiteLLM bug workaround: their logging code expects AZURE_API_BASE but
-# Azure SDK uses AZURE_OPENAI_ENDPOINT. Set both to silence the warning.
+# LiteLLM bug workaround: Azure SDK uses AZURE_OPENAI_ENDPOINT but
+# PydanticAI adapter reads AZURE_API_BASE. Set both for compatibility.
 if os.environ.get("AZURE_OPENAI_ENDPOINT") and not os.environ.get("AZURE_API_BASE"):
     os.environ["AZURE_API_BASE"] = os.environ["AZURE_OPENAI_ENDPOINT"]
 
@@ -51,13 +51,10 @@ from pytest_aitest import MCPServer, Wait
 
 def pytest_configure(config: pytest.Config) -> None:
     """Configure pytest plugins for integration tests."""
-    # Configure pytest-llm-assert to use Azure instead of OpenAI
-    # This fixture is used for semantic assertions in tests
+    # Configure llm_assert judge model to use Azure
     azure_base = os.environ.get("AZURE_API_BASE") or os.environ.get("AZURE_OPENAI_ENDPOINT")
     if azure_base:
-        # Override the default options for llm_assert fixture
         config.option.llm_model = "azure/gpt-5-mini"
-        config.option.llm_api_base = azure_base
 
 
 # =============================================================================

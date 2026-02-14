@@ -80,9 +80,9 @@ pytest tests/
 - **Agent Leaderboard** — Auto-ranked by pass rate and cost
 - **Multi-Turn Sessions** — Test conversations that build on context
 - **AI Analysis** — Actionable feedback on tool descriptions, prompts, and costs
-- **100+ LLM Providers** — Any model via [LiteLLM](https://docs.litellm.ai/docs/providers) (Azure, OpenAI, Anthropic, Google, and more)
+- **Multi-Provider** — Any model via [Pydantic AI](https://ai.pydantic.dev/) (OpenAI, Anthropic, Gemini, Azure, Bedrock, Mistral, and more)
 - **Clarification Detection** — Catch agents that ask questions instead of acting
-- **Semantic Assertions** — AI judge via [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert)
+- **Semantic Assertions** — Built-in `llm_assert` fixture powered by [pydantic-evals](https://ai.pydantic.dev/evals/) LLM judge
 
 ## Who This Is For
 

@@ -10,11 +10,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import litellm
-from litellm.exceptions import RateLimitError
-
-from pytest_aitest.core.auth import get_azure_ad_token_provider
-
 if TYPE_CHECKING:
     from pytest_aitest.core.result import SkillInfo, ToolInfo
     from pytest_aitest.reporting.collector import SuiteReport
@@ -304,7 +299,7 @@ async def generate_insights(
         tool_info: MCP tool definitions (optional)
         skill_info: Skill metadata (optional)
         prompts: Prompt variants by name (optional)
-        model: LiteLLM model to use for analysis
+        model: Model identifier (e.g., "azure/gpt-5-mini", "openai/gpt-5-mini")
         cache_dir: Directory for caching results (optional)
         min_pass_rate: Minimum pass rate threshold for disqualifying agents
         analysis_prompt: Custom analysis prompt text. If None, uses the built-in
@@ -318,6 +313,10 @@ async def generate_insights(
         InsightsGenerationError: If AI analysis fails after retries
     """
     import asyncio
+
+    from pydantic_ai import Agent as PydanticAgent
+
+    from pytest_aitest.execution.pydantic_adapter import build_model_from_string
 
     # Check cache first
     results_hash = _get_results_hash(suite_report)
@@ -351,40 +350,24 @@ async def generate_insights(
 
     full_prompt = f"{prompt_template}\n\n---\n\n# Test Data\n\n{analysis_input}"
 
-    # Call LLM with retry
-    start_time = time.perf_counter()
-    total_tokens = 0
-    total_cost = 0.0
+    # Build PydanticAI model
+    pydantic_model = build_model_from_string(model)
 
-    # Get Azure AD token provider for authentication
-    azure_ad_token_provider = get_azure_ad_token_provider()
+    # Create a simple PydanticAI agent for analysis
+    analysis_agent = PydanticAgent(pydantic_model, output_type=str)
+
+    # Call with retry
+    start_time = time.perf_counter()
 
     for attempt in range(3):
         try:
-            # Build kwargs for litellm - no response_format, LLM returns markdown
-            kwargs: dict[str, Any] = {
-                "model": model,
-                "messages": [{"role": "user", "content": full_prompt}],
-            }
-
-            # Add Azure AD token provider if available
-            if azure_ad_token_provider is not None:
-                kwargs["azure_ad_token_provider"] = azure_ad_token_provider
-
-            response = await litellm.acompletion(**kwargs)
+            result = await analysis_agent.run(full_prompt)
 
             # Track usage
-            total_tokens = 0
-            total_cost = 0.0
-            if hasattr(response, "usage") and response.usage:  # type: ignore[union-attr]
-                usage = response.usage  # type: ignore[union-attr]
-                total_tokens = (usage.prompt_tokens or 0) + (usage.completion_tokens or 0)
-            if hasattr(response, "_hidden_params"):
-                total_cost = response._hidden_params.get("response_cost", 0.0) or 0.0
+            usage = result.usage()
+            total_tokens = (usage.input_tokens or 0) + (usage.output_tokens or 0)
 
-            # Get markdown content directly from LLM response
-            markdown_content = response.choices[0].message.content or ""  # type: ignore[union-attr]
-
+            markdown_content = result.output
             duration_ms = (time.perf_counter() - start_time) * 1000
 
             # Save to cache
@@ -394,7 +377,7 @@ async def generate_insights(
                     "insights": markdown_content,
                     "model": model,
                     "tokens_used": total_tokens,
-                    "cost_usd": total_cost,
+                    "cost_usd": 0.0,
                     "duration_ms": duration_ms,
                 }
                 cache_path.write_text(json.dumps(cache_data))
@@ -403,19 +386,14 @@ async def generate_insights(
                 markdown_summary=markdown_content,
                 model=model,
                 tokens_used=total_tokens,
-                cost_usd=total_cost,
+                cost_usd=0.0,
                 duration_ms=duration_ms,
                 cached=False,
             )
 
-        except RateLimitError as e:
-            if attempt < 2:
-                await asyncio.sleep(2**attempt)
-                continue
-            raise InsightsGenerationError(f"Rate limited after {attempt + 1} attempts") from e
         except Exception as e:
             if attempt < 2:
-                await asyncio.sleep(1)
+                await asyncio.sleep(2**attempt)
                 continue
             raise InsightsGenerationError(f"AI analysis failed: {e}") from e
 

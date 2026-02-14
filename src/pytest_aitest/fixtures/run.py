@@ -11,7 +11,6 @@ import pytest
 from pytest_aitest.core.agent import Agent
 from pytest_aitest.core.result import AgentResult
 from pytest_aitest.execution.engine import AgentEngine
-from pytest_aitest.execution.servers import ServerManager
 from pytest_aitest.plugin import SESSION_MESSAGES_KEY
 
 if TYPE_CHECKING:
@@ -97,7 +96,7 @@ def aitest_run(
         *,
         max_turns: int | None = None,
         timeout_ms: int = 60000,
-        messages: list[dict[str, Any]] | None = None,
+        messages: list[Any] | None = None,
     ) -> AgentResult:
         """Run an agent with the given prompt.
 
@@ -121,11 +120,7 @@ def aitest_run(
             session_storage = request.config.stash.get(SESSION_MESSAGES_KEY, {})
             effective_messages = session_storage.get(session_key)
 
-        server_manager = ServerManager(
-            mcp_servers=agent.mcp_servers,
-            cli_servers=agent.cli_servers,
-        )
-        engine = AgentEngine(agent, server_manager)
+        engine = AgentEngine(agent)
         engines.append(engine)
 
         await engine.initialize()

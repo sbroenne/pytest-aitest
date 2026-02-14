@@ -26,7 +26,7 @@ Reports are generated automatically with AI insights.
 
 ## LLM Provider Setup
 
-pytest-aitest uses [LiteLLM](https://docs.litellm.ai/) for LLM access. Configure via environment variables.
+pytest-aitest uses [Pydantic AI](https://ai.pydantic.dev/) for LLM access. Configure via environment variables.
 
 ### Azure OpenAI (Recommended)
 
@@ -43,7 +43,7 @@ export OPENAI_API_KEY=sk-xxx
 
 ### Other Providers
 
-See [LiteLLM provider docs](https://docs.litellm.ai/docs/providers) for Anthropic, Google, etc.
+See [Pydantic AI model docs](https://ai.pydantic.dev/models/) for Anthropic, Google, etc.
 
 | Provider | Variable |
 |----------|----------|
@@ -57,7 +57,7 @@ See [LiteLLM provider docs](https://docs.litellm.ai/docs/providers) for Anthropi
 ```python
 from pytest_aitest import Provider
 
-# Basic - LiteLLM handles auth via env vars
+# Basic - Pydantic AI handles auth via env vars
 provider = Provider(model="azure/gpt-5-mini")
 
 # With generation parameters

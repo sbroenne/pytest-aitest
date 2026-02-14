@@ -17,10 +17,10 @@ How pytest-aitest executes tests and dispatches tools.
 │                         ▼                                │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │              AgentEngine                         │    │
-│  │  ┌─────────┐    ┌─────────┐    ┌─────────────┐  │    │
-│  │  │ LiteLLM │◄──►│  Tool   │◄──►│ MCP/CLI     │  │    │
-│  │  │ (LLM)   │    │Dispatch │    │ Servers     │  │    │
-│  │  └─────────┘    └─────────┘    └─────────────┘  │    │
+│  │  ┌──────────┐   ┌─────────┐    ┌─────────────┐  │    │
+│  │  │PydanticAI│◄──►│  Tool   │◄──►│ MCP/CLI     │  │    │
+│  │  │  (LLM)   │   │Dispatch │    │ Servers     │  │    │
+│  │  └──────────┘   └─────────┘    └─────────────┘  │    │
 │  └─────────────────────────────────────────────────┘    │
 │                         │                                │
 │                         ▼                                │
@@ -53,7 +53,7 @@ The engine queries each server for its available tools:
 - **MCP servers**: Uses the MCP protocol's `tools/list` method
 - **CLI servers**: Reads the tool definitions from the server wrapper
 
-Tools are converted to a unified format that LiteLLM understands.
+Tools are exposed to PydanticAI via native MCP toolsets.
 
 ### 3. LLM Loop
 
@@ -147,11 +147,11 @@ The skill content is prepended to the system prompt, giving the LLM domain knowl
 
 ## Rate Limiting & Retries
 
-LiteLLM handles transient failures automatically via its built-in `num_retries` parameter:
+PydanticAI handles transient failures automatically via its built-in retry mechanism:
 
 - **429 Too Many Requests**: Automatic retry with backoff
 - **Connection errors**: Automatic retry
 - **API errors**: Automatic retry for transient failures
 
-By default, pytest-aitest uses 3 retries. This is handled internally by LiteLLM using [tenacity](https://tenacity.readthedocs.io/).
+Retries are handled internally by PydanticAI.
 

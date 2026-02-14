@@ -38,7 +38,7 @@ from pytest_aitest.core import (  # noqa: E402
 )
 
 # Execution
-from pytest_aitest.execution import AgentEngine, RetryConfig, ServerManager  # noqa: E402
+from pytest_aitest.execution import AgentEngine  # noqa: E402
 
 # Hooks (for plugin extensibility)
 from pytest_aitest.hooks import AitestHookSpec  # noqa: E402
@@ -81,8 +81,6 @@ __all__ = [  # noqa: RUF022
     "load_skill",
     # Execution
     "AgentEngine",
-    "RetryConfig",
-    "ServerManager",
     # Reporting
     "SuiteReport",
     "TestReport",
