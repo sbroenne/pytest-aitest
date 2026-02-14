@@ -112,21 +112,17 @@ def _expand_env(value: str | None) -> str | None:
 class Provider:
     """LLM provider configuration.
 
-    Authentication is handled by LiteLLM via standard environment variables:
+    Authentication is handled via standard environment variables:
     - Azure: AZURE_API_BASE + `az login` (Entra ID)
     - OpenAI: OPENAI_API_KEY
     - Anthropic: ANTHROPIC_API_KEY
 
-    See https://docs.litellm.ai/docs/providers for full list.
-
-    Rate limits (rpm/tpm) enable LiteLLM's built-in rate limiting.
-    When set, LiteLLM will automatically queue requests and wait
-    to stay within limits.
+    See https://ai.pydantic.dev/models/ for supported providers.
 
     Example:
         Provider(model="openai/gpt-4o-mini")
         Provider(model="azure/gpt-5-mini", temperature=0.7)
-        Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000)  # Rate limited
+        Provider(model="azure/gpt-5-mini", rpm=10, tpm=10000)
     """
 
     model: str

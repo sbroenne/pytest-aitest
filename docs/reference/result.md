@@ -181,13 +181,9 @@ if not result.success:
     print(f"Last message: {last_turn.content}")
 ```
 
-## AI-Powered Assertions (Optional)
+## AI-Powered Assertions
 
-For semantic validation, use [pytest-llm-assert](https://github.com/sbroenne/pytest-llm-assert):
-
-```bash
-uv add pytest-llm-assert
-```
+For semantic validation, use the built-in `llm_assert` fixture (powered by pydantic-evals LLM judge):
 
 ```python
 async def test_response_quality(aitest_run, agent, llm_assert):

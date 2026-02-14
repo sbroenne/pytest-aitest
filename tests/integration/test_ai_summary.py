@@ -22,14 +22,11 @@ def _make_test_report(
     duration_ms: float = 1000.0,
 ) -> TestReport:
     """Create a test report for testing."""
-    metadata = {}
-    if model:
-        metadata["model"] = model
     return TestReport(
         name=name,
         outcome=outcome,
         duration_ms=duration_ms,
-        metadata=metadata if metadata else None,
+        model=model or "",
     )
 
 
@@ -61,7 +58,7 @@ class TestAIInsightsGeneration:
         ]
         suite = _make_suite_report(tests)
 
-        insights, metadata = await generate_insights(
+        result = await generate_insights(
             suite_report=suite,
             tool_info=[],
             skill_info=[],
@@ -70,8 +67,8 @@ class TestAIInsightsGeneration:
         )
 
         # Insights is now a plain markdown string
-        assert isinstance(insights, str), "Insights should be a string"
-        assert len(insights) > 50, "Insights should have substantial content"
+        assert isinstance(result.markdown_summary, str), "Insights should be a string"
+        assert len(result.markdown_summary) > 50, "Insights should have substantial content"
 
     @pytest.mark.asyncio
     async def test_insights_contains_recommendation(self):
@@ -84,7 +81,7 @@ class TestAIInsightsGeneration:
         ]
         suite = _make_suite_report(tests)
 
-        insights, metadata = await generate_insights(
+        result = await generate_insights(
             suite_report=suite,
             tool_info=[],
             skill_info=[],
@@ -93,9 +90,10 @@ class TestAIInsightsGeneration:
         )
 
         # Check markdown contains expected sections
-        assert isinstance(insights, str)
-        # The prompt asks for "## 🎯 Recommendation" section
-        assert "Recommendation" in insights or "recommendation" in insights.lower()
+        assert isinstance(result.markdown_summary, str)
+        # The prompt asks for a recommendation section
+        lower = result.markdown_summary.lower()
+        assert "recommend" in lower, "Insights should contain a recommendation section"
 
     @pytest.mark.asyncio
     async def test_insights_with_failures(self):
@@ -110,7 +108,7 @@ class TestAIInsightsGeneration:
         # Add error to failing test
         suite.tests[1].error = "AssertionError: Expected result not found"
 
-        insights, metadata = await generate_insights(
+        result = await generate_insights(
             suite_report=suite,
             tool_info=[],
             skill_info=[],
@@ -119,8 +117,8 @@ class TestAIInsightsGeneration:
         )
 
         # Should be a string with content
-        assert isinstance(insights, str)
-        assert len(insights) > 50
+        assert isinstance(result.markdown_summary, str)
+        assert len(result.markdown_summary) > 50
 
     @pytest.mark.asyncio
     async def test_insights_returns_metadata(self):
@@ -130,7 +128,7 @@ class TestAIInsightsGeneration:
         tests = [_make_test_report("test_one", "passed", model="gpt-5-mini")]
         suite = _make_suite_report(tests)
 
-        insights, metadata = await generate_insights(
+        result = await generate_insights(
             suite_report=suite,
             tool_info=[],
             skill_info=[],
@@ -138,12 +136,10 @@ class TestAIInsightsGeneration:
             model="azure/gpt-5-mini",
         )
 
-        # Verify metadata is a dict with expected keys
-        assert metadata is not None
-        assert isinstance(metadata, dict)
-        assert metadata["model"] == "azure/gpt-5-mini"
-        assert metadata["tokens_used"] >= 0
-        assert metadata["cost_usd"] >= 0
+        # Verify metadata fields
+        assert result.model == "azure/gpt-5-mini"
+        assert result.tokens_used >= 0
+        assert result.cost_usd >= 0
 
 
 class TestPromptLoading:

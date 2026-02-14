@@ -35,7 +35,7 @@ pytest tests/integration/test_basic_usage.py::TestBankingWorkflows::test_balance
    az login
    ```
 
-2. **Set endpoint** (LiteLLM standard var):
+2. **Set endpoint** (Pydantic AI standard var):
    ```bash
    export AZURE_API_BASE=https://your-resource.cognitiveservices.azure.com
    ```

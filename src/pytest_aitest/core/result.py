@@ -131,7 +131,7 @@ class AgentResult:
     duration_ms: float = 0.0
     token_usage: dict[str, int] = field(default_factory=dict)
     cost_usd: float = 0.0
-    _messages: list[dict[str, Any]] = field(default_factory=list)
+    _messages: list[Any] = field(default_factory=list)
     session_context_count: int = 0  # Number of prior messages passed in
     assertions: list[Assertion] = field(default_factory=list)  # Assertion results
 
@@ -144,7 +144,7 @@ class AgentResult:
     clarification_stats: ClarificationStats | None = None
 
     @property
-    def messages(self) -> list[dict[str, Any]]:
+    def messages(self) -> list[Any]:
         """Get full conversation messages for session continuity.
 
         Use this to pass conversation history to the next test in a session:

@@ -123,13 +123,13 @@ def _get_timestamped_path(
 def pytest_addoption(parser: Parser) -> None:
     """Add pytest CLI options for aitest.
 
-    Note: LLM authentication is handled by LiteLLM's standard environment variables:
+    Note: LLM authentication is handled via standard environment variables:
     - Azure: AZURE_API_BASE + `az login` (Entra ID)
     - OpenAI: OPENAI_API_KEY
     - Anthropic: ANTHROPIC_API_KEY
     - etc.
 
-    See https://docs.litellm.ai/docs/providers for full list.
+    See https://ai.pydantic.dev/ for supported providers.
     """
     group = parser.getgroup("aitest", "AI agent testing")
 
@@ -138,7 +138,7 @@ def pytest_addoption(parser: Parser) -> None:
         "--aitest-summary-model",
         default=None,
         help=(
-            "LiteLLM model for AI analysis. Required when generating reports. "
+            "Model for AI analysis. Required when generating reports. "
             "Use the most capable model you can afford (e.g., gpt-5.1-chat, claude-opus-4)."
         ),
     )
@@ -182,6 +182,16 @@ def pytest_addoption(parser: Parser) -> None:
             "Minimum pass rate threshold (0-100). If the overall pass rate falls below "
             "this percentage, the test session exits with failure. "
             "Example: --aitest-min-pass-rate=80"
+        ),
+    )
+
+    # LLM judge model for llm_assert fixture
+    group.addoption(
+        "--llm-model",
+        default="openai/gpt-5-mini",
+        help=(
+            "Model for llm_assert semantic assertions. "
+            "Defaults to --aitest-summary-model if set, otherwise openai/gpt-5-mini."
         ),
     )
 

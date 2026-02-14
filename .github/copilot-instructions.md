@@ -119,7 +119,8 @@ For LLMs, your API isn't functions and types — it's **tool descriptions, syste
 ### Core Dependencies
 | Package | Purpose | Pattern |
 |---------|---------|---------|
-| `litellm` | LLM abstraction | Handles all provider APIs (Azure, OpenAI, Anthropic) |
+| `pydantic-ai` | LLM abstraction | Agent execution, MCP toolsets, Azure auth |
+| `pydantic-evals` | Evaluation | LLM judge for clarification detection |
 | `mcp` | MCP protocol | Server process management, tool discovery |
 | `pydantic` | Validation | Config validation (used sparingly) |
 | `pytest` | Test framework | Plugin system, fixtures, markers |
@@ -198,7 +199,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Any
 
-import litellm
+import pydantic_ai
 from mcp import ClientSession
 
 from pytest_aitest.core.result import AgentResult
@@ -340,7 +341,7 @@ This is a testing framework that uses LLMs to test tools, prompts, and skills. T
 ### What NOT to do:
 - Do NOT write unit tests with mocked LLM responses
 - Do NOT claim "tests pass" when tests only mock the core functionality
-- Do NOT use `unittest.mock.patch` on LiteLLM or agent execution
+- Do NOT use `unittest.mock.patch` on PydanticAI or agent execution
 - Fast test execution (< 1 second) is a RED FLAG - real LLM calls take time
 
 ### What TO do:
@@ -413,7 +414,10 @@ src/pytest_aitest/
 │   ├── skill.py           # Skill, load from markdown
 │   └── errors.py          # AITestError, ServerStartError, etc.
 ├── execution/             # Runtime
-│   ├── engine.py          # AgentEngine (LLM loop + tool dispatch, uses LiteLLM num_retries)
+│   ├── engine.py          # AgentEngine (PydanticAI-powered agent execution)
+│   ├── pydantic_adapter.py # Adapter: our config types ↔ PydanticAI types
+│   ├── cli_toolset.py     # Custom PydanticAI Toolset for CLI servers
+│   ├── clarification.py   # Clarification detection via pydantic-evals LLMJudge
 │   ├── servers.py         # Server process management
 │   └── skill_tools.py     # Skill injection into agent
 ├── fixtures/              # Pytest fixtures
@@ -422,7 +426,7 @@ src/pytest_aitest/
 ├── reporting/             # AI analysis & reports
 │   ├── collector.py       # TestReport, SuiteReport dataclasses + build_suite_report()
 │   ├── generator.py       # generate_html(), generate_json(), generate_mermaid_sequence()
-│   ├── insights.py        # AI analysis engine (mandatory) → InsightsResult
+│   ├── insights.py        # AI analysis engine (PydanticAI-powered) → InsightsResult
 │   └── components/        # htpy report components
 │       ├── types.py       # TypedDicts for component data shapes
 │       ├── report.py      # Full report layout
@@ -495,7 +499,7 @@ async def test_balance(aitest_run, banking_server):
 
 ## Semantic Assertions with llm_assert
 
-Use the `llm_assert` fixture from `pytest-llm-assert` for AI-powered assertions:
+Use the built-in `llm_assert` fixture for AI-powered semantic assertions (powered by `pydantic-evals` LLMJudge):
 
 ```python
 async def test_response_quality(aitest_run, banking_server, llm_assert):

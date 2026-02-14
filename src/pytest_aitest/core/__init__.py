@@ -10,7 +10,6 @@ from pytest_aitest.core.agent import (
     Provider,
     Wait,
 )
-from pytest_aitest.core.auth import get_azure_ad_token_provider, get_azure_auth_kwargs
 from pytest_aitest.core.errors import AITestError, EngineTimeoutError, ServerStartError
 from pytest_aitest.core.prompt import Prompt, load_prompt, load_prompts, load_system_prompts
 from pytest_aitest.core.result import (
@@ -45,8 +44,6 @@ __all__ = [
     "ToolInfo",
     "Turn",
     "Wait",
-    "get_azure_ad_token_provider",
-    "get_azure_auth_kwargs",
     "load_prompt",
     "load_prompts",
     "load_skill",

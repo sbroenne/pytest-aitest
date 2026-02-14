@@ -135,7 +135,7 @@ def generate_ai_summary(
 
     Args:
         report: The suite report to summarize
-        model: LiteLLM model string (e.g., azure/gpt-4.1)
+        model: Model string (e.g., azure/gpt-4.1)
         analysis_prompt: Custom analysis prompt text (optional)
 
     Returns:
@@ -194,7 +194,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--summary-model",
         metavar="MODEL",
-        help="LiteLLM model for AI summary (e.g., azure/gpt-4.1, openai/gpt-4o). "
+        help="Model for AI summary (e.g., azure/gpt-4.1, openai/gpt-4o). "
         "Can also be set via AITEST_SUMMARY_MODEL env var or pyproject.toml.",
     )
 

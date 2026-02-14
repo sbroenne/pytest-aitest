@@ -86,7 +86,7 @@ pytest-aitest-report results.json \
 
 ## Environment Variables
 
-LLM authentication is handled by [LiteLLM](https://docs.litellm.ai/docs/providers):
+LLM authentication is handled by [Pydantic AI](https://ai.pydantic.dev/models/):
 
 | Provider | Variable |
 |----------|----------|
