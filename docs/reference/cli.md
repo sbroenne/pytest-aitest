@@ -22,11 +22,15 @@ Then just `pytest tests/` — reports are generated automatically.
 
 | Option | Description | Required |
 |--------|-------------|----------|
-| `--aitest-summary-model=MODEL` | Model for AI insights | Yes (for reports) |
+| `--aitest-summary-model=MODEL` | Model for AI insights | Yes (for HTML/MD reports) |
 | `--aitest-html=PATH` | Generate HTML report | No |
 | `--aitest-md=PATH` | Generate Markdown report | No |
 | `--aitest-json=PATH` | Custom JSON path | No (default: `aitest-reports/results.json`) |
 | `--aitest-min-pass-rate=N` | Fail if overall pass rate below N% | No |
+| `--aitest-iterations=N` | Run each test N times and aggregate results | No (default: `1`) |
+
+!!! note
+    **JSON is always generated** after every test run, even without `--aitest-summary-model`. HTML and Markdown reports require a summary model for AI-powered analysis. JSON output contains raw test data that can be used later to regenerate reports via `pytest-aitest-report`.
 
 ### CLI Examples
 
@@ -46,6 +50,12 @@ pytest tests/ \
     --aitest-summary-model=azure/gpt-5.2-chat \
     --aitest-html=report.html \
     --aitest-json=results.json
+
+# Run each test 3 times for statistical confidence
+pytest tests/ \
+    --aitest-summary-model=azure/gpt-5.2-chat \
+    --aitest-html=report.html \
+    --aitest-iterations=3
 ```
 
 ## pytest-aitest-report CLI

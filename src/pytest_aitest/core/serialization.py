@@ -155,6 +155,7 @@ def deserialize_suite_report(data: dict[str, Any]) -> SuiteReport:
             model=model,
             system_prompt_name=system_prompt_name,
             skill_name=skill_name,
+            iteration=test_data.get("iteration"),
         )
         tests.append(test_report)
 

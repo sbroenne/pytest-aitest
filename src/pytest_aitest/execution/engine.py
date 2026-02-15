@@ -57,14 +57,14 @@ class AgentEngine:
         self._exit_stack = contextlib.AsyncExitStack()
 
         # Build MCP toolsets from our MCPServer configs
-        mcp_toolsets = build_mcp_toolsets(self.agent.mcp_servers)
+        mcp_toolsets = build_mcp_toolsets(self.agent.mcp_servers, max_retries=self.agent.retries)
         self._toolsets.extend(mcp_toolsets)
 
         # Build CLI toolset if needed
         if self.agent.cli_servers:
             from pytest_aitest.execution.cli_toolset import CLIToolset
 
-            cli_toolset = CLIToolset(self.agent.cli_servers)
+            cli_toolset = CLIToolset(self.agent.cli_servers, max_retries=self.agent.retries)
             self._toolsets.append(cli_toolset)
 
         # Build skill reference tools as a FunctionToolset if skill has references

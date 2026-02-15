@@ -87,6 +87,7 @@ agent = Agent(
     system_prompt="You are...",         # System prompt (optional)
     skill=my_skill,                     # Agent Skill (optional)
     max_turns=10,                       # Max tool-call rounds
+    retries=3,                          # Max retries on tool errors (default: 1)
     name="my-agent",                    # Identifier for reports (optional)
     allowed_tools=["tool1", "tool2"],   # Filter tools (optional, reduces tokens)
     clarification_detection=ClarificationDetection(enabled=True),  # Detect clarification questions
@@ -153,4 +154,7 @@ pytest tests/ --aitest-summary-model=azure/gpt-5.2-chat
 
 # Different output path
 pytest tests/ --aitest-html=custom-report.html
+
+# Run each test 5 times for baseline stability testing
+pytest tests/ --aitest-iterations=5
 ```

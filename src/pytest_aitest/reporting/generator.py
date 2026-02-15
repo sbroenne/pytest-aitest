@@ -14,6 +14,7 @@ from pytest_aitest.reporting.components.types import (
     AgentStats,
     AIInsightsData,
     AssertionData,
+    IterationData,
     ReportContext,
     ReportMetadata,
     TestData,
@@ -334,7 +335,13 @@ def _build_test_groups_typed(
     all_agent_ids: list[str],
     agents_by_id: dict[str, AgentData],
 ) -> list[TestGroupData]:
-    """Build typed test groups for htpy components."""
+    """Build typed test groups for htpy components.
+
+    When ``--aitest-iterations`` produced multiple results for the same
+    test × agent combination, the results are aggregated into a single
+    :class:`TestResultData` with per-iteration breakdown in its
+    ``iterations`` list and an ``iteration_pass_rate``.
+    """
     test_groups: dict[str, dict[str, list[Any]]] = defaultdict(lambda: defaultdict(list))
 
     for test in report.tests:
@@ -364,84 +371,25 @@ def _build_test_groups_typed(
 
         test_list = []
         for test_name, test_variants in tests_by_name.items():
-            results_by_agent: dict[str, TestResultData] = {}
             has_difference = False
             has_failed = False
             outcomes = set()
             first_test = test_variants[0] if test_variants else None
 
+            # Group variants by agent, then aggregate iterations per agent.
+            variants_by_agent: dict[str, list[TestReport]] = defaultdict(list)
             for test in test_variants:
                 agent_name = test.agent_name or test.model or "unknown"
-
                 if agent_name in all_agent_ids:
-                    outcome = test.outcome or "unknown"
-                    outcomes.add(outcome)
+                    variants_by_agent[agent_name].append(test)
 
-                    if outcome != "passed":
-                        has_failed = True
-
-                    tool_calls = []
-                    if test.agent_result and test.agent_result.turns:
-                        for turn in test.agent_result.turns:
-                            if turn.tool_calls:
-                                for tc in turn.tool_calls:
-                                    tool_calls.append(
-                                        ToolCallData(
-                                            name=tc.name,
-                                            success=tc.error is None,
-                                            error=tc.error,
-                                            args=tc.arguments,
-                                            result=tc.result,
-                                        )
-                                    )
-
-                    assertions_data = []
-                    if test.assertions:
-                        for a in test.assertions:
-                            if hasattr(a, "type"):
-                                assertions_data.append(
-                                    AssertionData(
-                                        type=a.type,
-                                        passed=a.passed,
-                                        message=a.message or "",
-                                        details=a.details,
-                                    )
-                                )
-                            else:
-                                assertions_data.append(
-                                    AssertionData(
-                                        type=a.get("type", "unknown"),
-                                        passed=a.get("passed", True),
-                                        message=a.get("message", ""),
-                                        details=a.get("details"),
-                                    )
-                                )
-
-                    duration_ms = test.duration_ms or 0
-                    has_result = test.agent_result and test.agent_result.turns
-                    turn_count = len(test.agent_result.turns) if has_result else 0
-                    tokens = 0
-                    if test.agent_result and test.agent_result.token_usage:
-                        usage = test.agent_result.token_usage
-                        tokens = usage.get("prompt", 0) + usage.get("completion", 0)
-
-                    agent_result = test.agent_result
-                    mermaid = generate_mermaid_sequence(agent_result) if agent_result else None
-                    final_resp = agent_result.final_response if agent_result else None
-                    results_by_agent[agent_name] = TestResultData(
-                        outcome=outcome,
-                        passed=outcome == "passed",
-                        duration_s=duration_ms / 1000,
-                        tokens=tokens,
-                        cost=agent_result.cost_usd if agent_result else 0,
-                        tool_calls=tool_calls,
-                        tool_count=len(tool_calls),
-                        turns=turn_count,
-                        mermaid=mermaid,
-                        final_response=final_resp,
-                        error=test.error,
-                        assertions=assertions_data,
-                    )
+            results_by_agent: dict[str, TestResultData] = {}
+            for agent_name, agent_tests in variants_by_agent.items():
+                result_data = _build_result_for_agent(agent_tests)
+                results_by_agent[agent_name] = result_data
+                outcomes.add(result_data.outcome)
+                if not result_data.passed:
+                    has_failed = True
 
             if len(outcomes) > 1:
                 has_difference = True
@@ -488,3 +436,145 @@ def _build_test_groups_typed(
         )
 
     return result
+
+
+def _extract_test_result_fields(
+    test: TestReport,
+) -> tuple[list[ToolCallData], list[AssertionData], int, int, str | None, str | None]:
+    """Extract tool calls, assertions, and metadata from a single TestReport."""
+    tool_calls = []
+    if test.agent_result and test.agent_result.turns:
+        for turn in test.agent_result.turns:
+            if turn.tool_calls:
+                for tc in turn.tool_calls:
+                    tool_calls.append(
+                        ToolCallData(
+                            name=tc.name,
+                            success=tc.error is None,
+                            error=tc.error,
+                            args=tc.arguments,
+                            result=tc.result,
+                        )
+                    )
+
+    assertions_data = []
+    if test.assertions:
+        for a in test.assertions:
+            assertions_data.append(
+                AssertionData(
+                    type=a.get("type", "unknown"),
+                    passed=a.get("passed", True),
+                    message=a.get("message", ""),
+                    details=a.get("details"),
+                )
+            )
+
+    turn_count = (
+        len(test.agent_result.turns) if test.agent_result and test.agent_result.turns else 0
+    )
+    tokens = 0
+    if test.agent_result and test.agent_result.token_usage:
+        usage = test.agent_result.token_usage
+        tokens = usage.get("prompt", 0) + usage.get("completion", 0)
+
+    agent_result = test.agent_result
+    mermaid = generate_mermaid_sequence(agent_result) if agent_result else None
+    final_resp = agent_result.final_response if agent_result else None
+
+    return tool_calls, assertions_data, turn_count, tokens, mermaid, final_resp
+
+
+def _build_result_for_agent(agent_tests: list[TestReport]) -> TestResultData:
+    """Build a TestResultData for one agent, aggregating iterations if present.
+
+    When *agent_tests* contains a single entry the result is identical to
+    the pre-iteration behaviour.  With multiple entries the top-level
+    fields carry aggregated values and ``iterations`` holds per-run
+    detail.
+    """
+    if len(agent_tests) == 1:
+        test = agent_tests[0]
+        outcome = test.outcome or "unknown"
+        duration_ms = test.duration_ms or 0
+        tool_calls, assertions, turns, tokens, mermaid, final_resp = _extract_test_result_fields(
+            test
+        )
+        return TestResultData(
+            outcome=outcome,
+            passed=outcome == "passed",
+            duration_s=duration_ms / 1000,
+            tokens=tokens,
+            cost=test.agent_result.cost_usd if test.agent_result else 0,
+            tool_calls=tool_calls,
+            tool_count=len(tool_calls),
+            turns=turns,
+            mermaid=mermaid,
+            final_response=final_resp,
+            error=test.error,
+            assertions=assertions,
+        )
+
+    # Multiple iterations — aggregate.
+    iterations: list[IterationData] = []
+    total_duration = 0.0
+    total_tokens = 0
+    total_cost = 0.0
+    pass_count = 0
+
+    for idx, test in enumerate(agent_tests, start=1):
+        outcome = test.outcome or "unknown"
+        duration_ms = test.duration_ms or 0
+        tokens = 0
+        if test.agent_result and test.agent_result.token_usage:
+            usage = test.agent_result.token_usage
+            tokens = usage.get("prompt", 0) + usage.get("completion", 0)
+        cost = test.agent_result.cost_usd if test.agent_result else 0.0
+
+        passed = outcome == "passed"
+        if passed:
+            pass_count += 1
+
+        total_duration += duration_ms
+        total_tokens += tokens
+        total_cost += cost
+
+        iter_num = test.iteration if test.iteration is not None else idx
+        iterations.append(
+            IterationData(
+                iteration=iter_num,
+                outcome=outcome,
+                passed=passed,
+                duration_s=duration_ms / 1000,
+                tokens=tokens,
+                cost=cost,
+                error=test.error,
+            )
+        )
+
+    n = len(agent_tests)
+    pass_rate = pass_count / n * 100
+
+    # Use the last iteration for tool calls, mermaid, and final response
+    # since that's the most recent representative run.
+    last = agent_tests[-1]
+    tool_calls, assertions, turns, _, mermaid, final_resp = _extract_test_result_fields(last)
+
+    # Aggregated outcome: "passed" only if ALL iterations passed.
+    agg_outcome = "passed" if pass_count == n else "failed"
+
+    return TestResultData(
+        outcome=agg_outcome,
+        passed=pass_count == n,
+        duration_s=total_duration / 1000,
+        tokens=total_tokens,
+        cost=total_cost,
+        tool_calls=tool_calls,
+        tool_count=len(tool_calls),
+        turns=turns,
+        mermaid=mermaid,
+        final_response=final_resp,
+        error=last.error if agg_outcome == "failed" else None,
+        assertions=assertions,
+        iterations=iterations,
+        iteration_pass_rate=pass_rate,
+    )

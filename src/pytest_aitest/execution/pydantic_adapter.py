@@ -111,7 +111,9 @@ def _build_azure_model(model_str: str) -> Any:
     return OpenAIChatModel(deployment, provider=OpenAIProvider(openai_client=client))
 
 
-def build_mcp_toolsets(mcp_servers: list[MCPServer]) -> list[PydanticMCPServer]:
+def build_mcp_toolsets(
+    mcp_servers: list[MCPServer], *, max_retries: int = 1
+) -> list[PydanticMCPServer]:
     """Convert our MCPServer configs into PydanticAI MCP toolsets."""
     toolsets: list[PydanticMCPServer] = []
 
@@ -126,6 +128,7 @@ def build_mcp_toolsets(mcp_servers: list[MCPServer]) -> list[PydanticMCPServer]:
                         env=env,
                         cwd=cfg.cwd,
                         timeout=cfg.wait.timeout_ms / 1000,
+                        max_retries=max_retries,
                     )
                 )
             case "sse":
@@ -135,6 +138,7 @@ def build_mcp_toolsets(mcp_servers: list[MCPServer]) -> list[PydanticMCPServer]:
                         cfg.url,
                         headers=cfg.headers or None,
                         timeout=cfg.wait.timeout_ms / 1000,
+                        max_retries=max_retries,
                     )
                 )
             case "streamable-http":
@@ -144,6 +148,7 @@ def build_mcp_toolsets(mcp_servers: list[MCPServer]) -> list[PydanticMCPServer]:
                         cfg.url,
                         headers=cfg.headers or None,
                         timeout=cfg.wait.timeout_ms / 1000,
+                        max_retries=max_retries,
                     )
                 )
 
@@ -187,6 +192,7 @@ def build_pydantic_agent(
         instructions=instructions,
         toolsets=toolsets,
         model_settings=settings,
+        retries=agent.retries,
     )
 
 

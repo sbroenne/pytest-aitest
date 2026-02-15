@@ -149,9 +149,36 @@ The skill content is prepended to the system prompt, giving the LLM domain knowl
 
 PydanticAI handles transient failures automatically via its built-in retry mechanism:
 
-- **429 Too Many Requests**: Automatic retry with backoff
-- **Connection errors**: Automatic retry
-- **API errors**: Automatic retry for transient failures
+* **429 Too Many Requests**: Automatic retry with backoff
+* **Connection errors**: Automatic retry
+* **API errors**: Automatic retry for transient failures
 
-Retries are handled internally by PydanticAI.
+The `Agent.retries` field (default: `1`) controls the maximum number of retries
+PydanticAI attempts when a tool call returns an error. Increase this value for
+agents that interact with unreliable tools or external services:
+
+```python
+Agent(
+    provider=Provider(model="azure/gpt-5-mini"),
+    retries=3,  # Allow up to 3 retries on tool errors
+)
+```
+
+## Test Iterations
+
+LLM responses are non-deterministic. Running a test once tells you whether it
+passed *that time*, not whether the configuration is reliable. The
+`--aitest-iterations=N` CLI option reruns each test N times and aggregates the
+results.
+
+Under the hood, `pytest_generate_tests` parametrizes every `aitest_run` test
+with `_aitest_iteration` values `1..N`. The report generator groups iterations
+by agent + test and computes an iteration pass rate.
+
+```bash
+pytest tests/ --aitest-iterations=5
+```
+
+Reports show per-test iteration breakdowns including pass count, pass rate,
+total duration, total tokens, and total cost.
 

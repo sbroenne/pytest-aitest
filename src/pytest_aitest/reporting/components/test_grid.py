@@ -63,7 +63,7 @@ def _test_metrics(
         return None
 
     if not comparison_mode:
-        return div(".flex.items-center.gap-4.text-sm.text-text-muted")[
+        metrics_items: list[Node] = [
             span(".tabular-nums")[f"{result.duration_s:.1f}s"],
             span(".text-text-muted")["·"],
             span(".tabular-nums")[f"{result.tool_count}🔧"],
@@ -72,6 +72,14 @@ def _test_metrics(
             span(".text-text-muted")["·"],
             span(".tabular-nums")[format_cost(result.cost)],
         ]
+        # Iteration pass rate badge
+        if result.iterations and result.iteration_pass_rate is not None:
+            n = len(result.iterations)
+            n_passed = sum(1 for it in result.iterations if it.passed)
+            rate_class = "text-green-400" if n_passed == n else "text-yellow-400"
+            metrics_items.append(span(".text-text-muted")["·"])
+            metrics_items.append(span(class_=f"tabular-nums {rate_class}")[f"{n_passed}/{n} iters"])
+        return div(".flex.items-center.gap-4.text-sm.text-text-muted")[metrics_items]
 
     selected_results = [
         result for agent_id in selected_agent_ids if (result := test.results_by_agent.get(agent_id))

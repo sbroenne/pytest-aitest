@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -67,6 +68,7 @@ def _build_analysis_input(
 
     # Pre-computed agent statistics for AI accuracy (grouped by agent name)
     agent_agg: dict[str, dict[str, Any]] = {}
+    has_iterations = any(t.iteration is not None for t in suite_report.tests)
     for test in suite_report.tests:
         agent_name = test.agent_name or test.model or "unknown"
         if agent_name not in agent_agg:
@@ -78,6 +80,7 @@ def _build_analysis_input(
                 "cost": 0.0,
                 "tokens": 0,
                 "turn_counts": [],
+                "iter_groups": {},  # test_base_name -> {"passed": int, "total": int}
             }
         agg = agent_agg[agent_name]
         agg["total"] += 1
@@ -90,6 +93,16 @@ def _build_analysis_input(
             usage = test.agent_result.token_usage or {}
             agg["tokens"] += usage.get("prompt", 0) + usage.get("completion", 0)
             agg["turn_counts"].append(len(test.agent_result.turns))
+        # Track iteration groups for flakiness detection
+        if has_iterations and test.iteration is not None:
+            # Strip "-iter-N" parametrize suffix to group by base test name
+            base_name = re.sub(r"-iter-\d+\]$", "]", test.name)
+            ig = agg["iter_groups"]
+            if base_name not in ig:
+                ig[base_name] = {"passed": 0, "total": 0}
+            ig[base_name]["total"] += 1
+            if test.outcome == "passed":
+                ig[base_name]["passed"] += 1
 
     if agent_agg:
         # Rank: pass_rate desc → total tests desc → cost_per_test asc
@@ -159,11 +172,47 @@ def _build_analysis_input(
             )
         sections.append("")
 
+        # Iteration statistics (when --aitest-iterations was used)
+        if has_iterations:
+            sections.append("**Iteration Statistics:**\n")
+            for _aid, st in ranked:
+                ig = st.get("iter_groups", {})
+                if not ig:
+                    continue
+                total_iter_passed = sum(g["passed"] for g in ig.values())
+                total_iter_count = sum(g["total"] for g in ig.values())
+                iter_rate = total_iter_passed / max(total_iter_count, 1) * 100
+                sections.append(
+                    f"- {st['name']}: Iter Pass Rate: {iter_rate:.0f}% "
+                    f"({total_iter_passed}/{total_iter_count})"
+                )
+                # Flag flaky tests (<100% iteration pass rate)
+                flaky = [
+                    (name, g)
+                    for name, g in ig.items()
+                    if g["passed"] < g["total"] and g["passed"] > 0
+                ]
+                if flaky:
+                    for fname, fg in flaky:
+                        sections.append(
+                            f"  - ⚠️ Flaky: {fname} ({fg['passed']}/{fg['total']} iterations passed)"
+                        )
+            sections.append("")
+
+    # Compute max iteration count for tagging
+    max_iter = 1
+    if has_iterations:
+        iter_vals = [t.iteration for t in suite_report.tests if t.iteration is not None]
+        max_iter = max(iter_vals) if iter_vals else 1
+
     # Test results summary
     sections.append("## Test Results\n")
     for test in suite_report.tests:
         # Use human-readable name: docstring if available, else short test name
-        sections.append(f"### {test.display_name}")
+        header = f"### {test.display_name}"
+        if has_iterations and test.iteration is not None:
+            header += f" [iter {test.iteration}/{max_iter}]"
+        sections.append(header)
         if test.class_docstring:
             sections.append(f"- Group: {test.class_docstring.split(chr(10))[0].strip()}")
         sections.append(f"- Outcome: {test.outcome}")

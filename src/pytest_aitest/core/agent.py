@@ -253,6 +253,7 @@ class CLIServer:
     discover_help: bool = False  # LLM must discover help itself (tests skill instructions)
     help_flag: str = "--help"  # Flag to get help text (when discover_help=True)
     description: str | None = None  # Custom description (overrides help discovery)
+    timeout: float = 30.0  # Timeout in seconds for each CLI command execution
 
     def __post_init__(self) -> None:
         self.env = {k: _expand_env(v) or v for k, v in self.env.items()}
@@ -320,6 +321,7 @@ class Agent:
     skill: Skill | None = None
     allowed_tools: list[str] | None = None  # Filter to specific tools (None = all)
     system_prompt_name: str | None = None  # Label for system prompt (for report grouping)
+    retries: int = 1  # Max tool error retries (Pydantic AI default)
     clarification_detection: ClarificationDetection = field(default_factory=ClarificationDetection)
 
     def __post_init__(self) -> None:

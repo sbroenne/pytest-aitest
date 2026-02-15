@@ -12,6 +12,8 @@ An **Agent** is a complete test configuration consisting of:
 
 **We test tools and prompts, not the agent itself.** The agent is the test harness.
 
+**Iterations**: When `--aitest-iterations=N` is used, each test runs N times against the same agent. This measures **consistency** rather than one-shot accuracy. A test that passes 3/5 iterations reveals flakiness that a single run would miss.
+
 ## Input Data
 
 You will receive:
@@ -19,6 +21,7 @@ You will receive:
 2. **Agent configuration** (model, system prompt, skill, servers)
 3. **MCP tool descriptions** and schemas (if available)
 4. **Skill content** (instruction files and references, if available)
+5. **Iteration statistics** (when `--aitest-iterations=N` was used): per-agent iteration pass rates and per-test iteration breakdowns
 
 **Comparison modes** (based on what varies):
 - **Simple**: One agent configuration, focus on pass/fail analysis
@@ -27,6 +30,8 @@ You will receive:
 - **Matrix**: Multiple models × multiple prompts
 
 **Sessions**: Some tests may be part of a multi-turn session where context carries over between tests.
+
+**Iterations**: When present, the Pre-computed Agent Statistics section includes iteration pass rates (e.g., "Iter Pass Rate: 80% (4/5)"). Individual test results are tagged with `[iter N/M]` to show which iteration they belong to.
 
 ## Output Requirements
 
@@ -81,6 +86,9 @@ Use these sections as needed (skip sections with no content):
 
 #### Why the winner wins
 [Bullet list with quantified reasoning — e.g., "60% cheaper with identical pass rate", "only agent that correctly chains multi-step tool calls"]
+
+#### Consistency (iterations only)
+[When iteration data is present, analyze reliability: "agent-X passes 100% of iterations vs agent-Y at 80%", "flaky on test_foo (3/5 iterations)". Identify tests with <100% iteration pass rate as flaky. Skip this section when no iteration data exists.]
 
 #### Notable patterns
 [Bullet list with interesting observations — e.g., "cheaper model outperforms expensive one on tool usage", "detailed prompt causes over-thinking and tool confusion"]
@@ -188,7 +196,7 @@ Use these sections as needed (skip sections with no content):
 ## Analysis Guidelines
 
 ### Recommendation
-- **Compare by**: pass rate → **cost** (primary metric) → response quality
+- **Compare by**: pass rate → **iteration pass rate (when present)** → **cost** (primary metric) → response quality
 - **Use pre-computed statistics**: The input includes a "Pre-computed Agent Statistics" section with exact per-agent numbers and a designated winner. Use these numbers verbatim in your Winner Card and metric cards. Do NOT re-derive statistics from raw test data.
 - **Disqualified agents**: Only agents explicitly marked "⛔ Disqualified" in the Pre-computed Agent Statistics are disqualified. **Never invent disqualifications** — if an agent has no "⛔ Disqualified" status in the ranked table, it is NOT disqualified regardless of its pass rate. Never recommend a disqualified agent for deployment. Mention them as disqualified in the Alternatives section. **Always attribute the root cause** — e.g., "disqualified because the system prompt caused permission-seeking behavior", not just "disqualified due to 0% pass rate" or "failure to call tools". The reader needs to know WHY.
 - **Emphasize cost over tokens**: Cost is what matters for ranking - mention cost first, then tokens
@@ -288,3 +296,4 @@ Use these sections as needed (skip sections with no content):
 13. **Cost comparisons must use actual data** — When comparing costs between agents, use the **actual per-test cost** from the pre-computed statistics (total cost ÷ number of tests). Never cite model list pricing or theoretical cost differences. A cheaper model may use more tokens, making the realized cost difference much smaller than the per-token price difference. For example, if model A costs $0.0018/test and model B costs $0.0025/test, say "~28% cheaper" — NOT "85% cheaper" or "6× cheaper" based on list pricing.
 14. **Prompt labels must be model-specific** — Never label a system prompt as globally "ineffective" or globally "effective" when it was tested with multiple models and produced different outcomes. If `gpt-5-mini + detailed` failed but `gpt-4.1 + detailed` passed, the prompt is "mixed" — effective with gpt-4.1, ineffective with gpt-5-mini. The same applies to the Optimizations section: do not say "restrict [prompt] usage" if it works correctly with some models.
 15. **Bullet lists need a blank line before them** — In markdown, a list must be preceded by a blank line to render correctly. NEVER put a bullet list directly after a `**bold label:**` on the next line — the markdown parser will collapse them into a single paragraph. Use `####` headings instead of bold labels when you need a label followed by a list.
+16. **Iteration awareness** — When iteration data is present ("Iter Pass Rate" in Pre-computed Agent Statistics), factor consistency into your recommendation. An agent with 100% pass rate at 5/5 iterations is more reliable than one with 100% pass rate at 3/5 iterations. Flag tests with <100% iteration pass rate as **flaky** in your analysis. When no iteration data is present, skip all iteration-related analysis.

@@ -74,6 +74,7 @@ nav:
     - System Prompts: getting-started/system-prompts.md
     - Agent Skills: getting-started/skills.md
     - Comparing Configurations: getting-started/comparing.md
+    - Test Iterations: getting-started/iterations.md
     - A/B Testing Servers: getting-started/ab-testing-servers.md
     - Multi-Turn Sessions: getting-started/sessions.md
   - How-To Guides:

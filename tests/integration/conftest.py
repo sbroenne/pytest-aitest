@@ -49,14 +49,6 @@ from pytest_aitest import MCPServer, Wait
 # =============================================================================
 
 
-def pytest_configure(config: pytest.Config) -> None:
-    """Configure pytest plugins for integration tests."""
-    # Configure llm_assert judge model to use Azure
-    azure_base = os.environ.get("AZURE_API_BASE") or os.environ.get("AZURE_OPENAI_ENDPOINT")
-    if azure_base:
-        config.option.llm_model = "azure/gpt-5-mini"
-
-
 # =============================================================================
 # Test Configuration Constants
 # =============================================================================

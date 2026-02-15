@@ -269,7 +269,7 @@ class CLIServerProcess:
                 env=self._env,
                 cwd=self.config.cwd,
             )
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=30.0)
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=self.config.timeout)
 
             duration_ms = int((time.perf_counter() - start_time) * 1000)
 
@@ -298,7 +298,7 @@ class CLIServerProcess:
                 "full_cmd": full_cmd,
                 "exit_code": -1,
                 "stdout": "",
-                "stderr": "Error: Command timed out after 30 seconds",
+                "stderr": f"Error: Command timed out after {self.config.timeout} seconds",
                 "duration_ms": duration_ms,
             }
             self._executions.append(execution)
