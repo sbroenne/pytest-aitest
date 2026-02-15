@@ -168,6 +168,20 @@ def build_system_prompt(agent: Agent) -> str | None:
     return "\n\n".join(parts) if parts else None
 
 
+def _apply_tool_filter(
+    toolsets: list[AbstractToolset],
+    allowed_tools: list[str],
+) -> list[AbstractToolset]:
+    """Wrap each toolset with FilteredToolset to restrict to allowed tools only."""
+    from pydantic_ai.toolsets import FilteredToolset
+
+    allowed = set(allowed_tools)
+    return [
+        FilteredToolset(ts, filter_func=lambda _ctx, tool_def: tool_def.name in allowed)
+        for ts in toolsets
+    ]
+
+
 def build_pydantic_agent(
     agent: Agent,
     toolsets: list[AbstractToolset],
@@ -175,6 +189,10 @@ def build_pydantic_agent(
     """Create a PydanticAI Agent from our Agent config."""
     model = build_pydantic_model(agent)
     instructions = build_system_prompt(agent)
+
+    # Apply allowed_tools filter if specified
+    if agent.allowed_tools is not None:
+        toolsets = _apply_tool_filter(toolsets, agent.allowed_tools)
 
     # Build model settings
     from pydantic_ai.settings import ModelSettings
