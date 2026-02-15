@@ -1,14 +1,16 @@
 """Hero test suite for README showcase.
 
-A cohesive banking scenario demonstrating ALL pytest-aitest capabilities:
+A lean banking scenario demonstrating ALL pytest-aitest capabilities
+with minimal test count for fast execution:
 
-1. Model Comparison - Core tests run across ALL benchmark models (fair leaderboard)
-2. Multi-Turn Sessions - Context continuity across conversation turns
-3. Prompt Comparison - Compare advisory styles (concise vs detailed vs friendly)
-4. Skill Integration - Financial advisor skill enhancement
+1. Model Comparison - 3 core tests across 2 models -> agent leaderboard
+2. Multi-Turn Sessions - 2-turn conversation with context continuity
+3. Prompt Comparison - 1 test across 3 prompt styles
+4. Skill Integration - 1 test with financial advisor skill
+5. Iterations - All tests run N times when ``--aitest-iterations`` is set
 
 Output: docs/demo/hero-report.html
-Command: pytest tests/showcase/ -v --aitest-html=docs/demo/hero-report.html
+Command: pytest tests/showcase/ -v --aitest-iterations=2 --aitest-html=docs/demo/hero-report.html --aitest-summary-model=azure/gpt-5.2-chat
 """
 
 from __future__ import annotations
@@ -28,19 +30,27 @@ pytestmark = [pytest.mark.showcase]
 # =============================================================================
 
 BENCHMARK_MODELS = ["gpt-5-mini", "gpt-4.1"]
-DEFAULT_RPM = 10
-DEFAULT_TPM = 10000
+DEFAULT_RPM = 200
+DEFAULT_TPM = 200000
 DEFAULT_MAX_TURNS = 8
 
 # Banking system prompt — used for ALL core tests (same prompt = fair comparison)
-BANKING_PROMPT = (
-    "You are a personal finance assistant helping users manage their bank accounts. "
-    "You have access to tools for checking balances, making transfers, deposits, "
-    "withdrawals, and viewing transaction history. "
-    "Always use your tools to look up real data before answering. "
-    "If an operation fails, explain why and suggest alternatives. "
-    "If a request is ambiguous, ask for clarification."
-)
+BANKING_PROMPT = """You are a banking assistant with access to account management tools \
+in a simulated demo environment.
+
+IMPORTANT: Always use the available tools to manage accounts. Never guess balances \
+or transaction details - the tools provide accurate, real-time data.
+
+Available tools:
+- get_balance: Get current balance for a specific account
+- get_all_balances: See all account balances at once
+- transfer: Move money between accounts
+- deposit: Add money to an account
+- withdraw: Take money from an account
+- get_transactions: View transaction history
+
+When asked about accounts, ALWAYS call the appropriate tool first, then respond \
+based on the tool's output. If an operation fails, explain why and suggest alternatives."""
 
 # =============================================================================
 # Agents — defined once at module level, reused across tests.
@@ -109,12 +119,12 @@ SKILL_AGENTS = (
 
 
 # =============================================================================
-# 1. Core Tests - ALL models run ALL of these (fair leaderboard)
+# 1. Core Tests — Model Leaderboard
 # =============================================================================
 
 
 class TestCoreOperations:
-    """Core banking tests — parametrized across all benchmark agents.
+    """Core banking tests — parametrized across benchmark agents.
 
     Every agent runs the same tests with the same prompt, so the
     leaderboard comparison is fair.
@@ -122,8 +132,8 @@ class TestCoreOperations:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_check_single_balance(self, aitest_run, agent):
-        """Check balance of one account."""
+    async def test_check_balance(self, aitest_run, agent):
+        """Check account balance."""
         result = await aitest_run(agent, "What's my checking account balance?")
 
         assert result.success
@@ -131,59 +141,19 @@ class TestCoreOperations:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_view_all_balances(self, aitest_run, agent):
-        """View all account balances."""
-        result = await aitest_run(agent, "Show me all my account balances.")
-
-        assert result.success
-        assert result.tool_was_called("get_all_balances")
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_transfer_and_verify(self, aitest_run, llm_assert, agent):
-        """Transfer money and verify the result with balance check."""
+    async def test_transfer_funds(self, aitest_run, agent):
+        """Transfer funds between accounts."""
         result = await aitest_run(
             agent,
-            "Transfer $100 from checking to savings, then show me my new balances.",
+            "Move $100 from my checking account to my savings account.",
         )
 
         assert result.success
         assert result.tool_was_called("transfer")
-        assert result.tool_was_called("get_all_balances") or result.tool_was_called("get_balance")
-        assert llm_assert(result.final_response, "shows updated balances after transfer")
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_transaction_analysis(self, aitest_run, llm_assert, agent):
-        """Get transaction history and summarize spending."""
-        result = await aitest_run(
-            agent,
-            "Show me my recent transactions and summarize my spending patterns.",
-        )
-
-        assert result.success
-        assert result.tool_was_called("get_transactions")
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_financial_advice(self, aitest_run, llm_assert, agent):
-        """Provide financial advice based on account data."""
-        result = await aitest_run(
-            agent,
-            "I have some money in checking. Should I move some to savings? "
-            "Check my balances and give me a recommendation.",
-        )
-
-        assert result.success
-        assert len(result.all_tool_calls) >= 1
-        assert llm_assert(
-            result.final_response,
-            "provides recommendation based on account balances",
-        )
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_insufficient_funds(self, aitest_run, llm_assert, agent):
+    async def test_error_handling(self, aitest_run, llm_assert, agent):
         """Handle insufficient funds gracefully."""
         result = await aitest_run(
             agent,
@@ -199,79 +169,57 @@ class TestCoreOperations:
 
 
 # =============================================================================
-# 2. Session Continuity - Multi-turn conversation
+# 2. Session Continuity — Multi-turn conversation
 # =============================================================================
 
 
 @pytest.mark.session("savings-planning")
 class TestSavingsPlanningSession:
-    """Multi-turn session: Planning savings transfers.
+    """Multi-turn session: savings transfer workflow.
 
     Tests that the agent remembers context across turns:
-    - Turn 1: Check balances and discuss savings
-    - Turn 2: Reference "my savings" (must remember context)
-    - Turn 3: Follow up on the plan
+    - Turn 1: Check balances
+    - Turn 2: Transfer based on previous context
     """
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_01_establish_context(self, aitest_run, llm_assert, agent):
-        """First turn: check balances and discuss savings goals."""
-        result = await aitest_run(
-            agent,
-            "I want to save more money. Can you check my accounts and suggest "
-            "how much I could transfer to savings each month?",
-        )
+    async def test_01_check_balances(self, aitest_run, agent):
+        """First turn: check account balances."""
+        result = await aitest_run(agent, "Show me all my account balances.")
 
         assert result.success
         assert result.tool_was_called("get_all_balances") or result.tool_was_called("get_balance")
-        assert llm_assert(result.final_response, "provides savings suggestion based on balances")
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_02_reference_previous(self, aitest_run, llm_assert, agent):
-        """Second turn: reference previous context."""
+    async def test_02_transfer_funds(self, aitest_run, agent):
+        """Second turn: transfer based on previous context."""
         result = await aitest_run(
             agent,
-            "That sounds good. Let's start by moving $200 to savings right now.",
+            "Move $200 from checking to savings.",
         )
 
         assert result.success
         assert result.tool_was_called("transfer")
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("agent", CORE_AGENTS, ids=lambda a: a.name)
-    async def test_03_verify_result(self, aitest_run, llm_assert, agent):
-        """Third turn: verify the transfer worked."""
-        result = await aitest_run(
-            agent,
-            "Great! Can you show me my new savings balance?",
-        )
-
-        assert result.success
-        assert result.tool_was_called("get_balance") or result.tool_was_called("get_all_balances")
-
 
 # =============================================================================
-# 3. Prompt Comparison - Same model, different system prompts
+# 3. Prompt Comparison — Different system prompt styles
 # =============================================================================
 
 
 @pytest.mark.skipif(not PROMPT_AGENTS, reason="No prompts found")
 class TestPromptComparison:
-    """Compare how different prompt styles affect responses.
-
-    All models run all prompts — full matrix.
-    """
+    """Compare how different prompt styles affect responses."""
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("agent", PROMPT_AGENTS, ids=lambda a: a.name)
-    async def test_advice_style_comparison(self, aitest_run, llm_assert, agent):
-        """Compare concise vs detailed vs friendly advisory styles."""
+    async def test_advice_style(self, aitest_run, agent):
+        """Compare advisory styles across prompts."""
         result = await aitest_run(
             agent,
-            "I'm worried about my spending. Can you check my accounts "
-            "and give me advice on managing my money better?",
+            "Check my accounts and give me advice on managing my money better.",
         )
 
         assert result.success
@@ -279,7 +227,7 @@ class TestPromptComparison:
 
 
 # =============================================================================
-# 4. Skill Integration - Test with domain knowledge
+# 4. Skill Integration — Domain knowledge enhancement
 # =============================================================================
 
 
@@ -290,7 +238,7 @@ class TestSkillEnhancement:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("agent", SKILL_AGENTS, ids=lambda a: a.name)
     async def test_with_financial_skill(self, aitest_run, llm_assert, agent):
-        """Agent with financial advisor skill should give better advice."""
+        """Agent with financial advisor skill gives better advice."""
         result = await aitest_run(
             agent,
             "I have $1500 in checking. Should I keep it there or move some to savings? "

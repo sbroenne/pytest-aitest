@@ -30,8 +30,18 @@ Reports are generated automatically with AI insights. This approach is recommend
 - **Less typing** — No need to remember CLI flags
 - **Consistent** — Every run produces reports the same way
 
+## What Gets Generated
+
+| Output | When | AI Model Required? |
+|--------|------|--------------------|
+| **JSON** | Always (every test run) | No — raw test data, no AI analysis |
+| **HTML report** | When `--aitest-html` is set | **Yes** — `--aitest-summary-model` required |
+| **Markdown report** | When `--aitest-md` is set | **Yes** — `--aitest-summary-model` required |
+
+JSON results are always saved to `aitest-reports/results.json` (or a custom path via `--aitest-json`). This raw data can be used later to regenerate HTML/MD reports without re-running tests.
+
 !!! important
-    AI insights are **mandatory** for report generation. You must specify `--aitest-summary-model`.
+    `--aitest-summary-model` is **required for HTML and Markdown reports**. Without it, report generation will error. JSON output works without a summary model.
 
 ## CLI Options (Alternative)
 
@@ -43,14 +53,16 @@ pytest tests/ \
     --aitest-summary-model=azure/gpt-5.2-chat \
     --aitest-html=report.html
 
+# Run tests without reports (JSON is still auto-generated)
+pytest tests/
 ```
 
 | Option | Description |
 |--------|-------------|
-| `--aitest-html=PATH` | Generate HTML report |
-| `--aitest-md=PATH` | Generate Markdown report |
+| `--aitest-html=PATH` | Generate HTML report (requires `--aitest-summary-model`) |
+| `--aitest-md=PATH` | Generate Markdown report (requires `--aitest-summary-model`) |
 | `--aitest-json=PATH` | Custom JSON path (default: `aitest-reports/results.json`) |
-| `--aitest-summary-model=MODEL` | Model for AI insights (**required**) |
+| `--aitest-summary-model=MODEL` | Model for AI insights (required for HTML/MD) |
 | `--aitest-min-pass-rate=N` | Fail if pass rate below N% (e.g., `80`) |
 
 ## Report Regeneration
