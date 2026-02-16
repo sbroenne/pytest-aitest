@@ -14,3 +14,4 @@ Goal-oriented guides for common tasks.
 - **[Generate Reports](generate-reports.md)** — Create HTML/JSON/Markdown reports with AI insights
 - **[Visual Testing](visual-testing.md)** — Validate HTML report rendering with Playwright
 - **[Fixture Testing](fixture-testing.md)** — Use comprehensive assertion patterns with fixture tests
+- **[Multi-Dimension Scoring](multi-dimension-scoring.md)** — Score AI output on weighted rubric dimensions with LLM-as-judge

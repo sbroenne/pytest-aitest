@@ -86,6 +86,7 @@ nav:
     - Visual Testing: how-to/visual-testing.md
     - Image Assertions: how-to/image-assertions.md
     - Fixture Testing: how-to/fixture-testing.md
+    - Multi-Dimension Scoring: how-to/multi-dimension-scoring.md
     - Complete Example: how-to/complete-example.md
   - Reference:
     - Overview: reference/index.md
