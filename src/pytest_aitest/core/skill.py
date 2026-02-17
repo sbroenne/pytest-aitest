@@ -293,13 +293,19 @@ def _load_references(refs_dir: Path) -> dict[str, str]:
     references: dict[str, str] = {}
 
     for file_path in refs_dir.iterdir():
-        if file_path.is_file():
-            try:
-                content = file_path.read_text(encoding="utf-8")
-                references[file_path.name] = content
-            except UnicodeDecodeError:
-                # Skip binary files
-                pass
+        if not file_path.is_file():
+            raise SkillError(f"Invalid references entry (must be a file): {file_path.name}")
+        if file_path.suffix.lower() != ".md":
+            raise SkillError(
+                f"Invalid reference file '{file_path.name}': only .md files are allowed"
+            )
+        try:
+            content = file_path.read_text(encoding="utf-8")
+        except UnicodeDecodeError as exc:
+            raise SkillError(f"Reference file must be valid UTF-8 text: {file_path.name}") from exc
+        if not content.strip():
+            raise SkillError(f"Reference file must not be empty: {file_path.name}")
+        references[file_path.name] = content
 
     return references
 
