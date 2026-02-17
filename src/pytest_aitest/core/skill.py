@@ -22,7 +22,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+
+import frontmatter
 
 
 class SkillError(Exception):
@@ -165,24 +166,20 @@ def _parse_skill_md(content: str) -> tuple[SkillMetadata, str]:
 
         # Body content here
     """
-    # Match YAML frontmatter between --- delimiters
-    frontmatter_pattern = r"^---\s*\n(.*?)\n---\s*\n(.*)$"
-    match = re.match(frontmatter_pattern, content.strip(), re.DOTALL)
-
-    if not match:
+    if not content.lstrip().startswith("---"):
         raise SkillError(
             "Invalid SKILL.md format: must have YAML frontmatter between --- delimiters"
         )
-
-    frontmatter_text = match.group(1)
-    body = match.group(2).strip()
-
-    # Parse YAML frontmatter manually (to avoid PyYAML dependency)
-    frontmatter = _parse_simple_yaml(frontmatter_text)
+    try:
+        post = frontmatter.loads(content)
+    except Exception as exc:
+        raise SkillError(f"Invalid SKILL.md frontmatter: {exc}") from exc
+    body = post.content.strip()
+    metadata_raw = post.metadata
 
     # Extract required fields
-    name = frontmatter.get("name")
-    description = frontmatter.get("description")
+    name = metadata_raw.get("name")
+    description = metadata_raw.get("description")
 
     if not name:
         raise SkillError("SKILL.md missing required field: name")
@@ -190,9 +187,9 @@ def _parse_skill_md(content: str) -> tuple[SkillMetadata, str]:
         raise SkillError("SKILL.md missing required field: description")
 
     # Extract optional fields
-    version = frontmatter.get("version")
-    license_str = frontmatter.get("license")
-    tags_raw = frontmatter.get("tags", [])
+    version = metadata_raw.get("version")
+    license_str = metadata_raw.get("license")
+    tags_raw = metadata_raw.get("tags", [])
 
     # Handle tags (could be string or list)
     if isinstance(tags_raw, str):
@@ -211,77 +208,6 @@ def _parse_skill_md(content: str) -> tuple[SkillMetadata, str]:
     )
 
     return metadata, body
-
-
-def _parse_simple_yaml(text: str) -> dict[str, Any]:
-    """Parse simple YAML without PyYAML dependency.
-
-    Supports:
-    - Simple key: value pairs
-    - Lists (- item)
-    - Quoted strings
-
-    Does not support:
-    - Nested objects
-    - Multi-line strings (except with >- or |-)
-    - Complex types
-    """
-    result: dict[str, Any] = {}
-    current_key: str | None = None
-    current_list: list[str] | None = None
-
-    for line in text.split("\n"):
-        stripped = line.strip()
-
-        # Skip empty lines and comments
-        if not stripped or stripped.startswith("#"):
-            continue
-
-        # Check for list item
-        if stripped.startswith("- "):
-            if current_list is not None:
-                item = stripped[2:].strip()
-                # Remove quotes if present
-                if (item.startswith('"') and item.endswith('"')) or (
-                    item.startswith("'") and item.endswith("'")
-                ):
-                    item = item[1:-1]
-                current_list.append(item)
-            continue
-
-        # Check for key: value pair
-        if ":" in stripped:
-            # Save previous list if any
-            if current_key and current_list is not None:
-                result[current_key] = current_list
-
-            # Reset list state
-            current_list = None
-
-            key, _, value = stripped.partition(":")
-            key = key.strip()
-            value = value.strip()
-
-            # Remove quotes from value
-            if value and (
-                (value.startswith('"') and value.endswith('"'))
-                or (value.startswith("'") and value.endswith("'"))
-            ):
-                value = value[1:-1]
-
-            if value:
-                result[key] = value
-                current_key = None
-            else:
-                # Empty value might mean list follows
-                current_key = key
-                current_list = []
-
-    # Save final list if any
-    if current_key and current_list is not None:
-        result[current_key] = current_list
-
-    return result
 
 
 def _load_references(refs_dir: Path) -> dict[str, str]:

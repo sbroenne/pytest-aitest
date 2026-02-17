@@ -75,3 +75,16 @@ def test_references_must_not_be_empty(tmp_path: Path) -> None:
 
     with pytest.raises(SkillError, match="must not be empty"):
         Skill.from_path(skill_dir)
+
+
+def test_invalid_frontmatter_yaml_raises(tmp_path: Path) -> None:
+    """Invalid YAML frontmatter should raise a SkillError."""
+    skill_dir = tmp_path / "broken-yaml-skill"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: broken-yaml-skill\ndescription: [unclosed\n---\n\n# Test",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(SkillError, match="Invalid SKILL.md frontmatter"):
+        Skill.from_path(skill_dir)
