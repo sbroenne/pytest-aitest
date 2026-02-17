@@ -51,15 +51,16 @@ class SkillMetadata:
 
     def __post_init__(self) -> None:
         """Validate metadata per agentskills.io spec."""
-        # Name validation: lowercase letters and hyphens, 1-64 chars
+        # Name validation: lowercase letters, numbers, and hyphens, 1-64 chars
+        # Must not start/end with hyphen or contain consecutive hyphens.
         if not self.name:
             raise SkillError("Skill name is required")
         if len(self.name) > 64:
             raise SkillError(f"Skill name exceeds 64 characters: {len(self.name)}")
-        if not re.match(r"^[a-z][a-z0-9-]*$", self.name):
+        if not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", self.name):
             raise SkillError(
                 f"Invalid skill name '{self.name}': must be lowercase letters, "
-                "numbers, and hyphens, starting with a letter"
+                "numbers, and hyphens (no leading/trailing/consecutive hyphens)"
             )
 
         # Description validation
@@ -133,6 +134,10 @@ class Skill:
         # Parse SKILL.md
         raw_content = skill_file.read_text(encoding="utf-8")
         metadata, content = _parse_skill_md(raw_content)
+        if metadata.name != skill_dir.name:
+            raise SkillError(
+                f"Skill name '{metadata.name}' must match directory name '{skill_dir.name}'"
+            )
 
         # Load references if directory exists
         references: dict[str, str] = {}
