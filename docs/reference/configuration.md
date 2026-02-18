@@ -194,4 +194,14 @@ from pytest_aitest import get_analysis_prompt
 prompt_text = get_analysis_prompt(pytest_config)
 ```
 
+To also inspect where it came from:
+
+```python
+from pytest_aitest import get_analysis_prompt_details
+
+prompt_text, source, path = get_analysis_prompt_details(pytest_config)
+# source: "cli-file" | "hook" | "built-in"
+# path: file path when source == "cli-file", otherwise None
+```
+
 This is useful for debugging, logging, or tooling that needs to inspect the exact prompt used for AI summary generation.
