@@ -225,6 +225,16 @@ def main(argv: list[str] | None = None) -> int:
         "Failed tests always include full conversation detail.",
     )
 
+    parser.add_argument(
+        "--print-analysis-prompt",
+        action="store_true",
+        default=False,
+        help=(
+            "Print resolved analysis prompt source/path before AI summary generation "
+            "(for debugging prompt overrides)."
+        ),
+    )
+
     args = parser.parse_args(argv)
 
     # Resolve summary-model with config precedence
@@ -260,8 +270,10 @@ def main(argv: list[str] | None = None) -> int:
     # Generate AI summary if requested
     insights = existing_insights
     if args.summary:
-        # Load custom analysis prompt if provided
+        # Resolve analysis prompt (CLI file or built-in default)
         custom_prompt = None
+        prompt_source = "built-in"
+        prompt_path: str | None = None
         if args.analysis_prompt:
             if not args.analysis_prompt.exists():
                 print(
@@ -270,6 +282,16 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 return 1
             custom_prompt = args.analysis_prompt.read_text(encoding="utf-8")
+            prompt_source = "cli-file"
+            prompt_path = str(args.analysis_prompt)
+        else:
+            from pytest_aitest.reporting.insights import _load_analysis_prompt
+
+            custom_prompt = _load_analysis_prompt()
+
+        if args.print_analysis_prompt:
+            path_info = f", path={prompt_path}" if prompt_path else ""
+            print(f"analysis prompt: source={prompt_source}{path_info}, chars={len(custom_prompt)}")
 
         print(f"Generating AI summary with {summary_model}...")
         try:
