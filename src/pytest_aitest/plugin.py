@@ -235,6 +235,17 @@ def pytest_addoption(parser: Parser) -> None:
         ),
     )
 
+    group.addoption(
+        "--aitest-summary-compact",
+        action="store_true",
+        default=False,
+        help=(
+            "Omit full conversation turns for passed tests in AI analysis. "
+            "Reduces token usage and prompt size for large suites. "
+            "Failed tests still include full conversation detail."
+        ),
+    )
+
     # Report options
     group.addoption(
         "--aitest-html",
@@ -775,6 +786,7 @@ def _generate_structured_insights(
                 model=model,
                 min_pass_rate=config.getoption("--aitest-min-pass-rate"),
                 analysis_prompt=analysis_prompt,
+                compact=config.getoption("--aitest-summary-compact"),
             )
 
         # Use asyncio.run() instead of deprecated get_event_loop().run_until_complete()

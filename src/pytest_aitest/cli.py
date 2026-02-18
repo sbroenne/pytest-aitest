@@ -133,7 +133,11 @@ def _load_v2_report(
 
 
 def generate_ai_summary(
-    report: SuiteReport, model: str, *, analysis_prompt: str | None = None
+    report: SuiteReport,
+    model: str,
+    *,
+    analysis_prompt: str | None = None,
+    compact: bool = False,
 ) -> InsightsResult:
     """Generate AI insights for the report.
 
@@ -141,6 +145,7 @@ def generate_ai_summary(
         report: The suite report to summarize
         model: Model string (e.g., azure/gpt-4.1)
         analysis_prompt: Custom analysis prompt text (optional)
+        compact: Omit full conversation for passed tests to reduce tokens
 
     Returns:
         InsightsResult with markdown summary and metadata
@@ -157,6 +162,7 @@ def generate_ai_summary(
             prompts={},
             model=model,
             analysis_prompt=analysis_prompt,
+            compact=compact,
         )
 
     return asyncio.run(_run())
@@ -210,6 +216,15 @@ def main(argv: list[str] | None = None) -> int:
         "Overrides the built-in prompt.",
     )
 
+    parser.add_argument(
+        "--compact",
+        action="store_true",
+        default=False,
+        help="Omit full conversation turns for passed tests in AI analysis. "
+        "Reduces token usage for large test suites that exceed model context limits. "
+        "Failed tests always include full conversation detail.",
+    )
+
     args = parser.parse_args(argv)
 
     # Resolve summary-model with config precedence
@@ -258,7 +273,9 @@ def main(argv: list[str] | None = None) -> int:
 
         print(f"Generating AI summary with {summary_model}...")
         try:
-            insights = generate_ai_summary(report, summary_model, analysis_prompt=custom_prompt)
+            insights = generate_ai_summary(
+                report, summary_model, analysis_prompt=custom_prompt, compact=args.compact
+            )
             print("AI summary generated successfully.")
         except Exception as e:
             print(f"Warning: Failed to generate AI summary: {e}", file=sys.stderr)

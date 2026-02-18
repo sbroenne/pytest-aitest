@@ -29,6 +29,7 @@ Then just `pytest tests/` — reports are generated automatically.
 | `--aitest-min-pass-rate=N` | Fail if overall pass rate below N% | No |
 | `--aitest-iterations=N` | Run each test N times and aggregate results | No (default: `1`) |
 | `--aitest-analysis-prompt=PATH` | Custom analysis prompt file for AI insights | No |
+| `--aitest-summary-compact` | Omit full conversation turns for passed tests in AI analysis (reduces tokens) | No |
 | `--llm-model=MODEL` | Model for `llm_assert` semantic assertions (default: `openai/gpt-5-mini`) | No |
 | `--llm-vision-model=MODEL` | Vision model for `llm_assert_image` assertions (defaults to `--llm-model`) | No |
 
@@ -59,6 +60,12 @@ pytest tests/ \
     --aitest-summary-model=azure/gpt-5.2-chat \
     --aitest-html=report.html \
     --aitest-iterations=3
+
+# Reduce summary token usage for large suites
+pytest tests/ \
+    --aitest-summary-model=azure/gpt-5.2-chat \
+    --aitest-html=report.html \
+    --aitest-summary-compact
 ```
 
 ## pytest-aitest-report CLI

@@ -165,3 +165,60 @@ class TestCliAnalysisPromptArg:
             ]
         )
         assert result == 1
+
+
+class TestCompactSummaryOption:
+    """Tests for compact AI summary option forwarding."""
+
+    def test_pytest_compact_option_forwarded_to_generate_insights(self) -> None:
+        """_generate_structured_insights passes compact flag through to insights."""
+        from pytest_aitest.plugin import _generate_structured_insights
+        from pytest_aitest.reporting.collector import SuiteReport
+
+        config = mock.MagicMock()
+
+        options = {
+            "--aitest-summary-model": "openai/gpt-5-mini",
+            "--aitest-min-pass-rate": None,
+            "--aitest-analysis-prompt": None,
+            "--aitest-summary-compact": True,
+        }
+
+        def getoption(name: str, default: Any = None) -> Any:
+            return options.get(name, default)
+
+        config.getoption.side_effect = getoption
+        config.pluginmanager.get_plugin.return_value = None
+        config.pluginmanager.hook.pytest_aitest_analysis_prompt.return_value = None
+
+        report = SuiteReport(
+            name="suite",
+            timestamp="2026-02-18T00:00:00",
+            duration_ms=0.0,
+            tests=[],
+            passed=0,
+            failed=0,
+            skipped=0,
+        )
+
+        class _FakeResult:
+            markdown_summary = "ok"
+            model = "openai/gpt-5-mini"
+            tokens_used = 10
+            cost_usd = 0.0
+            cached = False
+
+        captured: dict[str, Any] = {}
+
+        async def _fake_generate_insights(**kwargs: Any) -> _FakeResult:
+            captured.update(kwargs)
+            return _FakeResult()
+
+        with mock.patch(
+            "pytest_aitest.reporting.insights.generate_insights",
+            side_effect=_fake_generate_insights,
+        ):
+            result = _generate_structured_insights(config, report, required=False)
+
+        assert result is not None
+        assert captured["compact"] is True

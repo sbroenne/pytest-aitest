@@ -161,6 +161,7 @@ addopts = """
 | `--llm-model` | `openai/gpt-5-mini` | Model for `llm_assert` semantic assertions |
 | `--llm-vision-model` | Falls back to `--llm-model` | Vision model for `llm_assert_image` assertions |
 | `--aitest-analysis-prompt` | Built-in prompt | Path to a custom analysis prompt file |
+| `--aitest-summary-compact` | Disabled | Omit full conversation turns for passed tests in AI analysis |
 
 ## CLI Override
 
@@ -178,4 +179,7 @@ pytest tests/ --aitest-iterations=5
 
 # Custom assertion model
 pytest tests/ --llm-model=azure/gpt-5-mini
+
+# Compact AI analysis input for large suites
+pytest tests/ --aitest-summary-model=azure/gpt-5.2-chat --aitest-summary-compact
 ```
