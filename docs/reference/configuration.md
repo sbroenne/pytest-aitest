@@ -183,3 +183,15 @@ pytest tests/ --llm-model=azure/gpt-5-mini
 # Compact AI analysis input for large suites
 pytest tests/ --aitest-summary-model=azure/gpt-5.2-chat --aitest-summary-compact
 ```
+
+## Programmatic Prompt Access
+
+You can retrieve the effective AI analysis prompt (CLI override → hook override → built-in default) in code:
+
+```python
+from pytest_aitest import get_analysis_prompt
+
+prompt_text = get_analysis_prompt(pytest_config)
+```
+
+This is useful for debugging, logging, or tooling that needs to inspect the exact prompt used for AI summary generation.

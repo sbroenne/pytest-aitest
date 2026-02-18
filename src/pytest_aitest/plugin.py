@@ -715,6 +715,23 @@ def _resolve_analysis_prompt(config: Config) -> str | None:
     return None
 
 
+def get_analysis_prompt(config: Config) -> str:
+    """Get the effective analysis prompt text for the current pytest config.
+
+    Resolution order:
+    1. ``--aitest-analysis-prompt`` file content
+    2. ``pytest_aitest_analysis_prompt`` hook result
+    3. Built-in default prompt from ``prompts/ai_summary.md``
+    """
+    prompt = _resolve_analysis_prompt(config)
+    if prompt is not None:
+        return prompt
+
+    from pytest_aitest.reporting.insights import _load_analysis_prompt
+
+    return _load_analysis_prompt()
+
+
 def _generate_structured_insights(
     config: Config, report: SuiteReport, *, required: bool = False
 ) -> InsightsResult | None:
@@ -775,7 +792,7 @@ def _generate_structured_insights(
                         prompts[prompt_label] = effective_prompt
 
         # Generate insights using async function
-        analysis_prompt = _resolve_analysis_prompt(config)
+        analysis_prompt = get_analysis_prompt(config)
 
         async def _run() -> InsightsResult:
             return await generate_insights(

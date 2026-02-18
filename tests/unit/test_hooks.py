@@ -104,6 +104,42 @@ class TestResolveAnalysisPrompt:
         assert result is None
 
 
+class TestGetAnalysisPrompt:
+    """Tests for get_analysis_prompt() public API."""
+
+    def _make_config(
+        self,
+        cli_path: str | None = None,
+        hook_result: str | None = None,
+    ) -> Any:
+        config = mock.MagicMock()
+        config.getoption.return_value = cli_path
+        config.pluginmanager.hook.pytest_aitest_analysis_prompt.return_value = hook_result
+        return config
+
+    def test_returns_builtin_default_when_no_cli_and_no_hook(self) -> None:
+        """Falls back to built-in prompt content when no override is configured."""
+        from pytest_aitest.plugin import get_analysis_prompt
+        from pytest_aitest.reporting.insights import _load_analysis_prompt
+
+        config = self._make_config(cli_path=None, hook_result=None)
+        assert get_analysis_prompt(config) == _load_analysis_prompt()
+
+    def test_returns_hook_prompt_when_configured(self) -> None:
+        """Uses hook-provided prompt when CLI override is not set."""
+        from pytest_aitest.plugin import get_analysis_prompt
+
+        config = self._make_config(cli_path=None, hook_result="Hook prompt")
+        assert get_analysis_prompt(config) == "Hook prompt"
+
+    def test_package_root_exports_get_analysis_prompt(self) -> None:
+        """get_analysis_prompt is importable from package root."""
+        from pytest_aitest import get_analysis_prompt as exported
+        from pytest_aitest.plugin import get_analysis_prompt
+
+        assert exported is get_analysis_prompt
+
+
 class TestInsightsPromptParameter:
     """Tests that generate_insights uses the analysis_prompt parameter."""
 
