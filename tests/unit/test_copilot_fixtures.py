@@ -17,6 +17,11 @@ def _make_result(success: bool = True) -> CopilotResult:
 class TestAbRunFixture:
     """Tests for the ab_run fixture."""
 
+    @pytest.fixture(autouse=True)
+    def _no_stash(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Prevent ab_run from registering test reports in the plugin stash."""
+        monkeypatch.setattr("pytest_aitest.copilot.fixtures.stash_on_item", lambda *a: None)
+
     @pytest.fixture
     def baseline_agent(self) -> CopilotAgent:
         return CopilotAgent(name="baseline", instructions="Write plain Python.")
